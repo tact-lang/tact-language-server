@@ -1,0 +1,50 @@
+name: CI on PRs to main
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - grammar.js
+      - src/**
+      - test/**
+      - bindings/**
+      - binding.gyp
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Parser tests
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-14]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tree-sitter/setup-action/cli@v1
+        with:
+          tree-sitter-ref: "v0.23.2"
+      - uses: tree-sitter/parser-test-action@v2
+        with:
+          generate: true
+          test-parser: true
+          # test-parser-cmd: tree-sitter test # default
+          test-rust: ${{runner.os != 'Windows'}}
+          test-node: ${{runner.os != 'Windows'}}
+          node-version: "22.8.0"
+          test-python: false # default
+          test-go: false     # default
+          test-swift: false  # default
+
+      - name: Run built-in Tree-sitter fuzzer
+        run:
+          npm run ts -- fuzz --edits 500000 --iterations 10000
+
+      - name: Check correspondence to Ohm parser
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          git clone https://github.com/tact-lang/tact.git -b "v$(jq -r '.version' < package.json)"
+          npm run parse -- -q tact/src/grammar/test/*.tact
