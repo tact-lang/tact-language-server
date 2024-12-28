@@ -7,8 +7,10 @@ import {readFileSync} from "fs";
 import {createParser, initParser} from "./parser";
 import {asLspRange, asParserPoint} from "./utils/position";
 import {Node, Reference, File, ScopeProcessor} from "./reference";
-import {CompletionItemKind} from "vscode-languageserver-types";
+import {CompletionItemKind, InlayHint, InlayHintKind, Location} from "vscode-languageserver-types";
 import {TypeInferer} from "./TypeInferer";
+import {RecursiveVisitor} from "./visitor";
+import {ReferenceParams} from "vscode-languageserver";
 
 const CODE_FENCE = "```"
 
@@ -168,7 +170,8 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const ref = new Reference(element)
 
         class CompletionScopeProcessor implements ScopeProcessor {
-            constructor(private result: Node[]) {}
+            constructor(private result: Node[]) {
+            }
 
             execute(node: Node): boolean {
                 this.result.push(node)
@@ -190,6 +193,98 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         })
     });
 
+    connection.onRequest(lsp.InlayHintRequest.type, async (params: lsp.InlayHintParams): Promise<InlayHint[] | null> => {
+        const uri = params.textDocument.uri;
+        const path = uri.substring(7)
+        const tree = getTree(path)
+
+        const result: InlayHint[] = []
+
+        RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
+            if (n.type === 'let_statement') {
+                const typeNode = n.childForFieldName('type')
+                if (typeNode) return true // already have typehint
+
+                const expr = n.childForFieldName('value')
+                if (!expr) return true
+
+                const name = n.childForFieldName('name')
+                if (!name) return true
+
+                const type = new TypeInferer().inferType(new Node(expr, new File(path)))
+                if (!type) return true
+
+                result.push({
+                    kind: InlayHintKind.Type,
+                    label: `: ${type.qualifiedName()}`,
+                    position: {
+                        line: name.endPosition.row,
+                        character: name.endPosition.column,
+                    }
+                })
+            }
+
+            return true
+        })
+
+        if (result.length > 0) {
+            return result
+        }
+
+        return null
+    })
+
+    connection.onRequest(lsp.ReferencesRequest.type, async (params: ReferenceParams): Promise<Location[] | null> => {
+        const uri = params.textDocument.uri;
+        const path = uri.substring(7)
+        const tree = getTree(path)
+
+        const cursorPosition = asParserPoint(params.position)
+        const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
+
+        if (hoverNode.type !== 'identifier') {
+            return []
+        }
+
+        const parent = hoverNode.parent
+        if (parent === null) return null
+
+        const result: Location[] = []
+
+        if (parent.type === 'global_function') {
+            RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
+                if (n.type === 'identifier') {
+                    const identParent = n.parent
+                    if (identParent === null) return true
+
+                    if (identParent.type === 'global_function') return true
+
+                    if (n.text !== hoverNode.text) return true
+
+                    const element = new Node(hoverNode, new File(path))
+                    const ref = new Reference(element)
+
+                    const res = ref.resolve()
+                    if (!res) return true
+
+                    const identifier = res.nameIdentifier();
+                    if (!identifier) return true
+
+                    if (identifier.text == hoverNode.text) {
+                        result.push({
+                            uri: uri,
+                            range: asLspRange(n)
+                        })
+                    }
+                }
+
+                return true
+            })
+        }
+
+        return result
+    })
+
     console.log('Tact language server is ready!');
 
     return {
@@ -200,6 +295,8 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             definitionProvider: true,
             // renameProvider: true,
             hoverProvider: true,
+            inlayHintProvider: true,
+            referencesProvider: true,
             // documentFormattingProvider: true,
             completionProvider: {
                 triggerCharacters: ['.']
