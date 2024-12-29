@@ -10,12 +10,11 @@ import {
 import * as path from "path";
 import { consoleError, consoleLog, consoleWarn, createClientLog } from "./client-log";
 import {getClientConfiguration} from "./client-config";
+import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
 
 let client: LanguageClient;
 
 export function activate(context: vscode.ExtensionContext) {
-
-
     startServer(context).catch(consoleError)
 }
 
@@ -63,6 +62,10 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     );
 
     await client.start();
+
+    client.onNotification(NotificationFromServer.showErrorMessage, (errTxt: string) => {
+        vscode.window.showErrorMessage(errTxt)
+    })
 
     const langPattern = `**/*.tact`;
     const watcher = vscode.workspace.createFileSystemWatcher(langPattern);

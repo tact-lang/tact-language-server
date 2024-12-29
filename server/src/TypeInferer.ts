@@ -8,8 +8,7 @@ export class TypeInferer {
         }
 
         if (node.node.type == "type_identifier") {
-            const nameRef = new Reference(node)
-            const resolved = nameRef.resolve()
+            const resolved = Reference.resolve(node)
             if (resolved == null) return null;
 
             if (resolved.node.type === 'primitive') {
@@ -20,9 +19,7 @@ export class TypeInferer {
         }
 
         if (node.node.type == "identifier") {
-            const nameRef = new Reference(node)
-
-            const resolved = nameRef.resolve()
+            const resolved = Reference.resolve(node)
             if (resolved == null) return null;
 
             const parent = resolved.node.parent;
@@ -50,9 +47,7 @@ export class TypeInferer {
             if (name == null) return null;
 
             const element = new Node(name, node.file)
-            const nameRef = new Reference(element)
-
-            const resolved = nameRef.resolve()
+            const resolved = Reference.resolve(element)
             if (resolved == null) return null;
 
             return new StructTy(resolved.name(), resolved)
@@ -63,9 +58,7 @@ export class TypeInferer {
             if (name == null) return null;
 
             const element = new Node(name, node.file)
-            const nameRef = new Reference(element)
-
-            const resolved = nameRef.resolve()
+            const resolved = Reference.resolve(element)
             if (resolved == null) return null;
 
             if (resolved.node.type == "field") {

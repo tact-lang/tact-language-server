@@ -1,5 +1,5 @@
 import * as lsp from 'vscode-languageserver';
-import {ParameterInformation, ReferenceParams} from 'vscode-languageserver';
+import {ParameterInformation, ReferenceParams, RenameParams} from 'vscode-languageserver';
 import {connection} from './connection';
 import {InitializeParams, TextDocumentSyncKind} from 'vscode-languageserver/node';
 import {InitializeResult} from 'vscode-languageserver-protocol';
@@ -8,11 +8,20 @@ import {readFileSync} from "fs";
 import {createParser, initParser} from "./parser";
 import {asLspRange, asParserPoint} from "./utils/position";
 import {File, Node, Reference, ScopeProcessor} from "./reference";
-import {CompletionItemKind, InlayHint, InlayHintKind, Location, SignatureHelp} from "vscode-languageserver-types";
+import {
+    CompletionItemKind,
+    DocumentHighlight, DocumentHighlightKind,
+    InlayHint,
+    InlayHintKind,
+    Location,
+    SignatureHelp
+} from "vscode-languageserver-types";
 import {TypeInferer} from "./TypeInferer";
 import {RecursiveVisitor} from "./visitor";
-import {SignatureHelpParams} from "vscode-languageclient";
-import {SyntaxNode} from "web-tree-sitter";
+import {DocumentHighlightParams, SignatureHelpParams} from "vscode-languageclient";
+import {SyntaxNode, Tree} from "web-tree-sitter";
+import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
+import {Referent} from "./referent";
 
 const CODE_FENCE = "```"
 
@@ -58,9 +67,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         let hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
 
         const element = new Node(hoverNode, new File(path))
-        const ref = new Reference(element)
-
-        const res = ref.resolve()
+        const res = Reference.resolve(element)
         if (res == null) return {
             range: asLspRange(hoverNode),
             contents: {
@@ -135,9 +142,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
 
         const element = new Node(hoverNode, new File(path))
-        const ref = new Reference(element)
-
-        const res = ref.resolve()
+        const res = Reference.resolve(element)
         if (res == null) return []
 
         const ident = res.nameIdentifier();
@@ -254,9 +259,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                 if (!nameNode) return true
 
                 const element = new Node(nameNode, new File(path))
-                const ref = new Reference(element)
-
-                const res = ref.resolve()
+                const res = Reference.resolve(element)
                 if (res == null) return true
 
                 const parametersNode = res.node.childForFieldName('parameters')
@@ -294,55 +297,87 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         return null
     })
 
+    const renameHandler = async (params: RenameParams): Promise<lsp.WorkspaceEdit | null> => {
+        const uri = params.textDocument.uri;
+        const path = uri.substring(7)
+        const tree = getTree(path)
+
+        const cursorPosition = asParserPoint(params.position)
+        const renameNode = tree.rootNode.descendantForPosition(cursorPosition)
+
+        if (renameNode.type !== 'identifier') {
+            return Promise.reject("not an identifier")
+        }
+
+        const result = new Referent(renameNode, path, tree).findReferences(true)
+        if (!result) return Promise.reject("cannot find any references")
+
+        return {
+            changes: {
+                [uri]: result.map(a => ({
+                    range: asLspRange(a),
+                    newText: params.newName
+                }))
+            }
+        }
+    };
+    connection.onRequest(lsp.RenameRequest.type, (params: RenameParams) => renameHandler(params).catch(reason => {
+        connection.sendNotification(NotificationFromServer.showErrorMessage, `Can not rename: ${reason}`).catch(console.error)
+        return {}
+    }))
+
+    connection.onRequest(lsp.DocumentHighlightRequest.type, async (params: DocumentHighlightParams): Promise<DocumentHighlight[] | null> => {
+        const uri = params.textDocument.uri;
+        const path = uri.substring(7)
+        const tree = getTree(path)
+
+        const cursorPosition = asParserPoint(params.position)
+        const highlightNode = tree.rootNode.descendantForPosition(cursorPosition)
+
+        if (highlightNode.type !== 'identifier') {
+            return []
+        }
+
+        const result = new Referent(highlightNode, path, tree).findReferences(true)
+        if (!result) return null
+
+        return result.map(value => {
+            let kind: DocumentHighlightKind = DocumentHighlightKind.Read
+            const parent = value.parent!
+            if (parent.type === 'assignment_statement') {
+                if (parent.childForFieldName('left')!.equals(value)) {
+                    // left = 10
+                    // ^^^^
+                    kind = DocumentHighlightKind.Write
+                }
+            }
+
+            return {
+                range: asLspRange(value),
+                kind: kind
+            }
+        })
+    })
+
     connection.onRequest(lsp.ReferencesRequest.type, async (params: ReferenceParams): Promise<Location[] | null> => {
         const uri = params.textDocument.uri;
         const path = uri.substring(7)
         const tree = getTree(path)
 
         const cursorPosition = asParserPoint(params.position)
-        const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
+        const referenceNode = tree.rootNode.descendantForPosition(cursorPosition)
 
-        if (hoverNode.type !== 'identifier') {
+        if (referenceNode.type !== 'identifier') {
             return []
         }
 
-        const parent = hoverNode.parent
-        if (parent === null) return null
+        const result = new Referent(referenceNode, path, tree).findReferences(true)
+        if (!result) return null
 
-        const result: Location[] = []
-
-        if (parent.type === 'global_function') {
-            RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
-                if (n.type === 'identifier') {
-                    const identParent = n.parent
-                    if (identParent === null) return true
-
-                    if (identParent.type === 'global_function') return true
-
-                    if (n.text !== hoverNode.text) return true
-
-                    const element = new Node(hoverNode, new File(path))
-                    const ref = new Reference(element)
-
-                    const res = ref.resolve()
-                    if (!res) return true
-
-                    const identifier = res.nameIdentifier();
-                    if (!identifier) return true
-
-                    if (identifier.text == hoverNode.text) {
-                        result.push({
-                            uri: uri,
-                            range: asLspRange(n)
-                        })
-                    }
-                }
-
-                return true
-            })
-        }
-
-        return result
+        return result.map(value => ({
+            uri: uri,
+            range: asLspRange(value)
+        }))
     })
 
     connection.onRequest(lsp.SignatureHelpRequest.type, async (params: SignatureHelpParams): Promise<SignatureHelp | null> => {
@@ -359,9 +394,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         if (!nameNode) return null
 
         const element = new Node(nameNode, new File(path))
-        const ref = new Reference(element)
-
-        const res = ref.resolve()
+        const res = Reference.resolve(element)
         if (res == null) return null
 
         const parametersNode = res.node.childForFieldName('parameters')
@@ -400,8 +433,8 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
         const parametersInfo: ParameterInformation[] = parameters.map(value => ({
             label: value.text,
-        }));
-        const parametersString = parametersInfo.map(el => el.label).join(', ');
+        }))
+        const parametersString = parametersInfo.map(el => el.label).join(', ')
 
         return {
             signatures: [
@@ -422,10 +455,11 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             // codeActionProvider: true,
             // documentSymbolProvider: true,
             definitionProvider: true,
-            // renameProvider: true,
+            renameProvider: true,
             hoverProvider: true,
             inlayHintProvider: true,
             referencesProvider: true,
+            documentHighlightProvider: true,
             // documentFormattingProvider: true,
             completionProvider: {
                 triggerCharacters: ['.']
@@ -442,12 +476,12 @@ function min<T>(a: T, b: T): T {
     return a < b ? a : b
 }
 
-function parentOfType(node: SyntaxNode, type: string): SyntaxNode | null {
+function parentOfType(node: SyntaxNode, ...types: string[]): SyntaxNode | null {
     let parent = node.parent
 
     while (true) {
         if (parent == null) return null
-        if (parent.type === type) return parent
+        if (types.find(type => parent!.type === type)) return parent
         parent = parent.parent
     }
 }

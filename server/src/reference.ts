@@ -132,6 +132,10 @@ export class Reference {
         this.element = element
     }
 
+    static resolve(node: Node): Node | null {
+        return new Reference(node).resolve()
+    }
+
     resolve(): Node | null {
         const result: Node[] = [];
         this.processResolveVariants(this.createResolveProcessor(result, this.element))
@@ -160,6 +164,9 @@ export class Reference {
     processResolveVariants(processor: ScopeProcessor): boolean {
         const parent = this.element.node.parent!!
         if (parent.type == 'field' && parent.childForFieldName('name')!!.equals(this.element.node)) {
+            return processor.execute(new Node(parent, this.element.file))
+        }
+        if (parent.type == 'parameter' && parent.childForFieldName('name')!!.equals(this.element.node)) {
             return processor.execute(new Node(parent, this.element.file))
         }
 
