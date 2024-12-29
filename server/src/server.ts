@@ -1,5 +1,11 @@
 import * as lsp from 'vscode-languageserver';
-import {ParameterInformation, ReferenceParams, RenameParams} from 'vscode-languageserver';
+import {
+    FoldingRangeParams,
+    ParameterInformation,
+    ReferenceParams,
+    RenameParams,
+    SemanticTokens
+} from 'vscode-languageserver';
 import {connection} from './connection';
 import {InitializeParams, TextDocumentSyncKind} from 'vscode-languageserver/node';
 import {InitializeResult} from 'vscode-languageserver-protocol';
@@ -10,7 +16,7 @@ import {asLspRange, asParserPoint} from "./utils/position";
 import {File, Node, Reference, ScopeProcessor} from "./reference";
 import {
     CompletionItemKind,
-    DocumentHighlight, DocumentHighlightKind,
+    DocumentHighlight, DocumentHighlightKind, FoldingRange, FoldingRangeKind,
     InlayHint,
     InlayHintKind,
     Location,
@@ -18,8 +24,7 @@ import {
 } from "vscode-languageserver-types";
 import {TypeInferer} from "./TypeInferer";
 import {RecursiveVisitor} from "./visitor";
-import {DocumentHighlightParams, SignatureHelpParams} from "vscode-languageclient";
-import {SyntaxNode, Tree} from "web-tree-sitter";
+import {Point, SyntaxNode} from "web-tree-sitter";
 import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
 import {Referent} from "./referent";
 
@@ -326,7 +331,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         return {}
     }))
 
-    connection.onRequest(lsp.DocumentHighlightRequest.type, async (params: DocumentHighlightParams): Promise<DocumentHighlight[] | null> => {
+    connection.onRequest(lsp.DocumentHighlightRequest.type, async (params: lsp.DocumentHighlightParams): Promise<DocumentHighlight[] | null> => {
         const uri = params.textDocument.uri;
         const path = uri.substring(7)
         const tree = getTree(path)
@@ -371,7 +376,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             return []
         }
 
-        const result = new Referent(referenceNode, path, tree).findReferences(true)
+        const result = new Referent(referenceNode, path, tree).findReferences(false)
         if (!result) return null
 
         return result.map(value => ({
@@ -380,7 +385,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }))
     })
 
-    connection.onRequest(lsp.SignatureHelpRequest.type, async (params: SignatureHelpParams): Promise<SignatureHelp | null> => {
+    connection.onRequest(lsp.SignatureHelpRequest.type, async (params: lsp.SignatureHelpParams): Promise<SignatureHelp | null> => {
         const uri = params.textDocument.uri;
         const path = uri.substring(7)
         const tree = getTree(path)
@@ -447,6 +452,107 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
     });
 
+    connection.onRequest(lsp.FoldingRangeRequest.type, async (params: FoldingRangeParams): Promise<FoldingRange[] | null> => {
+        const uri = params.textDocument.uri;
+        const path = uri.substring(7)
+        const tree = getTree(path)
+
+        const result: FoldingRange[] = []
+
+        const genericFolding = (start: Point, end: Point): lsp.FoldingRange => {
+            return {
+                kind: FoldingRangeKind.Region,
+                startLine: start.row,
+                endLine: end.row - 1,
+                startCharacter: end.column,
+                endCharacter: end.column,
+            }
+        }
+
+        RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
+            if (n.type === 'block_statement' ||
+                n.type === 'instance_argument_list' ||
+                n.type === 'function_body' ||
+                n.type === 'asm_function_body' ||
+                n.type === 'struct_body' ||
+                n.type === 'contract_body' ||
+                n.type === 'trait_body'
+            ) {
+                const openBrace = n.firstChild!
+                const closeBrace = n.lastChild!
+                result.push(genericFolding(openBrace.endPosition, closeBrace.startPosition))
+            }
+
+            return true
+        })
+
+        return result
+    })
+
+    connection.onRequest(lsp.SemanticTokensRequest.type, async (params: lsp.SemanticTokensParams): Promise<SemanticTokens | null> => {
+        const uri = params.textDocument.uri;
+        const path = uri.substring(7)
+        const tree = getTree(path)
+
+        const builder = new lsp.SemanticTokensBuilder();
+
+        function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes) {
+            builder.push(
+                n.startPosition.row,
+                n.startPosition.column,
+                n.endPosition.column - n.startPosition.column,
+                Object.keys(lsp.SemanticTokenTypes).findIndex(value => value === tokenType.toString()),
+                0,
+            )
+        }
+
+        RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
+            if (n.type === 'asm' && n.parent!.type === 'asm_function') {
+                pushToken(n, lsp.SemanticTokenTypes.keyword);
+            }
+
+            if (n.type === 'global_constant') {
+                const name = n.childForFieldName('name')!
+                pushToken(name, lsp.SemanticTokenTypes.property);
+            }
+
+            if (n.type === 'parameter') {
+                const name = n.childForFieldName('name')!
+                pushToken(name, lsp.SemanticTokenTypes.parameter);
+            }
+
+            if (n.type === 'let_statement') {
+                const name = n.childForFieldName('name')!
+                pushToken(name, lsp.SemanticTokenTypes.variable);
+            }
+
+            if (n.type === 'field') {
+                const name = n.childForFieldName('name')!
+                pushToken(name, lsp.SemanticTokenTypes.property);
+            }
+
+            if (n.type === 'identifier') {
+                const element = new Node(n, new File(path))
+                const resolved = Reference.resolve(element)
+                if (!resolved) return true;
+
+                if (resolved.node.parent!.type === 'let_statement') {
+                    pushToken(n, lsp.SemanticTokenTypes.variable);
+                }
+                if (resolved.node.type === 'parameter') {
+                    pushToken(n, lsp.SemanticTokenTypes.parameter);
+                }
+                if (resolved.node.type === 'field') {
+                    pushToken(n, lsp.SemanticTokenTypes.property);
+                }
+            }
+
+            return true
+        })
+
+        return builder.build()
+    })
+
     console.log('Tact language server is ready!');
 
     return {
@@ -460,6 +566,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             inlayHintProvider: true,
             referencesProvider: true,
             documentHighlightProvider: true,
+            foldingRangeProvider: true,
             // documentFormattingProvider: true,
             completionProvider: {
                 triggerCharacters: ['.']
@@ -467,6 +574,14 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             signatureHelpProvider: {
                 triggerCharacters: ['(', ','],
                 retriggerCharacters: [',', ' '],
+            },
+            semanticTokensProvider: {
+                legend: {
+                    tokenTypes: Object.keys(lsp.SemanticTokenTypes),
+                    tokenModifiers: Object.keys(lsp.SemanticTokenModifiers),
+                },
+                range: false,
+                full: true,
             }
         }
     }

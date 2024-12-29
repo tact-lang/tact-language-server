@@ -46,6 +46,23 @@ export class File {
         return result
     }
 
+    getMessages(): Node[] {
+        const content = readFileSync(this.path).toString();
+        const parser = createParser()
+
+        const tree = parser.parse(content);
+
+        const result: Node[] = [];
+
+        for (const node of tree.rootNode.children) {
+            if (node.type === 'message') {
+                result.push(new Node(node, this))
+            }
+        }
+
+        return result
+    }
+
     getPrimitives(): Node[] {
         const content = readFileSync(this.path).toString();
         const parser = createParser()
@@ -183,7 +200,9 @@ export class Reference {
         if (qualifierType == null) return true
 
         if (qualifierType instanceof StructTy) {
-            const fields = qualifierType.anchor!!.node.childForFieldName('body')!!.children.slice(1, -1)
+            const body = qualifierType.anchor!!.node.childForFieldName('body');
+            if (!body) return true
+            const fields = body.children.slice(1, -1)
 
             for (const field of fields) {
                 if (!processor.execute(new Node(field, this.element.file))) break
@@ -206,12 +225,34 @@ export class Reference {
     private processFileEntities(file: File, processor: ScopeProcessor): boolean {
         if (!this.processNamedElements(processor, file.getFunctions())) return false
         if (!this.processNamedElements(processor, file.getStructs())) return false
+        if (!this.processNamedElements(processor, file.getMessages())) return false
         if (!this.processNamedElements(processor, file.getPrimitives())) return false
 
         return true
     }
 
     private processBlock(processor: ScopeProcessor) {
+        const parent = this.element.node.parent!;
+        if (parent.type === 'instance_argument') {
+            const name = parent.childForFieldName('name')!
+            if (name.equals(this.element.node)) {
+                // resolving Foo { name: "" }
+                //                 ^^^^ this
+                const instanceExpr = parent.parent!.parent!
+                const typeExpr = instanceExpr.childForFieldName('name')!
+                const resolvedType = Reference.resolve(new Node(typeExpr, this.element.file))
+                if (resolvedType == null) return true
+
+                const body = resolvedType.node.childForFieldName('body');
+                if (!body) return true
+                const fields = body.children.slice(1, -1)
+
+                for (const field of fields) {
+                    if (!processor.execute(new Node(field, this.element.file))) break
+                }
+            }
+        }
+
         let descendant: SyntaxNode | null = this.element.node
 
         while (descendant) {
