@@ -226,6 +226,41 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                 })
             }
 
+            if (n.type === 'static_call_expression') {
+                const nameNode = n.childForFieldName('name')
+                if (!nameNode) return true
+
+                const element = new Node(nameNode, new File(path))
+                const ref = new Reference(element)
+
+                const res = ref.resolve()
+                if (res == null) return true
+
+                const parametersNode = res.node.childForFieldName('parameters')
+                if (!parametersNode) return true
+
+                const parameters = parametersNode.children.filter(value => value.type === 'parameter')
+
+                const rawArguments = n.childForFieldName('arguments')!;
+                const args = rawArguments.children.filter(value => value.type === 'argument')
+
+                for (let i = 0; i < min(parameters.length, args.length); i++) {
+                    const param = parameters[i]
+                    const arg = args[i]
+
+                    const paramName = param.childForFieldName('name')!
+
+                    result.push({
+                        kind: InlayHintKind.Parameter,
+                        label: `${paramName.text}:`,
+                        position: {
+                            line: arg.startPosition.row,
+                            character: arg.startPosition.column,
+                        }
+                    })
+                }
+            }
+
             return true
         })
 
@@ -379,6 +414,10 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
     }
 })
+
+function min<T>(a: T, b: T): T {
+    return a < b ? a : b
+}
 
 function parentOfType(node: SyntaxNode, type: string): SyntaxNode | null {
     let parent = node.parent
