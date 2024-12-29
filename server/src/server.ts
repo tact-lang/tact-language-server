@@ -1,16 +1,18 @@
 import * as lsp from 'vscode-languageserver';
-import {connection, ILspHandler} from './connection';
+import {ParameterInformation, ReferenceParams} from 'vscode-languageserver';
+import {connection} from './connection';
 import {InitializeParams, TextDocumentSyncKind} from 'vscode-languageserver/node';
 import {InitializeResult} from 'vscode-languageserver-protocol';
 import {DocumentStore} from "./document-store";
 import {readFileSync} from "fs";
 import {createParser, initParser} from "./parser";
 import {asLspRange, asParserPoint} from "./utils/position";
-import {Node, Reference, File, ScopeProcessor} from "./reference";
-import {CompletionItemKind, InlayHint, InlayHintKind, Location} from "vscode-languageserver-types";
+import {File, Node, Reference, ScopeProcessor} from "./reference";
+import {CompletionItemKind, InlayHint, InlayHintKind, Location, SignatureHelp} from "vscode-languageserver-types";
 import {TypeInferer} from "./TypeInferer";
 import {RecursiveVisitor} from "./visitor";
-import {ReferenceParams} from "vscode-languageserver";
+import {SignatureHelpParams} from "vscode-languageclient";
+import {SyntaxNode} from "web-tree-sitter";
 
 const CODE_FENCE = "```"
 
@@ -285,6 +287,75 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         return result
     })
 
+    connection.onRequest(lsp.SignatureHelpRequest.type, async (params: SignatureHelpParams): Promise<SignatureHelp | null> => {
+        const uri = params.textDocument.uri;
+        const path = uri.substring(7)
+        const tree = getTree(path)
+
+        const cursorPosition = asParserPoint(params.position)
+        const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
+        const call = parentOfType(hoverNode, 'static_call_expression')
+        if (!call) return null
+
+        const nameNode = call.childForFieldName('name')
+        if (!nameNode) return null
+
+        const element = new Node(nameNode, new File(path))
+        const ref = new Reference(element)
+
+        const res = ref.resolve()
+        if (res == null) return null
+
+        const parametersNode = res.node.childForFieldName('parameters')
+        if (!parametersNode) return null
+
+        const parameters = parametersNode.children.filter(value => value.type == 'parameter')
+
+        // The algorithm below uses the positions of commas and parentheses to findTo find the active parameter, it is enough to find the last comma, which has a position in the line less than the cursor position. In order not to complicate the algorithm, we consider the opening bracket as a kind of comma for the zero element. If the cursor position is greater than the position of any comma, then we consider that this is the last element. the active parameter.
+        //
+        // foo(1000, 2000, 3000)
+        //    ^    ^     ^
+        //    |    |     |______ argsCommas
+        //    |    |____________|
+        //    |_________________|
+        //
+        // To find the active parameter, it is enough to find the last comma, which has a position in
+        // the line less than the cursor position. To simplify the algorithm, we consider the opening
+        // bracket as a kind of comma for the zero element.
+        // If the cursor position is greater than the position of any comma, then we consider that this
+        // is the last parameter.
+        //
+        // TODO: support multiline calls and functions with self
+
+        const rawArguments = call.childForFieldName('arguments')!;
+        const argsCommas = rawArguments.children.filter(value => value.text === ',' || value.text === '(')
+
+        let currentIndex = 0
+        for (let i = 0; i < argsCommas.length; i++) {
+            const argComma = argsCommas[i];
+            if (argComma.endPosition.column > params.position.character) {
+                // found comma after cursor
+                break
+            }
+            currentIndex = i
+        }
+
+        const parametersInfo: ParameterInformation[] = parameters.map(value => ({
+            label: value.text,
+        }));
+        const parametersString = parametersInfo.map(el => el.label).join(', ');
+
+        return {
+            signatures: [
+                {
+                    label: `fun ${nameNode.text}(${parametersString})`,
+                    parameters: parametersInfo,
+                    activeParameter: currentIndex
+                }
+            ],
+        }
+    });
+
     console.log('Tact language server is ready!');
 
     return {
@@ -301,8 +372,22 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             completionProvider: {
                 triggerCharacters: ['.']
             },
+            signatureHelpProvider: {
+                triggerCharacters: ['(', ','],
+                retriggerCharacters: [',', ' '],
+            }
         }
     }
 })
+
+function parentOfType(node: SyntaxNode, type: string): SyntaxNode | null {
+    let parent = node.parent
+
+    while (true) {
+        if (parent == null) return null
+        if (parent.type === type) return parent
+        parent = parent.parent
+    }
+}
 
 connection.listen();
