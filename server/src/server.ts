@@ -159,6 +159,29 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const start = content.slice(0, offset)
         const end = content.slice(offset)
 
+        // Let's say we want to get autocompletion in the following code:
+        //
+        //   fun foo(p: Builder) {
+        //      p.
+        //   } // ^ caret here
+        //
+        // Regular parsers, including those that can recover from errors, will not
+        // be able to parse this code  well enough for us to recognize this situation.
+        // Some Language Servers try to do this, but they end up with a lot of
+        // incomprehensible and complex code that doesn't work well.
+        //
+        // The approach we use is very simple, instead of parsing the code above,
+        // we transform it into:
+        //
+        //    fun foo(p: Builder) {
+        //       p.dummyIdentifier
+        //    } // ^ caret here
+        //
+        // Which will be parsed without any problems now.
+        //
+        // Now that we have valid code, we can use `Reference.processResolveVariants`
+        // to resolve `dummyIdentifier` into a list of possible variants, which will
+        // become the autocompletion list. See `Reference` class documentation.
         const newContent = start + "dummyIdentifier" + end
         const tree = parser.parse(newContent);
 

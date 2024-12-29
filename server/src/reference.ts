@@ -107,6 +107,24 @@ export class Node {
     }
 }
 
+/**
+ * Reference encapsulates the logic of resolving of identifier into its definition.
+ *
+ * The algorithm used for resolving goes through lists of all possible variants,
+ * each of which goes through a specific [`ScopeProcessor`]. ScopeProcessor describes
+ * what to do with an element.
+ *
+ * For example, when resolving names, when definition was found, the processor
+ * returns false, which ends the resolving process and the result is returned to
+ * the caller (see [`Reference.resolve`]).
+ *
+ * At the same time, when autocompleting, all possible variants are collected in
+ * a list, which becomes the autocompletion list.
+ *
+ * The description above imposes certain restrictions, for example, when resolving
+ * `bar` to `foo.bar`, we must process only methods and fields of type `bar`.
+ * This ensures fast resolving, as well as a valid autocompletion list.
+ */
 export class Reference {
     private readonly element: Node
 
