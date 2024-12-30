@@ -31,4 +31,11 @@ export class Function extends NamedNode {
             .filter(value => value.type === 'parameter')
             .map(value => new NamedNode(value, this.file))
     }
+
+    public withSelf(): boolean {
+        const params = this.parameters()
+        if (params.length === 0) return false
+        const first = params[0]
+        return first.name() === 'self'
+    }
 }

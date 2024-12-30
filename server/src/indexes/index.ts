@@ -1,7 +1,7 @@
 import {Tree} from "web-tree-sitter";
 import {NamedNode} from "../psi/Node";
 import {File} from "../psi/File";
-import {Struct, Message, Function} from "../psi/TopLevelDeclarations";
+import {Function, Message, Struct} from "../psi/TopLevelDeclarations";
 
 export enum IndexKey {
     Contracts = 'Contracts',
@@ -55,12 +55,10 @@ export class FileIndex {
 
     public elementByName(key: IndexKey, name: string): NamedNode | null {
         const elements = this.elements.get(key) ?? []
-        const found = elements.find(value => {
+        return elements.find(value => {
             const nameNode = value.node.childForFieldName('name')
             return nameNode?.text === name
-        });
-        if (!found) return null
-        return found
+        }) ?? null
     }
 }
 

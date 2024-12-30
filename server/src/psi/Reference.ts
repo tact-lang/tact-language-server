@@ -1,7 +1,8 @@
 import {SyntaxNode} from 'web-tree-sitter'
-import {MessageTy, StructTy} from "../types/BaseTy";
+import {MessageTy, StructTy, Ty} from "../types/BaseTy";
 import {index, IndexKey} from "../indexes";
 import {Expression, NamedNode, Node} from "./Node";
+import {Function} from "./TopLevelDeclarations";
 import {File} from "./File";
 
 export interface ScopeProcessor {
@@ -110,6 +111,8 @@ export class Reference {
         const qualifierType = qualifier.type()
         if (qualifierType === null) return true
 
+        if (!this.processTypeMethods(qualifierType, processor)) return false
+
         if (qualifierType instanceof StructTy) {
             if (!this.processNamedElements(processor, qualifierType.fields())) return false
         }
@@ -119,6 +122,20 @@ export class Reference {
         }
 
         return true
+    }
+
+    private processTypeMethods(ty: Ty, processor: ScopeProcessor): boolean {
+        const candidates = index.elementsByKey(IndexKey.Functions).filter(fun => {
+            if (!(fun instanceof Function)) return false
+            if (!fun.withSelf()) return false
+            const selfParam = fun.parameters()[0]
+            const typeNode = selfParam.node.childForFieldName('type');
+            if (typeNode === null) return false
+            const typeExpr = new Expression(typeNode, fun.file)
+            const selfType = typeExpr.type()
+            return selfType?.qualifiedName() === ty.qualifiedName()
+        })
+        return this.processNamedElements(processor, candidates);
     }
 
     private processUnqualifiedResolve(processor: ScopeProcessor): boolean {
