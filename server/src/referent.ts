@@ -1,4 +1,5 @@
-import {SyntaxNode, Tree} from "web-tree-sitter";
+import type {SyntaxNode, Tree} from "web-tree-sitter";
+
 import {File, Node, Reference} from "./reference";
 import {RecursiveVisitor} from "./visitor";
 
@@ -7,8 +8,12 @@ import {RecursiveVisitor} from "./visitor";
  */
 export class Referent {
     private readonly resolved: Node | null = null;
+    private readonly node: SyntaxNode;
+    private readonly tree: Tree;
 
-    constructor(private node: SyntaxNode, file: string, private tree: Tree) {
+    public constructor(node: SyntaxNode, file: string, tree: Tree) {
+        this.tree = tree;
+        this.node = node;
         const element = new Node(node, new File(file))
         this.resolved = Reference.resolve(element)
     }
@@ -18,15 +23,16 @@ export class Referent {
      *
      * @param includeDefinition if true, the first element of the result contains the definition
      */
-    findReferences(includeDefinition: boolean = false): SyntaxNode[] {
-        if (!this.resolved) return []
+    public findReferences(includeDefinition: boolean = false): SyntaxNode[] {
+        const resolved = this.resolved;
+        if (!resolved) return []
 
         const useScope = this.useScope()
         if (!useScope) return []
 
         const result: SyntaxNode[] = []
         if (includeDefinition) {
-            result.push(this.resolved.nameIdentifier()!)
+            result.push(resolved.nameIdentifier()!)
         }
 
         // The algorithm for finding references is simple:
@@ -36,25 +42,27 @@ export class Referent {
         //
         // TODO: optimize for field/method search
         //       we don't need to resolve foo in bar.foo in some cases
-        RecursiveVisitor.visit(useScope, (n): boolean => {
-            if (n.type !== 'identifier' && n.type !== 'type_identifier') return true // fast path, skip non identifiers
-            if (n.text !== this.resolved!.name()) return true // fast path, identifier name doesn't equal to definition name
+        RecursiveVisitor.visit(useScope, (node): boolean => {
+            // fast path, skip non identifiers
+            if (node.type !== 'identifier' && node.type !== 'type_identifier') return true
+            // fast path, identifier name doesn't equal to definition name
+            if (node.text !== resolved?.name()) return true
 
-            const parent = n.parent
+            const parent = node.parent
             if (parent === null) return true
 
             // skip definitions itself
             if (parent.type === 'let_statement' || parent.type === 'global_function') return true
 
-            const res = Reference.resolve(this.resolved!)
+            const res = Reference.resolve(resolved!)
             if (!res) return true
 
             const identifier = res.nameIdentifier();
             if (!identifier) return true
 
-            if (identifier.text == this.resolved!.name()) {
+            if (identifier.text === resolved?.name()) {
                 // found new reference
-                result.push(n)
+                result.push(node)
             }
             return true
         })
@@ -73,7 +81,7 @@ export class Referent {
         const parent = this.node.parent
         if (parent === null) return null
 
-        if (parent.type === 'let_statement' || this.resolved.node.parent!.type === 'let_statement') {
+        if (parent.type === 'let_statement' || this.resolved.node.parent?.type === 'let_statement') {
             // search only in outer block/function
             return parentOfType(parent, 'function_body', 'block_statement')
         }
@@ -84,7 +92,7 @@ export class Referent {
         }
 
         if (parent.type === 'parameter') {
-            let grand = parent.parent!.parent!
+            const grand = parent.parent!.parent!
             if (grand.type === 'global_function') {
                 // search in function body
                 return grand.lastChild
@@ -100,12 +108,12 @@ export class Referent {
     }
 }
 
-function parentOfType(node: SyntaxNode, ...types: string[]): SyntaxNode | null {
+function parentOfType(node: SyntaxNode, ...types: readonly string[]): SyntaxNode | null {
     let parent = node.parent
 
     while (true) {
-        if (parent == null) return null
-        if (types.find(type => parent!.type === type)) return parent
+        if (parent === null) return null
+        if (types.includes(parent.type)) return parent
         parent = parent.parent
     }
 }

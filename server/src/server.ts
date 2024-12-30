@@ -16,7 +16,10 @@ import {asLspRange, asParserPoint} from "./utils/position";
 import {File, Node, Reference, ScopeProcessor} from "./reference";
 import {
     CompletionItemKind,
-    DocumentHighlight, DocumentHighlightKind, FoldingRange, FoldingRangeKind,
+    DocumentHighlight,
+    DocumentHighlightKind,
+    FoldingRange,
+    FoldingRangeKind,
     InlayHint,
     InlayHintKind,
     Location,
@@ -27,6 +30,7 @@ import {RecursiveVisitor} from "./visitor";
 import {Point, SyntaxNode} from "web-tree-sitter";
 import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
 import {Referent} from "./referent";
+import {index, IndexKey} from "./indexes";
 
 const CODE_FENCE = "```"
 
@@ -55,25 +59,51 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     const documents = new DocumentStore(connection);
 
     documents.onDidOpen(event => {
-        console.log(event.document.uri);
+        console.log("open:", event.document.uri);
+
+        const path = event.document.uri.substring(7);
+        const tree = getTree(path)
+        index.addFile(path, tree)
     });
 
-    const getTree = (path: string) => {
-        const content = readFileSync(path).toString();
+    documents.onDidClose(event => {
+        console.log("close:", event.document.uri);
+
+        const path = event.document.uri.slice(7);
+        index.removeFile(path)
+    })
+
+    documents.onDidChangeContent(event => {
+        console.log("changed:", event.document.uri);
+
+        const path = event.document.uri.slice(7);
+        index.removeFile(path)
+
+        const tree = getTree(path, event.document.getText())
+        index.addFile(path, tree)
+    })
+
+    const getTree = (path: string, content?: string | undefined) => {
+        const realContent = content ?? readFileSync(path).toString();
         const parser = createParser()
-        return parser.parse(content);
+        return parser.parse(realContent);
     }
 
     connection.onRequest(lsp.HoverRequest.type, async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
-        const path = params.textDocument.uri.substring(7)
+        const path = params.textDocument.uri.slice(7)
         const tree = getTree(path)
 
-        let cursorPosition = asParserPoint(params.position)
-        let hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
+        const structs = index.elementsByKey(IndexKey.Structs)
+        for (const struct of structs) {
+            console.log(struct.node.text)
+        }
+
+        const cursorPosition = asParserPoint(params.position)
+        const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
 
         const element = new Node(hoverNode, new File(path))
         const res = Reference.resolve(element)
-        if (res == null) return {
+        if (res === null) return {
             range: asLspRange(hoverNode),
             contents: {
                 kind: 'plaintext',
@@ -81,29 +111,29 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             }
         }
 
-        if (res.node.type == 'global_function') {
+        if (res.node.type === 'global_function') {
             return {
                 range: asLspRange(hoverNode),
                 contents: {
                     kind: 'markdown',
                     value: `${CODE_FENCE}\nfun ${res.name()}(...)\n${CODE_FENCE}`
-                }
+                },
             }
         }
 
-        if (res.node.type == 'struct') {
+        if (res.node.type === 'struct') {
             return {
                 range: asLspRange(hoverNode),
                 contents: {
                     kind: 'markdown',
                     value: `${CODE_FENCE}\nstruct ${res.name()}\n${CODE_FENCE}`
-                }
+                },
             }
         }
 
-        if (res.node.type == 'field') {
-            const typeNode = res.node.childForFieldName("type")!!
-            let type = new TypeInferer().inferType(new Node(typeNode, res.file))
+        if (res.node.type === 'field') {
+            const typeNode = res.node.childForFieldName("type")!
+            const type = new TypeInferer().inferType(new Node(typeNode, res.file))
             return {
                 range: asLspRange(hoverNode),
                 contents: {
@@ -113,8 +143,8 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             }
         }
 
-        if (res.node.parent!!.type == 'let_statement') {
-            let type = new TypeInferer().inferType(res)
+        if (res.node.parent!.type === 'let_statement') {
+            const type = new TypeInferer().inferType(res)
 
             return {
                 range: asLspRange(hoverNode),
@@ -136,7 +166,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     connection.onRequest(lsp.DefinitionRequest.type, async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
         const uri = params.textDocument.uri;
-        const path = uri.substring(7)
+        const path = uri.slice(7)
         const tree = getTree(path)
 
         const cursorPosition = asParserPoint(params.position)
@@ -154,14 +184,14 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         if (ident === null) return []
 
         return [{
-            uri: uri,
+            uri: res.file.uri,
             range: asLspRange(ident),
         }]
     })
 
     connection.onRequest(lsp.CompletionRequest.type, async (params: lsp.CompletionParams): Promise<lsp.CompletionItem[]> => {
         const uri = params.textDocument.uri;
-        const path = uri.substring(7)
+        const path = uri.slice(7)
         const content = readFileSync(path).toString();
         const parser = createParser()
 
@@ -192,7 +222,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         // Now that we have valid code, we can use `Reference.processResolveVariants`
         // to resolve `dummyIdentifier` into a list of possible variants, which will
         // become the autocompletion list. See `Reference` class documentation.
-        const newContent = start + "dummyIdentifier" + end
+        const newContent = `${start}dummyIdentifier${end}`
         const tree = parser.parse(newContent);
 
         const cursorPosition = asParserPoint(params.position)
@@ -205,20 +235,20 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const ref = new Reference(element)
 
         class CompletionScopeProcessor implements ScopeProcessor {
-            constructor(private result: Node[]) {
+            public constructor(private result: Node[]) {
             }
 
-            execute(node: Node): boolean {
+            public execute(node: Node): boolean {
                 this.result.push(node)
                 return true
             }
         }
 
-        let result: Node[] = []
+        const result: Node[] = []
         ref.processResolveVariants(new CompletionScopeProcessor(result))
 
         return result.map((el): lsp.CompletionItem => {
-            const kind = el.node.type == "global_function" || el.node.type == "asm_function" ?
+            const kind = el.node.type === "global_function" || el.node.type === "asm_function" ?
                 CompletionItemKind.Function :
                 CompletionItemKind.Variable;
             return {
@@ -265,7 +295,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
                 const element = new Node(nameNode, new File(path))
                 const res = Reference.resolve(element)
-                if (res == null) return true
+                if (res === null) return true
 
                 const parametersNode = res.node.childForFieldName('parameters')
                 if (!parametersNode) return true
@@ -315,7 +345,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
 
         const result = new Referent(renameNode, path, tree).findReferences(true)
-        if (!result) return Promise.reject("cannot find any references")
+        if (result.length === 0) return Promise.reject("cannot find any references")
 
         return {
             changes: {
@@ -344,7 +374,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
 
         const result = new Referent(highlightNode, path, tree).findReferences(true)
-        if (!result) return null
+        if (result.length === 0) return null
 
         return result.map(value => {
             let kind: DocumentHighlightKind = DocumentHighlightKind.Read
@@ -377,7 +407,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
 
         const result = new Referent(referenceNode, path, tree).findReferences(false)
-        if (!result) return null
+        if (result.length === 0) return null
 
         return result.map(value => ({
             uri: uri,
@@ -400,7 +430,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
         const element = new Node(nameNode, new File(path))
         const res = Reference.resolve(element)
-        if (res == null) return null
+        if (res === null) return null
 
         const parametersNode = res.node.childForFieldName('parameters')
         if (!parametersNode) return null
@@ -427,8 +457,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const argsCommas = rawArguments.children.filter(value => value.text === ',' || value.text === '(')
 
         let currentIndex = 0
-        for (let i = 0; i < argsCommas.length; i++) {
-            const argComma = argsCommas[i];
+        for (const [i, argComma] of argsCommas.entries()) {
             if (argComma.endPosition.column > params.position.character) {
                 // found comma after cursor
                 break
@@ -501,7 +530,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                 n.startPosition.row,
                 n.startPosition.column,
                 n.endPosition.column - n.startPosition.column,
-                Object.keys(lsp.SemanticTokenTypes).findIndex(value => value === tokenType.toString()),
+                Object.keys(lsp.SemanticTokenTypes).indexOf(tokenType.toString()),
                 0,
             )
         }
@@ -595,8 +624,8 @@ function parentOfType(node: SyntaxNode, ...types: string[]): SyntaxNode | null {
     let parent = node.parent
 
     while (true) {
-        if (parent == null) return null
-        if (types.find(type => parent!.type === type)) return parent
+        if (parent === null) return null
+        if (types.includes(parent.type)) return parent
         parent = parent.parent
     }
 }

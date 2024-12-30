@@ -3,19 +3,24 @@ import {readFileSync} from "fs";
 import {createParser} from "./parser";
 import {TypeInferer} from "./TypeInferer";
 import {StructTy} from "./types/BaseTy";
+import {index, IndexKey} from "./indexes";
 
 export interface ScopeProcessor {
     execute(node: Node): boolean
 }
 
 export class File {
-    path: string;
+    public readonly path: string;
 
-    constructor(path: string) {
+    public constructor(path: string) {
         this.path = path;
     }
 
-    getFunctions(): Node[] {
+    public get uri(): string {
+        return "file://" + this.path;
+    }
+
+    public getFunctions(): Node[] {
         const tree = this.getTree();
 
         const result: Node[] = [];
@@ -29,7 +34,7 @@ export class File {
         return result
     }
 
-    getStructs(): Node[] {
+    public getStructs(): Node[] {
         const content = readFileSync(this.path).toString();
         const parser = createParser()
 
@@ -46,7 +51,7 @@ export class File {
         return result
     }
 
-    getMessages(): Node[] {
+    public getMessages(): Node[] {
         const content = readFileSync(this.path).toString();
         const parser = createParser()
 
@@ -63,7 +68,7 @@ export class File {
         return result
     }
 
-    getPrimitives(): Node[] {
+    public getPrimitives(): Node[] {
         const content = readFileSync(this.path).toString();
         const parser = createParser()
 
@@ -89,20 +94,20 @@ export class File {
 }
 
 export class Node {
-    node: SyntaxNode
-    file: File
+    public node: SyntaxNode
+    public file: File
 
-    constructor(node: SyntaxNode, file: File) {
+    public constructor(node: SyntaxNode, file: File) {
         this.node = node;
         this.file = file;
     }
 
-    nameIdentifier(): SyntaxNode | null {
-        if (this.node.type == 'identifier' || this.node.type == 'type_identifier') {
+    public nameIdentifier(): SyntaxNode | null {
+        if (this.node.type === 'identifier' || this.node.type === 'type_identifier') {
             return this.node
         }
 
-        if (this.node.type == 'primitive') {
+        if (this.node.type === 'primitive') {
             const nameNode = this.node.childForFieldName('type')
             if (!nameNode) {
                 return null
@@ -117,7 +122,7 @@ export class Node {
         return nameNode
     }
 
-    name(): string {
+    public name(): string {
         const ident = this.nameIdentifier()
         if (ident === null) return ""
         return ident.text
@@ -145,30 +150,30 @@ export class Node {
 export class Reference {
     private readonly element: Node
 
-    constructor(element: Node) {
-        this.element = element
-    }
-
-    static resolve(node: Node): Node | null {
+    public static resolve(node: Node): Node | null {
         return new Reference(node).resolve()
     }
 
-    resolve(): Node | null {
+    public constructor(element: Node) {
+        this.element = element
+    }
+
+    public resolve(): Node | null {
         const result: Node[] = [];
         this.processResolveVariants(this.createResolveProcessor(result, this.element))
-        if (result.length == 0) return null;
+        if (result.length === 0) return null;
         return result[0]
     }
 
     private createResolveProcessor(result: Node[], element: Node): ScopeProcessor {
         return new class implements ScopeProcessor {
-            execute(node: Node): boolean {
+            public execute(node: Node): boolean {
                 if (node.node.equals(element.node)) {
                     result.push(node)
                     return false;
                 }
 
-                if (node.name() == element.name()) {
+                if (node.name() === element.name()) {
                     result.push(node)
                     return false;
                 }
@@ -178,27 +183,52 @@ export class Reference {
         }
     }
 
-    processResolveVariants(processor: ScopeProcessor): boolean {
-        const parent = this.element.node.parent!
-        const name = parent.childForFieldName('name')!
-        if ((parent.type == 'field' || parent.type == 'parameter') && name.equals(this.element.node)) {
+    public processResolveVariants(processor: ScopeProcessor): boolean {
+        if (this.elementIsDeclarationName()) {
+            // foo: Int
+            // ^^^ our element
+            //
+            // so process whole `foo: Int` node
+            const parent = this.element.node.parent!
             return processor.execute(new Node(parent, this.element.file))
         }
 
         const qualifier = this.getQualifier(this.element)
-        if (qualifier === null || qualifier === undefined) {
-            return this.processUnqualifiedResolve(processor)
-        }
+        return qualifier ?
+            // foo.bar
+            // ^^^ qualifier
+            this.processQualifiedExpression(qualifier, processor) :
+            //  bar()
+            // ^ no qualifier
+            this.processUnqualifiedResolve(processor)
+    }
 
-        return this.processQualifiedExpression(qualifier, processor)
+    private elementIsDeclarationName(): boolean {
+        // foo: Int
+        // ^^^ maybe this
+        const identifier = this.element.node;
+
+        // foo: Int
+        // ^^^^^^^^ this
+        const parent = identifier.parent
+
+        // foo: Int
+        // ^^^ this
+        const name = parent?.childForFieldName('name')
+        if (!parent || !name) return false
+
+        return (
+            parent.type === 'field' ||
+            parent.type === 'parameter'
+        ) && name.equals(identifier)
     }
 
     private processQualifiedExpression(qualifier: SyntaxNode, processor: ScopeProcessor): boolean {
         const qualifierType = new TypeInferer().inferType(new Node(qualifier, this.element.file))
-        if (qualifierType == null) return true
+        if (qualifierType === null) return true
 
         if (qualifierType instanceof StructTy) {
-            const body = qualifierType.anchor!!.node.childForFieldName('body');
+            const body = qualifierType.anchor!.node.childForFieldName('body');
             if (!body) return true
             const fields = body.children.slice(1, -1)
 
@@ -212,11 +242,51 @@ export class Reference {
 
     private processUnqualifiedResolve(processor: ScopeProcessor): boolean {
         const name = this.element.node.text
-        if (!name || name == '_') return true
+        if (!name || name === '_') return true
+
+        const parent = this.element.node.parent!;
+        if (parent.type === 'instance_argument') {
+            // `Foo { name: "" }`
+            //        ^^^^^^^^ this
+            return this.resolveInstanceInitField(parent, processor)
+        }
 
         if (!this.processFileEntities(this.element.file, processor)) return false
+        if (!this.processAllEntities(processor)) return false
         if (!this.processBlock(processor)) return false
 
+        return true
+    }
+
+    private resolveInstanceInitField(parent: SyntaxNode, processor: ScopeProcessor): boolean {
+        // resolving `Foo { name: "" }`
+        //                  ^^^^ this
+
+        const name = parent.childForFieldName('name')!
+        if (!name.equals(this.element.node)) {
+            // `Foo { name: "" }`
+            //        ^^^^ this should be our identifier to resolve
+            return true
+        }
+
+        // `Foo { name: "" }`
+        //  ^^^^^^^^^^^^^^^^ this
+        const instanceExpr = parent.parent!.parent!
+
+        // `Foo { name: "" }`
+        //  ^^^ this
+        const typeExpr = instanceExpr.childForFieldName('name')!
+
+        const resolvedType = Reference.resolve(new Node(typeExpr, this.element.file))
+        if (resolvedType === null) return true
+
+        const body = resolvedType.node.childForFieldName('body')
+        if (!body) return true
+        const fields = body.children.slice(1, -1)
+
+        for (const field of fields) {
+            if (!processor.execute(new Node(field, resolvedType.file))) return false
+        }
         return true
     }
 
@@ -229,63 +299,51 @@ export class Reference {
         return true
     }
 
+    private processAllEntities(processor: ScopeProcessor): boolean {
+        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Functions))) return false
+        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Structs))) return false
+        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Messages))) return false
+        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Traits))) return false
+
+        return true
+    }
+
     private processBlock(processor: ScopeProcessor) {
-        const parent = this.element.node.parent!;
-        if (parent.type === 'instance_argument') {
-            const name = parent.childForFieldName('name')!
-            if (name.equals(this.element.node)) {
-                // resolving Foo { name: "" }
-                //                 ^^^^ this
-                const instanceExpr = parent.parent!.parent!
-                const typeExpr = instanceExpr.childForFieldName('name')!
-                const resolvedType = Reference.resolve(new Node(typeExpr, this.element.file))
-                if (resolvedType == null) return true
-
-                const body = resolvedType.node.childForFieldName('body');
-                if (!body) return true
-                const fields = body.children.slice(1, -1)
-
-                for (const field of fields) {
-                    if (!processor.execute(new Node(field, this.element.file))) break
-                }
-            }
-        }
-
         let descendant: SyntaxNode | null = this.element.node
 
         while (descendant) {
-            if (descendant.type === 'function_body') {
-                for (const child of descendant.children) {
-                    if (child.type === 'let_statement') {
-                        const name = child.childForFieldName('name')
-                        if (name == null) {
-                            continue;
-                        }
-
+            // walk all variables inside block
+            if (descendant.type === 'block_statement' || descendant.type === 'function_body') {
+                const statements = descendant.children;
+                for (const stmt of statements) {
+                    if (stmt.type === 'let_statement') {
+                        // let name = expr;
+                        //     ^^^^ this
+                        const name = stmt.childForFieldName('name')
+                        if (name === null) continue;
                         if (!processor.execute(new Node(name, this.element.file))) break
                     }
                 }
             }
 
-            if (descendant.type == 'foreach_statement') {
+            if (descendant.type === 'foreach_statement') {
+                // foreach (key, value in expr)
+                //          ^^^ this
                 const key = descendant.childForFieldName('key')
-                if (key == null) {
-                    continue;
-                }
-
+                if (key === null) continue;
                 if (!processor.execute(new Node(key, this.element.file))) break
 
+                // foreach (key, value in expr)
+                //               ^^^^^ this
                 const value = descendant.childForFieldName('value')
-                if (value == null) {
-                    continue;
-                }
-
+                if (value === null) continue;
                 if (!processor.execute(new Node(value, this.element.file))) break
             }
 
+            // process parameters of function
             if (descendant.type === 'global_function') {
                 const rawParameters = descendant.childForFieldName('parameters')
-                if (rawParameters == null) continue
+                if (rawParameters === null) continue
                 const children = rawParameters.children
                 if (children.length < 2) continue
                 const params = children.slice(1, -1)
@@ -301,7 +359,7 @@ export class Reference {
         return false;
     }
 
-    processNamedElements(processor: ScopeProcessor, elements: Node[]): boolean {
+    public processNamedElements(processor: ScopeProcessor, elements: Node[]): boolean {
         for (const element of elements) {
             if (!processor.execute(element)) return false
         }
@@ -314,14 +372,14 @@ export class Reference {
             return null
         }
 
-        if (parent.type == "field_access_expression") {
+        if (parent.type === "field_access_expression") {
             const name = parent.childForFieldName('name')
             if (name === null) return null
             if (!name.equals(node.node)) return null
             return parent.child(0)
         }
 
-        if (parent.type == "method_call_expression") {
+        if (parent.type === "method_call_expression") {
             const name = parent.childForFieldName('name')
             if (name === null) return null
             if (!name.equals(node.node)) return null
