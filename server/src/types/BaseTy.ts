@@ -1,45 +1,42 @@
-import {Node} from "../reference";
+import {Struct, Message, FieldsOwner} from "../psi/TopLevelDeclarations";
+import {NamedNode, Node} from "../psi/Node";
 
 export interface Ty {
     name(): string
+
     qualifiedName(): string
 }
 
-export abstract class BaseTy implements Ty {
-    anchor: Node | null = null;
+export abstract class BaseTy<Anchor> implements Ty {
+    anchor: Anchor | null = null;
+    _name: string
 
-    protected constructor(anchor: Node | null) {
+    public constructor(_name: string, anchor: Anchor | null) {
         this.anchor = anchor
+        this._name = _name
     }
 
-    abstract name(): string
-    abstract qualifiedName(): string
-}
-
-export class StructTy extends BaseTy {
-    constructor(public _name: string, anchor: Node | null) {
-        super(anchor);
-    }
-
-    name(): string {
+    public name(): string {
         return this._name;
     }
 
-    qualifiedName(): string {
+    public qualifiedName(): string {
         return this._name;
     }
 }
 
-export class PrimitiveTy extends BaseTy {
-    constructor(public _name: string, anchor: Node | null) {
-        super(anchor);
+export class FieldsOwnerTy<Anchor extends FieldsOwner> extends BaseTy<Anchor> {
+    public fields(): NamedNode[] {
+        if (this.anchor === null) return []
+        return this.anchor.fields()
     }
+}
 
-    name(): string {
-        return this._name;
-    }
+export class StructTy extends FieldsOwnerTy<Struct> {
+}
 
-    qualifiedName(): string {
-        return this._name;
-    }
+export class MessageTy extends FieldsOwnerTy<Message> {
+}
+
+export class PrimitiveTy extends BaseTy<Node> {
 }

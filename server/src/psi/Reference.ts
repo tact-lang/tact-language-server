@@ -1,132 +1,11 @@
 import {SyntaxNode} from 'web-tree-sitter'
-import {readFileSync} from "fs";
-import {createParser} from "./parser";
-import {TypeInferer} from "./TypeInferer";
-import {StructTy} from "./types/BaseTy";
-import {index, IndexKey} from "./indexes";
+import {MessageTy, StructTy} from "../types/BaseTy";
+import {index, IndexKey} from "../indexes";
+import {Expression, NamedNode, Node} from "./Node";
+import {File} from "./File";
 
 export interface ScopeProcessor {
     execute(node: Node): boolean
-}
-
-export class File {
-    public readonly path: string;
-
-    public constructor(path: string) {
-        this.path = path;
-    }
-
-    public get uri(): string {
-        return "file://" + this.path;
-    }
-
-    public getFunctions(): Node[] {
-        const tree = this.getTree();
-
-        const result: Node[] = [];
-
-        for (const node of tree.rootNode.children) {
-            if (node.type === 'global_function' || node.type === 'asm_function') {
-                result.push(new Node(node, this))
-            }
-        }
-
-        return result
-    }
-
-    public getStructs(): Node[] {
-        const content = readFileSync(this.path).toString();
-        const parser = createParser()
-
-        const tree = parser.parse(content);
-
-        const result: Node[] = [];
-
-        for (const node of tree.rootNode.children) {
-            if (node.type === 'struct') {
-                result.push(new Node(node, this))
-            }
-        }
-
-        return result
-    }
-
-    public getMessages(): Node[] {
-        const content = readFileSync(this.path).toString();
-        const parser = createParser()
-
-        const tree = parser.parse(content);
-
-        const result: Node[] = [];
-
-        for (const node of tree.rootNode.children) {
-            if (node.type === 'message') {
-                result.push(new Node(node, this))
-            }
-        }
-
-        return result
-    }
-
-    public getPrimitives(): Node[] {
-        const content = readFileSync(this.path).toString();
-        const parser = createParser()
-
-        const tree = parser.parse(content);
-
-        const result: Node[] = [];
-
-        for (const node of tree.rootNode.children) {
-            if (node.type === 'primitive') {
-                result.push(new Node(node, this))
-            }
-        }
-
-        return result
-    }
-
-    private getTree() {
-        // TODO: just for now
-        const content = readFileSync(this.path).toString();
-        const parser = createParser()
-        return parser.parse(content);
-    }
-}
-
-export class Node {
-    public node: SyntaxNode
-    public file: File
-
-    public constructor(node: SyntaxNode, file: File) {
-        this.node = node;
-        this.file = file;
-    }
-
-    public nameIdentifier(): SyntaxNode | null {
-        if (this.node.type === 'identifier' || this.node.type === 'type_identifier') {
-            return this.node
-        }
-
-        if (this.node.type === 'primitive') {
-            const nameNode = this.node.childForFieldName('type')
-            if (!nameNode) {
-                return null
-            }
-            return nameNode
-        }
-
-        const nameNode = this.node.childForFieldName('name')
-        if (!nameNode) {
-            return null
-        }
-        return nameNode
-    }
-
-    public name(): string {
-        const ident = this.nameIdentifier()
-        if (ident === null) return ""
-        return ident.text
-    }
 }
 
 /**
@@ -148,18 +27,18 @@ export class Node {
  * This ensures fast resolving, as well as a valid autocompletion list.
  */
 export class Reference {
-    private readonly element: Node
+    private readonly element: NamedNode
 
-    public static resolve(node: Node): Node | null {
+    public static resolve(node: NamedNode): NamedNode | null {
         return new Reference(node).resolve()
     }
 
-    public constructor(element: Node) {
+    public constructor(element: NamedNode) {
         this.element = element
     }
 
-    public resolve(): Node | null {
-        const result: Node[] = [];
+    public resolve(): NamedNode | null {
+        const result: NamedNode[] = [];
         this.processResolveVariants(this.createResolveProcessor(result, this.element))
         if (result.length === 0) return null;
         return result[0]
@@ -170,15 +49,19 @@ export class Reference {
             public execute(node: Node): boolean {
                 if (node.node.equals(element.node)) {
                     result.push(node)
-                    return false;
+                    return false
+                }
+
+                if (!(node instanceof NamedNode) || !(element instanceof NamedNode)) {
+                    return false
                 }
 
                 if (node.name() === element.name()) {
                     result.push(node)
-                    return false;
+                    return false
                 }
 
-                return true;
+                return true
             }
         }
     }
@@ -190,7 +73,7 @@ export class Reference {
             //
             // so process whole `foo: Int` node
             const parent = this.element.node.parent!
-            return processor.execute(new Node(parent, this.element.file))
+            return processor.execute(new NamedNode(parent, this.element.file))
         }
 
         const qualifier = this.getQualifier(this.element)
@@ -223,18 +106,16 @@ export class Reference {
         ) && name.equals(identifier)
     }
 
-    private processQualifiedExpression(qualifier: SyntaxNode, processor: ScopeProcessor): boolean {
-        const qualifierType = new TypeInferer().inferType(new Node(qualifier, this.element.file))
+    private processQualifiedExpression(qualifier: Expression, processor: ScopeProcessor): boolean {
+        const qualifierType = qualifier.type()
         if (qualifierType === null) return true
 
         if (qualifierType instanceof StructTy) {
-            const body = qualifierType.anchor!.node.childForFieldName('body');
-            if (!body) return true
-            const fields = body.children.slice(1, -1)
+            if (!this.processNamedElements(processor, qualifierType.fields())) return false
+        }
 
-            for (const field of fields) {
-                if (!processor.execute(new Node(field, this.element.file))) break
-            }
+        if (qualifierType instanceof MessageTy) {
+            if (!this.processNamedElements(processor, qualifierType.fields())) return false
         }
 
         return true
@@ -277,7 +158,7 @@ export class Reference {
         //  ^^^ this
         const typeExpr = instanceExpr.childForFieldName('name')!
 
-        const resolvedType = Reference.resolve(new Node(typeExpr, this.element.file))
+        const resolvedType = Reference.resolve(new NamedNode(typeExpr, this.element.file))
         if (resolvedType === null) return true
 
         const body = resolvedType.node.childForFieldName('body')
@@ -285,7 +166,7 @@ export class Reference {
         const fields = body.children.slice(1, -1)
 
         for (const field of fields) {
-            if (!processor.execute(new Node(field, resolvedType.file))) return false
+            if (!processor.execute(new NamedNode(field, resolvedType.file))) return false
         }
         return true
     }
@@ -321,7 +202,7 @@ export class Reference {
                         //     ^^^^ this
                         const name = stmt.childForFieldName('name')
                         if (name === null) continue;
-                        if (!processor.execute(new Node(name, this.element.file))) break
+                        if (!processor.execute(new NamedNode(name, this.element.file))) break
                     }
                 }
             }
@@ -331,13 +212,13 @@ export class Reference {
                 //          ^^^ this
                 const key = descendant.childForFieldName('key')
                 if (key === null) continue;
-                if (!processor.execute(new Node(key, this.element.file))) break
+                if (!processor.execute(new NamedNode(key, this.element.file))) break
 
                 // foreach (key, value in expr)
                 //               ^^^^^ this
                 const value = descendant.childForFieldName('value')
                 if (value === null) continue;
-                if (!processor.execute(new Node(value, this.element.file))) break
+                if (!processor.execute(new NamedNode(value, this.element.file))) break
             }
 
             // process parameters of function
@@ -349,7 +230,7 @@ export class Reference {
                 const params = children.slice(1, -1)
 
                 for (const param of params) {
-                    if (!processor.execute(new Node(param, this.element.file))) break
+                    if (!processor.execute(new NamedNode(param, this.element.file))) break
                 }
             }
 
@@ -359,14 +240,14 @@ export class Reference {
         return false;
     }
 
-    public processNamedElements(processor: ScopeProcessor, elements: Node[]): boolean {
+    public processNamedElements(processor: ScopeProcessor, elements: NamedNode[]): boolean {
         for (const element of elements) {
             if (!processor.execute(element)) return false
         }
         return true
     }
 
-    private getQualifier(node: Node): SyntaxNode | null {
+    private getQualifier(node: Node): Expression | null {
         const parent = node.node.parent
         if (!parent) {
             return null
@@ -376,14 +257,14 @@ export class Reference {
             const name = parent.childForFieldName('name')
             if (name === null) return null
             if (!name.equals(node.node)) return null
-            return parent.child(0)
+            return new Expression(parent.child(0)!, node.file)
         }
 
         if (parent.type === "method_call_expression") {
             const name = parent.childForFieldName('name')
             if (name === null) return null
             if (!name.equals(node.node)) return null
-            return parent.child(0)
+            return new Expression(parent.child(0)!, node.file)
         }
 
         return null

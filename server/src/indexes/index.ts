@@ -1,5 +1,7 @@
 import {Tree} from "web-tree-sitter";
-import {Node, File} from "../reference";
+import {NamedNode} from "../psi/Node";
+import {File} from "../psi/File";
+import {Struct, Message, Function} from "../psi/TopLevelDeclarations";
 
 export enum IndexKey {
     Contracts = 'Contracts',
@@ -10,14 +12,14 @@ export enum IndexKey {
 }
 
 export class FileIndex {
-    private readonly elements: Map<IndexKey, Node[]> = new Map()
+    private readonly elements: Map<IndexKey, NamedNode[]> = new Map()
 
-    public constructor(elements: Map<IndexKey, Node[]>) {
+    public constructor(elements: Map<IndexKey, NamedNode[]>) {
         this.elements = elements
     }
 
     public static create(path: string, tree: Tree): FileIndex {
-        const elements = new Map<IndexKey, Node[]>()
+        const elements = new Map<IndexKey, NamedNode[]>()
         elements.set(IndexKey.Structs, [])
         elements.set(IndexKey.Traits, [])
         elements.set(IndexKey.Messages, [])
@@ -28,30 +30,30 @@ export class FileIndex {
 
         for (const node of tree.rootNode.children) {
             if (node.type === 'global_function' || node.type === 'asm_function') {
-                elements.get(IndexKey.Functions)!.push(new Node(node, file))
+                elements.get(IndexKey.Functions)!.push(new Function(node, file))
             }
             if (node.type === 'struct') {
-                elements.get(IndexKey.Structs)!.push(new Node(node, file))
+                elements.get(IndexKey.Structs)!.push(new Struct(node, file))
             }
             if (node.type === 'message') {
-                elements.get(IndexKey.Messages)!.push(new Node(node, file))
+                elements.get(IndexKey.Messages)!.push(new Message(node, file))
             }
             if (node.type === 'trait') {
-                elements.get(IndexKey.Traits)!.push(new Node(node, file))
+                elements.get(IndexKey.Traits)!.push(new NamedNode(node, file))
             }
             if (node.type === 'contract') {
-                elements.get(IndexKey.Contracts)!.push(new Node(node, file))
+                elements.get(IndexKey.Contracts)!.push(new NamedNode(node, file))
             }
         }
 
         return new FileIndex(elements)
     }
 
-    public elementsByKey(key: IndexKey): Node[] {
+    public elementsByKey(key: IndexKey): NamedNode[] {
         return this.elements.get(key) ?? []
     }
 
-    public elementByName(key: IndexKey, name: string): Node | null {
+    public elementByName(key: IndexKey, name: string): NamedNode | null {
         const elements = this.elements.get(key) ?? []
         const found = elements.find(value => {
             const nameNode = value.node.childForFieldName('name')
@@ -62,7 +64,7 @@ export class FileIndex {
     }
 }
 
-export class Index {
+export class GlobalIndex {
     private readonly files: Map<string, FileIndex> = new Map()
 
     public addFile(path: string, tree: Tree) {
@@ -82,15 +84,15 @@ export class Index {
         console.log(`removed file ${path} to index`)
     }
 
-    public elementsByKey(key: IndexKey): Node[] {
-        const result: Node[] = []
+    public elementsByKey(key: IndexKey): NamedNode[] {
+        const result: NamedNode[] = []
         for (const value of this.files.values()) {
             result.push(...value.elementsByKey(key))
         }
         return result
     }
 
-    public elementByName(key: IndexKey, name: string): Node | null {
+    public elementByName(key: IndexKey, name: string): NamedNode | null {
         for (const value of this.files.values()) {
             const result = value.elementByName(key, name)
             if (result) {
@@ -101,4 +103,4 @@ export class Index {
     }
 }
 
-export const index = new Index()
+export const index = new GlobalIndex()

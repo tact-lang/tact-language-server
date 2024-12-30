@@ -13,7 +13,6 @@ import {DocumentStore} from "./document-store";
 import {readFileSync} from "fs";
 import {createParser, initParser} from "./parser";
 import {asLspRange, asParserPoint} from "./utils/position";
-import {File, Node, Reference, ScopeProcessor} from "./reference";
 import {
     CompletionItemKind,
     DocumentHighlight,
@@ -29,8 +28,12 @@ import {TypeInferer} from "./TypeInferer";
 import {RecursiveVisitor} from "./visitor";
 import {Point, SyntaxNode} from "web-tree-sitter";
 import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
-import {Referent} from "./referent";
+import {Referent} from "./psi/Referent";
 import {index, IndexKey} from "./indexes";
+import {Expression, NamedNode, Node} from "./psi/Node";
+import {Reference, ScopeProcessor} from "./psi/Reference";
+import {File} from "./psi/File";
+import {Function} from "./psi/TopLevelDeclarations";
 
 const CODE_FENCE = "```"
 
@@ -101,7 +104,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const cursorPosition = asParserPoint(params.position)
         const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
 
-        const element = new Node(hoverNode, new File(path))
+        const element = new NamedNode(hoverNode, new File(path))
         const res = Reference.resolve(element)
         if (res === null) return {
             range: asLspRange(hoverNode),
@@ -133,7 +136,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
         if (res.node.type === 'field') {
             const typeNode = res.node.childForFieldName("type")!
-            const type = new TypeInferer().inferType(new Node(typeNode, res.file))
+            const type = TypeInferer.inferType(new Expression(typeNode, res.file))
             return {
                 range: asLspRange(hoverNode),
                 contents: {
@@ -144,7 +147,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
 
         if (res.node.parent!.type === 'let_statement') {
-            const type = new TypeInferer().inferType(res)
+            const type = TypeInferer.inferType(res)
 
             return {
                 range: asLspRange(hoverNode),
@@ -176,7 +179,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             return []
         }
 
-        const element = new Node(hoverNode, new File(path))
+        const element = new NamedNode(hoverNode, new File(path))
         const res = Reference.resolve(element)
         if (res === null) return []
 
@@ -206,7 +209,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         //   } // ^ caret here
         //
         // Regular parsers, including those that can recover from errors, will not
-        // be able to parse this code  well enough for us to recognize this situation.
+        // be able to parse this code well enough for us to recognize this situation.
         // Some Language Servers try to do this, but they end up with a lot of
         // incomprehensible and complex code that doesn't work well.
         //
@@ -231,20 +234,24 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             return []
         }
 
-        const element = new Node(hoverNode, new File(path))
+        const element = new NamedNode(hoverNode, new File(path))
         const ref = new Reference(element)
 
         class CompletionScopeProcessor implements ScopeProcessor {
-            public constructor(private result: Node[]) {
+            public constructor(private result: NamedNode[]) {
             }
 
             public execute(node: Node): boolean {
+                if (!(node instanceof NamedNode)) {
+                    return true
+                }
+
                 this.result.push(node)
                 return true
             }
         }
 
-        const result: Node[] = []
+        const result: NamedNode[] = []
         ref.processResolveVariants(new CompletionScopeProcessor(result))
 
         return result.map((el): lsp.CompletionItem => {
@@ -276,7 +283,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                 const name = n.childForFieldName('name')
                 if (!name) return true
 
-                const type = new TypeInferer().inferType(new Node(expr, new File(path)))
+                const type = TypeInferer.inferType(new Node(expr, new File(path)))
                 if (!type) return true
 
                 result.push({
@@ -293,14 +300,11 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                 const nameNode = n.childForFieldName('name')
                 if (!nameNode) return true
 
-                const element = new Node(nameNode, new File(path))
+                const element = new NamedNode(nameNode, new File(path))
                 const res = Reference.resolve(element)
-                if (res === null) return true
+                if (!(res instanceof Function)) return true
 
-                const parametersNode = res.node.childForFieldName('parameters')
-                if (!parametersNode) return true
-
-                const parameters = parametersNode.children.filter(value => value.type === 'parameter')
+                const parameters = res.parameters()
 
                 const rawArguments = n.childForFieldName('arguments')!;
                 const args = rawArguments.children.filter(value => value.type === 'argument')
@@ -309,7 +313,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                     const param = parameters[i]
                     const arg = args[i]
 
-                    const paramName = param.childForFieldName('name')!
+                    const paramName = param.node.childForFieldName('name')!
 
                     result.push({
                         kind: InlayHintKind.Parameter,
@@ -428,7 +432,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const nameNode = call.childForFieldName('name')
         if (!nameNode) return null
 
-        const element = new Node(nameNode, new File(path))
+        const element = new NamedNode(nameNode, new File(path))
         const res = Reference.resolve(element)
         if (res === null) return null
 
@@ -561,7 +565,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             }
 
             if (n.type === 'identifier') {
-                const element = new Node(n, new File(path))
+                const element = new NamedNode(n, new File(path))
                 const resolved = Reference.resolve(element)
                 if (!resolved) return true;
 

@@ -1,20 +1,22 @@
 import type {SyntaxNode, Tree} from "web-tree-sitter";
 
-import {File, Node, Reference} from "./reference";
-import {RecursiveVisitor} from "./visitor";
+import {RecursiveVisitor} from "../visitor";
+import {NamedNode} from "./Node";
+import {Reference} from "./Reference";
+import {File} from "./File";
 
 /**
  * Referent encapsulates the logic for finding all references to a definition.
  */
 export class Referent {
-    private readonly resolved: Node | null = null;
+    private readonly resolved: NamedNode | null = null;
     private readonly node: SyntaxNode;
     private readonly tree: Tree;
 
     public constructor(node: SyntaxNode, file: string, tree: Tree) {
         this.tree = tree;
         this.node = node;
-        const element = new Node(node, new File(file))
+        const element = new NamedNode(node, new File(file))
         this.resolved = Reference.resolve(element)
     }
 
