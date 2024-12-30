@@ -148,7 +148,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
         const element = new Node(hoverNode, new File(path))
         const res = Reference.resolve(element)
-        if (res == null) return []
+        if (res === null) return []
 
         const ident = res.nameIdentifier();
         if (ident === null) return []

@@ -179,11 +179,9 @@ export class Reference {
     }
 
     processResolveVariants(processor: ScopeProcessor): boolean {
-        const parent = this.element.node.parent!!
-        if (parent.type == 'field' && parent.childForFieldName('name')!!.equals(this.element.node)) {
-            return processor.execute(new Node(parent, this.element.file))
-        }
-        if (parent.type == 'parameter' && parent.childForFieldName('name')!!.equals(this.element.node)) {
+        const parent = this.element.node.parent!
+        const name = parent.childForFieldName('name')!
+        if ((parent.type == 'field' || parent.type == 'parameter') && name.equals(this.element.node)) {
             return processor.execute(new Node(parent, this.element.file))
         }
 
@@ -318,14 +316,14 @@ export class Reference {
 
         if (parent.type == "field_access_expression") {
             const name = parent.childForFieldName('name')
-            if (name == null) return null
+            if (name === null) return null
             if (!name.equals(node.node)) return null
             return parent.child(0)
         }
 
         if (parent.type == "method_call_expression") {
             const name = parent.childForFieldName('name')
-            if (name == null) return null
+            if (name === null) return null
             if (!name.equals(node.node)) return null
             return parent.child(0)
         }
