@@ -1,4 +1,4 @@
-import {Expression, NamedNode, Node} from "./Node";
+import {Expression, NamedNode} from "./Node";
 
 export class FieldsOwner extends NamedNode {
     public fields(): NamedNode[] {

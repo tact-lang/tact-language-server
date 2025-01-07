@@ -29,13 +29,12 @@ import {RecursiveVisitor} from "./visitor";
 import {Point, SyntaxNode} from "web-tree-sitter";
 import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
 import {Referent} from "./psi/Referent";
-import {index, IndexKey} from "./indexes";
-import {Expression, NamedNode, Node} from "./psi/Node";
+import {index} from "./indexes";
+import {NamedNode, Node} from "./psi/Node";
 import {Reference, ScopeProcessor} from "./psi/Reference";
 import {File} from "./psi/File";
 import {Function} from "./psi/TopLevelDeclarations";
-
-const CODE_FENCE = "```"
+import * as docs from "./documentation/documentation";
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split('\n');
@@ -50,7 +49,7 @@ function getOffsetFromPosition(fileContent: string, line: number, column: number
 
     let offset = 0;
     for (let i = 0; i < line; i++) {
-        offset += lines[i].length + 1; // +1 для символа новой строки '\n'
+        offset += lines[i].length + 1; // +1 for '\n'
     }
     offset += column - 1;
     return offset;
@@ -95,17 +94,10 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     connection.onRequest(lsp.HoverRequest.type, async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
         const path = params.textDocument.uri.slice(7)
         const tree = getTree(path)
-
-        const structs = index.elementsByKey(IndexKey.Structs)
-        for (const struct of structs) {
-            console.log(struct.node.text)
-        }
-
         const cursorPosition = asParserPoint(params.position)
         const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
 
-        const element = new NamedNode(hoverNode, new File(path))
-        const res = Reference.resolve(element)
+        const res = Reference.resolve(NamedNode.create(hoverNode, new File(path)))
         if (res === null) return {
             range: asLspRange(hoverNode),
             contents: {
@@ -114,56 +106,15 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             }
         }
 
-        if (res.node.type === 'global_function') {
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: 'markdown',
-                    value: `${CODE_FENCE}\nfun ${res.name()}(...)\n${CODE_FENCE}`
-                },
-            }
-        }
-
-        if (res.node.type === 'struct') {
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: 'markdown',
-                    value: `${CODE_FENCE}\nstruct ${res.name()}\n${CODE_FENCE}`
-                },
-            }
-        }
-
-        if (res.node.type === 'field') {
-            const typeNode = res.node.childForFieldName("type")!
-            const type = TypeInferer.inferType(new Expression(typeNode, res.file))
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: 'markdown',
-                    value: `${CODE_FENCE}\n${res.name()}: ${type?.qualifiedName()}\n${CODE_FENCE}`
-                }
-            }
-        }
-
-        if (res.node.parent!.type === 'let_statement') {
-            const type = TypeInferer.inferType(res)
-
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: 'markdown',
-                    value: `${CODE_FENCE}\nlet ${res.name()}: ${type?.qualifiedName()}\n${CODE_FENCE}`
-                }
-            }
-        }
+        const doc = docs.generateDocFor(res)
+        if (doc === null) return null
 
         return {
             range: asLspRange(hoverNode),
             contents: {
-                kind: 'plaintext',
-                value: hoverNode.type
-            }
+                kind: 'markdown',
+                value: doc
+            },
         }
     })
 
@@ -179,7 +130,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             return []
         }
 
-        const element = new NamedNode(hoverNode, new File(path))
+        const element = NamedNode.create(hoverNode, new File(path))
         const res = Reference.resolve(element)
         if (res === null) return []
 
@@ -577,6 +528,9 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                 }
                 if (resolved.node.type === 'field') {
                     pushToken(n, lsp.SemanticTokenTypes.property);
+                }
+                if (resolved.node.type === 'global_function') {
+                    pushToken(n, lsp.SemanticTokenTypes.function);
                 }
             }
 

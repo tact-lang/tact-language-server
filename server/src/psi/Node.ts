@@ -20,6 +20,10 @@ export class Expression extends Node {
 }
 
 export class NamedNode extends Node {
+    public static create(node: SyntaxNode, file: File): NamedNode {
+        return new NamedNode(node, file)
+    }
+
     public nameIdentifier(): SyntaxNode | null {
         if (this.node.type === 'identifier' || this.node.type === 'type_identifier') {
             return this.node
