@@ -1,8 +1,9 @@
-import {BouncedTy, ContractTy, MessageTy, PrimitiveTy, StructTy, TraitTy, Ty} from "./types/BaseTy";
+import {BouncedTy, ContractTy, MessageTy, OptionTy, PrimitiveTy, StructTy, TraitTy, Ty} from "./types/BaseTy";
 import {Expression, NamedNode, Node} from "./psi/Node";
 import {Reference} from "./psi/Reference";
 import {Struct, Message, Function, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations";
 import {isTypeOwnerNode} from "./psi/utils";
+import {SyntaxNode} from "web-tree-sitter";
 
 export class TypeInferer {
     public static inferType(node: Node): Ty | null {
@@ -49,7 +50,7 @@ export class TypeInferer {
             if (parent.type === "let_statement") {
                 const typeHint = parent.childForFieldName('type')
                 if (typeHint !== null) {
-                    return this.inferType(new Expression(typeHint, resolved.file))
+                    return this.inferTypeMaybeOption(typeHint, resolved);
                 }
                 const value = parent.childForFieldName('value')!
                 return this.inferType(new Expression(value, resolved.file))
@@ -57,7 +58,7 @@ export class TypeInferer {
 
             if (isTypeOwnerNode(resolved.node)) {
                 const typeNode = resolved.node.childForFieldName("type")!
-                return this.inferType(new Expression(typeNode, resolved.file))
+                return this.inferTypeMaybeOption(typeNode, resolved);
             }
 
             if (resolved instanceof Primitive) {
@@ -108,6 +109,16 @@ export class TypeInferer {
             }
         }
 
+        if (node.node.type === "non_null_assert_expression") {
+            const arg = node.node.childForFieldName("argument")
+            if (arg === null) return null
+            const inferred = this.inferType(new Expression(arg, node.file))
+            if (inferred instanceof OptionTy) {
+                return inferred.innerTy
+            }
+            return inferred
+        }
+
         if (node.node.type === "initOf") {
             // TODO: return StateInit
         }
@@ -134,7 +145,7 @@ export class TypeInferer {
 
             if (resolved.node.type === "field") {
                 const typeNode = resolved.node.childForFieldName("type")!
-                return this.inferType(new Expression(typeNode, resolved.file))
+                return this.inferTypeMaybeOption(typeNode, resolved)
             }
 
             if (resolved instanceof Struct) {
@@ -166,5 +177,13 @@ export class TypeInferer {
         }
 
         return null
+    }
+
+    private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: NamedNode) {
+        const inferred = this.inferType(new Expression(typeNode, resolved.file))
+        if (inferred !== null && typeNode.nextSibling?.text === '?') {
+            return new OptionTy(inferred)
+        }
+        return inferred
     }
 }

@@ -1,5 +1,5 @@
 import {SyntaxNode} from 'web-tree-sitter'
-import {BouncedTy, ContractTy, MessageTy, StructTy, TraitTy, Ty} from "../types/BaseTy";
+import {BouncedTy, ContractTy, MessageTy, OptionTy, StructTy, TraitTy, Ty} from "../types/BaseTy";
 import {index, IndexKey} from "../indexes";
 import {Expression, NamedNode, Node} from "./Node";
 import {Contract, Function, Trait} from "./TopLevelDeclarations";
@@ -137,6 +137,11 @@ export class Reference {
         if (qualifierType === null) return true
 
         if (qualifierType instanceof BouncedTy) {
+            return this.processType(qualifierType.innerTy, processor, state);
+        }
+
+        if (qualifierType instanceof OptionTy) {
+            // show completion and resolve without explicit unwrapping
             return this.processType(qualifierType.innerTy, processor, state);
         }
 

@@ -57,10 +57,10 @@ export function generateDocFor(node: NamedNode): string | null {
         case "storage_variable":
         case "field": {
             const doc = extractCommentsDoc(node)
-            const typeNode = astNode.childForFieldName("type")
-            if (!typeNode) return null
 
-            const type = new Expression(typeNode, node.file).type()?.qualifiedName() ?? "unknown"
+            const name = astNode.childForFieldName("name")!
+            const field = new NamedNode(name, node.file)
+            const type = TypeInferer.inferType(field)?.qualifiedName() ?? "unknown"
 
             const defaultValueNode = astNode.childForFieldName("value")
             let defaultValue = defaultValueNode?.text ?? ''

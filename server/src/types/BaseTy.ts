@@ -91,3 +91,15 @@ export class BouncedTy implements Ty {
     }
 }
 
+export class OptionTy implements Ty {
+    constructor(public innerTy: Ty) {
+    }
+
+    name(): string {
+        return `${this.innerTy.name()}?`;
+    }
+
+    qualifiedName(): string {
+        return `${this.innerTy.qualifiedName()}?`;
+    }
+}
