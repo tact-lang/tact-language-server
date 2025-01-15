@@ -30,7 +30,9 @@
         "test": "yarn jest",
         "build": "webpack",
         "grammar:wasm": "cd tree-sitter-tact && tree-sitter generate && tree-sitter build-wasm && cp tree-sitter-tact.wasm ../server/tree-sitter-tact.wasm",
-        "watch": "webpack --watch"
+        "watch": "webpack --watch",
+        "test:e2e": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts",
+        "test:e2e:compile": "tsc -p ./server/src/e2e/tsconfig.json"
     },
     "main": "./dist/client",
     "contributes": {
@@ -77,7 +79,9 @@
         }
     },
     "dependencies": {
+        "glob": "^11.0.1",
         "nan": "^2.16.0",
+        "ts-node": "^10.9.2",
         "vscode-languageclient": "^8.0.2",
         "vscode-languageserver": "^8.0.2",
         "vscode-languageserver-textdocument": "^1.0.7",
@@ -97,8 +101,9 @@
         "ts-jest": "^29.2.4",
         "ts-loader": "^9.5.1",
         "typescript": "^5.4.5",
-        "vscode": "^1.1.37",
         "webpack": "^5.92.1",
-        "webpack-cli": "^5.1.4"
+        "webpack-cli": "^5.1.4",
+        "@types/mocha": "^10.0.6",
+        "mocha": "^10.3.0"
     }
 }

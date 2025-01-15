@@ -90,15 +90,16 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             const parent = node.node.parent
             if (!parent) return true
 
-            if (parent.type === 'let_statement') {
+            if (parent.type === 'let_statement' ||
+                parent.type === 'foreach_statement' ||
+                parent.type === 'catch_clause') {
                 const type = TypeInferer.inferType(node)
-                if (!type) return true
 
                 this.addItem({
                     label: name,
                     kind: CompletionItemKind.Variable,
                     labelDetails: {
-                        detail: ': ' + type.qualifiedName(),
+                        detail: ': ' + (type?.qualifiedName() ?? "unknown"),
                     },
                     insertText: name,
                     insertTextFormat: InsertTextFormat.Snippet,
@@ -115,21 +116,21 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             if (!parent) return true
 
             const type = TypeInferer.inferType(node)
-            if (!type) return true
 
             this.addItem({
                 label: name,
                 kind: CompletionItemKind.Variable,
                 labelDetails: {
-                    detail: ': ' + type.qualifiedName(),
+                    detail: ': ' + (type?.qualifiedName() ?? "unknown"),
                 },
                 insertText: name,
                 insertTextFormat: InsertTextFormat.Snippet,
                 sortText: `3${name}`
             })
         } else {
-            this.result.set(name, {
+            this.addItem({
                 label: name,
+                sortText: `${name}-1`
             })
         }
 
@@ -137,7 +138,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
     }
 
     public addItem(node: CompletionItem) {
-        if (node.label in this.result) return
+        if (node.label in this.result || node.label === '') return
         this.result.set(node.label, node)
     }
 }

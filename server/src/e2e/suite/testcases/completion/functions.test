@@ -1,0 +1,103 @@
+=========
+@trigger .
+Global function completion
+=========
+primitive Int;
+
+fun add(a: Int, b: Int): Int {
+    return a + b;
+}
+
+fun multiply(x: Int, y: Int): Int {
+    return x * y;
+}
+
+fun test() {
+    <caret>
+}
+------------
+Int
+test
+add
+multiply
+
+=========
+@trigger .
+Function completion with parameters
+=========
+primitive Int;
+
+fun add(a: Int, b: Int): Int {
+    return a + b;
+}
+
+fun test() {
+    let result = <caret>
+}
+------------
+Int
+test
+result
+add
+
+=========
+@trigger .
+Extends function completion
+=========
+primitive Int;
+
+extends fun increment(self: Int): Int {
+    return self + 1;
+}
+
+extends fun double(self: Int): Int {
+    return self * 2;
+}
+
+fun test() {
+    let num: Int = 1;
+    num.<caret>
+}
+------------
+increment
+double
+
+=========
+@trigger .
+Function completion in expression // TODO: remove x?
+=========
+primitive Int;
+
+fun add(a: Int, b: Int): Int {
+    return a + b;
+}
+
+fun test() {
+    let x = add(<caret>)
+}
+------------
+Int
+test
+add
+x
+
+=========
+@trigger .
+Native function completion
+=========
+primitive Int;
+
+@name("op_add")
+native add(a: Int, b: Int): Int;
+
+@name("op_mul")
+native multiply(x: Int, y: Int): Int;
+
+fun test() {
+    <caret>
+}
+------------
+Int
+test
+add
+multiply

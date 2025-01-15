@@ -1,0 +1,249 @@
+=========
+@trigger .
+Local variable completion
+=========
+fun test() {
+    let myInt: Int = 0;
+    let myAddress: Address = address("0");
+    let myString: String = "hello";
+    
+    <caret>
+}
+------------
+test
+myInt
+myAddress
+myString
+
+=========
+@trigger .
+Function parameter completion
+=========
+fun test(amount: Int, to: Address) {
+    <caret>
+}
+------------
+test
+amount
+to
+
+=========
+@trigger .
+Extends function parameter completion
+=========
+extends fun move(self: Point, x: Int, y: Int) {
+    <caret>
+}
+------------
+move
+self
+x
+y
+
+=========
+@trigger .
+Extends function with local variables
+=========
+extends fun scale(self: Point, factor: Int) {
+    let temp = factor * 2;
+    <caret>
+}
+------------
+scale
+self
+factor
+temp
+
+=========
+@trigger .
+Nested scope completion
+=========
+primitive Int;
+fun test() {
+    let outer: Int = 1;
+    
+    if (true) {
+        let inner: Int = 2;
+        <caret>
+    }
+}
+------------
+Int
+test
+outer
+inner
+
+=========
+@trigger .
+Multiple scopes completion
+=========
+primitive Int;
+fun test() {
+    let a: Int = 1;
+    {
+        let b: Int = 2;
+        {
+            let c: Int = 3;
+            <caret>
+        }
+    }
+}
+------------
+Int
+test
+a
+b
+c
+
+=========
+@trigger .
+Loop variable completion
+=========
+primitive Int;
+fun test() {
+    let items: map<Int, Int> = emptyMap();
+    
+    foreach(key, value in items) {
+        <caret>
+    }
+}
+------------
+Int
+test
+key
+value
+items
+
+=========
+@trigger .
+Try-catch variable completion in try
+=========
+primitive Int;
+fun test() {
+    let value: Int = 0;
+    try {
+        let result: Int = value + 1;
+        <caret>
+    } catch(error) {
+        // ...
+    }
+}
+------------
+Int
+test
+value
+result
+
+=========
+@trigger .
+Try-catch variable completion in catch
+=========
+primitive Int;
+fun test() {
+    let value: Int = 0;
+    try {
+        let result: Int = value + 1;
+    } catch(error) {
+        <caret>
+    }
+}
+------------
+Int
+error
+test
+value
+
+=========
+@trigger .
+Variable shadowing
+=========
+primitive Int;
+fun test() {
+    let value: Int = 1;
+    {
+        let value: Int = 2;
+        <caret>
+    }
+}
+------------
+Int
+test
+value
+
+=========
+@trigger .
+Function parameter and local variable
+=========
+primitive Int;
+fun test(param: Int) {
+    let local: Int = 2;
+    <caret>
+}
+------------
+Int
+test
+param
+local
+
+=========
+@trigger .
+Variable not accessible before declaration // TODO
+=========
+primitive Int;
+fun test() {
+    <caret>
+    let variable: Int = 1;
+}
+------------
+Int
+test
+variable
+
+=========
+@trigger .
+Variable accessible after declaration
+=========
+primitive Int;
+fun test() {
+    let variable: Int = 1;
+    <caret>
+}
+------------
+Int
+test
+variable
+
+=========
+@trigger .
+Multiple variables declaration order // TODO
+=========
+fun test() {
+    <caret>
+    let first = 1;
+    let second = 2;
+    {
+        let third = 3;
+    }
+}
+------------
+test
+first
+second
+
+=========
+@trigger .
+Multiple variables after declarations
+=========
+fun test() {
+    let first = 1;
+    let second = 2;
+    {
+        let third = 3;
+        <caret>
+    }
+}
+------------
+first
+second
+test
+third

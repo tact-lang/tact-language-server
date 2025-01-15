@@ -92,6 +92,10 @@ export function generateDocFor(node: NamedNode): string | null {
                 const typeName = type?.qualifiedName() ?? "unknown"
                 return defaultResult(`let ${node.name()}: ${typeName}`)
             }
+
+            if (parent.type === 'catch_clause') {
+                return defaultResult(`catch(${node.name()})`)
+            }
             break
         }
         case "parameter": {

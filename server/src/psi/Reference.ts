@@ -337,6 +337,12 @@ export class Reference {
                 if (!processor.execute(new NamedNode(value, this.element.file), state)) break
             }
 
+            if (descendant.type === 'catch_clause') {
+                const name = descendant.childForFieldName('name')
+                if (name === null) continue;
+                if (!processor.execute(new NamedNode(name, this.element.file), state)) break
+            }
+
             // process parameters of function
             if (isFunctionNode(descendant)) {
                 const rawParameters = descendant.childForFieldName('parameters')

@@ -110,6 +110,11 @@ export class Referent {
             return parent.lastChild
         }
 
+        if (parent.type === 'catch_clause') {
+            // search only in catch block
+            return parent.lastChild
+        }
+
         if (node.type === 'parameter') {
             const grand = node.parent!.parent!
             if (grand.type === 'asm_function') {
