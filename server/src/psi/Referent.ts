@@ -60,6 +60,7 @@ export class Referent {
 
             // skip definitions itself
             if ((
+                parent.type === 'let_statement' ||
                 parent.type === 'global_function' ||
                 parent.type === 'storage_function' ||
                 parent.type === 'asm_function' ||

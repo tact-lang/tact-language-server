@@ -23,6 +23,8 @@ import * as inlays from "./inlays/collect";
 import * as foldings from "./foldings/collect";
 import * as semantic from "./semantic_tokens/collect";
 import * as lens from "./lens/collect";
+import * as path from "node:path";
+import {existsSync} from "node:fs";
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split('\n');
@@ -131,9 +133,57 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
     })
 
+
+    function resolveImport(uri: string, hoverNode: SyntaxNode) {
+        const currentDir = path.dirname(uri.slice(7))
+
+        let importPath = hoverNode.text.slice(1, -1)
+        if (importPath.startsWith('@stdlib')) {
+            importPath = './stdlib/std/' + importPath.substring('@stdlib'.length + 1)
+        }
+
+        const resolved = importPath.startsWith('./') ? currentDir + importPath.slice(1) : importPath
+        let targetPath = resolved + '.tact';
+
+        if (!existsSync(targetPath)) {
+            targetPath = targetPath.replace('/std/', '/libs/')
+        }
+
+        if (!existsSync(targetPath)) {
+            return []
+        }
+
+        const targetUri = 'file://' + targetPath;
+
+        const startOfFile = {
+            start: {
+                line: 0,
+                character: 0,
+            },
+            end: {
+                line: 0,
+                character: 0,
+            }
+        };
+        return [
+            {
+                targetUri: targetUri,
+                targetRange: startOfFile,
+                targetSelectionRange: startOfFile,
+                originSelectionRange: asLspRange(hoverNode),
+            } as lsp.LocationLink
+        ]
+    }
+
     connection.onRequest(lsp.DefinitionRequest.type, async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
-        const file = await findFile(params.textDocument.uri)
-        const hoverNode = nodeAtPosition(params, file);
+        const uri = params.textDocument.uri;
+        const file = await findFile(uri)
+        const hoverNode = nodeAtPosition(params, file)
+
+        if (hoverNode.type === 'string' && hoverNode.parent?.type === 'import') {
+            return resolveImport(uri, hoverNode);
+        }
+
         if (hoverNode.type !== 'identifier' && hoverNode.type !== 'self' && hoverNode.type !== 'type_identifier') {
             return []
         }
