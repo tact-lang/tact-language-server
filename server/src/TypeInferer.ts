@@ -2,6 +2,7 @@ import {BouncedTy, ContractTy, MessageTy, PrimitiveTy, StructTy, Ty} from "./typ
 import {Expression, NamedNode, Node} from "./psi/Node";
 import {Reference} from "./psi/Reference";
 import {Struct, Message, Function, Primitive, Contract} from "./psi/TopLevelDeclarations";
+import {isTypeOwnerNode} from "./psi/utils";
 
 export class TypeInferer {
     public static inferType(node: Node): Ty | null {
@@ -50,32 +51,12 @@ export class TypeInferer {
                 return this.inferType(new Expression(value, resolved.file))
             }
 
-            if (resolved.node.type === "field") {
+            if (isTypeOwnerNode(resolved.node)) {
                 const typeNode = resolved.node.childForFieldName("type")!
                 return this.inferType(new Expression(typeNode, resolved.file))
             }
 
-            if (resolved.node.type === "storage_field") {
-                const typeNode = resolved.node.childForFieldName("type")!
-                return this.inferType(new Expression(typeNode, resolved.file))
-            }
-
-            if (resolved.node.type === "parameter") {
-                const typeNode = resolved.node.childForFieldName("type")!
-                return this.inferType(new Expression(typeNode, resolved.file))
-            }
-
-            if (resolved.node.type === "global_constant") {
-                const typeNode = resolved.node.childForFieldName("type")!
-                return this.inferType(new Expression(typeNode, resolved.file))
-            }
-
-            if (resolved.node.type === "storage_constant") {
-                const typeNode = resolved.node.childForFieldName("type")!
-                return this.inferType(new Expression(typeNode, resolved.file))
-            }
-
-            if (resolved.node.type === 'primitive') {
+            if (resolved instanceof Primitive) {
                 return new PrimitiveTy(resolved.name(), resolved)
             }
 
@@ -121,6 +102,12 @@ export class TypeInferer {
 
         if (node.node.type === "initOf") {
             // TODO: return StateInit
+        }
+
+        if (node.node.type === "parenthesized_expression") {
+            const inner = node.node.children[1]
+            if (!inner) return null
+            return this.inferType(new Expression(inner, node.file))
         }
 
         if (node.node.type === "parameter") {

@@ -23,6 +23,14 @@ export class Trait extends NamedNode {
 }
 
 export class Contract extends NamedNode {
+    public methods(): Function[] {
+        const body = this.node.childForFieldName('body');
+        if (!body) return []
+        return body.children
+            .filter(value => value.type === 'storage_function')
+            .map(value => new Function(value, this.file))
+    }
+
     public fields(): NamedNode[] {
         const body = this.node.childForFieldName('body');
         if (!body) return []

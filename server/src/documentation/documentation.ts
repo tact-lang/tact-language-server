@@ -15,6 +15,7 @@ export function generateDocFor(node: NamedNode): string | null {
     switch (astNode.type) {
         case "global_function":
         case "native_function":
+        case "storage_function":
         case "asm_function": {
             const doc = extractCommentsDoc(node)
             const parametersNode = astNode.childForFieldName("parameters")

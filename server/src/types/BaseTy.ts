@@ -1,4 +1,4 @@
-import {Struct, Message, FieldsOwner, Contract, Constant} from "../psi/TopLevelDeclarations";
+import {Struct, Message, FieldsOwner, Contract, Constant, Function} from "../psi/TopLevelDeclarations";
 import {NamedNode, Node} from "../psi/Node";
 
 export interface Ty {
@@ -42,6 +42,11 @@ export class PrimitiveTy extends BaseTy<Node> {
 }
 
 export class ContractTy extends BaseTy<Contract> {
+    public methods(): Function[] {
+        if (this.anchor === null) return []
+        return this.anchor.methods()
+    }
+
     public fields(): NamedNode[] {
         if (this.anchor === null) return []
         return this.anchor.fields()

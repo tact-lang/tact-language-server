@@ -127,6 +127,7 @@ export class Reference {
             parent.type === 'field' ||
             parent.type === 'parameter' ||
             parent.type === 'storage_variable' ||
+            parent.type === 'storage_function' ||
             parent.type === 'storage_constant'
         ) && name.equals(identifier)
     }
@@ -154,6 +155,7 @@ export class Reference {
         }
 
         if (qualifierType instanceof ContractTy) {
+            if (!this.processNamedElements(processor, state, qualifierType.methods())) return false
             if (!this.processNamedElements(processor, state, qualifierType.fields())) return false
             if (!this.processNamedElements(processor, state, qualifierType.constants())) return false
         }

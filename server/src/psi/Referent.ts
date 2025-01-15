@@ -62,6 +62,7 @@ export class Referent {
             if (
                 parent.type === 'let_statement' ||
                 parent.type === 'global_function' ||
+                parent.type === 'storage_function' ||
                 parent.type === 'asm_function' ||
                 parent.type === 'native_function' ||
                 parent.type === 'field' ||
@@ -122,6 +123,11 @@ export class Referent {
             }
         }
 
+        if (node.type === 'storage_variable' || node.type === 'storage_constant' || node.type === 'storage_function') {
+            // search in whole contract
+            return parentOfType(parent, 'contract')
+        }
+
         if (isNamedFunctionNode(parent) || isNamedFunctionNode(node)) {
             // search in file for now
             return this.file.rootNode
@@ -135,16 +141,6 @@ export class Referent {
         if (node.type === 'field') {
             // search in file for now
             return this.file.rootNode
-        }
-
-        if (node.type === 'storage_variable') {
-            // search in whole contract
-            return parentOfType(parent, 'contract')
-        }
-
-        if (node.type === 'storage_constant') {
-            // search in whole contract
-            return parentOfType(parent, 'contract')
         }
 
         return null

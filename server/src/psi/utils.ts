@@ -19,5 +19,16 @@ export function isFunctionNode(node: SyntaxNode): boolean {
 }
 
 export function isNamedFunctionNode(node: SyntaxNode): boolean {
-    return node.type === 'global_function' || node.type === 'asm_function' || node.type === 'native_function'
+    return node.type === 'global_function' ||
+        node.type === 'asm_function' ||
+        node.type === 'native_function' ||
+        node.type === 'storage_function'
+}
+
+export function isTypeOwnerNode(node: SyntaxNode): boolean {
+    return node.type === 'storage_field' ||
+        node.type === 'field' ||
+        node.type === 'parameter' ||
+        node.type === 'global_constant' ||
+        node.type === 'storage_constant'
 }

@@ -30,6 +30,11 @@ export function collect(file: File, uri: string): SemanticTokens {
             pushToken(name, lsp.SemanticTokenTypes.property);
         }
 
+        if (n.type === 'storage_function') {
+            const name = n.childForFieldName('name')!
+            pushToken(name, lsp.SemanticTokenTypes.function);
+        }
+
         if (n.type === 'parameter') {
             const name = n.childForFieldName('name')!
             pushToken(name, lsp.SemanticTokenTypes.parameter);
