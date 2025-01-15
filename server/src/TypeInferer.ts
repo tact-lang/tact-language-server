@@ -2,9 +2,10 @@ import {BouncedTy, ContractTy, MapTy, MessageTy, OptionTy, PrimitiveTy, StructTy
 import {Expression, NamedNode, Node} from "./psi/Node";
 import {Reference} from "./psi/Reference";
 import {Struct, Message, Function, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations";
-import {isTypeOwnerNode, measureTime} from "./psi/utils";
+import {isTypeOwnerNode} from "./psi/utils";
 import {SyntaxNode} from "web-tree-sitter";
 import {CACHE} from "./cache";
+import {index, IndexKey} from "./indexes";
 
 export class TypeInferer {
     public static inferType(node: Node): Ty | null {
@@ -19,26 +20,7 @@ export class TypeInferer {
         if (node.node.type === "type_identifier") {
             const resolved = Reference.resolve(new NamedNode(node.node, node.file))
             if (resolved === null) return null
-
-            if (resolved instanceof Struct) {
-                return new StructTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Message) {
-                return new MessageTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Trait) {
-                return new TraitTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Primitive) {
-                return new PrimitiveTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Contract) {
-                return new ContractTy(resolved.name(), resolved)
-            }
+            return this.inferTypeFromResolved(resolved);
         }
 
         if (node.node.type === "identifier" || node.node.type === "self") {
@@ -83,46 +65,20 @@ export class TypeInferer {
                 return this.inferTypeMaybeOption(typeNode, resolved);
             }
 
-            if (resolved instanceof Primitive) {
-                return new PrimitiveTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Struct) {
-                return new StructTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Message) {
-                return new MessageTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Trait) {
-                return new TraitTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Contract) {
-                return new ContractTy(resolved.name(), resolved)
-            }
+            return this.inferTypeFromResolved(resolved);
         }
 
         if (node.node.type === "bounced_type") {
-            const message = node.node.childForFieldName("message")
-            if (!message) return null
-
-            const innerTy = this.inferType(new Expression(message, node.file))
+            const innerTy = this.inferChildFieldType(node, "message")
             if (innerTy === null) return null
-
             return new BouncedTy(innerTy)
         }
 
         if (node.node.type === "map_type") {
-            const key = node.node.childForFieldName("key")
-            if (!key) return null
-            const keyTy = this.inferType(new Expression(key, node.file))
+            const keyTy = this.inferChildFieldType(node, "key")
             if (keyTy === null) return null
 
-            const value = node.node.childForFieldName("value")
-            if (!value) return null
-            const valueTy = this.inferType(new Expression(value, node.file))
+            const valueTy = this.inferChildFieldType(node, "value")
             if (valueTy === null) return null
 
             return new MapTy(keyTy, valueTy)
@@ -135,20 +91,11 @@ export class TypeInferer {
             const element = new NamedNode(name, node.file)
             const resolved = Reference.resolve(element)
             if (resolved === null) return null
-
-            if (resolved instanceof Struct) {
-                return new StructTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Message) {
-                return new MessageTy(resolved.name(), resolved)
-            }
+            return this.inferTypeFromResolved(resolved);
         }
 
         if (node.node.type === "non_null_assert_expression") {
-            const arg = node.node.childForFieldName("argument")
-            if (arg === null) return null
-            const inferred = this.inferType(new Expression(arg, node.file))
+            const inferred = this.inferChildFieldType(node, "argument")
             if (inferred instanceof OptionTy) {
                 return inferred.innerTy
             }
@@ -156,7 +103,9 @@ export class TypeInferer {
         }
 
         if (node.node.type === "initOf") {
-            // TODO: return StateInit
+            const stateInit = index.elementByName(IndexKey.Structs, 'StateInit');
+            if (!stateInit) return null;
+            return new StructTy('StateInit', stateInit);
         }
 
         if (node.node.type === "parenthesized_expression") {
@@ -166,9 +115,7 @@ export class TypeInferer {
         }
 
         if (node.node.type === "parameter") {
-            const name = node.node.childForFieldName("name")
-            if (name === null) return null
-            return this.inferType(new Expression(name, node.file))
+            return this.inferChildFieldType(node, "name")
         }
 
         if (node.node.type === "field_access_expression") {
@@ -184,17 +131,7 @@ export class TypeInferer {
                 return this.inferTypeMaybeOption(typeNode, resolved)
             }
 
-            if (resolved instanceof Struct) {
-                return new StructTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Message) {
-                return new MessageTy(resolved.name(), resolved)
-            }
-
-            if (resolved instanceof Trait) {
-                return new TraitTy(resolved.name(), resolved)
-            }
+            return this.inferTypeFromResolved(resolved);
         }
 
         if (node.node.type === "static_call_expression" || node.node.type === "method_call_expression") {
@@ -221,5 +158,30 @@ export class TypeInferer {
             return new OptionTy(inferred)
         }
         return inferred
+    }
+
+    private inferTypeFromResolved(resolved: NamedNode): Ty | null {
+        if (resolved instanceof Primitive) {
+            return new PrimitiveTy(resolved.name(), resolved)
+        }
+        if (resolved instanceof Struct) {
+            return new StructTy(resolved.name(), resolved)
+        }
+        if (resolved instanceof Message) {
+            return new MessageTy(resolved.name(), resolved)
+        }
+        if (resolved instanceof Trait) {
+            return new TraitTy(resolved.name(), resolved)
+        }
+        if (resolved instanceof Contract) {
+            return new ContractTy(resolved.name(), resolved)
+        }
+        return null;
+    }
+
+    private inferChildFieldType(node: Node, fieldName: string): Ty | null {
+        const child = node.node.childForFieldName(fieldName)
+        if (!child) return null
+        return this.inferType(new Expression(child, node.file))
     }
 }

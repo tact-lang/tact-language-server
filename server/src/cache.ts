@@ -2,37 +2,57 @@ import {LRUMap} from "./utils/lruMap";
 import {Ty} from "./types/BaseTy";
 import {NamedNode} from "./psi/Node";
 
-function dispose<K, V>(_entries: [K, V][]) {
-}
-
-export class CacheManager {
-    public typeCache: Cache<number, Ty | null> = new Cache()
-    public resolveCache: Cache<number, NamedNode | null> = new Cache()
-
-    public clear() {
-        console.log('clear cache')
-        this.typeCache.clear()
-        this.resolveCache.clear()
-    }
+export interface CacheConfig {
+    size: number;
 }
 
 export class Cache<TKey, TValue> {
-    private data: LRUMap<TKey, TValue> = new LRUMap({size: 10000, dispose: dispose})
+    private data: LRUMap<TKey, TValue>;
 
-    public cached(key: TKey, cb: () => TValue) {
-        const cached = this.data.get(key);
-        if (cached !== undefined) {
-            console.log('cache hit: size:', this.data.size)
-            return cached
-        }
-
-        const inferred = cb()
-        this.data.set(key, inferred)
-        return inferred
+    constructor(config: CacheConfig) {
+        this.data = new LRUMap({
+            size: config.size,
+            dispose: (_entries) => {
+            }
+        });
     }
 
-    public clear() {
-        this.data.clear()
+    public cached(key: TKey, cb: () => TValue): TValue {
+        const cached = this.data.get(key);
+        if (cached !== undefined) {
+            return cached;
+        }
+
+        const value = cb();
+        this.data.set(key, value);
+        return value;
+    }
+
+    public clear(): void {
+        this.data.clear();
+    }
+
+    public get size(): number {
+        return this.data.size;
+    }
+}
+
+export class CacheManager {
+    public readonly typeCache: Cache<number, Ty | null>;
+    public readonly resolveCache: Cache<number, NamedNode | null>;
+
+    constructor() {
+        this.typeCache = new Cache({size: 10000});
+        this.resolveCache = new Cache({size: 10000});
+    }
+
+    public clear(): void {
+        console.log('Clearing caches');
+        console.log('Type cache size:', this.typeCache.size);
+        console.log('Resolve cache size:', this.resolveCache.size);
+
+        this.typeCache.clear();
+        this.resolveCache.clear();
     }
 }
 
