@@ -11,12 +11,12 @@ import {File} from "./File";
 export class Referent {
     private readonly resolved: NamedNode | null = null;
     private readonly node: SyntaxNode;
-    private readonly tree: Tree;
+    private readonly file: File;
 
-    public constructor(node: SyntaxNode, file: string, tree: Tree) {
-        this.tree = tree;
+    public constructor(node: SyntaxNode, file: File) {
+        this.file = file;
         this.node = node;
-        const element = new NamedNode(node, new File(file))
+        const element = new NamedNode(node, file)
         this.resolved = Reference.resolve(element)
     }
 
@@ -103,7 +103,7 @@ export class Referent {
 
         if (parent.type === 'global_function' || this.resolved.node.type === 'global_function') {
             // search in file for now
-            return this.tree.rootNode
+            return this.file.rootNode
         }
 
         return null

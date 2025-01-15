@@ -19,7 +19,7 @@ export class FileIndex {
         this.elements = elements
     }
 
-    public static create(path: string, tree: Tree): FileIndex {
+    public static create(file: File): FileIndex {
         const elements = new Map<IndexKey, NamedNode[]>()
         elements.set(IndexKey.Structs, [])
         elements.set(IndexKey.Traits, [])
@@ -28,9 +28,7 @@ export class FileIndex {
         elements.set(IndexKey.Functions, [])
         elements.set(IndexKey.Constants, [])
 
-        const file = new File(path)
-
-        for (const node of tree.rootNode.children) {
+        for (const node of file.rootNode.children) {
             if (node.type === 'global_function' || node.type === 'asm_function') {
                 elements.get(IndexKey.Functions)!.push(new Function(node, file))
             }
@@ -70,21 +68,21 @@ export class FileIndex {
 export class GlobalIndex {
     private readonly files: Map<string, FileIndex> = new Map()
 
-    public addFile(path: string, tree: Tree) {
-        if (this.files.has(path)) {
+    public addFile(uri: string, file: File) {
+        if (this.files.has(uri)) {
             return
         }
 
-        const index = FileIndex.create(path, tree)
-        this.files.set(path, index)
+        const index = FileIndex.create(file)
+        this.files.set(uri, index)
 
-        console.log(`added file ${path} to index`)
+        console.log(`added ${uri} to index`)
     }
 
-    public removeFile(path: string) {
-        this.files.delete(path)
+    public removeFile(uri: string) {
+        this.files.delete(uri)
 
-        console.log(`removed file ${path} to index`)
+        console.log(`removed ${uri} to index`)
     }
 
     public elementsByKey(key: IndexKey): NamedNode[] {

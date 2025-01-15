@@ -25,13 +25,13 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             }
 
             const signature = node.signatureText()
-            const hasParams = node.parameters().length > 0
+            const hasNoParams = node.parameters().length == 0 || (node.withSelf() && node.parameters().length == 1)
 
             const needSemicolon = this.ctx.isExpression
 
             // TODO: check for `;` existence
             // We want to place cursor in parens only if there are any parameters to write.
-            const insertText = name + (hasParams ? '($1)' : '()') + (needSemicolon ? '$2;$0' : '')
+            const insertText = name + (hasNoParams ? '()' : '($1)') + (needSemicolon ? '$2;$0' : '')
 
             this.addItem({
                 label: name,

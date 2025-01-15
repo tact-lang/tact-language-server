@@ -1,9 +1,10 @@
 import {FoldingRange, FoldingRangeKind} from "vscode-languageserver-types";
 import {RecursiveVisitor} from "../visitor";
-import {Point, Tree} from "web-tree-sitter";
+import {File} from "../psi/File";
+import {Point} from "web-tree-sitter";
 import * as lsp from "vscode-languageserver";
 
-export function collect(tree: Tree,): FoldingRange[] {
+export function collect(file: File): FoldingRange[] {
     const result: FoldingRange[] = []
 
     const genericFolding = (start: Point, end: Point): lsp.FoldingRange => {
@@ -16,7 +17,7 @@ export function collect(tree: Tree,): FoldingRange[] {
         }
     }
 
-    RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
+    RecursiveVisitor.visit(file.rootNode, (n): boolean => {
         if (n.type === 'block_statement' ||
             n.type === 'instance_argument_list' ||
             n.type === 'function_body' ||

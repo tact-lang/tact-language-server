@@ -26,7 +26,7 @@ import {SyntaxNode} from "web-tree-sitter";
 import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
 import {Referent} from "./psi/Referent";
 import {index} from "./indexes";
-import {NamedNode} from "./psi/Node";
+import {CallLike, NamedNode} from "./psi/Node";
 import {Reference} from "./psi/Reference";
 import {File} from "./psi/File";
 import * as docs from "./documentation/documentation";
@@ -35,6 +35,7 @@ import * as foldings from "./foldings/collect";
 import * as semantic from "./semantic_tokens/collect";
 import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProcessor";
 import {CompletionContext} from "./completion/CompletionContext";
+import {TextDocument} from "vscode-languageserver-textdocument";
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split('\n');
@@ -55,49 +56,70 @@ function getOffsetFromPosition(fileContent: string, line: number, column: number
     return offset;
 }
 
+const documents = new DocumentStore(connection);
+
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
     await initParser(params.initializationOptions.treeSitterWasmUri, params.initializationOptions.langWasmUri);
 
-    const documents = new DocumentStore(connection);
+    documents.onDidOpen(async event => {
+        const uri = event.document.uri;
+        console.log("open:", uri);
 
-    documents.onDidOpen(event => {
-        console.log("open:", event.document.uri);
-
-        const path = event.document.uri.substring(7);
-        const tree = getTree(path)
-        index.addFile(path, tree)
+        const path = uri.substring(7);
+        const file = await findFile(uri)
+        index.addFile(path, file)
     });
 
     documents.onDidClose(event => {
-        console.log("close:", event.document.uri);
+        const uri = event.document.uri;
+        console.log("close:", uri);
 
-        const path = event.document.uri.slice(7);
-        index.removeFile(path)
+        index.removeFile(uri)
     })
 
-    documents.onDidChangeContent(event => {
-        console.log("changed:", event.document.uri);
+    documents.onDidChangeContent(async event => {
+        const uri = event.document.uri;
+        console.log("changed:", uri);
 
-        const path = event.document.uri.slice(7);
-        index.removeFile(path)
+        index.removeFile(uri)
 
-        const tree = getTree(path, event.document.getText())
-        index.addFile(path, tree)
+        const file = await findFile(uri, event.document.getText())
+        index.addFile(uri, file)
     })
 
-    const getTree = (path: string, content?: string | undefined) => {
-        const realContent = content ?? readFileSync(path).toString();
+    const findFile = async (uri: string, content?: string | undefined) => {
+        let realContent: string
+        let document: TextDocument | undefined;
+        try {
+            document = await documents.retrieve(uri)
+            if (!document) {
+                realContent = content ?? readFileSync(uri.slice(7)).toString();
+            } else {
+                realContent = content ?? document.getText();
+            }
+        } catch (e) {
+            realContent = content ?? readFileSync(uri.slice(7)).toString();
+        }
+
         const parser = createParser()
-        return parser.parse(realContent);
+        return new File(uri, parser.parse(realContent));
+    }
+
+    const getContent = async (uri: string, content?: string | undefined) => {
+        const document = await documents.retrieve(uri)
+        if (!document) {
+            return content ?? readFileSync(uri.slice(7)).toString();
+        }
+
+        return content ?? document.getText();
     }
 
     connection.onRequest(lsp.HoverRequest.type, async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
-        const path = params.textDocument.uri.slice(7)
-        const tree = getTree(path)
+        const file = await findFile(params.textDocument.uri)
         const cursorPosition = asParserPoint(params.position)
-        const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
+        const hoverNode = file.rootNode.descendantForPosition(cursorPosition)
 
-        const res = Reference.resolve(NamedNode.create(hoverNode, new File(path)))
+        const res = Reference.resolve(NamedNode.create(hoverNode, file))
         if (res === null) return {
             range: asLspRange(hoverNode),
             contents: {
@@ -120,17 +142,16 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     connection.onRequest(lsp.DefinitionRequest.type, async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
         const uri = params.textDocument.uri;
-        const path = uri.slice(7)
-        const tree = getTree(path)
+        const file = await findFile(uri)
 
         const cursorPosition = asParserPoint(params.position)
-        const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
+        const hoverNode = file.rootNode.descendantForPosition(cursorPosition)
 
         if (hoverNode.type !== 'identifier' && hoverNode.type !== 'type_identifier') {
             return []
         }
 
-        const element = NamedNode.create(hoverNode, new File(path))
+        const element = NamedNode.create(hoverNode, file)
         const res = Reference.resolve(element)
         if (res === null) return []
 
@@ -145,8 +166,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     connection.onRequest(lsp.CompletionRequest.type, async (params: lsp.CompletionParams): Promise<lsp.CompletionItem[]> => {
         const uri = params.textDocument.uri;
-        const path = uri.slice(7)
-        const content = readFileSync(path).toString();
+        const content = await getContent(uri);
         const parser = createParser()
 
         const offset = getOffsetFromPosition(content, params.position.line, params.position.character + 1)
@@ -185,7 +205,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             return []
         }
 
-        const element = new NamedNode(hoverNode, new File(path))
+        const element = new NamedNode(hoverNode, new File(uri, tree))
         const ref = new Reference(element)
 
         const ctx = new CompletionContext(element, params.position, params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked)
@@ -198,24 +218,22 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     connection.onRequest(lsp.InlayHintRequest.type, async (params: lsp.InlayHintParams): Promise<InlayHint[] | null> => {
         const uri = params.textDocument.uri;
-        const path = uri.substring(7)
-        const tree = getTree(path)
-        return inlays.collect(tree, path)
+        const file = await findFile(uri)
+        return inlays.collect(file, uri)
     })
 
     const renameHandler = async (params: RenameParams): Promise<lsp.WorkspaceEdit | null> => {
         const uri = params.textDocument.uri;
-        const path = uri.substring(7)
-        const tree = getTree(path)
+        const file = await findFile(uri)
 
         const cursorPosition = asParserPoint(params.position)
-        const renameNode = tree.rootNode.descendantForPosition(cursorPosition)
+        const renameNode = file.rootNode.descendantForPosition(cursorPosition)
 
         if (renameNode.type !== 'identifier') {
             return Promise.reject("not an identifier")
         }
 
-        const result = new Referent(renameNode, path, tree).findReferences(true)
+        const result = new Referent(renameNode, file).findReferences(true)
         if (result.length === 0) return Promise.reject("cannot find any references")
 
         return {
@@ -234,17 +252,16 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     connection.onRequest(lsp.DocumentHighlightRequest.type, async (params: lsp.DocumentHighlightParams): Promise<DocumentHighlight[] | null> => {
         const uri = params.textDocument.uri;
-        const path = uri.substring(7)
-        const tree = getTree(path)
+        const file = await findFile(uri)
 
         const cursorPosition = asParserPoint(params.position)
-        const highlightNode = tree.rootNode.descendantForPosition(cursorPosition)
+        const highlightNode = file.rootNode.descendantForPosition(cursorPosition)
 
         if (highlightNode.type !== 'identifier' && highlightNode.type !== 'type_identifier') {
             return []
         }
 
-        const result = new Referent(highlightNode, path, tree).findReferences(true)
+        const result = new Referent(highlightNode, file).findReferences(true)
         if (result.length === 0) return null
 
         return result.map(value => {
@@ -267,17 +284,16 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     connection.onRequest(lsp.ReferencesRequest.type, async (params: ReferenceParams): Promise<Location[] | null> => {
         const uri = params.textDocument.uri;
-        const path = uri.substring(7)
-        const tree = getTree(path)
+        const file = await findFile(uri)
 
         const cursorPosition = asParserPoint(params.position)
-        const referenceNode = tree.rootNode.descendantForPosition(cursorPosition)
+        const referenceNode = file.rootNode.descendantForPosition(cursorPosition)
 
         if (referenceNode.type !== 'identifier' && referenceNode.type !== 'type_identifier') {
             return []
         }
 
-        const result = new Referent(referenceNode, path, tree).findReferences(false)
+        const result = new Referent(referenceNode, file).findReferences(false)
         if (result.length === 0) return null
 
         return result.map(value => ({
@@ -288,19 +304,16 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     connection.onRequest(lsp.SignatureHelpRequest.type, async (params: lsp.SignatureHelpParams): Promise<SignatureHelp | null> => {
         const uri = params.textDocument.uri;
-        const path = uri.substring(7)
-        const tree = getTree(path)
+        const file = await findFile(uri)
 
         const cursorPosition = asParserPoint(params.position)
-        const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
-        const call = parentOfType(hoverNode, 'static_call_expression')
-        if (!call) return null
+        const hoverNode = file.rootNode.descendantForPosition(cursorPosition)
+        const callNode = parentOfType(hoverNode, 'static_call_expression', 'method_call_expression')
+        if (!callNode) return null
 
-        const nameNode = call.childForFieldName('name')
-        if (!nameNode) return null
+        const call = new CallLike(callNode, file)
 
-        const element = new NamedNode(nameNode, new File(path))
-        const res = Reference.resolve(element)
+        const res = Reference.resolve(call.nameNode())
         if (res === null) return null
 
         const parametersNode = res.node.childForFieldName('parameters')
@@ -324,8 +337,8 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         //
         // TODO: support multiline calls and functions with self
 
-        const rawArguments = call.childForFieldName('arguments')!;
-        const argsCommas = rawArguments.children.filter(value => value.text === ',' || value.text === '(')
+        const rawArguments = call.rawArguments();
+        const argsCommas = rawArguments.filter(value => value.text === ',' || value.text === '(')
 
         let currentIndex = 0
         for (const [i, argComma] of argsCommas.entries()) {
@@ -336,15 +349,20 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             currentIndex = i
         }
 
-        const parametersInfo: ParameterInformation[] = parameters.map(value => ({
+        if (callNode.type === 'method_call_expression') {
+            // skip self
+            currentIndex++
+        }
+
+        const parametersInfo = parameters.map(value => ({
             label: value.text,
-        }))
+        } as ParameterInformation))
         const parametersString = parametersInfo.map(el => el.label).join(', ')
 
         return {
             signatures: [
                 {
-                    label: `fun ${nameNode.text}(${parametersString})`,
+                    label: `fun ${call.name()}(${parametersString})`,
                     parameters: parametersInfo,
                     activeParameter: currentIndex
                 }
@@ -354,16 +372,14 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     connection.onRequest(lsp.FoldingRangeRequest.type, async (params: FoldingRangeParams): Promise<FoldingRange[] | null> => {
         const uri = params.textDocument.uri;
-        const path = uri.substring(7)
-        const tree = getTree(path)
-        return foldings.collect(tree)
+        const file = await findFile(uri)
+        return foldings.collect(file)
     })
 
     connection.onRequest(lsp.SemanticTokensRequest.type, async (params: lsp.SemanticTokensParams): Promise<SemanticTokens | null> => {
         const uri = params.textDocument.uri;
-        const path = uri.substring(7)
-        const tree = getTree(path)
-        return semantic.collect(tree, path)
+        const file = await findFile(uri)
+        return semantic.collect(file, uri)
     })
 
     const _ = TypeInferer.inferType;

@@ -1,12 +1,12 @@
 import {RecursiveVisitor} from "../visitor";
 import {File} from "../psi/File";
 import {Reference} from "../psi/Reference";
-import {SyntaxNode, Tree} from "web-tree-sitter";
+import {SyntaxNode} from "web-tree-sitter";
 import {NamedNode} from "../psi/Node";
 import * as lsp from "vscode-languageserver";
 import {SemanticTokens} from "vscode-languageserver";
 
-export function collect(tree: Tree, path: string): SemanticTokens {
+export function collect(file: File, uri: string): SemanticTokens {
     const builder = new lsp.SemanticTokensBuilder();
 
     function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes) {
@@ -19,7 +19,7 @@ export function collect(tree: Tree, path: string): SemanticTokens {
         )
     }
 
-    RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
+    RecursiveVisitor.visit(file.rootNode, (n): boolean => {
         if (n.type === 'asm' && n.parent!.type === 'asm_function') {
             pushToken(n, lsp.SemanticTokenTypes.keyword);
         }
@@ -45,7 +45,7 @@ export function collect(tree: Tree, path: string): SemanticTokens {
         }
 
         if (n.type === 'identifier') {
-            const element = new NamedNode(n, new File(path))
+            const element = new NamedNode(n, file)
             const resolved = Reference.resolve(element)
             if (!resolved) return true;
 

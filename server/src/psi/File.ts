@@ -2,16 +2,21 @@ import {NamedNode} from "./Node";
 import {Constant, Function, Message, Primitive, Struct} from "./TopLevelDeclarations";
 import {readFileSync} from "fs";
 import {createParser} from "../parser";
+import {SyntaxNode, Tree} from "web-tree-sitter";
 
 export class File {
-    public readonly path: string;
-
-    public constructor(path: string) {
-        this.path = path;
+    public constructor(
+        public readonly uri: string,
+        public readonly tree: Tree,
+    ) {
     }
 
-    public get uri(): string {
-        return "file://" + this.path;
+    public get rootNode(): SyntaxNode {
+        return this.tree.rootNode
+    }
+
+    public get path(): string {
+        return this.uri.slice(7);
     }
 
     public getFunctions(): Function[] {

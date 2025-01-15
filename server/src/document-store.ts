@@ -82,6 +82,6 @@ export class DocumentStore extends TextDocuments<TextDocument> {
       return undefined;
     }
     let decoded = this._decoder.decode(new Uint8Array(reply.data));
-    return TextDocument.create(uri, 'tolk', 1, decoded);
+    return TextDocument.create(uri, 'tact', 1, decoded);
   }
 }

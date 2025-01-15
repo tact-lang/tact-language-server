@@ -4,15 +4,14 @@ import {File} from "../psi/File";
 import {TypeInferer} from "../TypeInferer";
 import {Reference} from "../psi/Reference";
 import {Function} from "../psi/TopLevelDeclarations";
-import {Tree} from "web-tree-sitter";
 import {CallLike, VarDeclaration} from "../psi/Node";
 
-export function collect(tree: Tree, path: string): InlayHint[] | null {
+export function collect(file: File, uri: string): InlayHint[] | null {
     const result: InlayHint[] = []
 
-    RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
+    RecursiveVisitor.visit(file.rootNode, (n): boolean => {
         if (n.type === 'let_statement') {
-            const decl = new VarDeclaration(n, new File(path))
+            const decl = new VarDeclaration(n, file)
             if (decl.typeHint() !== null) return true // already have typehint
 
             const expr = decl.value()
@@ -35,7 +34,7 @@ export function collect(tree: Tree, path: string): InlayHint[] | null {
         }
 
         if (n.type === 'static_call_expression' || n.type === 'method_call_expression') {
-            const call = new CallLike(n, new File(path))
+            const call = new CallLike(n, file)
             const res = Reference.resolve(call.nameNode())
             if (!(res instanceof Function)) return true
 
