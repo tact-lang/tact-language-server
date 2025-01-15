@@ -75,7 +75,7 @@ export class Referent {
     /**
      * Returns the effective node in which all possible usages are expected.
      * Outside this node, no usages are assumed to exist. For example, variable
-     * can be used only in outer block statement.
+     * can be used only in outer block statement where it defined.
      */
     private useScope(): SyntaxNode | null {
         if (!this.resolved) return null

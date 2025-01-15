@@ -12,7 +12,8 @@ const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
 export function generateDocFor(node: NamedNode): string | null {
     const astNode = node.node;
     switch (astNode.type) {
-        case "global_function": {
+        case "global_function":
+        case "asm_function": {
             const doc = extractCommentsDoc(node)
             const parametersNode = astNode.childForFieldName("parameters")
             if (!parametersNode) return null

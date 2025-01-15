@@ -43,6 +43,11 @@ export class TypeInferer {
                 return this.inferType(new Expression(typeNode, resolved.file))
             }
 
+            if (resolved.node.type === "global_constant") {
+                const typeNode = resolved.node.childForFieldName("type")!
+                return this.inferType(new Expression(typeNode, resolved.file))
+            }
+
             if (resolved.node.type === 'primitive') {
                 return new PrimitiveTy(resolved.name(), resolved)
             }
@@ -95,7 +100,7 @@ export class TypeInferer {
             }
         }
 
-        if (node.node.type === "static_call_expression") {
+        if (node.node.type === "static_call_expression" || node.node.type === "method_call_expression") {
             const name = node.node.childForFieldName("name")
             if (name === null) return null
 

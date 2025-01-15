@@ -35,6 +35,8 @@ import {Reference, ScopeProcessor} from "./psi/Reference";
 import {File} from "./psi/File";
 import {Function} from "./psi/TopLevelDeclarations";
 import * as docs from "./documentation/documentation";
+import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProcessor";
+import {CompletionContext} from "./completion/CompletionContext";
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split('\n');
@@ -181,39 +183,19 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
         const cursorPosition = asParserPoint(params.position)
         const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
-        if (hoverNode.type !== 'identifier') {
+        if (hoverNode.type !== 'identifier' && hoverNode.type !== 'type_identifier') {
             return []
         }
 
         const element = new NamedNode(hoverNode, new File(path))
         const ref = new Reference(element)
 
-        class CompletionScopeProcessor implements ScopeProcessor {
-            public constructor(private result: NamedNode[]) {
-            }
+        const ctx = new CompletionContext(element, params.position, params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked)
 
-            public execute(node: Node): boolean {
-                if (!(node instanceof NamedNode)) {
-                    return true
-                }
+        const processor = new ReferenceCompletionProcessor(ctx);
+        ref.processResolveVariants(processor)
 
-                this.result.push(node)
-                return true
-            }
-        }
-
-        const result: NamedNode[] = []
-        ref.processResolveVariants(new CompletionScopeProcessor(result))
-
-        return result.map((el): lsp.CompletionItem => {
-            const kind = el.node.type === "global_function" || el.node.type === "asm_function" ?
-                CompletionItemKind.Function :
-                CompletionItemKind.Variable;
-            return {
-                kind: kind,
-                label: el.name()
-            }
-        })
+        return Array.from(processor.result.values())
     });
 
     connection.onRequest(lsp.InlayHintRequest.type, async (params: lsp.InlayHintParams): Promise<InlayHint[] | null> => {
@@ -529,7 +511,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                 if (resolved.node.type === 'field') {
                     pushToken(n, lsp.SemanticTokenTypes.property);
                 }
-                if (resolved.node.type === 'global_function') {
+                if (resolved.node.type === 'global_function' || resolved.node.type === 'asm_function') {
                     pushToken(n, lsp.SemanticTokenTypes.function);
                 }
             }

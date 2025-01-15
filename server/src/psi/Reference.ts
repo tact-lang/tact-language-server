@@ -193,6 +193,7 @@ export class Reference {
         if (!this.processNamedElements(processor, file.getStructs())) return false
         if (!this.processNamedElements(processor, file.getMessages())) return false
         if (!this.processNamedElements(processor, file.getPrimitives())) return false
+        if (!this.processNamedElements(processor, file.getConstants())) return false
 
         return true
     }
@@ -202,6 +203,7 @@ export class Reference {
         if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Structs))) return false
         if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Messages))) return false
         if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Traits))) return false
+        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Constants))) return false
 
         return true
     }

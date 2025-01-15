@@ -1,7 +1,7 @@
 import {Tree} from "web-tree-sitter";
 import {NamedNode} from "../psi/Node";
 import {File} from "../psi/File";
-import {Function, Message, Struct} from "../psi/TopLevelDeclarations";
+import {Constant, Function, Message, Struct} from "../psi/TopLevelDeclarations";
 
 export enum IndexKey {
     Contracts = 'Contracts',
@@ -9,6 +9,7 @@ export enum IndexKey {
     Messages = 'Messages',
     Structs = 'Structs',
     Traits = 'Traits',
+    Constants = 'Constants',
 }
 
 export class FileIndex {
@@ -25,6 +26,7 @@ export class FileIndex {
         elements.set(IndexKey.Messages, [])
         elements.set(IndexKey.Contracts, [])
         elements.set(IndexKey.Functions, [])
+        elements.set(IndexKey.Constants, [])
 
         const file = new File(path)
 
@@ -43,6 +45,9 @@ export class FileIndex {
             }
             if (node.type === 'contract') {
                 elements.get(IndexKey.Contracts)!.push(new NamedNode(node, file))
+            }
+            if (node.type === 'global_constant') {
+                elements.get(IndexKey.Constants)!.push(new Constant(node, file))
             }
         }
 

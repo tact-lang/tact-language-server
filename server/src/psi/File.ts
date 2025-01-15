@@ -1,5 +1,5 @@
-import {NamedNode, Node} from "./Node";
-import {Function, Message, Struct} from "./TopLevelDeclarations";
+import {NamedNode} from "./Node";
+import {Constant, Function, Message, Primitive, Struct} from "./TopLevelDeclarations";
 import {readFileSync} from "fs";
 import {createParser} from "../parser";
 
@@ -15,68 +15,38 @@ export class File {
     }
 
     public getFunctions(): Function[] {
-        const tree = this.getTree();
-
-        const result: Function[] = [];
-
-        for (const node of tree.rootNode.children) {
-            if (node.type === 'global_function' || node.type === 'asm_function') {
-                result.push(new Function(node, this))
-            }
-        }
-
-        return result
+        return this.getNodesByType(
+            ['global_function', 'asm_function'],
+            Function
+        );
     }
 
     public getStructs(): Struct[] {
-        const content = readFileSync(this.path).toString();
-        const parser = createParser()
-
-        const tree = parser.parse(content);
-
-        const result: Struct[] = [];
-
-        for (const node of tree.rootNode.children) {
-            if (node.type === 'struct') {
-                result.push(new Struct(node, this))
-            }
-        }
-
-        return result
+        return this.getNodesByType('struct', Struct);
     }
 
     public getMessages(): Message[] {
-        const content = readFileSync(this.path).toString();
-        const parser = createParser()
-
-        const tree = parser.parse(content);
-
-        const result: Message[] = [];
-
-        for (const node of tree.rootNode.children) {
-            if (node.type === 'message') {
-                result.push(new Message(node, this))
-            }
-        }
-
-        return result
+        return this.getNodesByType('message', Message);
     }
 
-    public getPrimitives(): NamedNode[] {
-        const content = readFileSync(this.path).toString();
-        const parser = createParser()
+    public getPrimitives(): Primitive[] {
+        return this.getNodesByType('primitive', Primitive);
+    }
 
-        const tree = parser.parse(content);
+    public getConstants(): Constant[] {
+        return this.getNodesByType('global_constant', Constant);
+    }
 
-        const result: NamedNode[] = [];
+    private getNodesByType<T extends NamedNode>(
+        nodeType: string | string[],
+        constructor: new (node: any, file: File) => T
+    ): T[] {
+        const tree = this.getTree();
+        const types = Array.isArray(nodeType) ? nodeType : [nodeType];
 
-        for (const node of tree.rootNode.children) {
-            if (node.type === 'primitive') {
-                result.push(new NamedNode(node, this))
-            }
-        }
-
-        return result
+        return tree.rootNode.children
+            .filter(node => types.includes(node.type))
+            .map(node => new constructor(node, this));
     }
 
     private getTree() {

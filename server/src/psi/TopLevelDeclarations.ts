@@ -16,6 +16,9 @@ export class Message extends FieldsOwner {
 export class Struct extends FieldsOwner {
 }
 
+export class Primitive extends NamedNode {
+}
+
 export class Function extends NamedNode {
     public returnType(): Expression | null {
         const result = this.node.childForFieldName('result')
@@ -37,5 +40,27 @@ export class Function extends NamedNode {
         if (params.length === 0) return false
         const first = params[0]
         return first.name() === 'self'
+    }
+
+    public signatureText(): string {
+        const parametersNode = this.node.childForFieldName('parameters')
+        if (!parametersNode) return ""
+
+        const result = this.node.childForFieldName('result')?.nextSibling
+        return parametersNode.text + (result ? `: ${result.text}` : '')
+    }
+}
+
+export class Constant extends NamedNode {
+    public value(): Expression | null {
+        const value = this.node.childForFieldName('value')
+        if (!value) return null
+        return new Expression(value, this.file)
+    }
+
+    public typeNode(): Expression | null {
+        const value = this.node.childForFieldName('type')
+        if (!value) return null
+        return new Expression(value, this.file)
     }
 }
