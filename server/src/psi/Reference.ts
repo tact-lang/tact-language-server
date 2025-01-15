@@ -30,7 +30,8 @@ export interface ScopeProcessor {
 export class Reference {
     private readonly element: NamedNode
 
-    public static resolve(node: NamedNode): NamedNode | null {
+    public static resolve(node: NamedNode | null): NamedNode | null {
+        if (node === null) return null
         return new Reference(node).resolve()
     }
 

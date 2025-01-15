@@ -14,27 +14,25 @@ import {readFileSync} from "fs";
 import {createParser, initParser} from "./parser";
 import {asLspRange, asParserPoint} from "./utils/position";
 import {
-    CompletionItemKind,
     DocumentHighlight,
     DocumentHighlightKind,
     FoldingRange,
-    FoldingRangeKind,
     InlayHint,
-    InlayHintKind,
     Location,
     SignatureHelp
 } from "vscode-languageserver-types";
 import {TypeInferer} from "./TypeInferer";
-import {RecursiveVisitor} from "./visitor";
-import {Point, SyntaxNode} from "web-tree-sitter";
+import {SyntaxNode} from "web-tree-sitter";
 import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
 import {Referent} from "./psi/Referent";
 import {index} from "./indexes";
-import {NamedNode, Node} from "./psi/Node";
-import {Reference, ScopeProcessor} from "./psi/Reference";
+import {NamedNode} from "./psi/Node";
+import {Reference} from "./psi/Reference";
 import {File} from "./psi/File";
-import {Function} from "./psi/TopLevelDeclarations";
 import * as docs from "./documentation/documentation";
+import * as inlays from "./inlays/collect";
+import * as foldings from "./foldings/collect";
+import * as semantic from "./semantic_tokens/collect";
 import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProcessor";
 import {CompletionContext} from "./completion/CompletionContext";
 
@@ -202,71 +200,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const uri = params.textDocument.uri;
         const path = uri.substring(7)
         const tree = getTree(path)
-
-        const result: InlayHint[] = []
-
-        RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
-            if (n.type === 'let_statement') {
-                const typeNode = n.childForFieldName('type')
-                if (typeNode) return true // already have typehint
-
-                const expr = n.childForFieldName('value')
-                if (!expr) return true
-
-                const name = n.childForFieldName('name')
-                if (!name) return true
-
-                const type = TypeInferer.inferType(new Node(expr, new File(path)))
-                if (!type) return true
-
-                result.push({
-                    kind: InlayHintKind.Type,
-                    label: `: ${type.qualifiedName()}`,
-                    position: {
-                        line: name.endPosition.row,
-                        character: name.endPosition.column,
-                    }
-                })
-            }
-
-            if (n.type === 'static_call_expression') {
-                const nameNode = n.childForFieldName('name')
-                if (!nameNode) return true
-
-                const element = new NamedNode(nameNode, new File(path))
-                const res = Reference.resolve(element)
-                if (!(res instanceof Function)) return true
-
-                const parameters = res.parameters()
-
-                const rawArguments = n.childForFieldName('arguments')!;
-                const args = rawArguments.children.filter(value => value.type === 'argument')
-
-                for (let i = 0; i < min(parameters.length, args.length); i++) {
-                    const param = parameters[i]
-                    const arg = args[i]
-
-                    const paramName = param.node.childForFieldName('name')!
-
-                    result.push({
-                        kind: InlayHintKind.Parameter,
-                        label: `${paramName.text}:`,
-                        position: {
-                            line: arg.startPosition.row,
-                            character: arg.startPosition.column,
-                        }
-                    })
-                }
-            }
-
-            return true
-        })
-
-        if (result.length > 0) {
-            return result
-        }
-
-        return null
+        return inlays.collect(tree, path)
     })
 
     const renameHandler = async (params: RenameParams): Promise<lsp.WorkspaceEdit | null> => {
@@ -306,7 +240,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const cursorPosition = asParserPoint(params.position)
         const highlightNode = tree.rootNode.descendantForPosition(cursorPosition)
 
-        if (highlightNode.type !== 'identifier') {
+        if (highlightNode.type !== 'identifier' && highlightNode.type !== 'type_identifier') {
             return []
         }
 
@@ -339,7 +273,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const cursorPosition = asParserPoint(params.position)
         const referenceNode = tree.rootNode.descendantForPosition(cursorPosition)
 
-        if (referenceNode.type !== 'identifier') {
+        if (referenceNode.type !== 'identifier' && referenceNode.type !== 'type_identifier') {
             return []
         }
 
@@ -422,105 +356,17 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const uri = params.textDocument.uri;
         const path = uri.substring(7)
         const tree = getTree(path)
-
-        const result: FoldingRange[] = []
-
-        const genericFolding = (start: Point, end: Point): lsp.FoldingRange => {
-            return {
-                kind: FoldingRangeKind.Region,
-                startLine: start.row,
-                endLine: end.row - 1,
-                startCharacter: end.column,
-                endCharacter: end.column,
-            }
-        }
-
-        RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
-            if (n.type === 'block_statement' ||
-                n.type === 'instance_argument_list' ||
-                n.type === 'function_body' ||
-                n.type === 'asm_function_body' ||
-                n.type === 'struct_body' ||
-                n.type === 'contract_body' ||
-                n.type === 'trait_body'
-            ) {
-                const openBrace = n.firstChild!
-                const closeBrace = n.lastChild!
-                result.push(genericFolding(openBrace.endPosition, closeBrace.startPosition))
-            }
-
-            return true
-        })
-
-        return result
+        return foldings.collect(tree)
     })
 
     connection.onRequest(lsp.SemanticTokensRequest.type, async (params: lsp.SemanticTokensParams): Promise<SemanticTokens | null> => {
         const uri = params.textDocument.uri;
         const path = uri.substring(7)
         const tree = getTree(path)
-
-        const builder = new lsp.SemanticTokensBuilder();
-
-        function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes) {
-            builder.push(
-                n.startPosition.row,
-                n.startPosition.column,
-                n.endPosition.column - n.startPosition.column,
-                Object.keys(lsp.SemanticTokenTypes).indexOf(tokenType.toString()),
-                0,
-            )
-        }
-
-        RecursiveVisitor.visit(tree.rootNode, (n): boolean => {
-            if (n.type === 'asm' && n.parent!.type === 'asm_function') {
-                pushToken(n, lsp.SemanticTokenTypes.keyword);
-            }
-
-            if (n.type === 'global_constant') {
-                const name = n.childForFieldName('name')!
-                pushToken(name, lsp.SemanticTokenTypes.property);
-            }
-
-            if (n.type === 'parameter') {
-                const name = n.childForFieldName('name')!
-                pushToken(name, lsp.SemanticTokenTypes.parameter);
-            }
-
-            if (n.type === 'let_statement') {
-                const name = n.childForFieldName('name')!
-                pushToken(name, lsp.SemanticTokenTypes.variable);
-            }
-
-            if (n.type === 'field') {
-                const name = n.childForFieldName('name')!
-                pushToken(name, lsp.SemanticTokenTypes.property);
-            }
-
-            if (n.type === 'identifier') {
-                const element = new NamedNode(n, new File(path))
-                const resolved = Reference.resolve(element)
-                if (!resolved) return true;
-
-                if (resolved.node.parent!.type === 'let_statement') {
-                    pushToken(n, lsp.SemanticTokenTypes.variable);
-                }
-                if (resolved.node.type === 'parameter') {
-                    pushToken(n, lsp.SemanticTokenTypes.parameter);
-                }
-                if (resolved.node.type === 'field') {
-                    pushToken(n, lsp.SemanticTokenTypes.property);
-                }
-                if (resolved.node.type === 'global_function' || resolved.node.type === 'asm_function') {
-                    pushToken(n, lsp.SemanticTokenTypes.function);
-                }
-            }
-
-            return true
-        })
-
-        return builder.build()
+        return semantic.collect(tree, path)
     })
+
+    const _ = TypeInferer.inferType;
 
     console.log('Tact language server is ready!');
 
@@ -555,10 +401,6 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
     }
 })
-
-function min<T>(a: T, b: T): T {
-    return a < b ? a : b
-}
 
 function parentOfType(node: SyntaxNode, ...types: string[]): SyntaxNode | null {
     let parent = node.parent

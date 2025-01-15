@@ -44,9 +44,51 @@ export class NamedNode extends Node {
         return nameNode
     }
 
+    public nameNode(): NamedNode | null {
+        const node = this.nameIdentifier()
+        if (!node) return null
+        return new NamedNode(node, this.file)
+    }
+
     public name(): string {
         const ident = this.nameIdentifier()
         if (ident === null) return ""
         return ident.text
+    }
+}
+
+export class VarDeclaration extends NamedNode {
+    public typeHint(): Expression | null {
+        const node = this.node.childForFieldName('type')
+        if (!node) return null
+        return new Expression(node, this.file)
+    }
+
+    public value(): Expression | null {
+        const node = this.node.childForFieldName('value')
+        if (!node) return null
+        return new Expression(node, this.file)
+    }
+
+    public type(): Ty | null {
+        const hint = this.typeHint()
+        if (hint !== null) {
+            return hint.type()
+        }
+
+        const value = this.value()
+        if (value !== null) {
+            return value.type()
+        }
+
+        return null
+    }
+}
+
+export class CallLike extends NamedNode {
+    public rawArguments(): SyntaxNode[] {
+        const node = this.node.childForFieldName('arguments')
+        if (!node) return []
+        return node.children
     }
 }
