@@ -209,3 +209,18 @@ Foldings позволяют пользователю сворачивать ра
 
 - Переменные и параметры, так как их невозможно различить друг от друга
 - Обращение к полям и их инициализация
+
+### Code lens
+
+Поддержка в IDE: JetBrains ✅, VS Code ✅
+
+Code lens позволяют отображать над строкой или в ее конце кликабельную информацию, например, количество использований данного типа или автора по истории git.
+
+Следующие code lens должны быть реализованы:
+
+- Показ автора по git истории (JetBrains ✅, VS Code ❓)
+- Показ количества использований (JetBrains ✅, VS Code ❓)
+- Go to parent field (JetBrains ✅, VS Code ✅)
+- Go to overidden method (JetBrains ✅, VS Code ✅)
+- Go to overrides (JetBrains ✅, VS Code ✅)
+- Go to inheritors (JetBrains ✅, VS Code ✅)
