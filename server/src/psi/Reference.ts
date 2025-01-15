@@ -155,14 +155,14 @@ export class Reference {
         }
 
         if (qualifierType instanceof TraitTy) {
-            if (!this.processNamedElements(processor, state, qualifierType.fields())) return false
-            if (!this.processNamedElements(processor, state, qualifierType.constants())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.ownFields())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.ownConstants())) return false
             if (!this.processNamedElements(processor, state, qualifierType.methods())) return false
         }
 
         if (qualifierType instanceof ContractTy) {
-            if (!this.processNamedElements(processor, state, qualifierType.fields())) return false
-            if (!this.processNamedElements(processor, state, qualifierType.constants())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.ownFields())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.ownConstants())) return false
             if (!this.processNamedElements(processor, state, qualifierType.methods())) return false
         }
 
@@ -273,6 +273,7 @@ export class Reference {
         if (!this.processNamedElements(processor, state, file.getFunctions())) return false
         if (!this.processNamedElements(processor, state, file.getContracts())) return false
         if (!this.processNamedElements(processor, state, file.getStructs())) return false
+        if (!this.processNamedElements(processor, state, file.getTraits())) return false
         if (!this.processNamedElements(processor, state, file.getMessages())) return false
         if (!this.processNamedElements(processor, state, file.getPrimitives())) return false
         if (!this.processNamedElements(processor, state, file.getConstants())) return false

@@ -124,8 +124,13 @@ export class Referent {
         }
 
         if (node.type === 'storage_variable' || node.type === 'storage_constant' || node.type === 'storage_function') {
-            // search in whole contract or trait
-            return parentOfType(parent, 'contract', 'trait')
+            const owner = parentOfType(parent, 'contract', 'trait');
+            if (owner?.type === 'trait') {
+                // search in file for now, can be used in other traits, optimize?
+                return this.file.rootNode
+            }
+            // search in whole contract
+            return owner
         }
 
         if (isNamedFunctionNode(parent) || isNamedFunctionNode(node)) {

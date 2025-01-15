@@ -1,4 +1,6 @@
 import {Expression, NamedNode} from "./Node";
+import {Reference} from "./Reference";
+import {index, IndexKey} from "../indexes";
 
 export class FieldsOwner extends NamedNode {
     public fields(): NamedNode[] {
@@ -20,7 +22,7 @@ export class Primitive extends NamedNode {
 }
 
 export class StorageMembersOwner extends NamedNode {
-    public methods(): Function[] {
+    public ownMethods(): Function[] {
         const body = this.node.childForFieldName('body');
         if (!body) return []
         return body.children
@@ -28,20 +30,42 @@ export class StorageMembersOwner extends NamedNode {
             .map(value => new Function(value, this.file))
     }
 
-    public fields(): NamedNode[] {
-        const body = this.node.childForFieldName('body');
+    public ownFields(): NamedNode[] {
+        const body = this.node.childForFieldName('body')
         if (!body) return []
         return body.children
             .filter(value => value.type === 'storage_variable')
             .map(value => new NamedNode(value, this.file))
     }
 
-    public constants(): Constant[] {
-        const body = this.node.childForFieldName('body');
+    public ownConstants(): Constant[] {
+        const body = this.node.childForFieldName('body')
         if (!body) return []
         return body.children
             .filter(value => value.type === 'storage_constant')
             .map(value => new Constant(value, this.file))
+    }
+
+    public methods(): Function[] {
+        const ownMethods = this.ownMethods()
+        const traitList = this.node.childForFieldName('traits')
+        if (!traitList) return ownMethods
+
+        const baseTraitNode = index.elementByName(IndexKey.Traits, 'BaseTrait')
+
+        const inheritedMethods = traitList.children
+            .filter(value => value.type === 'identifier')
+            .map(value => new NamedNode(value, this.file))
+            .map(node => Reference.resolve(node))
+            .filter(node => node !== null)
+            .map(node => node instanceof Trait ? node : new Trait(node.node, node.file))
+            .flatMap(trait => trait.methods());
+
+        return [
+            ...ownMethods,
+            ...inheritedMethods,
+            ...(baseTraitNode !== null ? new Trait(baseTraitNode.node, baseTraitNode.file).ownMethods() : []),
+        ]
     }
 }
 

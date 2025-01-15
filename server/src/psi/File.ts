@@ -1,5 +1,5 @@
 import {NamedNode} from "./Node";
-import {Constant, Contract, Function, Message, Primitive, Struct} from "./TopLevelDeclarations";
+import {Constant, Contract, Function, Message, Primitive, Struct, Trait} from "./TopLevelDeclarations";
 import {readFileSync} from "fs";
 import {createParser} from "../parser";
 import {SyntaxNode, Tree} from "web-tree-sitter";
@@ -32,6 +32,10 @@ export class File {
 
     public getStructs(): Struct[] {
         return this.getNodesByType('struct', Struct);
+    }
+
+    public getTraits(): Trait[] {
+        return this.getNodesByType('trait', Trait);
     }
 
     public getMessages(): Message[] {

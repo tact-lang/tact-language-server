@@ -51,19 +51,24 @@ export class PrimitiveTy extends BaseTy<Node> {
 }
 
 export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends BaseTy<Anchor> {
+    public ownMethods(): Function[] {
+        if (this.anchor === null) return []
+        return this.anchor.ownMethods()
+    }
+
+    public ownFields(): NamedNode[] {
+        if (this.anchor === null) return []
+        return this.anchor.ownFields()
+    }
+
+    public ownConstants(): Constant[] {
+        if (this.anchor === null) return []
+        return this.anchor.ownConstants()
+    }
+
     public methods(): Function[] {
         if (this.anchor === null) return []
         return this.anchor.methods()
-    }
-
-    public fields(): NamedNode[] {
-        if (this.anchor === null) return []
-        return this.anchor.fields()
-    }
-
-    public constants(): Constant[] {
-        if (this.anchor === null) return []
-        return this.anchor.constants()
     }
 }
 
