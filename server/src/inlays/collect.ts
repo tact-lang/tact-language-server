@@ -6,7 +6,7 @@ import {Reference} from "../psi/Reference";
 import {Function} from "../psi/TopLevelDeclarations";
 import {CallLike, VarDeclaration} from "../psi/Node";
 
-export function collect(file: File, uri: string): InlayHint[] | null {
+export function collect(file: File): InlayHint[] | null {
     const result: InlayHint[] = []
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {

@@ -36,6 +36,7 @@ import * as semantic from "./semantic_tokens/collect";
 import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProcessor";
 import {CompletionContext} from "./completion/CompletionContext";
 import {TextDocument} from "vscode-languageserver-textdocument";
+import {TextDocumentPositionParams} from "vscode-languageserver-protocol/lib/common/protocol";
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split('\n');
@@ -114,10 +115,14 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         return content ?? document.getText();
     }
 
+    function nodeAtPosition(params: TextDocumentPositionParams, file: File) {
+        const cursorPosition = asParserPoint(params.position)
+        return file.rootNode.descendantForPosition(cursorPosition);
+    }
+
     connection.onRequest(lsp.HoverRequest.type, async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
         const file = await findFile(params.textDocument.uri)
-        const cursorPosition = asParserPoint(params.position)
-        const hoverNode = file.rootNode.descendantForPosition(cursorPosition)
+        const hoverNode = nodeAtPosition(params, file);
 
         const res = Reference.resolve(NamedNode.create(hoverNode, file))
         if (res === null) return {
@@ -141,12 +146,8 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     })
 
     connection.onRequest(lsp.DefinitionRequest.type, async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
-        const uri = params.textDocument.uri;
-        const file = await findFile(uri)
-
-        const cursorPosition = asParserPoint(params.position)
-        const hoverNode = file.rootNode.descendantForPosition(cursorPosition)
-
+        const file = await findFile(params.textDocument.uri)
+        const hoverNode = nodeAtPosition(params, file);
         if (hoverNode.type !== 'identifier' && hoverNode.type !== 'type_identifier') {
             return []
         }
@@ -200,12 +201,12 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const tree = parser.parse(newContent);
 
         const cursorPosition = asParserPoint(params.position)
-        const hoverNode = tree.rootNode.descendantForPosition(cursorPosition)
-        if (hoverNode.type !== 'identifier' && hoverNode.type !== 'type_identifier') {
+        const cursorNode = tree.rootNode.descendantForPosition(cursorPosition)
+        if (cursorNode.type !== 'identifier' && cursorNode.type !== 'type_identifier') {
             return []
         }
 
-        const element = new NamedNode(hoverNode, new File(uri, tree))
+        const element = new NamedNode(cursorNode, new File(uri, tree))
         const ref = new Reference(element)
 
         const ctx = new CompletionContext(element, params.position, params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked)
@@ -217,18 +218,15 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     });
 
     connection.onRequest(lsp.InlayHintRequest.type, async (params: lsp.InlayHintParams): Promise<InlayHint[] | null> => {
-        const uri = params.textDocument.uri;
-        const file = await findFile(uri)
-        return inlays.collect(file, uri)
+        const file = await findFile(params.textDocument.uri)
+        return inlays.collect(file)
     })
 
     const renameHandler = async (params: RenameParams): Promise<lsp.WorkspaceEdit | null> => {
         const uri = params.textDocument.uri;
         const file = await findFile(uri)
 
-        const cursorPosition = asParserPoint(params.position)
-        const renameNode = file.rootNode.descendantForPosition(cursorPosition)
-
+        const renameNode = nodeAtPosition(params, file);
         if (renameNode.type !== 'identifier') {
             return Promise.reject("not an identifier")
         }
@@ -251,12 +249,8 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     }))
 
     connection.onRequest(lsp.DocumentHighlightRequest.type, async (params: lsp.DocumentHighlightParams): Promise<DocumentHighlight[] | null> => {
-        const uri = params.textDocument.uri;
-        const file = await findFile(uri)
-
-        const cursorPosition = asParserPoint(params.position)
-        const highlightNode = file.rootNode.descendantForPosition(cursorPosition)
-
+        const file = await findFile(params.textDocument.uri)
+        const highlightNode = nodeAtPosition(params, file);
         if (highlightNode.type !== 'identifier' && highlightNode.type !== 'type_identifier') {
             return []
         }
@@ -286,9 +280,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         const uri = params.textDocument.uri;
         const file = await findFile(uri)
 
-        const cursorPosition = asParserPoint(params.position)
-        const referenceNode = file.rootNode.descendantForPosition(cursorPosition)
-
+        const referenceNode = nodeAtPosition(params, file);
         if (referenceNode.type !== 'identifier' && referenceNode.type !== 'type_identifier') {
             return []
         }
@@ -303,11 +295,9 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     })
 
     connection.onRequest(lsp.SignatureHelpRequest.type, async (params: lsp.SignatureHelpParams): Promise<SignatureHelp | null> => {
-        const uri = params.textDocument.uri;
-        const file = await findFile(uri)
+        const file = await findFile(params.textDocument.uri)
 
-        const cursorPosition = asParserPoint(params.position)
-        const hoverNode = file.rootNode.descendantForPosition(cursorPosition)
+        const hoverNode = nodeAtPosition(params, file);
         const callNode = parentOfType(hoverNode, 'static_call_expression', 'method_call_expression')
         if (!callNode) return null
 
