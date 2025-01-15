@@ -3,8 +3,8 @@ import {BouncedTy, ContractTy, MessageTy, OptionTy, StructTy, TraitTy, Ty} from 
 import {index, IndexKey} from "../indexes";
 import {Expression, NamedNode, Node} from "./Node";
 import {Contract, Function, Trait} from "./TopLevelDeclarations";
-import {File} from "./File";
 import {isFunctionNode, parentOfType} from "./utils";
+import {CACHE} from "../cache";
 
 export class ResolveState {
     private values: Map<string, string> = new Map();
@@ -55,6 +55,10 @@ export class Reference {
     }
 
     public resolve(): NamedNode | null {
+        return CACHE.resolveCache.cached(this.element.node.id, () => this.resolveImpl())
+    }
+
+    private resolveImpl(): NamedNode | null {
         const result: NamedNode[] = [];
         const state = new ResolveState();
         this.processResolveVariants(this.createResolveProcessor(result, this.element), state)
@@ -127,6 +131,13 @@ export class Reference {
             parent.type === 'field' ||
             parent.type === 'parameter' ||
             parent.type === 'storage_variable' ||
+            parent.type === 'trait' ||
+            parent.type === 'struct' ||
+            parent.type === 'message' ||
+            parent.type === 'contract' ||
+            parent.type === 'global_function' ||
+            parent.type === 'asm_function' ||
+            parent.type === 'native_function' ||
             parent.type === 'storage_function' ||
             parent.type === 'storage_constant'
         ) && name.equals(identifier)
@@ -175,22 +186,26 @@ export class Reference {
     }
 
     private processTypeMethods(ty: Ty, processor: ScopeProcessor, state: ResolveState): boolean {
-        const candidates = index.elementsByKey(IndexKey.Functions).filter(fun => {
-            if (!(fun instanceof Function)) return false
-            if (!fun.withSelf()) return false
-            const selfParam = fun.parameters()[0]
-            const typeNode = selfParam.node.childForFieldName('type');
-            if (typeNode === null) return false
-            const typeExpr = new Expression(typeNode, fun.file)
-            const selfType = typeExpr.type()
-            return selfType?.qualifiedName() === ty.qualifiedName()
-        })
-        return this.processNamedElements(processor, state, candidates);
+        return index.processElementsByKey(IndexKey.Functions, new class implements ScopeProcessor {
+            execute(fun: Node, state: ResolveState): boolean {
+                if (!(fun instanceof Function)) return true
+                if (!fun.withSelf()) return true
+                const selfParam = fun.parameters()[0]
+                const typeNode = selfParam.node.childForFieldName('type');
+                if (typeNode === null) return true
+                const typeExpr = new Expression(typeNode, fun.file)
+                const selfType = typeExpr.type()
+                if (selfType?.qualifiedName() === ty.qualifiedName()) {
+                    return processor.execute(fun, state)
+                }
+                return true
+            }
+        }, state)
     }
 
     private processUnqualifiedResolve(processor: ScopeProcessor, state: ResolveState): boolean {
         const name = this.element.node.text
-        if (!name || name === '_') return true
+        if (!name || name === '' || name === '_') return true
 
         if (name === 'self') {
             const ownerNode = parentOfType(this.element.node, 'contract', 'trait')
@@ -203,6 +218,11 @@ export class Reference {
         }
 
         const parent = this.element.node.parent!;
+        if (parent.type === 'tvm_ordinary_word') {
+            // don't try to resolve TVM assembly
+            return true
+        }
+
         if (parent.type === 'instance_argument') {
             // `Foo { name: "" }`
             //        ^^^^^^^^ this
@@ -215,7 +235,6 @@ export class Reference {
             return this.resolveAsmArrangementArgs(parent, processor, state)
         }
 
-        if (!this.processFileEntities(this.element.file, processor, state)) return false
         if (!this.processAllEntities(processor, state)) return false
         if (!this.processBlock(processor, state)) return false
 
@@ -274,26 +293,14 @@ export class Reference {
         return true
     }
 
-    private processFileEntities(file: File, processor: ScopeProcessor, state: ResolveState): boolean {
-        if (!this.processNamedElements(processor, state, file.getFunctions())) return false
-        if (!this.processNamedElements(processor, state, file.getContracts())) return false
-        if (!this.processNamedElements(processor, state, file.getStructs())) return false
-        if (!this.processNamedElements(processor, state, file.getTraits())) return false
-        if (!this.processNamedElements(processor, state, file.getMessages())) return false
-        if (!this.processNamedElements(processor, state, file.getPrimitives())) return false
-        if (!this.processNamedElements(processor, state, file.getConstants())) return false
-
-        return true
-    }
-
     private processAllEntities(processor: ScopeProcessor, state: ResolveState): boolean {
-        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Functions))) return false
-        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Contracts))) return false
-        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Structs))) return false
-        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Messages))) return false
-        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Traits))) return false
-        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Primitives))) return false
-        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Constants))) return false
+        if (!index.processElementsByKey(IndexKey.Primitives, processor, state)) return false
+        if (!index.processElementsByKey(IndexKey.Functions, processor, state)) return false
+        if (!index.processElementsByKey(IndexKey.Structs, processor, state)) return false
+        if (!index.processElementsByKey(IndexKey.Messages, processor, state)) return false
+        if (!index.processElementsByKey(IndexKey.Traits, processor, state)) return false
+        if (!index.processElementsByKey(IndexKey.Constants, processor, state)) return false
+        if (!index.processElementsByKey(IndexKey.Contracts, processor, state)) return false
 
         return true
     }

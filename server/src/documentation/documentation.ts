@@ -38,6 +38,10 @@ export function generateDocFor(node: NamedNode): string | null {
             const doc = extractCommentsDoc(node)
             return defaultResult(`struct ${node.name()}`, doc)
         }
+        case "message": {
+            const doc = extractCommentsDoc(node)
+            return defaultResult(`message ${node.name()}`, doc)
+        }
         case "primitive": {
             const doc = extractCommentsDoc(node)
             return defaultResult(`primitive ${node.name()}`, doc)

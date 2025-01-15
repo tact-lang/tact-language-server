@@ -2,8 +2,9 @@ import {BouncedTy, ContractTy, MapTy, MessageTy, OptionTy, PrimitiveTy, StructTy
 import {Expression, NamedNode, Node} from "./psi/Node";
 import {Reference} from "./psi/Reference";
 import {Struct, Message, Function, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations";
-import {isTypeOwnerNode} from "./psi/utils";
+import {isTypeOwnerNode, measureTime} from "./psi/utils";
 import {SyntaxNode} from "web-tree-sitter";
+import {CACHE} from "./cache";
 
 export class TypeInferer {
     public static inferType(node: Node): Ty | null {
@@ -11,13 +12,13 @@ export class TypeInferer {
     }
 
     public inferType(node: Node): Ty | null {
+        return CACHE.typeCache.cached(node.node.id, () => this.inferTypeImpl(node));
+    }
+
+    private inferTypeImpl(node: Node): Ty | null {
         if (node.node.type === "type_identifier") {
             const resolved = Reference.resolve(new NamedNode(node.node, node.file))
             if (resolved === null) return null
-
-            if (resolved.node.type === 'primitive') {
-                return new PrimitiveTy(resolved.name(), resolved)
-            }
 
             if (resolved instanceof Struct) {
                 return new StructTy(resolved.name(), resolved)

@@ -6,7 +6,7 @@ import {readFileSync} from "fs";
 import {createParser, initParser} from "./parser";
 import {asLspRange, asParserPoint} from "./utils/position";
 import {TypeInferer} from "./TypeInferer";
-import {SyntaxNode} from "web-tree-sitter";
+import {SyntaxNode, Tree} from "web-tree-sitter";
 import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
 import {Referent} from "./psi/Referent";
 import {index} from "./indexes";
@@ -25,6 +25,7 @@ import * as semantic from "./semantic_tokens/collect";
 import * as lens from "./lens/collect";
 import * as path from "node:path";
 import {existsSync} from "node:fs";
+import {LRUMap} from "./utils/lruMap";
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split('\n');
@@ -47,6 +48,12 @@ function getOffsetFromPosition(fileContent: string, line: number, column: number
 
 const documents = new DocumentStore(connection);
 
+export const PARSED_FILES_CACHE = new LRUMap<string, Tree>({
+    size: 100,
+    dispose: _entries => {
+    }
+})
+
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
     await initParser(params.initializationOptions.treeSitterWasmUri, params.initializationOptions.langWasmUri);
 
@@ -60,15 +67,15 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     });
 
     documents.onDidClose(event => {
-        const uri = event.document.uri;
-        console.log("close:", uri);
+        const uri = event.document.uri
+        console.log("close:", uri)
 
         index.removeFile(uri)
     })
 
     documents.onDidChangeContent(async event => {
-        const uri = event.document.uri;
-        console.log("changed:", uri);
+        const uri = event.document.uri
+        console.log("changed:", uri)
 
         index.removeFile(uri)
 
@@ -77,6 +84,11 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     })
 
     const findFile = async (uri: string, content?: string | undefined) => {
+        const cached = PARSED_FILES_CACHE.get(uri)
+        if (cached !== undefined) {
+            return new File(uri, cached);
+        }
+
         let realContent: string
         let document: TextDocument | undefined;
         try {
@@ -91,7 +103,9 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
 
         const parser = createParser()
-        return new File(uri, parser.parse(realContent));
+        const tree = parser.parse(realContent);
+        PARSED_FILES_CACHE.set(uri, tree)
+        return new File(uri, tree);
     }
 
     const getContent = async (uri: string, content?: string | undefined) => {

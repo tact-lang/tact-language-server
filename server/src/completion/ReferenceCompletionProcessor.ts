@@ -12,11 +12,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
     public result: Map<string, CompletionItem> = new Map();
 
     public execute(node: Node): boolean {
-        if (!(node instanceof NamedNode)) {
-            return true
-        }
+        if (!(node instanceof NamedNode)) return true
 
         const name = node.name()
+        if (name.endsWith('dummyIdentifier')) return true
 
         if (node instanceof Function) {
             if (this.ctx.isType) {

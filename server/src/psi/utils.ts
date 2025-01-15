@@ -26,9 +26,20 @@ export function isNamedFunctionNode(node: SyntaxNode): boolean {
 }
 
 export function isTypeOwnerNode(node: SyntaxNode): boolean {
-    return node.type === 'storage_field' ||
-        node.type === 'field' ||
+    return node.type === 'field' ||
+        node.type === 'storage_variable' ||
         node.type === 'parameter' ||
         node.type === 'global_constant' ||
         node.type === 'storage_constant'
+}
+
+export function measureTime<T>(label: string, fn: () => T): T {
+    const startTime = performance.now();
+    const result = fn();
+    const endTime = performance.now();
+    const time = endTime - startTime;
+    if (time > 0.3) {
+        console.log(`${label}: ${time}ms`);
+    }
+    return result;
 }
