@@ -103,3 +103,16 @@ export class OptionTy implements Ty {
         return `${this.innerTy.qualifiedName()}?`;
     }
 }
+
+export class MapTy implements Ty {
+    constructor(public keyTy: Ty, public valueTy: Ty) {
+    }
+
+    name(): string {
+        return `map<${this.keyTy.name()}, ${this.valueTy.name()}>`;
+    }
+
+    qualifiedName(): string {
+        return `map<${this.keyTy.qualifiedName()}, ${this.valueTy.qualifiedName()}>`;
+    }
+}

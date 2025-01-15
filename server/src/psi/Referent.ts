@@ -59,15 +59,14 @@ export class Referent {
             if (parent === null) return true
 
             // skip definitions itself
-            if (
-                parent.type === 'let_statement' ||
+            if ((
                 parent.type === 'global_function' ||
                 parent.type === 'storage_function' ||
                 parent.type === 'asm_function' ||
                 parent.type === 'native_function' ||
                 parent.type === 'field' ||
                 parent.type === 'storage_variable' ||
-                parent.type === 'parameter'
+                parent.type === 'parameter') && parent.childForFieldName('name')?.equals(node)
             ) {
                 return true
             }

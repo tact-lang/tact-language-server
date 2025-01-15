@@ -71,14 +71,24 @@ export function generateDocFor(node: NamedNode): string | null {
             return defaultResult(`${node.name()}: ${type}${defaultValue}`, doc)
         }
         case "identifier": {
-            const decl = astNode.parent
-            if (!decl) return null
-            const valueNode = decl.childForFieldName("value")
-            if (!valueNode) return null
+            const parent = astNode.parent
+            if (!parent) return null
 
-            const type = TypeInferer.inferType(node)
-            const typeName = type?.qualifiedName() ?? "unknown"
-            return defaultResult(`let ${node.name()}: ${typeName} = ${valueNode.text}`)
+            if (parent.type === 'let_statement') {
+                const valueNode = parent.childForFieldName("value")
+                if (!valueNode) return null
+
+                const type = TypeInferer.inferType(node)
+                const typeName = type?.qualifiedName() ?? "unknown"
+                return defaultResult(`let ${node.name()}: ${typeName} = ${valueNode.text}`)
+            }
+
+            if (parent.type === 'foreach_statement') {
+                const type = TypeInferer.inferType(node)
+                const typeName = type?.qualifiedName() ?? "unknown"
+                return defaultResult(`let ${node.name()}: ${typeName}`)
+            }
+            break
         }
         case "parameter": {
             const type = TypeInferer.inferType(node)

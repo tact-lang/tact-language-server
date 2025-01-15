@@ -4,7 +4,8 @@ import {File} from "../psi/File";
 import {TypeInferer} from "../TypeInferer";
 import {Reference} from "../psi/Reference";
 import {Function} from "../psi/TopLevelDeclarations";
-import {CallLike, VarDeclaration} from "../psi/Node";
+import {CallLike, Expression, VarDeclaration} from "../psi/Node";
+import {MapTy} from "../types/BaseTy";
 
 export function collect(file: File): InlayHint[] | null {
     const result: InlayHint[] = []
@@ -31,6 +32,37 @@ export function collect(file: File): InlayHint[] | null {
                     character: name.endPosition.column,
                 }
             })
+        }
+
+        if (n.type === 'foreach_statement') {
+            const expr = n.childForFieldName('map')
+            if (!expr) return true
+            const exprTy = new Expression(expr, file).type()
+            if (!(exprTy instanceof MapTy)) return true
+
+            const key = n.childForFieldName("key")
+            if (key) {
+                result.push({
+                    kind: InlayHintKind.Type,
+                    label: `: ${exprTy.keyTy.qualifiedName()}`,
+                    position: {
+                        line: key.endPosition.row,
+                        character: key.endPosition.column,
+                    }
+                })
+            }
+
+            const value = n.childForFieldName("value")
+            if (value) {
+                result.push({
+                    kind: InlayHintKind.Type,
+                    label: `: ${exprTy.valueTy.qualifiedName()}`,
+                    position: {
+                        line: value.endPosition.row,
+                        character: value.endPosition.column,
+                    }
+                })
+            }
         }
 
         if (n.type === 'static_call_expression' || n.type === 'method_call_expression') {

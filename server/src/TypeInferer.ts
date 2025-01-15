@@ -1,4 +1,4 @@
-import {BouncedTy, ContractTy, MessageTy, OptionTy, PrimitiveTy, StructTy, TraitTy, Ty} from "./types/BaseTy";
+import {BouncedTy, ContractTy, MapTy, MessageTy, OptionTy, PrimitiveTy, StructTy, TraitTy, Ty} from "./types/BaseTy";
 import {Expression, NamedNode, Node} from "./psi/Node";
 import {Reference} from "./psi/Reference";
 import {Struct, Message, Function, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations";
@@ -56,6 +56,27 @@ export class TypeInferer {
                 return this.inferType(new Expression(value, resolved.file))
             }
 
+            if (parent.type === "foreach_statement") {
+                const expr = parent.childForFieldName('map')
+                if (!expr) return null
+                const exprTy = new Expression(expr, node.file).type()
+                if (!(exprTy instanceof MapTy)) return null
+
+                const key = parent.childForFieldName("key")
+                if (!key) return null
+
+                if (resolved.node.equals(key)) {
+                    return exprTy.keyTy
+                }
+
+                const value = parent.childForFieldName("value")
+                if (!value) return null
+
+                if (resolved.node.equals(value)) {
+                    return exprTy.valueTy
+                }
+            }
+
             if (isTypeOwnerNode(resolved.node)) {
                 const typeNode = resolved.node.childForFieldName("type")!
                 return this.inferTypeMaybeOption(typeNode, resolved);
@@ -90,6 +111,20 @@ export class TypeInferer {
             if (innerTy === null) return null
 
             return new BouncedTy(innerTy)
+        }
+
+        if (node.node.type === "map_type") {
+            const key = node.node.childForFieldName("key")
+            if (!key) return null
+            const keyTy = this.inferType(new Expression(key, node.file))
+            if (keyTy === null) return null
+
+            const value = node.node.childForFieldName("value")
+            if (!value) return null
+            const valueTy = this.inferType(new Expression(value, node.file))
+            if (valueTy === null) return null
+
+            return new MapTy(keyTy, valueTy)
         }
 
         if (node.node.type === "instance_expression") {
