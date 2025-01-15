@@ -1,8 +1,3 @@
-import * as lsp from 'vscode-languageserver';
-import * as docs from "./documentation/documentation";
-import * as inlays from "./inlays/collect";
-import * as foldings from "./foldings/collect";
-import * as semantic from "./semantic_tokens/collect";
 import {connection} from './connection';
 import {InitializeParams, TextDocumentSyncKind} from 'vscode-languageserver/node';
 import {InitializeResult} from 'vscode-languageserver-protocol';
@@ -22,6 +17,11 @@ import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProc
 import {CompletionContext} from "./completion/CompletionContext";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {TextDocumentPositionParams} from "vscode-languageserver-protocol/lib/common/protocol";
+import * as lsp from 'vscode-languageserver';
+import * as docs from "./documentation/documentation";
+import * as inlays from "./inlays/collect";
+import * as foldings from "./foldings/collect";
+import * as semantic from "./semantic_tokens/collect";
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split('\n');

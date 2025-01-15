@@ -1,7 +1,7 @@
 import {MessageTy, PrimitiveTy, StructTy, Ty} from "./types/BaseTy";
 import {Expression, NamedNode, Node} from "./psi/Node";
 import {Reference} from "./psi/Reference";
-import {Struct, Message, Function} from "./psi/TopLevelDeclarations";
+import {Struct, Message, Function, Primitive} from "./psi/TopLevelDeclarations";
 
 export class TypeInferer {
     public static inferType(node: Node): Ty | null {
@@ -24,6 +24,10 @@ export class TypeInferer {
             if (resolved instanceof Message) {
                 return new MessageTy(resolved.name(), resolved)
             }
+
+            if (resolved instanceof Primitive) {
+                return new PrimitiveTy(resolved.name(), resolved)
+            }
         }
 
         if (node.node.type === "identifier") {
@@ -39,6 +43,11 @@ export class TypeInferer {
             }
 
             if (resolved.node.type === "field") {
+                const typeNode = resolved.node.childForFieldName("type")!
+                return this.inferType(new Expression(typeNode, resolved.file))
+            }
+
+            if (resolved.node.type === "parameter") {
                 const typeNode = resolved.node.childForFieldName("type")!
                 return this.inferType(new Expression(typeNode, resolved.file))
             }
@@ -76,6 +85,12 @@ export class TypeInferer {
             if (resolved instanceof Message) {
                 return new MessageTy(resolved.name(), resolved)
             }
+        }
+
+        if (node.node.type === "parameter") {
+            const name = node.node.childForFieldName("name")
+            if (name === null) return null
+            return this.inferType(new Expression(name, node.file))
         }
 
         if (node.node.type === "field_access_expression") {

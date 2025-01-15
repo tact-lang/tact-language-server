@@ -30,6 +30,10 @@ export function generateDocFor(node: NamedNode): string | null {
             const doc = extractCommentsDoc(node)
             return defaultResult(`struct ${node.name()}`, doc)
         }
+        case "primitive": {
+            const doc = extractCommentsDoc(node)
+            return defaultResult(`primitive ${node.name()}`, doc)
+        }
         case "field": {
             const doc = extractCommentsDoc(node)
             const typeNode = astNode.childForFieldName("type")
@@ -53,6 +57,11 @@ export function generateDocFor(node: NamedNode): string | null {
             const type = TypeInferer.inferType(node)
             const typeName = type?.qualifiedName() ?? "unknown"
             return defaultResult(`let ${node.name()}: ${typeName} = ${valueNode.text}`)
+        }
+        case "parameter": {
+            const type = TypeInferer.inferType(node)
+            const typeName = type?.qualifiedName() ?? "unknown"
+            return defaultResult(`${node.name()}: ${typeName}`)
         }
     }
 

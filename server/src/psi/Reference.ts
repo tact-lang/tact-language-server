@@ -4,6 +4,7 @@ import {index, IndexKey} from "../indexes";
 import {Expression, NamedNode, Node} from "./Node";
 import {Function} from "./TopLevelDeclarations";
 import {File} from "./File";
+import {parentOfType} from "./utils";
 
 export interface ScopeProcessor {
     execute(node: Node): boolean
@@ -76,6 +77,9 @@ export class Reference {
             // so process whole `foo: Int` node
             const parent = this.element.node.parent!
             return processor.execute(new NamedNode(parent, this.element.file))
+        }
+        if (this.element.node.type === 'parameter') {
+            return processor.execute(this.element)
         }
 
         const qualifier = this.getQualifier(this.element)
@@ -150,6 +154,12 @@ export class Reference {
             return this.resolveInstanceInitField(parent, processor)
         }
 
+        if (parent.type === 'asm_arrangement_args') {
+            // `asm(cell self) extends fun storeRef(self: Builder, cell: Cell): Builder`
+            //           ^^^^ this
+            return this.resolveAsmArrangementArgs(parent, processor)
+        }
+
         if (!this.processFileEntities(this.element.file, processor)) return false
         if (!this.processAllEntities(processor)) return false
         if (!this.processBlock(processor)) return false
@@ -186,6 +196,26 @@ export class Reference {
         for (const field of fields) {
             if (!processor.execute(new NamedNode(field, resolvedType.file))) return false
         }
+        return true
+    }
+
+    private resolveAsmArrangementArgs(parent: SyntaxNode, processor: ScopeProcessor): boolean {
+        // resolving `asm(cell self) extends fun storeRef(self: Builder, cell: Cell): Builder`
+        //                     ^^^^ this
+
+        const asmFunction = parentOfType(parent, 'asm_function')
+        if (!asmFunction) return true
+
+        const rawParameters = asmFunction.childForFieldName('parameters')
+        if (rawParameters === null) return true
+        const children = rawParameters.children
+        if (children.length < 2) return true
+        const params = children.slice(1, -1)
+
+        for (const param of params) {
+            if (!processor.execute(new NamedNode(param, this.element.file))) break
+        }
+
         return true
     }
 
