@@ -11,7 +11,7 @@ import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
 import {Referent} from "./psi/Referent";
 import {index} from "./indexes";
 import {CallLike, NamedNode} from "./psi/Node";
-import {Reference} from "./psi/Reference";
+import {Reference, ResolveState} from "./psi/Reference";
 import {File} from "./psi/File";
 import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProcessor";
 import {CompletionContext} from "./completion/CompletionContext";
@@ -133,7 +133,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     connection.onRequest(lsp.DefinitionRequest.type, async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
         const file = await findFile(params.textDocument.uri)
         const hoverNode = nodeAtPosition(params, file);
-        if (hoverNode.type !== 'identifier' && hoverNode.type !== 'type_identifier') {
+        if (hoverNode.type !== 'identifier' && hoverNode.type !== 'self' && hoverNode.type !== 'type_identifier') {
             return []
         }
 
@@ -196,8 +196,9 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
         const ctx = new CompletionContext(element, params.position, params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked)
 
+        const state = new ResolveState()
         const processor = new ReferenceCompletionProcessor(ctx);
-        ref.processResolveVariants(processor)
+        ref.processResolveVariants(processor, state)
 
         return Array.from(processor.result.values())
     });
@@ -236,11 +237,11 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     connection.onRequest(lsp.DocumentHighlightRequest.type, async (params: lsp.DocumentHighlightParams): Promise<lsp.DocumentHighlight[] | null> => {
         const file = await findFile(params.textDocument.uri)
         const highlightNode = nodeAtPosition(params, file);
-        if (highlightNode.type !== 'identifier' && highlightNode.type !== 'type_identifier') {
+        if (highlightNode.type !== 'identifier' && highlightNode.type !== 'self' && highlightNode.type !== 'type_identifier') {
             return []
         }
 
-        const result = new Referent(highlightNode, file).findReferences(true)
+        const result = new Referent(highlightNode, file).findReferences(true, true)
         if (result.length === 0) return null
 
         return result.map(value => {

@@ -1,4 +1,4 @@
-import {Struct, Message, FieldsOwner} from "../psi/TopLevelDeclarations";
+import {Struct, Message, FieldsOwner, Contract, Constant} from "../psi/TopLevelDeclarations";
 import {NamedNode, Node} from "../psi/Node";
 
 export interface Ty {
@@ -40,3 +40,29 @@ export class MessageTy extends FieldsOwnerTy<Message> {
 
 export class PrimitiveTy extends BaseTy<Node> {
 }
+
+export class ContractTy extends BaseTy<Contract> {
+    public fields(): NamedNode[] {
+        if (this.anchor === null) return []
+        return this.anchor.fields()
+    }
+
+    public constants(): Constant[] {
+        if (this.anchor === null) return []
+        return this.anchor.constants()
+    }
+}
+
+export class BouncedTy implements Ty {
+    constructor(public innerTy: Ty) {
+    }
+
+    name(): string {
+        return `bounced<${this.innerTy.name()}>`;
+    }
+
+    qualifiedName(): string {
+        return `bounced<${this.innerTy.qualifiedName()}>`;
+    }
+}
+

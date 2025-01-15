@@ -1,13 +1,27 @@
 import {SyntaxNode} from 'web-tree-sitter'
-import {MessageTy, StructTy, Ty} from "../types/BaseTy";
+import {BouncedTy, ContractTy, MessageTy, StructTy, Ty} from "../types/BaseTy";
 import {index, IndexKey} from "../indexes";
 import {Expression, NamedNode, Node} from "./Node";
-import {Function} from "./TopLevelDeclarations";
+import {Contract, Function, Trait} from "./TopLevelDeclarations";
 import {File} from "./File";
-import {parentOfType} from "./utils";
+import {isFunctionNode, parentOfType} from "./utils";
+
+export class ResolveState {
+    private values: Map<string, string> = new Map();
+
+    public get(key: string): string | null {
+        return this.values.get(key) ?? null;
+    }
+
+    public withValue(key: string, value: string): ResolveState {
+        const state = new ResolveState();
+        state.values = this.values.set(key, value)
+        return state
+    }
+}
 
 export interface ScopeProcessor {
-    execute(node: Node): boolean
+    execute(node: Node, state: ResolveState): boolean
 }
 
 /**
@@ -42,14 +56,15 @@ export class Reference {
 
     public resolve(): NamedNode | null {
         const result: NamedNode[] = [];
-        this.processResolveVariants(this.createResolveProcessor(result, this.element))
+        const state = new ResolveState();
+        this.processResolveVariants(this.createResolveProcessor(result, this.element), state)
         if (result.length === 0) return null;
         return result[0]
     }
 
     private createResolveProcessor(result: Node[], element: Node): ScopeProcessor {
         return new class implements ScopeProcessor {
-            public execute(node: Node): boolean {
+            public execute(node: Node, state: ResolveState): boolean {
                 if (node.node.equals(element.node)) {
                     result.push(node)
                     return false
@@ -59,7 +74,9 @@ export class Reference {
                     return false
                 }
 
-                if (node.name() === element.name()) {
+                const searchName = state.get('search-name') ?? element.name()
+
+                if (node.name() === searchName) {
                     result.push(node)
                     return false
                 }
@@ -69,27 +86,27 @@ export class Reference {
         }
     }
 
-    public processResolveVariants(processor: ScopeProcessor): boolean {
+    public processResolveVariants(processor: ScopeProcessor, state: ResolveState): boolean {
         if (this.elementIsDeclarationName()) {
             // foo: Int
             // ^^^ our element
             //
             // so process whole `foo: Int` node
             const parent = this.element.node.parent!
-            return processor.execute(new NamedNode(parent, this.element.file))
+            return processor.execute(new NamedNode(parent, this.element.file), state)
         }
         if (this.element.node.type === 'parameter') {
-            return processor.execute(this.element)
+            return processor.execute(this.element, state)
         }
 
         const qualifier = this.getQualifier(this.element)
         return qualifier ?
             // foo.bar
             // ^^^ qualifier
-            this.processQualifiedExpression(qualifier, processor) :
+            this.processQualifiedExpression(qualifier, processor, state) :
             //  bar()
             // ^ no qualifier
-            this.processUnqualifiedResolve(processor)
+            this.processUnqualifiedResolve(processor, state)
     }
 
     private elementIsDeclarationName(): boolean {
@@ -108,28 +125,43 @@ export class Reference {
 
         return (
             parent.type === 'field' ||
-            parent.type === 'parameter'
+            parent.type === 'parameter' ||
+            parent.type === 'storage_variable' ||
+            parent.type === 'storage_constant'
         ) && name.equals(identifier)
     }
 
-    private processQualifiedExpression(qualifier: Expression, processor: ScopeProcessor): boolean {
+    private processQualifiedExpression(qualifier: Expression, processor: ScopeProcessor, state: ResolveState): boolean {
         const qualifierType = qualifier.type()
         if (qualifierType === null) return true
 
-        if (!this.processTypeMethods(qualifierType, processor)) return false
+        if (qualifierType instanceof BouncedTy) {
+            return this.processType(qualifierType.innerTy, processor, state);
+        }
+
+        return this.processType(qualifierType, processor, state);
+    }
+
+    private processType(qualifierType: Ty | StructTy | MessageTy | ContractTy, processor: ScopeProcessor, state: ResolveState) {
+        if (!this.processTypeMethods(qualifierType, processor, state)) return false
 
         if (qualifierType instanceof StructTy) {
-            if (!this.processNamedElements(processor, qualifierType.fields())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.fields())) return false
         }
 
         if (qualifierType instanceof MessageTy) {
-            if (!this.processNamedElements(processor, qualifierType.fields())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.fields())) return false
+        }
+
+        if (qualifierType instanceof ContractTy) {
+            if (!this.processNamedElements(processor, state, qualifierType.fields())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.constants())) return false
         }
 
         return true
     }
 
-    private processTypeMethods(ty: Ty, processor: ScopeProcessor): boolean {
+    private processTypeMethods(ty: Ty, processor: ScopeProcessor, state: ResolveState): boolean {
         const candidates = index.elementsByKey(IndexKey.Functions).filter(fun => {
             if (!(fun instanceof Function)) return false
             if (!fun.withSelf()) return false
@@ -140,34 +172,44 @@ export class Reference {
             const selfType = typeExpr.type()
             return selfType?.qualifiedName() === ty.qualifiedName()
         })
-        return this.processNamedElements(processor, candidates);
+        return this.processNamedElements(processor, state, candidates);
     }
 
-    private processUnqualifiedResolve(processor: ScopeProcessor): boolean {
+    private processUnqualifiedResolve(processor: ScopeProcessor, state: ResolveState): boolean {
         const name = this.element.node.text
         if (!name || name === '_') return true
+
+        if (name === 'self') {
+            const ownerNode = parentOfType(this.element.node, 'contract', 'trait')
+            if (ownerNode !== null) {
+                const constructor = ownerNode.type === 'contract' ? Contract : Trait
+                const owner = new constructor(ownerNode, this.element.file)
+
+                if (!processor.execute(owner, state.withValue("search-name", owner.name()))) return false
+            }
+        }
 
         const parent = this.element.node.parent!;
         if (parent.type === 'instance_argument') {
             // `Foo { name: "" }`
             //        ^^^^^^^^ this
-            return this.resolveInstanceInitField(parent, processor)
+            return this.resolveInstanceInitField(parent, processor, state)
         }
 
         if (parent.type === 'asm_arrangement_args') {
             // `asm(cell self) extends fun storeRef(self: Builder, cell: Cell): Builder`
             //           ^^^^ this
-            return this.resolveAsmArrangementArgs(parent, processor)
+            return this.resolveAsmArrangementArgs(parent, processor, state)
         }
 
-        if (!this.processFileEntities(this.element.file, processor)) return false
-        if (!this.processAllEntities(processor)) return false
-        if (!this.processBlock(processor)) return false
+        if (!this.processFileEntities(this.element.file, processor, state)) return false
+        if (!this.processAllEntities(processor, state)) return false
+        if (!this.processBlock(processor, state)) return false
 
         return true
     }
 
-    private resolveInstanceInitField(parent: SyntaxNode, processor: ScopeProcessor): boolean {
+    private resolveInstanceInitField(parent: SyntaxNode, processor: ScopeProcessor, state: ResolveState): boolean {
         // resolving `Foo { name: "" }`
         //                  ^^^^ this
 
@@ -194,12 +236,12 @@ export class Reference {
         const fields = body.children.slice(1, -1)
 
         for (const field of fields) {
-            if (!processor.execute(new NamedNode(field, resolvedType.file))) return false
+            if (!processor.execute(new NamedNode(field, resolvedType.file), state)) return false
         }
         return true
     }
 
-    private resolveAsmArrangementArgs(parent: SyntaxNode, processor: ScopeProcessor): boolean {
+    private resolveAsmArrangementArgs(parent: SyntaxNode, processor: ScopeProcessor, state: ResolveState): boolean {
         // resolving `asm(cell self) extends fun storeRef(self: Builder, cell: Cell): Builder`
         //                     ^^^^ this
 
@@ -213,33 +255,36 @@ export class Reference {
         const params = children.slice(1, -1)
 
         for (const param of params) {
-            if (!processor.execute(new NamedNode(param, this.element.file))) break
+            if (!processor.execute(new NamedNode(param, this.element.file), state)) break
         }
 
         return true
     }
 
-    private processFileEntities(file: File, processor: ScopeProcessor): boolean {
-        if (!this.processNamedElements(processor, file.getFunctions())) return false
-        if (!this.processNamedElements(processor, file.getStructs())) return false
-        if (!this.processNamedElements(processor, file.getMessages())) return false
-        if (!this.processNamedElements(processor, file.getPrimitives())) return false
-        if (!this.processNamedElements(processor, file.getConstants())) return false
+    private processFileEntities(file: File, processor: ScopeProcessor, state: ResolveState): boolean {
+        if (!this.processNamedElements(processor, state, file.getFunctions())) return false
+        if (!this.processNamedElements(processor, state, file.getContracts())) return false
+        if (!this.processNamedElements(processor, state, file.getStructs())) return false
+        if (!this.processNamedElements(processor, state, file.getMessages())) return false
+        if (!this.processNamedElements(processor, state, file.getPrimitives())) return false
+        if (!this.processNamedElements(processor, state, file.getConstants())) return false
 
         return true
     }
 
-    private processAllEntities(processor: ScopeProcessor): boolean {
-        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Functions))) return false
-        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Structs))) return false
-        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Messages))) return false
-        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Traits))) return false
-        if (!this.processNamedElements(processor, index.elementsByKey(IndexKey.Constants))) return false
+    private processAllEntities(processor: ScopeProcessor, state: ResolveState): boolean {
+        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Functions))) return false
+        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Contracts))) return false
+        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Structs))) return false
+        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Messages))) return false
+        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Traits))) return false
+        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Primitives))) return false
+        if (!this.processNamedElements(processor, state, index.elementsByKey(IndexKey.Constants))) return false
 
         return true
     }
 
-    private processBlock(processor: ScopeProcessor) {
+    private processBlock(processor: ScopeProcessor, state: ResolveState) {
         let descendant: SyntaxNode | null = this.element.node
 
         while (descendant) {
@@ -252,7 +297,7 @@ export class Reference {
                         //     ^^^^ this
                         const name = stmt.childForFieldName('name')
                         if (name === null) continue;
-                        if (!processor.execute(new NamedNode(name, this.element.file))) break
+                        if (!processor.execute(new NamedNode(name, this.element.file), state)) break
                     }
                 }
             }
@@ -262,25 +307,31 @@ export class Reference {
                 //          ^^^ this
                 const key = descendant.childForFieldName('key')
                 if (key === null) continue;
-                if (!processor.execute(new NamedNode(key, this.element.file))) break
+                if (!processor.execute(new NamedNode(key, this.element.file), state)) break
 
                 // foreach (key, value in expr)
                 //               ^^^^^ this
                 const value = descendant.childForFieldName('value')
                 if (value === null) continue;
-                if (!processor.execute(new NamedNode(value, this.element.file))) break
+                if (!processor.execute(new NamedNode(value, this.element.file), state)) break
             }
 
             // process parameters of function
-            if (descendant.type === 'global_function') {
+            if (isFunctionNode(descendant)) {
                 const rawParameters = descendant.childForFieldName('parameters')
-                if (rawParameters === null) continue
-                const children = rawParameters.children
-                if (children.length < 2) continue
-                const params = children.slice(1, -1)
+                if (rawParameters === null) {
+                    const parameter = descendant.childForFieldName('parameter')
+                    if (parameter === null) continue
 
-                for (const param of params) {
-                    if (!processor.execute(new NamedNode(param, this.element.file))) break
+                    if (!processor.execute(new NamedNode(parameter, this.element.file), state)) break
+                } else {
+                    const children = rawParameters.children
+                    if (children.length < 2) continue
+                    const params = children.slice(1, -1)
+
+                    for (const param of params) {
+                        if (!processor.execute(new NamedNode(param, this.element.file), state)) break
+                    }
                 }
             }
 
@@ -290,9 +341,9 @@ export class Reference {
         return false;
     }
 
-    public processNamedElements(processor: ScopeProcessor, elements: NamedNode[]): boolean {
+    public processNamedElements(processor: ScopeProcessor, state: ResolveState, elements: NamedNode[]): boolean {
         for (const element of elements) {
-            if (!processor.execute(element)) return false
+            if (!processor.execute(element, state)) return false
         }
         return true
     }

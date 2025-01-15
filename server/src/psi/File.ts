@@ -1,5 +1,5 @@
 import {NamedNode} from "./Node";
-import {Constant, Function, Message, Primitive, Struct} from "./TopLevelDeclarations";
+import {Constant, Contract, Function, Message, Primitive, Struct} from "./TopLevelDeclarations";
 import {readFileSync} from "fs";
 import {createParser} from "../parser";
 import {SyntaxNode, Tree} from "web-tree-sitter";
@@ -21,9 +21,13 @@ export class File {
 
     public getFunctions(): Function[] {
         return this.getNodesByType(
-            ['global_function', 'asm_function'],
+            ['global_function', 'asm_function', 'native_function'],
             Function
         );
+    }
+
+    public getContracts(): Contract[] {
+        return this.getNodesByType('contract', Contract);
     }
 
     public getStructs(): Struct[] {

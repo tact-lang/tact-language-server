@@ -19,11 +19,36 @@ export class Struct extends FieldsOwner {
 export class Primitive extends NamedNode {
 }
 
+export class Trait extends NamedNode {
+}
+
+export class Contract extends NamedNode {
+    public fields(): NamedNode[] {
+        const body = this.node.childForFieldName('body');
+        if (!body) return []
+        return body.children
+            .filter(value => value.type === 'storage_variable')
+            .map(value => new NamedNode(value, this.file))
+    }
+
+    public constants(): Constant[] {
+        const body = this.node.childForFieldName('body');
+        if (!body) return []
+        return body.children
+            .filter(value => value.type === 'storage_constant')
+            .map(value => new Constant(value, this.file))
+    }
+}
+
 export class Function extends NamedNode {
     public returnType(): Expression | null {
         const result = this.node.childForFieldName('result')
         if (!result) return null
-        return new Expression(result.nextSibling!, this.file)
+        if (result.text === ':') {
+            // some weird bug
+            return new Expression(result.nextSibling!, this.file)
+        }
+        return new Expression(result, this.file)
     }
 
     public parameters(): NamedNode[] {

@@ -5,6 +5,7 @@ import {SyntaxNode} from "web-tree-sitter";
 import {NamedNode} from "../psi/Node";
 import * as lsp from "vscode-languageserver";
 import {SemanticTokens} from "vscode-languageserver";
+import {isNamedFunctionNode} from "../psi/utils";
 
 export function collect(file: File, uri: string): SemanticTokens {
     const builder = new lsp.SemanticTokensBuilder();
@@ -39,27 +40,35 @@ export function collect(file: File, uri: string): SemanticTokens {
             pushToken(name, lsp.SemanticTokenTypes.variable);
         }
 
-        if (n.type === 'field') {
+        if (n.type === 'field' || n.type === 'storage_variable') {
             const name = n.childForFieldName('name')!
             pushToken(name, lsp.SemanticTokenTypes.property);
+        }
+
+        if (n.type === 'constant' || n.type === 'storage_constant') {
+            const name = n.childForFieldName('name')!
+            pushToken(name, lsp.SemanticTokenTypes.enumMember);
         }
 
         if (n.type === 'identifier') {
             const element = new NamedNode(n, file)
             const resolved = Reference.resolve(element)
-            if (!resolved) return true;
+            if (!resolved) return true
 
             if (resolved.node.parent!.type === 'let_statement') {
-                pushToken(n, lsp.SemanticTokenTypes.variable);
+                pushToken(n, lsp.SemanticTokenTypes.variable)
             }
             if (resolved.node.type === 'parameter') {
-                pushToken(n, lsp.SemanticTokenTypes.parameter);
+                pushToken(n, lsp.SemanticTokenTypes.parameter)
             }
-            if (resolved.node.type === 'field') {
-                pushToken(n, lsp.SemanticTokenTypes.property);
+            if (resolved.node.type === 'field' || resolved.node.type === 'storage_variable') {
+                pushToken(n, lsp.SemanticTokenTypes.property)
             }
-            if (resolved.node.type === 'global_function' || resolved.node.type === 'asm_function') {
-                pushToken(n, lsp.SemanticTokenTypes.function);
+            if (resolved.node.type === 'constant' || resolved.node.type === 'storage_constant') {
+                pushToken(n, lsp.SemanticTokenTypes.enumMember)
+            }
+            if (isNamedFunctionNode(resolved.node)) {
+                pushToken(n, lsp.SemanticTokenTypes.function)
             }
         }
 

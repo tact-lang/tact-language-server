@@ -1,7 +1,7 @@
-import {Tree} from "web-tree-sitter";
 import {NamedNode} from "../psi/Node";
 import {File} from "../psi/File";
-import {Constant, Function, Message, Struct} from "../psi/TopLevelDeclarations";
+import {Constant, Contract, Function, Message, Primitive, Struct} from "../psi/TopLevelDeclarations";
+import {isNamedFunctionNode} from "../psi/utils";
 
 export enum IndexKey {
     Contracts = 'Contracts',
@@ -9,6 +9,7 @@ export enum IndexKey {
     Messages = 'Messages',
     Structs = 'Structs',
     Traits = 'Traits',
+    Primitives = 'Primitives',
     Constants = 'Constants',
 }
 
@@ -23,23 +24,30 @@ export class FileIndex {
         const elements = new Map<IndexKey, NamedNode[]>()
         elements.set(IndexKey.Structs, [])
         elements.set(IndexKey.Traits, [])
+        elements.set(IndexKey.Primitives, [])
         elements.set(IndexKey.Messages, [])
         elements.set(IndexKey.Contracts, [])
         elements.set(IndexKey.Functions, [])
         elements.set(IndexKey.Constants, [])
 
         for (const node of file.rootNode.children) {
-            if (node.type === 'global_function' || node.type === 'asm_function') {
+            if (isNamedFunctionNode(node)) {
                 elements.get(IndexKey.Functions)!.push(new Function(node, file))
             }
             if (node.type === 'struct') {
                 elements.get(IndexKey.Structs)!.push(new Struct(node, file))
+            }
+            if (node.type === 'contract') {
+                elements.get(IndexKey.Contracts)!.push(new Contract(node, file))
             }
             if (node.type === 'message') {
                 elements.get(IndexKey.Messages)!.push(new Message(node, file))
             }
             if (node.type === 'trait') {
                 elements.get(IndexKey.Traits)!.push(new NamedNode(node, file))
+            }
+            if (node.type === 'primitive') {
+                elements.get(IndexKey.Primitives)!.push(new Primitive(node, file))
             }
             if (node.type === 'contract') {
                 elements.get(IndexKey.Contracts)!.push(new NamedNode(node, file))

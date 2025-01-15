@@ -4,7 +4,7 @@ import {RecursiveVisitor} from "../visitor";
 import {NamedNode} from "./Node";
 import {Reference} from "./Reference";
 import {File} from "./File";
-import {parentOfType} from "./utils";
+import {isFunctionNode, isNamedFunctionNode, parentOfType} from "./utils";
 
 /**
  * Referent encapsulates the logic for finding all references to a definition.
@@ -25,8 +25,11 @@ export class Referent {
      * Returns a list of nodes that reference the definition.
      *
      * @param includeDefinition if true, the first element of the result contains the definition
+     * @param _sameFileOnly if true, only references from the same files listed
+     *
+     * TODO: finish _sameFileOnly
      */
-    public findReferences(includeDefinition: boolean = false): SyntaxNode[] {
+    public findReferences(includeDefinition: boolean = false, _sameFileOnly: boolean = false): SyntaxNode[] {
         const resolved = this.resolved;
         if (!resolved) return []
 
@@ -47,9 +50,10 @@ export class Referent {
         //       we don't need to resolve foo in bar.foo in some cases
         RecursiveVisitor.visit(useScope, (node): boolean => {
             // fast path, skip non identifiers
-            if (node.type !== 'identifier' && node.type !== 'type_identifier') return true
+            if (node.type !== 'identifier' && node.type !== 'self' && node.type !== 'type_identifier') return true
             // fast path, identifier name doesn't equal to definition name
-            if (node.text !== resolved?.name()) return true
+            // self can refer to enclosing trait or contract
+            if (node.text !== resolved?.name() && node.text !== 'self') return true
 
             const parent = node.parent
             if (parent === null) return true
@@ -59,7 +63,9 @@ export class Referent {
                 parent.type === 'let_statement' ||
                 parent.type === 'global_function' ||
                 parent.type === 'asm_function' ||
+                parent.type === 'native_function' ||
                 parent.type === 'field' ||
+                parent.type === 'storage_variable' ||
                 parent.type === 'parameter'
             ) {
                 return true
@@ -71,7 +77,7 @@ export class Referent {
             const identifier = res.nameIdentifier();
             if (!identifier) return true
 
-            if (res.node.type === resolved.node.type && identifier.text === resolved?.name()) {
+            if (res.node.type === resolved.node.type && (identifier.text === resolved?.name() || identifier.text === 'self')) {
                 // found new reference
                 result.push(node)
             }
@@ -89,10 +95,11 @@ export class Referent {
     private useScope(): SyntaxNode | null {
         if (!this.resolved) return null
 
-        const parent = this.node.parent
+        const node = this.resolved.node
+        const parent = this.resolved.node.parent
         if (parent === null) return null
 
-        if (parent.type === 'let_statement' || this.resolved.node.parent?.type === 'let_statement') {
+        if (parent.type === 'let_statement') {
             // search only in outer block/function
             return parentOfType(parent, 'function_body', 'block_statement')
         }
@@ -102,28 +109,42 @@ export class Referent {
             return parent.lastChild
         }
 
-        if (parent.type === 'parameter') {
-            const grand = parent.parent!.parent!
-            if (grand.type === 'global_function') {
-                // search in function body
-                return grand.lastChild
-            }
-
+        if (node.type === 'parameter') {
+            const grand = node.parent!.parent!
             if (grand.type === 'asm_function') {
                 // search in function body and potentially asm arrangement
                 return grand
             }
+
+            if (isFunctionNode(grand)) {
+                // search in function body
+                return grand.lastChild
+            }
         }
 
-        if (parent.type === 'global_function' || this.resolved.node.type === 'global_function' ||
-            parent.type === 'asm_function' || this.resolved.node.type === 'asm_function') {
+        if (isNamedFunctionNode(parent) || isNamedFunctionNode(node)) {
             // search in file for now
             return this.file.rootNode
         }
 
-        if (parent.type === 'field') {
+        if (node.type === 'contract') {
             // search in file for now
             return this.file.rootNode
+        }
+
+        if (node.type === 'field') {
+            // search in file for now
+            return this.file.rootNode
+        }
+
+        if (node.type === 'storage_variable') {
+            // search in whole contract
+            return parentOfType(parent, 'contract')
+        }
+
+        if (node.type === 'storage_constant') {
+            // search in whole contract
+            return parentOfType(parent, 'contract')
         }
 
         return null

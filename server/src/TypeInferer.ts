@@ -1,7 +1,7 @@
-import {MessageTy, PrimitiveTy, StructTy, Ty} from "./types/BaseTy";
+import {BouncedTy, ContractTy, MessageTy, PrimitiveTy, StructTy, Ty} from "./types/BaseTy";
 import {Expression, NamedNode, Node} from "./psi/Node";
 import {Reference} from "./psi/Reference";
-import {Struct, Message, Function, Primitive} from "./psi/TopLevelDeclarations";
+import {Struct, Message, Function, Primitive, Contract} from "./psi/TopLevelDeclarations";
 
 export class TypeInferer {
     public static inferType(node: Node): Ty | null {
@@ -28,9 +28,13 @@ export class TypeInferer {
             if (resolved instanceof Primitive) {
                 return new PrimitiveTy(resolved.name(), resolved)
             }
+
+            if (resolved instanceof Contract) {
+                return new ContractTy(resolved.name(), resolved)
+            }
         }
 
-        if (node.node.type === "identifier") {
+        if (node.node.type === "identifier" || node.node.type === "self") {
             const resolved = Reference.resolve(new NamedNode(node.node, node.file))
             if (resolved === null) return null
 
@@ -38,11 +42,20 @@ export class TypeInferer {
             if (parent === null) return null
 
             if (parent.type === "let_statement") {
+                const typeHint = parent.childForFieldName('type')
+                if (typeHint !== null) {
+                    return this.inferType(new Expression(typeHint, resolved.file))
+                }
                 const value = parent.childForFieldName('value')!
                 return this.inferType(new Expression(value, resolved.file))
             }
 
             if (resolved.node.type === "field") {
+                const typeNode = resolved.node.childForFieldName("type")!
+                return this.inferType(new Expression(typeNode, resolved.file))
+            }
+
+            if (resolved.node.type === "storage_field") {
                 const typeNode = resolved.node.childForFieldName("type")!
                 return this.inferType(new Expression(typeNode, resolved.file))
             }
@@ -53,6 +66,11 @@ export class TypeInferer {
             }
 
             if (resolved.node.type === "global_constant") {
+                const typeNode = resolved.node.childForFieldName("type")!
+                return this.inferType(new Expression(typeNode, resolved.file))
+            }
+
+            if (resolved.node.type === "storage_constant") {
                 const typeNode = resolved.node.childForFieldName("type")!
                 return this.inferType(new Expression(typeNode, resolved.file))
             }
@@ -68,6 +86,20 @@ export class TypeInferer {
             if (resolved instanceof Message) {
                 return new MessageTy(resolved.name(), resolved)
             }
+
+            if (resolved instanceof Contract) {
+                return new ContractTy(resolved.name(), resolved)
+            }
+        }
+
+        if (node.node.type === "bounced_type") {
+            const message = node.node.childForFieldName("message")
+            if (!message) return null
+
+            const innerTy = this.inferType(new Expression(message, node.file))
+            if (innerTy === null) return null
+
+            return new BouncedTy(innerTy)
         }
 
         if (node.node.type === "instance_expression") {
@@ -85,6 +117,10 @@ export class TypeInferer {
             if (resolved instanceof Message) {
                 return new MessageTy(resolved.name(), resolved)
             }
+        }
+
+        if (node.node.type === "initOf") {
+            // TODO: return StateInit
         }
 
         if (node.node.type === "parameter") {

@@ -1,5 +1,6 @@
 import {Expression, NamedNode} from "../psi/Node";
 import {TypeInferer} from "../TypeInferer";
+import {Constant} from "../psi/TopLevelDeclarations";
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -13,18 +14,20 @@ export function generateDocFor(node: NamedNode): string | null {
     const astNode = node.node;
     switch (astNode.type) {
         case "global_function":
+        case "native_function":
         case "asm_function": {
             const doc = extractCommentsDoc(node)
             const parametersNode = astNode.childForFieldName("parameters")
             if (!parametersNode) return null
 
-            let signatureString = parametersNode.text
             const resultNode = astNode.childForFieldName("result")
-            if (resultNode) {
-                signatureString += `: ${resultNode.nextSibling!.text}`
-            }
+            const signatureString = parametersNode.text + (resultNode ? `: ${resultNode.nextSibling!.text}` : '');
 
             return defaultResult(`fun ${node.name()}${signatureString}`, doc)
+        }
+        case "contract": {
+            const doc = extractCommentsDoc(node)
+            return defaultResult(`contract ${node.name()}`, doc)
         }
         case "struct": {
             const doc = extractCommentsDoc(node)
@@ -34,13 +37,25 @@ export function generateDocFor(node: NamedNode): string | null {
             const doc = extractCommentsDoc(node)
             return defaultResult(`primitive ${node.name()}`, doc)
         }
+        case "global_constant":
+        case "storage_constant": {
+            const constant = new Constant(astNode, node.file)
+            const type = constant.typeNode()?.type()?.qualifiedName() ?? 'unknown'
+            if (!type) return null
+
+            const value = constant.value()
+            if (!value) return null
+
+            const doc = extractCommentsDoc(node)
+            return defaultResult(`const ${node.name()}: ${type} = ${value.node.text}`, doc)
+        }
+        case "storage_variable":
         case "field": {
             const doc = extractCommentsDoc(node)
             const typeNode = astNode.childForFieldName("type")
             if (!typeNode) return null
 
-            const type = TypeInferer.inferType(new Expression(typeNode, node.file))
-            const typeName = type?.qualifiedName() ?? "unknown"
+            const type = new Expression(typeNode, node.file).type()?.qualifiedName() ?? "unknown"
 
             const defaultValueNode = astNode.childForFieldName("value")
             let defaultValue = defaultValueNode?.text ?? ''
@@ -48,10 +63,12 @@ export function generateDocFor(node: NamedNode): string | null {
                 defaultValue = ` = ${defaultValue}`
             }
 
-            return defaultResult(`${node.name()}: ${typeName}${defaultValue}`, doc)
+            return defaultResult(`${node.name()}: ${type}${defaultValue}`, doc)
         }
-        case "let_statement": {
-            const valueNode = astNode.childForFieldName("value")
+        case "identifier": {
+            const decl = astNode.parent
+            if (!decl) return null
+            const valueNode = decl.childForFieldName("value")
             if (!valueNode) return null
 
             const type = TypeInferer.inferType(node)
