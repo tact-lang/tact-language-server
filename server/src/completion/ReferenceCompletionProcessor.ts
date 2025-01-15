@@ -138,7 +138,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
     }
 
     public addItem(node: CompletionItem) {
-        if (node.label in this.result || node.label === '') return
+        if (this.result.has(node.label) || node.label === '') return
         this.result.set(node.label, node)
     }
 }

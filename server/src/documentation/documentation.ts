@@ -1,6 +1,6 @@
-import {Expression, NamedNode} from "../psi/Node";
+import {NamedNode} from "../psi/Node";
 import {TypeInferer} from "../TypeInferer";
-import {Constant} from "../psi/TopLevelDeclarations";
+import {Constant, Function} from "../psi/TopLevelDeclarations";
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -17,14 +17,12 @@ export function generateDocFor(node: NamedNode): string | null {
         case "native_function":
         case "storage_function":
         case "asm_function": {
+            const func = new Function(astNode, node.file)
             const doc = extractCommentsDoc(node)
             const parametersNode = astNode.childForFieldName("parameters")
             if (!parametersNode) return null
 
-            const resultNode = astNode.childForFieldName("result")
-            const signatureString = parametersNode.text + (resultNode ? `: ${resultNode.nextSibling!.text}` : '');
-
-            return defaultResult(`fun ${node.name()}${signatureString}`, doc)
+            return defaultResult(`fun ${node.name()}${func.signatureText()}`, doc)
         }
         case "contract": {
             const doc = extractCommentsDoc(node)

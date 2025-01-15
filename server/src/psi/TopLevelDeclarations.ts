@@ -130,7 +130,10 @@ export class Function extends NamedNode {
         const parametersNode = this.node.childForFieldName('parameters')
         if (!parametersNode) return ""
 
-        const result = this.node.childForFieldName('result')?.nextSibling
+        let result = this.node.childForFieldName('result')
+        if (result?.text === ':') {
+            result = result?.nextSibling
+        }
         return parametersNode.text + (result ? `: ${result.text}` : '')
     }
 

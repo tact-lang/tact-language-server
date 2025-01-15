@@ -131,6 +131,11 @@ export class TypeInferer {
                 return this.inferTypeMaybeOption(typeNode, resolved)
             }
 
+            if (resolved.node.type === "storage_variable") {
+                const typeNode = resolved.node.childForFieldName("type")!
+                return this.inferTypeMaybeOption(typeNode, resolved)
+            }
+
             return this.inferTypeFromResolved(resolved);
         }
 
