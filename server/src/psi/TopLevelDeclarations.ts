@@ -47,25 +47,45 @@ export class StorageMembersOwner extends NamedNode {
     }
 
     public methods(): Function[] {
-        const ownMethods = this.ownMethods()
-        const traitList = this.node.childForFieldName('traits')
-        if (!traitList) return ownMethods
+        const own = this.ownMethods()
+        const inherited = this.inheritTraits()
+            .flatMap(trait => trait.methods())
 
+        return [
+            ...own,
+            ...inherited,
+        ]
+    }
+
+    public fields(): NamedNode[] {
+        const own = this.ownFields()
+        const inherited = this.inheritTraits()
+            .flatMap(trait => trait.fields())
+
+        return [
+            ...own,
+            ...inherited,
+        ]
+    }
+
+    public inheritTraits(): Trait[] {
         const baseTraitNode = index.elementByName(IndexKey.Traits, 'BaseTrait')
 
-        const inheritedMethods = traitList.children
+        const traitList = this.node.childForFieldName('traits')
+        const baseTraitOrEmpty = baseTraitNode !== null ? [new Trait(baseTraitNode.node, baseTraitNode.file)] : []
+
+        if (!traitList) {
+            return [...baseTraitOrEmpty]
+        }
+
+        const inheritTraits = traitList.children
             .filter(value => value.type === 'identifier')
             .map(value => new NamedNode(value, this.file))
             .map(node => Reference.resolve(node))
             .filter(node => node !== null)
             .map(node => node instanceof Trait ? node : new Trait(node.node, node.file))
-            .flatMap(trait => trait.methods());
 
-        return [
-            ...ownMethods,
-            ...inheritedMethods,
-            ...(baseTraitNode !== null ? new Trait(baseTraitNode.node, baseTraitNode.file).ownMethods() : []),
-        ]
+        return [...inheritTraits, ...baseTraitOrEmpty]
     }
 }
 
@@ -108,6 +128,12 @@ export class Function extends NamedNode {
 
         const result = this.node.childForFieldName('result')?.nextSibling
         return parametersNode.text + (result ? `: ${result.text}` : '')
+    }
+
+    public isOverride(): boolean {
+        const attributes = this.node.childForFieldName('attributes')
+        if (!attributes) return false
+        return attributes.text.includes('override')
     }
 }
 

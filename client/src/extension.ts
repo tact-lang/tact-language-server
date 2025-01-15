@@ -12,6 +12,7 @@ import { consoleError, consoleLog, consoleWarn, createClientLog } from "./client
 import {getClientConfiguration} from "./client-config";
 import {NotificationFromServer, RequestFromServer} from "../../shared/src/shared-msgtypes";
 import {TextEncoder} from "util";
+import {Position} from "vscode-languageclient";
 
 let client: LanguageClient;
 
@@ -106,6 +107,24 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     client.onNotification(NotificationFromServer.showErrorMessage, (errTxt: string) => {
         vscode.window.showErrorMessage(errTxt)
     })
+
+    vscode.commands.registerCommand('tact.showParent', async (uri: string, position: Position) => {
+        await showReferencesImpl(client, uri, position);
+    })
+
+    async function showReferencesImpl(
+        client: LanguageClient | undefined,
+        uri: string,
+        position: Position,
+    ) {
+        if (!client) return;
+        await vscode.commands.executeCommand(
+            "editor.action.showReferences",
+            vscode.Uri.parse(uri),
+            client.protocol2CodeConverter.asPosition(position),
+            [],
+        );
+    }
 
     const langPattern = `**/*.tact`;
     const watcher = vscode.workspace.createFileSystemWatcher(langPattern);

@@ -22,6 +22,7 @@ import * as docs from "./documentation/documentation";
 import * as inlays from "./inlays/collect";
 import * as foldings from "./foldings/collect";
 import * as semantic from "./semantic_tokens/collect";
+import * as lens from "./lens/collect";
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split('\n');
@@ -355,7 +356,13 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     connection.onRequest(lsp.SemanticTokensRequest.type, async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
         const uri = params.textDocument.uri;
         const file = await findFile(uri)
-        return semantic.collect(file, uri)
+        return semantic.collect(file)
+    })
+
+    connection.onRequest(lsp.CodeLensRequest.type, async (params: lsp.CodeLensParams): Promise<lsp.CodeLens[]> => {
+        const uri = params.textDocument.uri;
+        const file = await findFile(uri)
+        return lens.collect(file)
     })
 
     const _ = TypeInferer.inferType;
@@ -389,7 +396,10 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                 },
                 range: false,
                 full: true,
-            }
+            },
+            codeLensProvider: {
+                resolveProvider: false,
+            },
         }
     }
 })

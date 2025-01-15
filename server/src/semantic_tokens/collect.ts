@@ -7,7 +7,7 @@ import * as lsp from "vscode-languageserver";
 import {SemanticTokens} from "vscode-languageserver";
 import {isNamedFunctionNode} from "../psi/utils";
 
-export function collect(file: File, uri: string): SemanticTokens {
+export function collect(file: File): SemanticTokens {
     const builder = new lsp.SemanticTokensBuilder();
 
     function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes) {
