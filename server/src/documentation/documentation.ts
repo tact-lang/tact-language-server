@@ -30,6 +30,10 @@ export function generateDocFor(node: NamedNode): string | null {
             const doc = extractCommentsDoc(node)
             return defaultResult(`contract ${node.name()}`, doc)
         }
+        case "trait": {
+            const doc = extractCommentsDoc(node)
+            return defaultResult(`trait ${node.name()}`, doc)
+        }
         case "struct": {
             const doc = extractCommentsDoc(node)
             return defaultResult(`struct ${node.name()}`, doc)

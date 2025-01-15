@@ -1,5 +1,5 @@
 import {SyntaxNode} from 'web-tree-sitter'
-import {BouncedTy, ContractTy, MessageTy, StructTy, Ty} from "../types/BaseTy";
+import {BouncedTy, ContractTy, MessageTy, StructTy, TraitTy, Ty} from "../types/BaseTy";
 import {index, IndexKey} from "../indexes";
 import {Expression, NamedNode, Node} from "./Node";
 import {Contract, Function, Trait} from "./TopLevelDeclarations";
@@ -143,7 +143,7 @@ export class Reference {
         return this.processType(qualifierType, processor, state);
     }
 
-    private processType(qualifierType: Ty | StructTy | MessageTy | ContractTy, processor: ScopeProcessor, state: ResolveState) {
+    private processType(qualifierType: Ty | StructTy | MessageTy | TraitTy | ContractTy, processor: ScopeProcessor, state: ResolveState) {
         if (!this.processTypeMethods(qualifierType, processor, state)) return false
 
         if (qualifierType instanceof StructTy) {
@@ -154,10 +154,16 @@ export class Reference {
             if (!this.processNamedElements(processor, state, qualifierType.fields())) return false
         }
 
-        if (qualifierType instanceof ContractTy) {
-            if (!this.processNamedElements(processor, state, qualifierType.methods())) return false
+        if (qualifierType instanceof TraitTy) {
             if (!this.processNamedElements(processor, state, qualifierType.fields())) return false
             if (!this.processNamedElements(processor, state, qualifierType.constants())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.methods())) return false
+        }
+
+        if (qualifierType instanceof ContractTy) {
+            if (!this.processNamedElements(processor, state, qualifierType.fields())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.constants())) return false
+            if (!this.processNamedElements(processor, state, qualifierType.methods())) return false
         }
 
         return true

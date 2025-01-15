@@ -124,8 +124,8 @@ export class Referent {
         }
 
         if (node.type === 'storage_variable' || node.type === 'storage_constant' || node.type === 'storage_function') {
-            // search in whole contract
-            return parentOfType(parent, 'contract')
+            // search in whole contract or trait
+            return parentOfType(parent, 'contract', 'trait')
         }
 
         if (isNamedFunctionNode(parent) || isNamedFunctionNode(node)) {
@@ -134,6 +134,11 @@ export class Referent {
         }
 
         if (node.type === 'contract') {
+            // search in file for now
+            return this.file.rootNode
+        }
+
+        if (node.type === 'trait') {
             // search in file for now
             return this.file.rootNode
         }

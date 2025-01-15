@@ -19,10 +19,7 @@ export class Struct extends FieldsOwner {
 export class Primitive extends NamedNode {
 }
 
-export class Trait extends NamedNode {
-}
-
-export class Contract extends NamedNode {
+export class StorageMembersOwner extends NamedNode {
     public methods(): Function[] {
         const body = this.node.childForFieldName('body');
         if (!body) return []
@@ -46,6 +43,12 @@ export class Contract extends NamedNode {
             .filter(value => value.type === 'storage_constant')
             .map(value => new Constant(value, this.file))
     }
+}
+
+export class Trait extends StorageMembersOwner {
+}
+
+export class Contract extends StorageMembersOwner {
 }
 
 export class Function extends NamedNode {

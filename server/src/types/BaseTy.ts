@@ -1,4 +1,13 @@
-import {Struct, Message, FieldsOwner, Contract, Constant, Function} from "../psi/TopLevelDeclarations";
+import {
+    Struct,
+    Message,
+    FieldsOwner,
+    Contract,
+    Constant,
+    Function,
+    Trait,
+    StorageMembersOwner
+} from "../psi/TopLevelDeclarations";
 import {NamedNode, Node} from "../psi/Node";
 
 export interface Ty {
@@ -41,7 +50,7 @@ export class MessageTy extends FieldsOwnerTy<Message> {
 export class PrimitiveTy extends BaseTy<Node> {
 }
 
-export class ContractTy extends BaseTy<Contract> {
+export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends BaseTy<Anchor> {
     public methods(): Function[] {
         if (this.anchor === null) return []
         return this.anchor.methods()
@@ -56,6 +65,12 @@ export class ContractTy extends BaseTy<Contract> {
         if (this.anchor === null) return []
         return this.anchor.constants()
     }
+}
+
+export class TraitTy extends StorageMembersOwnerTy<Trait> {
+}
+
+export class ContractTy extends StorageMembersOwnerTy<Contract> {
 }
 
 export class BouncedTy implements Ty {

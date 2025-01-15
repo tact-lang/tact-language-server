@@ -1,7 +1,7 @@
-import {BouncedTy, ContractTy, MessageTy, PrimitiveTy, StructTy, Ty} from "./types/BaseTy";
+import {BouncedTy, ContractTy, MessageTy, PrimitiveTy, StructTy, TraitTy, Ty} from "./types/BaseTy";
 import {Expression, NamedNode, Node} from "./psi/Node";
 import {Reference} from "./psi/Reference";
-import {Struct, Message, Function, Primitive, Contract} from "./psi/TopLevelDeclarations";
+import {Struct, Message, Function, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations";
 import {isTypeOwnerNode} from "./psi/utils";
 
 export class TypeInferer {
@@ -24,6 +24,10 @@ export class TypeInferer {
 
             if (resolved instanceof Message) {
                 return new MessageTy(resolved.name(), resolved)
+            }
+
+            if (resolved instanceof Trait) {
+                return new TraitTy(resolved.name(), resolved)
             }
 
             if (resolved instanceof Primitive) {
@@ -66,6 +70,10 @@ export class TypeInferer {
 
             if (resolved instanceof Message) {
                 return new MessageTy(resolved.name(), resolved)
+            }
+
+            if (resolved instanceof Trait) {
+                return new TraitTy(resolved.name(), resolved)
             }
 
             if (resolved instanceof Contract) {
@@ -135,6 +143,10 @@ export class TypeInferer {
 
             if (resolved instanceof Message) {
                 return new MessageTy(resolved.name(), resolved)
+            }
+
+            if (resolved instanceof Trait) {
+                return new TraitTy(resolved.name(), resolved)
             }
         }
 
