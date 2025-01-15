@@ -1,11 +1,8 @@
 import * as lsp from 'vscode-languageserver';
-import {
-    FoldingRangeParams,
-    ParameterInformation,
-    ReferenceParams,
-    RenameParams,
-    SemanticTokens
-} from 'vscode-languageserver';
+import * as docs from "./documentation/documentation";
+import * as inlays from "./inlays/collect";
+import * as foldings from "./foldings/collect";
+import * as semantic from "./semantic_tokens/collect";
 import {connection} from './connection';
 import {InitializeParams, TextDocumentSyncKind} from 'vscode-languageserver/node';
 import {InitializeResult} from 'vscode-languageserver-protocol';
@@ -13,14 +10,6 @@ import {DocumentStore} from "./document-store";
 import {readFileSync} from "fs";
 import {createParser, initParser} from "./parser";
 import {asLspRange, asParserPoint} from "./utils/position";
-import {
-    DocumentHighlight,
-    DocumentHighlightKind,
-    FoldingRange,
-    InlayHint,
-    Location,
-    SignatureHelp
-} from "vscode-languageserver-types";
 import {TypeInferer} from "./TypeInferer";
 import {SyntaxNode} from "web-tree-sitter";
 import {NotificationFromServer} from "../../shared/src/shared-msgtypes";
@@ -29,10 +18,6 @@ import {index} from "./indexes";
 import {CallLike, NamedNode} from "./psi/Node";
 import {Reference} from "./psi/Reference";
 import {File} from "./psi/File";
-import * as docs from "./documentation/documentation";
-import * as inlays from "./inlays/collect";
-import * as foldings from "./foldings/collect";
-import * as semantic from "./semantic_tokens/collect";
 import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProcessor";
 import {CompletionContext} from "./completion/CompletionContext";
 import {TextDocument} from "vscode-languageserver-textdocument";
@@ -217,12 +202,12 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         return Array.from(processor.result.values())
     });
 
-    connection.onRequest(lsp.InlayHintRequest.type, async (params: lsp.InlayHintParams): Promise<InlayHint[] | null> => {
+    connection.onRequest(lsp.InlayHintRequest.type, async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
         const file = await findFile(params.textDocument.uri)
         return inlays.collect(file)
     })
 
-    const renameHandler = async (params: RenameParams): Promise<lsp.WorkspaceEdit | null> => {
+    const renameHandler = async (params: lsp.RenameParams): Promise<lsp.WorkspaceEdit | null> => {
         const uri = params.textDocument.uri;
         const file = await findFile(uri)
 
@@ -243,12 +228,12 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             }
         }
     };
-    connection.onRequest(lsp.RenameRequest.type, (params: RenameParams) => renameHandler(params).catch(reason => {
+    connection.onRequest(lsp.RenameRequest.type, (params: lsp.RenameParams) => renameHandler(params).catch(reason => {
         connection.sendNotification(NotificationFromServer.showErrorMessage, `Can not rename: ${reason}`).catch(console.error)
         return {}
     }))
 
-    connection.onRequest(lsp.DocumentHighlightRequest.type, async (params: lsp.DocumentHighlightParams): Promise<DocumentHighlight[] | null> => {
+    connection.onRequest(lsp.DocumentHighlightRequest.type, async (params: lsp.DocumentHighlightParams): Promise<lsp.DocumentHighlight[] | null> => {
         const file = await findFile(params.textDocument.uri)
         const highlightNode = nodeAtPosition(params, file);
         if (highlightNode.type !== 'identifier' && highlightNode.type !== 'type_identifier') {
@@ -259,13 +244,13 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         if (result.length === 0) return null
 
         return result.map(value => {
-            let kind: DocumentHighlightKind = DocumentHighlightKind.Read
+            let kind: lsp.DocumentHighlightKind = lsp.DocumentHighlightKind.Read
             const parent = value.parent!
             if (parent.type === 'assignment_statement') {
                 if (parent.childForFieldName('left')!.equals(value)) {
                     // left = 10
                     // ^^^^
-                    kind = DocumentHighlightKind.Write
+                    kind = lsp.DocumentHighlightKind.Write
                 }
             }
 
@@ -276,7 +261,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         })
     })
 
-    connection.onRequest(lsp.ReferencesRequest.type, async (params: ReferenceParams): Promise<Location[] | null> => {
+    connection.onRequest(lsp.ReferencesRequest.type, async (params: lsp.ReferenceParams): Promise<lsp.Location[] | null> => {
         const uri = params.textDocument.uri;
         const file = await findFile(uri)
 
@@ -294,7 +279,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }))
     })
 
-    connection.onRequest(lsp.SignatureHelpRequest.type, async (params: lsp.SignatureHelpParams): Promise<SignatureHelp | null> => {
+    connection.onRequest(lsp.SignatureHelpRequest.type, async (params: lsp.SignatureHelpParams): Promise<lsp.SignatureHelp | null> => {
         const file = await findFile(params.textDocument.uri)
 
         const hoverNode = nodeAtPosition(params, file);
@@ -346,7 +331,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
         const parametersInfo = parameters.map(value => ({
             label: value.text,
-        } as ParameterInformation))
+        } as lsp.ParameterInformation))
         const parametersString = parametersInfo.map(el => el.label).join(', ')
 
         return {
@@ -360,13 +345,13 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         }
     });
 
-    connection.onRequest(lsp.FoldingRangeRequest.type, async (params: FoldingRangeParams): Promise<FoldingRange[] | null> => {
+    connection.onRequest(lsp.FoldingRangeRequest.type, async (params: lsp.FoldingRangeParams): Promise<lsp.FoldingRange[] | null> => {
         const uri = params.textDocument.uri;
         const file = await findFile(uri)
         return foldings.collect(file)
     })
 
-    connection.onRequest(lsp.SemanticTokensRequest.type, async (params: lsp.SemanticTokensParams): Promise<SemanticTokens | null> => {
+    connection.onRequest(lsp.SemanticTokensRequest.type, async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
         const uri = params.textDocument.uri;
         const file = await findFile(uri)
         return semantic.collect(file, uri)
