@@ -69,6 +69,10 @@ export class StorageMembersOwner extends NamedNode {
     }
 
     public inheritTraits(): Trait[] {
+        if (this.name() === 'BaseTrait') {
+            return []
+        }
+
         const baseTraitNode = index.elementByName(IndexKey.Traits, 'BaseTrait')
 
         const traitList = this.node.childForFieldName('traits')
