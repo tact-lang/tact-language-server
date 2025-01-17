@@ -5,4 +5,7 @@ node_modules
 dist/
 test-workspace/
 .vscode-test/
-.yarn
+
+# yarn
+yarn-error.log
+.yarn/

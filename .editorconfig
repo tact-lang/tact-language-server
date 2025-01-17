@@ -8,3 +8,8 @@ indent_size = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+[*.{js,ts}]
+max_line_length = 100
+
+[*.{yml,yaml}]
+indent_size = 2
