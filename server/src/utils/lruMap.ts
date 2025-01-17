@@ -3,13 +3,13 @@ export class LRUMap<K, V> extends Map<K, V> {
         super()
     }
 
-    set(key: K, value: V) {
+    override set(key: K, value: V) {
         super.set(key, value)
         this._checkSize()
         return this
     }
 
-    get(key: K): V | undefined {
+    override get(key: K): V | undefined {
         if (!this.has(key)) {
             return undefined
         }

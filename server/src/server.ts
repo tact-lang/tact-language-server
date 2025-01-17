@@ -469,7 +469,8 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         return lens.collect(file)
     })
 
-    const _ = TypeInferer.inferType
+    const _needed = TypeInferer.inferType
+    console.log(_needed.toString().slice(0, 0))
 
     console.log("Tact language server is ready!")
 

@@ -11,12 +11,10 @@ import {isFunctionNode, isNamedFunctionNode, parentOfType} from "./utils"
  */
 export class Referent {
     private readonly resolved: NamedNode | null = null
-    private readonly node: SyntaxNode
     private readonly file: File
 
     public constructor(node: SyntaxNode, file: File) {
         this.file = file
-        this.node = node
         const element = new NamedNode(node, file)
         this.resolved = Reference.resolve(element)
     }

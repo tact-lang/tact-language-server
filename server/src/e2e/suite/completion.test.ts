@@ -6,7 +6,7 @@ import * as glob from "glob"
 import {activate} from "../utils"
 import {TestParser} from "./TestParser"
 
-const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === "true"
+const UPDATE_SNAPSHOTS = process.env["UPDATE_SNAPSHOTS"] === "true"
 
 interface TestUpdate {
     filePath: string
@@ -106,9 +106,9 @@ suite("Completion Test Suite", () => {
 
         for (const testCase of testCases) {
             test(`Completion: ${testCase.name}`, async function () {
-                const completions = await getCompletions(testCase.input, testCase.properties.trigger)
+                const completions = await getCompletions(testCase.input, testCase.properties["trigger"])
 
-                if (testCase.properties.json === "true") {
+                if (testCase.properties["json"] === "true") {
                     const expected = JSON.parse(testCase.expected)
                     const actual = {
                         items: completions.items.map(item => ({
