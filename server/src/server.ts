@@ -1,6 +1,4 @@
 import {connection} from "./connection"
-import {InitializeParams, TextDocumentSyncKind} from "vscode-languageserver/node"
-import {InitializeResult} from "vscode-languageserver-protocol"
 import {DocumentStore} from "./document-store"
 import {readFileSync} from "fs"
 import {createParser, initParser} from "./parser"
@@ -16,7 +14,6 @@ import {File} from "./psi/File"
 import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProcessor"
 import {CompletionContext} from "./completion/CompletionContext"
 import {TextDocument} from "vscode-languageserver-textdocument"
-import {TextDocumentPositionParams} from "vscode-languageserver-protocol/lib/common/protocol"
 import * as lsp from "vscode-languageserver"
 import * as docs from "./documentation/documentation"
 import * as inlays from "./inlays/collect"
@@ -53,7 +50,7 @@ export const PARSED_FILES_CACHE = new LRUMap<string, Tree>({
     dispose: _entries => {},
 })
 
-connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
+connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     await initParser(
         params.initializationOptions.treeSitterWasmUri,
         params.initializationOptions.langWasmUri,
@@ -119,7 +116,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         return content ?? document.getText()
     }
 
-    function nodeAtPosition(params: TextDocumentPositionParams, file: File) {
+    function nodeAtPosition(params: lsp.TextDocumentPositionParams, file: File) {
         const cursorPosition = asParserPoint(params.position)
         return file.rootNode.descendantForPosition(cursorPosition)
     }
@@ -501,7 +498,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     return {
         capabilities: {
-            textDocumentSync: TextDocumentSyncKind.Incremental,
+            textDocumentSync: lsp.TextDocumentSyncKind.Incremental,
             // codeActionProvider: true,
             // documentSymbolProvider: true,
             definitionProvider: true,
