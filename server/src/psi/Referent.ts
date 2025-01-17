@@ -1,22 +1,22 @@
-import type {SyntaxNode, Tree} from "web-tree-sitter";
+import type {SyntaxNode} from "web-tree-sitter"
 
-import {RecursiveVisitor} from "../visitor";
-import {NamedNode} from "./Node";
-import {Reference} from "./Reference";
-import {File} from "./File";
-import {isFunctionNode, isNamedFunctionNode, parentOfType} from "./utils";
+import {RecursiveVisitor} from "../visitor"
+import {NamedNode} from "./Node"
+import {Reference} from "./Reference"
+import {File} from "./File"
+import {isFunctionNode, isNamedFunctionNode, parentOfType} from "./utils"
 
 /**
  * Referent encapsulates the logic for finding all references to a definition.
  */
 export class Referent {
-    private readonly resolved: NamedNode | null = null;
-    private readonly node: SyntaxNode;
-    private readonly file: File;
+    private readonly resolved: NamedNode | null = null
+    private readonly node: SyntaxNode
+    private readonly file: File
 
     public constructor(node: SyntaxNode, file: File) {
-        this.file = file;
-        this.node = node;
+        this.file = file
+        this.node = node
         const element = new NamedNode(node, file)
         this.resolved = Reference.resolve(element)
     }
@@ -30,7 +30,7 @@ export class Referent {
      * TODO: finish _sameFileOnly
      */
     public findReferences(includeDefinition: boolean = false, _sameFileOnly: boolean = false): SyntaxNode[] {
-        const resolved = this.resolved;
+        const resolved = this.resolved
         if (!resolved) return []
 
         const useScope = this.useScope()
@@ -50,10 +50,10 @@ export class Referent {
         //       we don't need to resolve foo in bar.foo in some cases
         RecursiveVisitor.visit(useScope, (node): boolean => {
             // fast path, skip non identifiers
-            if (node.type !== 'identifier' && node.type !== 'self' && node.type !== 'type_identifier') return true
+            if (node.type !== "identifier" && node.type !== "self" && node.type !== "type_identifier") return true
             // fast path, identifier name doesn't equal to definition name
             // self can refer to enclosing trait or contract
-            if (node.text !== resolved?.name() && node.text !== 'self') return true
+            if (node.text !== resolved?.name() && node.text !== "self") return true
 
             const parent = node.parent
             if (parent === null) return true
@@ -75,10 +75,13 @@ export class Referent {
             const res = Reference.resolve(new NamedNode(node, resolved.file))
             if (!res) return true
 
-            const identifier = res.nameIdentifier();
+            const identifier = res.nameIdentifier()
             if (!identifier) return true
 
-            if (res.node.type === resolved.node.type && (identifier.text === resolved?.name() || identifier.text === 'self')) {
+            if (
+                res.node.type === resolved.node.type &&
+                (identifier.text === resolved?.name() || identifier.text === "self")
+            ) {
                 // found new reference
                 result.push(node)
             }
@@ -100,24 +103,24 @@ export class Referent {
         const parent = this.resolved.node.parent
         if (parent === null) return null
 
-        if (parent.type === 'let_statement') {
+        if (parent.type === "let_statement") {
             // search only in outer block/function
-            return parentOfType(parent, 'function_body', 'block_statement')
+            return parentOfType(parent, "function_body", "block_statement")
         }
 
-        if (parent.type === 'foreach_statement') {
+        if (parent.type === "foreach_statement") {
             // search only in foreach block
             return parent.lastChild
         }
 
-        if (parent.type === 'catch_clause') {
+        if (parent.type === "catch_clause") {
             // search only in catch block
             return parent.lastChild
         }
 
-        if (node.type === 'parameter') {
+        if (node.type === "parameter") {
             const grand = node.parent!.parent!
-            if (grand.type === 'asm_function') {
+            if (grand.type === "asm_function") {
                 // search in function body and potentially asm arrangement
                 return grand
             }
@@ -128,9 +131,9 @@ export class Referent {
             }
         }
 
-        if (node.type === 'storage_variable' || node.type === 'storage_constant' || node.type === 'storage_function') {
-            const owner = parentOfType(parent, 'contract', 'trait');
-            if (owner?.type === 'trait') {
+        if (node.type === "storage_variable" || node.type === "storage_constant" || node.type === "storage_function") {
+            const owner = parentOfType(parent, "contract", "trait")
+            if (owner?.type === "trait") {
                 // search in file for now, can be used in other traits, optimize?
                 return this.file.rootNode
             }
@@ -143,17 +146,17 @@ export class Referent {
             return this.file.rootNode
         }
 
-        if (node.type === 'contract') {
+        if (node.type === "contract") {
             // search in file for now
             return this.file.rootNode
         }
 
-        if (node.type === 'trait') {
+        if (node.type === "trait") {
             // search in file for now
             return this.file.rootNode
         }
 
-        if (node.type === 'field') {
+        if (node.type === "field") {
             // search in file for now
             return this.file.rootNode
         }

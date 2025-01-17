@@ -1,46 +1,46 @@
-import {BouncedTy, ContractTy, MapTy, MessageTy, OptionTy, PrimitiveTy, StructTy, TraitTy, Ty} from "./types/BaseTy";
-import {Expression, NamedNode, Node} from "./psi/Node";
-import {Reference} from "./psi/Reference";
-import {Struct, Message, Function, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations";
-import {isTypeOwnerNode} from "./psi/utils";
-import {SyntaxNode} from "web-tree-sitter";
-import {CACHE} from "./cache";
-import {index, IndexKey} from "./indexes";
+import {BouncedTy, ContractTy, MapTy, MessageTy, OptionTy, PrimitiveTy, StructTy, TraitTy, Ty} from "./types/BaseTy"
+import {Expression, NamedNode, Node} from "./psi/Node"
+import {Reference} from "./psi/Reference"
+import {Struct, Message, Function, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations"
+import {isTypeOwnerNode} from "./psi/utils"
+import {SyntaxNode} from "web-tree-sitter"
+import {CACHE} from "./cache"
+import {index, IndexKey} from "./indexes"
 
 export class TypeInferer {
     public static inferType(node: Node): Ty | null {
-        return new TypeInferer().inferType(node);
+        return new TypeInferer().inferType(node)
     }
 
     public inferType(node: Node): Ty | null {
-        return CACHE.typeCache.cached(node.node.id, () => this.inferTypeImpl(node));
+        return CACHE.typeCache.cached(node.node.id, () => this.inferTypeImpl(node))
     }
 
     private inferTypeImpl(node: Node): Ty | null {
         if (node.node.type === "type_identifier") {
             const resolved = Reference.resolve(new NamedNode(node.node, node.file))
             if (resolved === null) return null
-            return this.inferTypeFromResolved(resolved);
+            return this.inferTypeFromResolved(resolved)
         }
 
         if (node.node.type === "identifier" || node.node.type === "self") {
             const resolved = Reference.resolve(new NamedNode(node.node, node.file))
             if (resolved === null) return null
 
-            const parent = resolved.node.parent;
+            const parent = resolved.node.parent
             if (parent === null) return null
 
             if (parent.type === "let_statement") {
-                const typeHint = parent.childForFieldName('type')
+                const typeHint = parent.childForFieldName("type")
                 if (typeHint !== null) {
-                    return this.inferTypeMaybeOption(typeHint, resolved);
+                    return this.inferTypeMaybeOption(typeHint, resolved)
                 }
-                const value = parent.childForFieldName('value')!
+                const value = parent.childForFieldName("value")!
                 return this.inferType(new Expression(value, resolved.file))
             }
 
             if (parent.type === "foreach_statement") {
-                const expr = parent.childForFieldName('map')
+                const expr = parent.childForFieldName("map")
                 if (!expr) return null
                 const exprTy = new Expression(expr, node.file).type()
                 if (!(exprTy instanceof MapTy)) return null
@@ -62,10 +62,10 @@ export class TypeInferer {
 
             if (isTypeOwnerNode(resolved.node)) {
                 const typeNode = resolved.node.childForFieldName("type")!
-                return this.inferTypeMaybeOption(typeNode, resolved);
+                return this.inferTypeMaybeOption(typeNode, resolved)
             }
 
-            return this.inferTypeFromResolved(resolved);
+            return this.inferTypeFromResolved(resolved)
         }
 
         if (node.node.type === "bounced_type") {
@@ -91,7 +91,7 @@ export class TypeInferer {
             const element = new NamedNode(name, node.file)
             const resolved = Reference.resolve(element)
             if (resolved === null) return null
-            return this.inferTypeFromResolved(resolved);
+            return this.inferTypeFromResolved(resolved)
         }
 
         if (node.node.type === "non_null_assert_expression") {
@@ -103,9 +103,9 @@ export class TypeInferer {
         }
 
         if (node.node.type === "initOf") {
-            const stateInit = index.elementByName(IndexKey.Structs, 'StateInit');
-            if (!stateInit) return null;
-            return new StructTy('StateInit', stateInit);
+            const stateInit = index.elementByName(IndexKey.Structs, "StateInit")
+            if (!stateInit) return null
+            return new StructTy("StateInit", stateInit)
         }
 
         if (node.node.type === "parenthesized_expression") {
@@ -136,7 +136,7 @@ export class TypeInferer {
                 return this.inferTypeMaybeOption(typeNode, resolved)
             }
 
-            return this.inferTypeFromResolved(resolved);
+            return this.inferTypeFromResolved(resolved)
         }
 
         if (node.node.type === "static_call_expression" || node.node.type === "method_call_expression") {
@@ -159,7 +159,7 @@ export class TypeInferer {
 
     private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: NamedNode) {
         const inferred = this.inferType(new Expression(typeNode, resolved.file))
-        if (inferred !== null && typeNode.nextSibling?.text === '?') {
+        if (inferred !== null && typeNode.nextSibling?.text === "?") {
             return new OptionTy(inferred)
         }
         return inferred
@@ -181,7 +181,7 @@ export class TypeInferer {
         if (resolved instanceof Contract) {
             return new ContractTy(resolved.name(), resolved)
         }
-        return null;
+        return null
     }
 
     private inferChildFieldType(node: Node, fieldName: string): Ty | null {

@@ -1,4 +1,4 @@
-import type {SyntaxNode} from "web-tree-sitter";
+import type {SyntaxNode} from "web-tree-sitter"
 
 export function parentOfType(node: SyntaxNode, ...types: readonly string[]): SyntaxNode | null {
     let parent = node.parent
@@ -11,35 +11,41 @@ export function parentOfType(node: SyntaxNode, ...types: readonly string[]): Syn
 }
 
 export function isFunctionNode(node: SyntaxNode): boolean {
-    return isNamedFunctionNode(node) ||
-        node.type === 'receive_function' ||
-        node.type === 'bounced_function' ||
-        node.type === 'external_function' ||
-        node.type === 'init_function'
+    return (
+        isNamedFunctionNode(node) ||
+        node.type === "receive_function" ||
+        node.type === "bounced_function" ||
+        node.type === "external_function" ||
+        node.type === "init_function"
+    )
 }
 
 export function isNamedFunctionNode(node: SyntaxNode): boolean {
-    return node.type === 'global_function' ||
-        node.type === 'asm_function' ||
-        node.type === 'native_function' ||
-        node.type === 'storage_function'
+    return (
+        node.type === "global_function" ||
+        node.type === "asm_function" ||
+        node.type === "native_function" ||
+        node.type === "storage_function"
+    )
 }
 
 export function isTypeOwnerNode(node: SyntaxNode): boolean {
-    return node.type === 'field' ||
-        node.type === 'storage_variable' ||
-        node.type === 'parameter' ||
-        node.type === 'global_constant' ||
-        node.type === 'storage_constant'
+    return (
+        node.type === "field" ||
+        node.type === "storage_variable" ||
+        node.type === "parameter" ||
+        node.type === "global_constant" ||
+        node.type === "storage_constant"
+    )
 }
 
 export function measureTime<T>(label: string, fn: () => T): T {
-    const startTime = performance.now();
-    const result = fn();
-    const endTime = performance.now();
-    const time = endTime - startTime;
+    const startTime = performance.now()
+    const result = fn()
+    const endTime = performance.now()
+    const time = endTime - startTime
     if (time > 0.3) {
-        console.log(`${label}: ${time}ms`);
+        console.log(`${label}: ${time}ms`)
     }
-    return result;
+    return result
 }

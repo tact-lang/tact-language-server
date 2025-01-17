@@ -1,5 +1,4 @@
 ---
-triple:          'arm64-apple-darwin'
-binary-path:     '/Users/petrmakhnev/tact-vscode/tree-sitter-tact/tact.dylib'
-relocations:     []
-...
+triple: "arm64-apple-darwin"
+binary-path: "/Users/petrmakhnev/tact-vscode/tree-sitter-tact/tact.dylib"
+relocations: []

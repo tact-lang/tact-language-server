@@ -9,11 +9,6 @@
         "rootDir": ".",
         "types": ["node", "vscode", "mocha"]
     },
-    "include": [
-        "./**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "out"
-    ]
-} 
+    "include": ["./**/*"],
+    "exclude": ["node_modules", "out"]
+}

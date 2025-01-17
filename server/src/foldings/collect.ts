@@ -1,8 +1,8 @@
-import {FoldingRange, FoldingRangeKind} from "vscode-languageserver-types";
-import {RecursiveVisitor} from "../visitor";
-import {File} from "../psi/File";
-import {Point} from "web-tree-sitter";
-import * as lsp from "vscode-languageserver";
+import {FoldingRange, FoldingRangeKind} from "vscode-languageserver-types"
+import {RecursiveVisitor} from "../visitor"
+import {File} from "../psi/File"
+import {Point} from "web-tree-sitter"
+import * as lsp from "vscode-languageserver"
 
 export function collect(file: File): FoldingRange[] {
     const result: FoldingRange[] = []
@@ -18,13 +18,14 @@ export function collect(file: File): FoldingRange[] {
     }
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
-        if (n.type === 'block_statement' ||
-            n.type === 'instance_argument_list' ||
-            n.type === 'function_body' ||
-            n.type === 'asm_function_body' ||
-            n.type === 'struct_body' ||
-            n.type === 'contract_body' ||
-            n.type === 'trait_body'
+        if (
+            n.type === "block_statement" ||
+            n.type === "instance_argument_list" ||
+            n.type === "function_body" ||
+            n.type === "asm_function_body" ||
+            n.type === "struct_body" ||
+            n.type === "contract_body" ||
+            n.type === "trait_body"
         ) {
             const openBrace = n.firstChild!
             const closeBrace = n.lastChild!

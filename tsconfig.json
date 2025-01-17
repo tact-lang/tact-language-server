@@ -1,29 +1,20 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es2020",
-		"lib": ["es2020"],
-		"sourceMap": true,
-		"strict": true,
-		"allowUnreachableCode": true,
-		"exactOptionalPropertyTypes": true,
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitOverride": true,
-		"noImplicitReturns": true,
-		"noPropertyAccessFromIndexSignature": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-	},
-	"include": [
-		"server/src/**/*",
-		"client/src/**/*",
-	],
-	"exclude": [
-		"node_modules",
-		".vscode-test"
-	],
-	"references": [
-		{ "path": "./client" },
-		{ "path": "./server" }
-	]
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es2020",
+        "lib": ["es2020"],
+        "sourceMap": true,
+        "strict": true,
+        "allowUnreachableCode": true,
+        "exactOptionalPropertyTypes": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
+    },
+    "include": ["server/src/**/*", "client/src/**/*"],
+    "exclude": ["node_modules", ".vscode-test"],
+    "references": [{"path": "./client"}, {"path": "./server"}]
 }

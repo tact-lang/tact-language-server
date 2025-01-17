@@ -36,12 +36,11 @@ jobs:
           test-node: ${{runner.os != 'Windows'}}
           node-version: "22.8.0"
           test-python: false # default
-          test-go: false     # default
-          test-swift: false  # default
+          test-go: false # default
+          test-swift: false # default
 
       - name: Run built-in Tree-sitter fuzzer
-        run:
-          npm run ts -- fuzz --edits 500000 --iterations 10000
+        run: npm run ts -- fuzz --edits 500000 --iterations 10000
 
       - name: Check correspondence to Ohm parser
         if: ${{ runner.os != 'Windows' }}

@@ -1,15 +1,15 @@
-import {SyntaxNode} from "web-tree-sitter";
-import {File} from "./File";
-import {Ty} from "../types/BaseTy";
-import {TypeInferer} from "../TypeInferer";
+import {SyntaxNode} from "web-tree-sitter"
+import {File} from "./File"
+import {Ty} from "../types/BaseTy"
+import {TypeInferer} from "../TypeInferer"
 
 export class Node {
     public node: SyntaxNode
     public file: File
 
     public constructor(node: SyntaxNode, file: File) {
-        this.node = node;
-        this.file = file;
+        this.node = node
+        this.file = file
     }
 }
 
@@ -25,19 +25,19 @@ export class NamedNode extends Node {
     }
 
     public nameIdentifier(): SyntaxNode | null {
-        if (this.node.type === 'identifier' || this.node.type === 'self' || this.node.type === 'type_identifier') {
+        if (this.node.type === "identifier" || this.node.type === "self" || this.node.type === "type_identifier") {
             return this.node
         }
 
-        if (this.node.type === 'primitive') {
-            const nameNode = this.node.childForFieldName('type')
+        if (this.node.type === "primitive") {
+            const nameNode = this.node.childForFieldName("type")
             if (!nameNode) {
                 return null
             }
             return nameNode
         }
 
-        const nameNode = this.node.childForFieldName('name')
+        const nameNode = this.node.childForFieldName("name")
         if (!nameNode) {
             return null
         }
@@ -59,13 +59,13 @@ export class NamedNode extends Node {
 
 export class VarDeclaration extends NamedNode {
     public typeHint(): Expression | null {
-        const node = this.node.childForFieldName('type')
+        const node = this.node.childForFieldName("type")
         if (!node) return null
         return new Expression(node, this.file)
     }
 
     public value(): Expression | null {
-        const node = this.node.childForFieldName('value')
+        const node = this.node.childForFieldName("value")
         if (!node) return null
         return new Expression(node, this.file)
     }
@@ -87,7 +87,7 @@ export class VarDeclaration extends NamedNode {
 
 export class CallLike extends NamedNode {
     public rawArguments(): SyntaxNode[] {
-        const node = this.node.childForFieldName('arguments')
+        const node = this.node.childForFieldName("arguments")
         if (!node) return []
         return node.children
     }

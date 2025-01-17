@@ -1,4 +1,4 @@
-import {SyntaxNode} from "web-tree-sitter";
+import {SyntaxNode} from "web-tree-sitter"
 
 export class RecursiveVisitor {
     static visit(node: SyntaxNode, cb: (n: SyntaxNode) => boolean): boolean {

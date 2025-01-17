@@ -1,6 +1,6 @@
-import {NamedNode} from "../psi/Node";
-import {TypeInferer} from "../TypeInferer";
-import {Constant, Function} from "../psi/TopLevelDeclarations";
+import {NamedNode} from "../psi/Node"
+import {TypeInferer} from "../TypeInferer"
+import {Constant, Function} from "../psi/TopLevelDeclarations"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -11,7 +11,7 @@ const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
  * @param node for which we need documentation
  */
 export function generateDocFor(node: NamedNode): string | null {
-    const astNode = node.node;
+    const astNode = node.node
     switch (astNode.type) {
         case "global_function":
         case "native_function":
@@ -47,7 +47,7 @@ export function generateDocFor(node: NamedNode): string | null {
         case "global_constant":
         case "storage_constant": {
             const constant = new Constant(astNode, node.file)
-            const type = constant.typeNode()?.type()?.qualifiedName() ?? 'unknown'
+            const type = constant.typeNode()?.type()?.qualifiedName() ?? "unknown"
             if (!type) return null
 
             const value = constant.value()
@@ -65,8 +65,8 @@ export function generateDocFor(node: NamedNode): string | null {
             const type = TypeInferer.inferType(field)?.qualifiedName() ?? "unknown"
 
             const defaultValueNode = astNode.childForFieldName("value")
-            let defaultValue = defaultValueNode?.text ?? ''
-            if (defaultValue != '') {
+            let defaultValue = defaultValueNode?.text ?? ""
+            if (defaultValue != "") {
                 defaultValue = ` = ${defaultValue}`
             }
 
@@ -76,7 +76,7 @@ export function generateDocFor(node: NamedNode): string | null {
             const parent = astNode.parent
             if (!parent) return null
 
-            if (parent.type === 'let_statement') {
+            if (parent.type === "let_statement") {
                 const valueNode = parent.childForFieldName("value")
                 if (!valueNode) return null
 
@@ -85,13 +85,13 @@ export function generateDocFor(node: NamedNode): string | null {
                 return defaultResult(`let ${node.name()}: ${typeName} = ${valueNode.text}`)
             }
 
-            if (parent.type === 'foreach_statement') {
+            if (parent.type === "foreach_statement") {
                 const type = TypeInferer.inferType(node)
                 const typeName = type?.qualifiedName() ?? "unknown"
                 return defaultResult(`let ${node.name()}: ${typeName}`)
             }
 
-            if (parent.type === 'catch_clause') {
+            if (parent.type === "catch_clause") {
                 return defaultResult(`catch(${node.name()})`)
             }
             break
@@ -106,12 +106,10 @@ export function generateDocFor(node: NamedNode): string | null {
     return null
 }
 
-function extractCommentsDoc(node: NamedNode): string {
-    return '' // TODO
+function extractCommentsDoc(_node: NamedNode): string {
+    return "" // TODO
 }
 
 function defaultResult(signature: string, documentation: string = "") {
-    return DOC_TMPL
-        .replace("{signature}", signature)
-        .replace("{documentation}", documentation)
+    return DOC_TMPL.replace("{signature}", signature).replace("{documentation}", documentation)
 }

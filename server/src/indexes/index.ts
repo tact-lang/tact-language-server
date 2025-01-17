@@ -1,40 +1,40 @@
-import {NamedNode} from "../psi/Node";
-import {File} from "../psi/File";
-import {Constant, Contract, Function, Message, Primitive, Struct, Trait} from "../psi/TopLevelDeclarations";
-import {isNamedFunctionNode} from "../psi/utils";
-import {ResolveState, ScopeProcessor} from "../psi/Reference";
-import {PARSED_FILES_CACHE} from "../server";
-import {CACHE} from "../cache";
+import {NamedNode} from "../psi/Node"
+import {File} from "../psi/File"
+import {Constant, Contract, Function, Message, Primitive, Struct, Trait} from "../psi/TopLevelDeclarations"
+import {isNamedFunctionNode} from "../psi/utils"
+import {ResolveState, ScopeProcessor} from "../psi/Reference"
+import {PARSED_FILES_CACHE} from "../server"
+import {CACHE} from "../cache"
 
 export interface IndexKeyToType {
-    [IndexKey.Contracts]: Contract;
-    [IndexKey.Functions]: Function;
-    [IndexKey.Messages]: Message;
-    [IndexKey.Structs]: Struct;
-    [IndexKey.Traits]: Trait;
-    [IndexKey.Primitives]: Primitive;
-    [IndexKey.Constants]: Constant;
+    [IndexKey.Contracts]: Contract
+    [IndexKey.Functions]: Function
+    [IndexKey.Messages]: Message
+    [IndexKey.Structs]: Struct
+    [IndexKey.Traits]: Trait
+    [IndexKey.Primitives]: Primitive
+    [IndexKey.Constants]: Constant
 }
 
 export enum IndexKey {
-    Contracts = 'Contracts',
-    Functions = 'Functions',
-    Messages = 'Messages',
-    Structs = 'Structs',
-    Traits = 'Traits',
-    Primitives = 'Primitives',
-    Constants = 'Constants',
+    Contracts = "Contracts",
+    Functions = "Functions",
+    Messages = "Messages",
+    Structs = "Structs",
+    Traits = "Traits",
+    Primitives = "Primitives",
+    Constants = "Constants",
 }
 
 export class FileIndex {
     private readonly elements: {
-        [IndexKey.Contracts]: Contract[];
-        [IndexKey.Functions]: Function[];
-        [IndexKey.Messages]: Message[];
-        [IndexKey.Structs]: Struct[];
-        [IndexKey.Traits]: Trait[];
-        [IndexKey.Primitives]: Primitive[];
-        [IndexKey.Constants]: Constant[];
+        [IndexKey.Contracts]: Contract[]
+        [IndexKey.Functions]: Function[]
+        [IndexKey.Messages]: Message[]
+        [IndexKey.Structs]: Struct[]
+        [IndexKey.Traits]: Trait[]
+        [IndexKey.Primitives]: Primitive[]
+        [IndexKey.Constants]: Constant[]
     } = {
         [IndexKey.Contracts]: [],
         [IndexKey.Functions]: [],
@@ -43,46 +43,41 @@ export class FileIndex {
         [IndexKey.Traits]: [],
         [IndexKey.Primitives]: [],
         [IndexKey.Constants]: [],
-    };
-
-    public constructor() {
     }
+
+    public constructor() {}
 
     public static create(file: File): FileIndex {
         const index = new FileIndex()
 
         for (const node of file.rootNode.children) {
             if (isNamedFunctionNode(node)) {
-                index.elements[IndexKey.Functions].push(new Function(node, file));
+                index.elements[IndexKey.Functions].push(new Function(node, file))
             }
-            if (node.type === 'struct') {
-                index.elements[IndexKey.Structs].push(new Struct(node, file));
+            if (node.type === "struct") {
+                index.elements[IndexKey.Structs].push(new Struct(node, file))
             }
-            if (node.type === 'contract') {
-                index.elements[IndexKey.Contracts].push(new Contract(node, file));
+            if (node.type === "contract") {
+                index.elements[IndexKey.Contracts].push(new Contract(node, file))
             }
-            if (node.type === 'message') {
-                index.elements[IndexKey.Messages].push(new Message(node, file));
+            if (node.type === "message") {
+                index.elements[IndexKey.Messages].push(new Message(node, file))
             }
-            if (node.type === 'trait') {
-                index.elements[IndexKey.Traits].push(new Trait(node, file));
+            if (node.type === "trait") {
+                index.elements[IndexKey.Traits].push(new Trait(node, file))
             }
-            if (node.type === 'primitive') {
-                index.elements[IndexKey.Primitives].push(new Primitive(node, file));
+            if (node.type === "primitive") {
+                index.elements[IndexKey.Primitives].push(new Primitive(node, file))
             }
-            if (node.type === 'global_constant') {
-                index.elements[IndexKey.Constants].push(new Constant(node, file));
+            if (node.type === "global_constant") {
+                index.elements[IndexKey.Constants].push(new Constant(node, file))
             }
         }
 
         return index
     }
 
-    public processElementsByKey<K extends IndexKey>(
-        key: K,
-        processor: ScopeProcessor,
-        state: ResolveState
-    ): boolean {
+    public processElementsByKey<K extends IndexKey>(key: K, processor: ScopeProcessor, state: ResolveState): boolean {
         const elements = this.elements[key]
         for (const node of elements) {
             if (!processor.execute(node, state)) return false
@@ -90,40 +85,39 @@ export class FileIndex {
         return true
     }
 
-    public elementByName<K extends IndexKey>(
-        key: K,
-        name: string
-    ): IndexKeyToType[K] | null {
-        switch(key) {
+    public elementByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K] | null {
+        switch (key) {
             case IndexKey.Contracts:
-                return this.findElement(this.elements[IndexKey.Contracts], name) as IndexKeyToType[K] | null;
+                return this.findElement(this.elements[IndexKey.Contracts], name) as IndexKeyToType[K] | null
             case IndexKey.Functions:
-                return this.findElement(this.elements[IndexKey.Functions], name) as IndexKeyToType[K] | null;
+                return this.findElement(this.elements[IndexKey.Functions], name) as IndexKeyToType[K] | null
             case IndexKey.Messages:
-                return this.findElement(this.elements[IndexKey.Messages], name) as IndexKeyToType[K] | null;
+                return this.findElement(this.elements[IndexKey.Messages], name) as IndexKeyToType[K] | null
             case IndexKey.Structs:
-                return this.findElement(this.elements[IndexKey.Structs], name) as IndexKeyToType[K] | null;
+                return this.findElement(this.elements[IndexKey.Structs], name) as IndexKeyToType[K] | null
             case IndexKey.Traits:
-                return this.findElement(this.elements[IndexKey.Traits], name) as IndexKeyToType[K] | null;
+                return this.findElement(this.elements[IndexKey.Traits], name) as IndexKeyToType[K] | null
             case IndexKey.Primitives:
-                return this.findElement(this.elements[IndexKey.Primitives], name) as IndexKeyToType[K] | null;
+                return this.findElement(this.elements[IndexKey.Primitives], name) as IndexKeyToType[K] | null
             case IndexKey.Constants:
-                return this.findElement(this.elements[IndexKey.Constants], name) as IndexKeyToType[K] | null;
+                return this.findElement(this.elements[IndexKey.Constants], name) as IndexKeyToType[K] | null
             default:
                 return null
         }
     }
 
     private findElement<T extends NamedNode>(elements: T[], name: string): T | null {
-        return elements.find(value => {
-            const nameNode = value.node.childForFieldName('name')
-            return nameNode?.text === name
-        }) ?? null
+        return (
+            elements.find(value => {
+                const nameNode = value.node.childForFieldName("name")
+                return nameNode?.text === name
+            }) ?? null
+        )
     }
 }
 
 export class GlobalIndex {
-    private readonly files: Map<string, FileIndex> = new Map();
+    private readonly files: Map<string, FileIndex> = new Map()
 
     public addFile(uri: string, file: File) {
         PARSED_FILES_CACHE.clear()
@@ -148,28 +142,21 @@ export class GlobalIndex {
         console.log(`removed ${uri} to index`)
     }
 
-    public processElementsByKey<K extends IndexKey>(
-        key: K,
-        processor: ScopeProcessor,
-        state: ResolveState
-    ): boolean {
+    public processElementsByKey<K extends IndexKey>(key: K, processor: ScopeProcessor, state: ResolveState): boolean {
         for (const value of this.files.values()) {
-            if (!value.processElementsByKey(key, processor, state)) return false;
+            if (!value.processElementsByKey(key, processor, state)) return false
         }
-        return true;
+        return true
     }
 
-    public elementByName<K extends IndexKey>(
-        key: K,
-        name: string
-    ): IndexKeyToType[K] | null {
+    public elementByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K] | null {
         for (const value of this.files.values()) {
-            const result = value.elementByName(key, name);
+            const result = value.elementByName(key, name)
             if (result) {
-                return result as IndexKeyToType[K];
+                return result as IndexKeyToType[K]
             }
         }
-        return null;
+        return null
     }
 }
 

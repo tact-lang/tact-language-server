@@ -1,6 +1,3 @@
-import {
-  createConnection,
-  ProposedFeatures,
-} from 'vscode-languageserver/node';
+import {createConnection, ProposedFeatures} from "vscode-languageserver/node"
 
-export const connection = createConnection(ProposedFeatures.all);
+export const connection = createConnection(ProposedFeatures.all)

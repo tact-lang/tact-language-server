@@ -6,9 +6,9 @@ import {
     Constant,
     Function,
     Trait,
-    StorageMembersOwner
-} from "../psi/TopLevelDeclarations";
-import {NamedNode, Node} from "../psi/Node";
+    StorageMembersOwner,
+} from "../psi/TopLevelDeclarations"
+import {NamedNode, Node} from "../psi/Node"
 
 export interface Ty {
     name(): string
@@ -17,7 +17,7 @@ export interface Ty {
 }
 
 export abstract class BaseTy<Anchor> implements Ty {
-    anchor: Anchor | null = null;
+    anchor: Anchor | null = null
     _name: string
 
     public constructor(_name: string, anchor: Anchor | null) {
@@ -26,11 +26,11 @@ export abstract class BaseTy<Anchor> implements Ty {
     }
 
     public name(): string {
-        return this._name;
+        return this._name
     }
 
     public qualifiedName(): string {
-        return this._name;
+        return this._name
     }
 }
 
@@ -41,14 +41,11 @@ export class FieldsOwnerTy<Anchor extends FieldsOwner> extends BaseTy<Anchor> {
     }
 }
 
-export class StructTy extends FieldsOwnerTy<Struct> {
-}
+export class StructTy extends FieldsOwnerTy<Struct> {}
 
-export class MessageTy extends FieldsOwnerTy<Message> {
-}
+export class MessageTy extends FieldsOwnerTy<Message> {}
 
-export class PrimitiveTy extends BaseTy<Node> {
-}
+export class PrimitiveTy extends BaseTy<Node> {}
 
 export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends BaseTy<Anchor> {
     public ownMethods(): Function[] {
@@ -72,47 +69,45 @@ export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends B
     }
 }
 
-export class TraitTy extends StorageMembersOwnerTy<Trait> {
-}
+export class TraitTy extends StorageMembersOwnerTy<Trait> {}
 
-export class ContractTy extends StorageMembersOwnerTy<Contract> {
-}
+export class ContractTy extends StorageMembersOwnerTy<Contract> {}
 
 export class BouncedTy implements Ty {
-    constructor(public innerTy: Ty) {
-    }
+    constructor(public innerTy: Ty) {}
 
     name(): string {
-        return `bounced<${this.innerTy.name()}>`;
+        return `bounced<${this.innerTy.name()}>`
     }
 
     qualifiedName(): string {
-        return `bounced<${this.innerTy.qualifiedName()}>`;
+        return `bounced<${this.innerTy.qualifiedName()}>`
     }
 }
 
 export class OptionTy implements Ty {
-    constructor(public innerTy: Ty) {
-    }
+    constructor(public innerTy: Ty) {}
 
     name(): string {
-        return `${this.innerTy.name()}?`;
+        return `${this.innerTy.name()}?`
     }
 
     qualifiedName(): string {
-        return `${this.innerTy.qualifiedName()}?`;
+        return `${this.innerTy.qualifiedName()}?`
     }
 }
 
 export class MapTy implements Ty {
-    constructor(public keyTy: Ty, public valueTy: Ty) {
-    }
+    constructor(
+        public keyTy: Ty,
+        public valueTy: Ty,
+    ) {}
 
     name(): string {
-        return `map<${this.keyTy.name()}, ${this.valueTy.name()}>`;
+        return `map<${this.keyTy.name()}, ${this.valueTy.name()}>`
     }
 
     qualifiedName(): string {
-        return `map<${this.keyTy.qualifiedName()}, ${this.valueTy.qualifiedName()}>`;
+        return `map<${this.keyTy.qualifiedName()}, ${this.valueTy.qualifiedName()}>`
     }
 }
