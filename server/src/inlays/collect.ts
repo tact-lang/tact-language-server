@@ -3,7 +3,7 @@ import {RecursiveVisitor} from "../visitor"
 import {File} from "../psi/File"
 import {TypeInferer} from "../TypeInferer"
 import {Reference} from "../psi/Reference"
-import {Function} from "../psi/TopLevelDeclarations"
+import {Fun} from "../psi/TopLevelDeclarations"
 import {CallLike, Expression, VarDeclaration} from "../psi/Node"
 import {MapTy} from "../types/BaseTy"
 
@@ -68,7 +68,7 @@ export function collect(file: File): InlayHint[] | null {
         if (n.type === "static_call_expression" || n.type === "method_call_expression") {
             const call = new CallLike(n, file)
             const res = Reference.resolve(call.nameNode())
-            if (!(res instanceof Function)) return true
+            if (!(res instanceof Fun)) return true
 
             const params = res.parameters()
             const rawArgs = call.rawArguments()

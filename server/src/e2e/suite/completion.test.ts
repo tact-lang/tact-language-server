@@ -85,7 +85,7 @@ suite("Completion Test Suite", () => {
         )
     }
 
-    suiteTeardown(async () => {
+    suiteTeardown(() => {
         const fileUpdates = new Map<string, TestUpdate[]>()
 
         for (const update of updates) {

@@ -3,20 +3,20 @@ import {File} from "../psi/File"
 import {
     Constant,
     Contract,
-    Function,
+    Fun,
     Message,
     Primitive,
     Struct,
     Trait,
 } from "../psi/TopLevelDeclarations"
-import {isNamedFunctionNode} from "../psi/utils"
+import {isNamedFunNode} from "../psi/utils"
 import {ResolveState, ScopeProcessor} from "../psi/Reference"
 import {PARSED_FILES_CACHE} from "../server"
 import {CACHE} from "../cache"
 
 export interface IndexKeyToType {
     [IndexKey.Contracts]: Contract
-    [IndexKey.Functions]: Function
+    [IndexKey.Funs]: Fun
     [IndexKey.Messages]: Message
     [IndexKey.Structs]: Struct
     [IndexKey.Traits]: Trait
@@ -26,7 +26,7 @@ export interface IndexKeyToType {
 
 export enum IndexKey {
     Contracts = "Contracts",
-    Functions = "Functions",
+    Funs = "Funs",
     Messages = "Messages",
     Structs = "Structs",
     Traits = "Traits",
@@ -37,7 +37,7 @@ export enum IndexKey {
 export class FileIndex {
     private readonly elements: {
         [IndexKey.Contracts]: Contract[]
-        [IndexKey.Functions]: Function[]
+        [IndexKey.Funs]: Fun[]
         [IndexKey.Messages]: Message[]
         [IndexKey.Structs]: Struct[]
         [IndexKey.Traits]: Trait[]
@@ -45,7 +45,7 @@ export class FileIndex {
         [IndexKey.Constants]: Constant[]
     } = {
         [IndexKey.Contracts]: [],
-        [IndexKey.Functions]: [],
+        [IndexKey.Funs]: [],
         [IndexKey.Messages]: [],
         [IndexKey.Structs]: [],
         [IndexKey.Traits]: [],
@@ -59,8 +59,8 @@ export class FileIndex {
         const index = new FileIndex()
 
         for (const node of file.rootNode.children) {
-            if (isNamedFunctionNode(node)) {
-                index.elements[IndexKey.Functions].push(new Function(node, file))
+            if (isNamedFunNode(node)) {
+                index.elements[IndexKey.Funs].push(new Fun(node, file))
             }
             if (node.type === "struct") {
                 index.elements[IndexKey.Structs].push(new Struct(node, file))
@@ -103,8 +103,8 @@ export class FileIndex {
                 return this.findElement(this.elements[IndexKey.Contracts], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Functions:
-                return this.findElement(this.elements[IndexKey.Functions], name) as
+            case IndexKey.Funs:
+                return this.findElement(this.elements[IndexKey.Funs], name) as
                     | IndexKeyToType[K]
                     | null
             case IndexKey.Messages:

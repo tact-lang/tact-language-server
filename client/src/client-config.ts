@@ -8,7 +8,7 @@ export function getClientConfiguration(): TactPluginConfigScheme {
         return cachedClientConfig
     }
 
-    let obj = {} as {[k in string]: any}
+    let obj = {} as {[k in string]: unknown}
     let w = vscode.workspace.getConfiguration("tact")
     for (let key in defaultConfig) {
         let value = w.get(key)

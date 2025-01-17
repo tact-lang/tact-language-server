@@ -4,7 +4,7 @@ import {RecursiveVisitor} from "../visitor"
 import {NamedNode} from "./Node"
 import {Reference} from "./Reference"
 import {File} from "./File"
-import {isFunctionNode, isNamedFunctionNode, parentOfType} from "./utils"
+import {isFunNode, isNamedFunNode, parentOfType} from "./utils"
 
 /**
  * Referent encapsulates the logic for finding all references to a definition.
@@ -132,7 +132,7 @@ export class Referent {
                 return grand
             }
 
-            if (isFunctionNode(grand)) {
+            if (isFunNode(grand)) {
                 // search in function body
                 return grand.lastChild
             }
@@ -152,7 +152,7 @@ export class Referent {
             return owner
         }
 
-        if (isNamedFunctionNode(parent) || isNamedFunctionNode(node)) {
+        if (isNamedFunNode(parent) || isNamedFunNode(node)) {
             // search in file for now
             return this.file.rootNode
         }

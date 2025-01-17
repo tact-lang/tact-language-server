@@ -19,12 +19,12 @@ export class Struct extends FieldsOwner {}
 export class Primitive extends NamedNode {}
 
 export class StorageMembersOwner extends NamedNode {
-    public ownMethods(): Function[] {
+    public ownMethods(): Fun[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
             .filter(value => value.type === "storage_function")
-            .map(value => new Function(value, this.file))
+            .map(value => new Fun(value, this.file))
     }
 
     public ownFields(): NamedNode[] {
@@ -43,7 +43,7 @@ export class StorageMembersOwner extends NamedNode {
             .map(value => new Constant(value, this.file))
     }
 
-    public methods(): Function[] {
+    public methods(): Fun[] {
         const own = this.ownMethods()
         const inherited = this.inheritTraits().flatMap(trait => trait.methods())
         return [...own, ...inherited]
@@ -85,7 +85,7 @@ export class Trait extends StorageMembersOwner {}
 
 export class Contract extends StorageMembersOwner {}
 
-export class Function extends NamedNode {
+export class Fun extends NamedNode {
     public returnType(): Expression | null {
         const result = this.node.childForFieldName("result")
         if (!result) return null

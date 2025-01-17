@@ -2,8 +2,8 @@ import {SyntaxNode} from "web-tree-sitter"
 import {BouncedTy, ContractTy, MessageTy, OptionTy, StructTy, TraitTy, Ty} from "../types/BaseTy"
 import {index, IndexKey} from "../indexes"
 import {Expression, NamedNode, Node} from "./Node"
-import {Contract, Function, Trait} from "./TopLevelDeclarations"
-import {isFunctionNode, parentOfType} from "./utils"
+import {Contract, Fun, Trait} from "./TopLevelDeclarations"
+import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "../cache"
 
 export class ResolveState {
@@ -196,10 +196,10 @@ export class Reference {
 
     private processTypeMethods(ty: Ty, proc: ScopeProcessor, state: ResolveState): boolean {
         return index.processElementsByKey(
-            IndexKey.Functions,
+            IndexKey.Funs,
             new (class implements ScopeProcessor {
                 execute(fun: Node, state: ResolveState): boolean {
-                    if (!(fun instanceof Function)) return true
+                    if (!(fun instanceof Fun)) return true
                     if (!fun.withSelf()) return true
                     const selfParam = fun.parameters()[0]
                     const typeNode = selfParam.node.childForFieldName("type")
@@ -300,10 +300,10 @@ export class Reference {
         // resolving `asm(cell self) extends fun storeRef(self: Builder, cell: Cell): Builder`
         //                     ^^^^ this
 
-        const asmFunction = parentOfType(parent, "asm_function")
-        if (!asmFunction) return true
+        const asmFun = parentOfType(parent, "asm_function")
+        if (!asmFun) return true
 
-        const rawParameters = asmFunction.childForFieldName("parameters")
+        const rawParameters = asmFun.childForFieldName("parameters")
         if (rawParameters === null) return true
         const children = rawParameters.children
         if (children.length < 2) return true
@@ -318,7 +318,7 @@ export class Reference {
 
     private processAllEntities(proc: ScopeProcessor, state: ResolveState): boolean {
         if (!index.processElementsByKey(IndexKey.Primitives, proc, state)) return false
-        if (!index.processElementsByKey(IndexKey.Functions, proc, state)) return false
+        if (!index.processElementsByKey(IndexKey.Funs, proc, state)) return false
         if (!index.processElementsByKey(IndexKey.Structs, proc, state)) return false
         if (!index.processElementsByKey(IndexKey.Messages, proc, state)) return false
         if (!index.processElementsByKey(IndexKey.Traits, proc, state)) return false
@@ -368,7 +368,7 @@ export class Reference {
             }
 
             // process parameters of function
-            if (isFunctionNode(descendant)) {
+            if (isFunNode(descendant)) {
                 const rawParameters = descendant.childForFieldName("parameters")
                 if (rawParameters === null) {
                     const parameter = descendant.childForFieldName("parameter")

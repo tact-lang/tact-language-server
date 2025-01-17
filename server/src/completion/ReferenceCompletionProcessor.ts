@@ -1,6 +1,6 @@
 import {ScopeProcessor} from "../psi/Reference"
 import {NamedNode, Node} from "../psi/Node"
-import {Constant, Function, Message, Primitive, Struct} from "../psi/TopLevelDeclarations"
+import {Constant, Fun, Message, Primitive, Struct} from "../psi/TopLevelDeclarations"
 import {CompletionItem, InsertTextFormat, CompletionItemKind} from "vscode-languageserver-types"
 import {TypeInferer} from "../TypeInferer"
 import {CompletionContext} from "./CompletionContext"
@@ -16,7 +16,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         const name = node.name()
         if (name.endsWith("dummyIdentifier")) return true
 
-        if (node instanceof Function) {
+        if (node instanceof Fun) {
             if (this.ctx.isType) {
                 // don't add functions for type completion
                 return true

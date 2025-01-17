@@ -2,7 +2,7 @@ import {NamedNode} from "./Node"
 import {
     Constant,
     Contract,
-    Function,
+    Fun,
     Message,
     Primitive,
     Struct,
@@ -24,8 +24,8 @@ export class File {
         return this.uri.slice(7)
     }
 
-    public getFunctions(): Function[] {
-        return this.getNodesByType(["global_function", "asm_function", "native_function"], Function)
+    public getFuns(): Fun[] {
+        return this.getNodesByType(["global_function", "asm_function", "native_function"], Fun)
     }
 
     public getContracts(): Contract[] {

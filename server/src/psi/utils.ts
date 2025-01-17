@@ -10,9 +10,9 @@ export function parentOfType(node: SyntaxNode, ...types: readonly string[]): Syn
     }
 }
 
-export function isFunctionNode(node: SyntaxNode): boolean {
+export function isFunNode(node: SyntaxNode): boolean {
     return (
-        isNamedFunctionNode(node) ||
+        isNamedFunNode(node) ||
         node.type === "receive_function" ||
         node.type === "bounced_function" ||
         node.type === "external_function" ||
@@ -20,7 +20,7 @@ export function isFunctionNode(node: SyntaxNode): boolean {
     )
 }
 
-export function isNamedFunctionNode(node: SyntaxNode): boolean {
+export function isNamedFunNode(node: SyntaxNode): boolean {
     return (
         node.type === "global_function" ||
         node.type === "asm_function" ||

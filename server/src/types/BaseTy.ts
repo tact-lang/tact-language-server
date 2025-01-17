@@ -4,7 +4,7 @@ import {
     FieldsOwner,
     Contract,
     Constant,
-    Function,
+    Fun,
     Trait,
     StorageMembersOwner,
 } from "../psi/TopLevelDeclarations"
@@ -48,7 +48,7 @@ export class MessageTy extends FieldsOwnerTy<Message> {}
 export class PrimitiveTy extends BaseTy<Node> {}
 
 export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends BaseTy<Anchor> {
-    public ownMethods(): Function[] {
+    public ownMethods(): Fun[] {
         if (this.anchor === null) return []
         return this.anchor.ownMethods()
     }
@@ -63,7 +63,7 @@ export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends B
         return this.anchor.ownConstants()
     }
 
-    public methods(): Function[] {
+    public methods(): Fun[] {
         if (this.anchor === null) return []
         return this.anchor.methods()
     }

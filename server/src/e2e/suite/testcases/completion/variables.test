@@ -6,7 +6,7 @@ fun test() {
     let myInt: Int = 0;
     let myAddress: Address = address("0");
     let myString: String = "hello";
-    
+
     <caret>
 }
 ------------
@@ -17,7 +17,7 @@ myString
 
 =========
 @trigger .
-Function parameter completion
+Fun parameter completion
 =========
 fun test(amount: Int, to: Address) {
     <caret>
@@ -61,7 +61,7 @@ Nested scope completion
 primitive Int;
 fun test() {
     let outer: Int = 1;
-    
+
     if (true) {
         let inner: Int = 2;
         <caret>
@@ -102,7 +102,7 @@ Loop variable completion
 primitive Int;
 fun test() {
     let items: map<Int, Int> = emptyMap();
-    
+
     foreach(key, value in items) {
         <caret>
     }
@@ -172,7 +172,7 @@ value
 
 =========
 @trigger .
-Function parameter and local variable
+Fun parameter and local variable
 =========
 primitive Int;
 fun test(param: Int) {

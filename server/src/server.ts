@@ -23,6 +23,7 @@ import * as lens from "./lens/collect"
 import * as path from "node:path"
 import {existsSync} from "node:fs"
 import {LRUMap} from "./utils/lruMap"
+import {ClientOptions} from "../../shared/src/config-scheme"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -51,9 +52,10 @@ export const PARSED_FILES_CACHE = new LRUMap<string, Tree>({
 })
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
+    const opts = params.initializationOptions as ClientOptions
     await initParser(
-        params.initializationOptions.treeSitterWasmUri,
-        params.initializationOptions.langWasmUri,
+        opts.treeSitterWasmUri,
+        opts.langWasmUri,
     )
 
     documents.onDidOpen(async event => {

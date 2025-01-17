@@ -13,6 +13,7 @@ import {getClientConfiguration} from "./client-config"
 import {NotificationFromServer, RequestFromServer} from "../../shared/src/shared-msgtypes"
 import {TextEncoder} from "util"
 import {Position} from "vscode-languageclient"
+import {ClientOptions} from "../../shared/src/config-scheme"
 
 let client: LanguageClient
 
@@ -40,7 +41,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
                 .fsPath,
             langWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter-tact.wasm")
                 .fsPath,
-        },
+        } as ClientOptions,
     }
 
     const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
@@ -60,7 +61,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
 
     await client.start()
 
-    client.onRequest(RequestFromServer.fileReadContents, async raw => {
+    client.onRequest(RequestFromServer.fileReadContents, async (raw: string) => {
         const uri = vscode.Uri.parse(raw)
 
         if (uri.scheme === "vscode-notebook-cell") {
@@ -102,7 +103,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     })
 
     client.onNotification(NotificationFromServer.showErrorMessage, (errTxt: string) => {
-        vscode.window.showErrorMessage(errTxt)
+        void vscode.window.showErrorMessage(errTxt)
     })
 
     vscode.commands.registerCommand("tact.showParent", async (uri: string, position: Position) => {
@@ -161,5 +162,5 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     //     client.sendNotification(NotificationFromClient.removeFileFromFileCache, uri.toString());
     // }));
 
-    return new vscode.Disposable(() => disposables.forEach(d => d.dispose()))
+    return new vscode.Disposable(() => disposables.forEach(d => void d.dispose()))
 }

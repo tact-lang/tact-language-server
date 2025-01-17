@@ -5,7 +5,7 @@ import {SyntaxNode} from "web-tree-sitter"
 import {NamedNode} from "../psi/Node"
 import * as lsp from "vscode-languageserver"
 import {SemanticTokens} from "vscode-languageserver"
-import {isNamedFunctionNode} from "../psi/utils"
+import {isNamedFunNode} from "../psi/utils"
 
 export function collect(file: File): SemanticTokens {
     const builder = new lsp.SemanticTokensBuilder()
@@ -72,7 +72,7 @@ export function collect(file: File): SemanticTokens {
             if (resolved.node.type === "constant" || resolved.node.type === "storage_constant") {
                 pushToken(n, lsp.SemanticTokenTypes.enumMember)
             }
-            if (isNamedFunctionNode(resolved.node)) {
+            if (isNamedFunNode(resolved.node)) {
                 pushToken(n, lsp.SemanticTokenTypes.function)
             }
         }

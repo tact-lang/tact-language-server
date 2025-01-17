@@ -3,7 +3,7 @@ import {File} from "../psi/File"
 import {RecursiveVisitor} from "../visitor"
 import {SyntaxNode} from "web-tree-sitter"
 import {parentOfType} from "../psi/utils"
-import {Function, StorageMembersOwner} from "../psi/TopLevelDeclarations"
+import {Fun, StorageMembersOwner} from "../psi/TopLevelDeclarations"
 import {NamedNode} from "../psi/Node"
 
 export function collect(file: File): lsp.CodeLens[] {
@@ -42,7 +42,7 @@ export function collect(file: File): lsp.CodeLens[] {
         }
 
         if (n.type === "storage_function") {
-            const fun = new Function(n, file)
+            const fun = new Fun(n, file)
             if (!fun.isOverride()) return true
 
             const ownerNode = parentOfType(n, "trait", "contract")

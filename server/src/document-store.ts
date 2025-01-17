@@ -77,12 +77,12 @@ export class DocumentStore extends TextDocuments<TextDocument> {
 
     private async _requestDocument(uri: string): Promise<TextDocument | undefined> {
         const reply = await this._connection.sendRequest<
-            {type: "Buffer"; data: any} | {type: "not-found"}
+            {type: "Buffer"; data: unknown} | {type: "not-found"}
         >(RequestFromServer.fileReadContents, uri)
         if (reply.type === "not-found") {
             return undefined
         }
-        let decoded = this._decoder.decode(new Uint8Array(reply.data))
+        let decoded = this._decoder.decode(new Uint8Array(reply.data as ArrayLike<number>))
         return TextDocument.create(uri, "tact", 1, decoded)
     }
 }

@@ -11,7 +11,7 @@ import {
 } from "./types/BaseTy"
 import {Expression, NamedNode, Node} from "./psi/Node"
 import {Reference} from "./psi/Reference"
-import {Struct, Message, Function, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations"
+import {Struct, Message, Fun, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations"
 import {isTypeOwnerNode} from "./psi/utils"
 import {SyntaxNode} from "web-tree-sitter"
 import {CACHE} from "./cache"
@@ -159,7 +159,7 @@ export class TypeInferer {
             const element = new NamedNode(name, node.file)
             const resolved = Reference.resolve(element)
             if (resolved === null) return null
-            if (!(resolved instanceof Function)) return null
+            if (!(resolved instanceof Fun)) return null
 
             const returnType = resolved.returnType()
             if (returnType === null) return null

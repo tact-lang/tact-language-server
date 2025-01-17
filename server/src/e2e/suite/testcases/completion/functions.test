@@ -23,7 +23,7 @@ multiply
 
 =========
 @trigger .
-Function completion with parameters
+Fun completion with parameters
 =========
 primitive Int;
 
@@ -64,7 +64,7 @@ double
 
 =========
 @trigger .
-Function completion in expression // TODO: remove x?
+Fun completion in expression // TODO: remove x?
 =========
 primitive Int;
 
