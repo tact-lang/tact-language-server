@@ -470,7 +470,6 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     })
 
     const _needed = TypeInferer.inferType
-    console.log(_needed.toString().slice(0, 0))
 
     console.log("Tact language server is ready!")
 
