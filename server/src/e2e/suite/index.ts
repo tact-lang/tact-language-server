@@ -16,7 +16,6 @@ export function run(): Promise<void> {
             cwd: testsRoot,
         })
             .then(files => {
-                console.log("Found test files:", files)
                 files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)))
 
                 try {
@@ -28,7 +27,6 @@ export function run(): Promise<void> {
                         }
                     })
                 } catch (err) {
-                    console.error("Error running tests:", err)
                     reject(err)
                 }
             })

@@ -127,7 +127,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const hoverNode = nodeAtPosition(params, file)
 
             const res = Reference.resolve(NamedNode.create(hoverNode, file))
-            if (res === null)
+            if (res === null) {
                 return {
                     range: asLspRange(hoverNode),
                     contents: {
@@ -135,6 +135,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                         value: hoverNode.type,
                     },
                 }
+            }
 
             const doc = docs.generateDocFor(res)
             if (doc === null) return null
