@@ -53,10 +53,7 @@ export const PARSED_FILES_CACHE = new LRUMap<string, Tree>({
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     const opts = params.initializationOptions as ClientOptions
-    await initParser(
-        opts.treeSitterWasmUri,
-        opts.langWasmUri,
-    )
+    await initParser(opts.treeSitterWasmUri, opts.langWasmUri)
 
     documents.onDidOpen(async event => {
         const uri = event.document.uri

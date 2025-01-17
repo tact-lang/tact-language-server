@@ -1,0 +1,69 @@
+=========
+Simple function resolve
+=========
+fun add(a: Int, b: Int): Int {
+    return a + b;
+}
+
+fun test() {
+    <caret>add(1, 2);
+}
+------------
+5:4 -> 0:4 resolved
+
+=========
+Local variable resolve
+=========
+fun test() {
+    let value = 1;
+    <caret>value + 2;
+}
+------------
+2:4 -> 1:8 resolved
+
+=========
+Parameter resolve
+=========
+fun test(param: Int) {
+    <caret>param + 1;
+}
+------------
+1:4 -> 0:9 resolved
+
+=========
+Extends function resolve
+=========
+primitive Int;
+
+extends fun increment(self: Int): Int {
+    return self + 1;
+}
+
+fun test() {
+    let num: Int = 1;
+    num.<caret>increment();
+}
+------------
+8:8 -> 2:12 resolved
+
+=========
+Unresolved reference
+=========
+fun test() {
+    <caret>unknownVar;
+}
+------------
+1:4 unresolved
+
+=========
+Shadowed variable resolve
+=========
+fun test() {
+    let value = 1;
+    {
+        let value = 2;
+        <caret>value;
+    }
+}
+------------
+4:8 -> 3:12 resolved

@@ -1,13 +1,5 @@
 import {NamedNode} from "./Node"
-import {
-    Constant,
-    Contract,
-    Fun,
-    Message,
-    Primitive,
-    Struct,
-    Trait,
-} from "./TopLevelDeclarations"
+import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "./TopLevelDeclarations"
 import {SyntaxNode, Tree} from "web-tree-sitter"
 
 export class File {
