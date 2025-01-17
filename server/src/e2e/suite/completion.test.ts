@@ -54,11 +54,17 @@ suite("Completion Test Suite", () => {
         }
     })
 
-    async function getCompletions(input: string, triggerCharacter?: string): Promise<vscode.CompletionList> {
+    async function getCompletions(
+        input: string,
+        triggerCharacter?: string,
+    ): Promise<vscode.CompletionList> {
         const textWithoutCaret = input.replace("<caret>", "")
 
         await editor.edit(edit => {
-            const fullRange = new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length))
+            const fullRange = new vscode.Range(
+                document.positionAt(0),
+                document.positionAt(document.getText().length),
+            )
             edit.replace(fullRange, textWithoutCaret)
         })
 
@@ -93,7 +99,15 @@ suite("Completion Test Suite", () => {
         }
     })
 
-    const testCasesPath = path.join(__dirname, "..", "..", "suite", "testcases", "completion", "*.test")
+    const testCasesPath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "suite",
+        "testcases",
+        "completion",
+        "*.test",
+    )
     const testFiles = glob.sync(testCasesPath)
 
     if (testFiles.length === 0) {
@@ -106,7 +120,10 @@ suite("Completion Test Suite", () => {
 
         for (const testCase of testCases) {
             test(`Completion: ${testCase.name}`, async function () {
-                const completions = await getCompletions(testCase.input, testCase.properties["trigger"])
+                const completions = await getCompletions(
+                    testCase.input,
+                    testCase.properties["trigger"],
+                )
 
                 if (testCase.properties["json"] === "true") {
                     const expected = JSON.parse(testCase.expected)

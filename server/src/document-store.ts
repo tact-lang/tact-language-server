@@ -40,7 +40,8 @@ export class DocumentStore extends TextDocuments<TextDocument> {
                         text: change.text,
                         range: change.range,
                         rangeOffset,
-                        rangeLength: change.rangeLength ?? doc.offsetAt(change.range.end) - rangeOffset,
+                        rangeLength:
+                            change.rangeLength ?? doc.offsetAt(change.range.end) - rangeOffset,
                     })
                 }
                 result = TextDocument.update(doc, changes, version)
@@ -75,10 +76,9 @@ export class DocumentStore extends TextDocuments<TextDocument> {
     }
 
     private async _requestDocument(uri: string): Promise<TextDocument | undefined> {
-        const reply = await this._connection.sendRequest<{type: "Buffer"; data: any} | {type: "not-found"}>(
-            RequestFromServer.fileReadContents,
-            uri,
-        )
+        const reply = await this._connection.sendRequest<
+            {type: "Buffer"; data: any} | {type: "not-found"}
+        >(RequestFromServer.fileReadContents, uri)
         if (reply.type === "not-found") {
             return undefined
         }

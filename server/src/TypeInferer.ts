@@ -1,4 +1,14 @@
-import {BouncedTy, ContractTy, MapTy, MessageTy, OptionTy, PrimitiveTy, StructTy, TraitTy, Ty} from "./types/BaseTy"
+import {
+    BouncedTy,
+    ContractTy,
+    MapTy,
+    MessageTy,
+    OptionTy,
+    PrimitiveTy,
+    StructTy,
+    TraitTy,
+    Ty,
+} from "./types/BaseTy"
 import {Expression, NamedNode, Node} from "./psi/Node"
 import {Reference} from "./psi/Reference"
 import {Struct, Message, Function, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations"
@@ -139,7 +149,10 @@ export class TypeInferer {
             return this.inferTypeFromResolved(resolved)
         }
 
-        if (node.node.type === "static_call_expression" || node.node.type === "method_call_expression") {
+        if (
+            node.node.type === "static_call_expression" ||
+            node.node.type === "method_call_expression"
+        ) {
             const name = node.node.childForFieldName("name")
             if (name === null) return null
 

@@ -1,6 +1,14 @@
 import {NamedNode} from "../psi/Node"
 import {File} from "../psi/File"
-import {Constant, Contract, Function, Message, Primitive, Struct, Trait} from "../psi/TopLevelDeclarations"
+import {
+    Constant,
+    Contract,
+    Function,
+    Message,
+    Primitive,
+    Struct,
+    Trait,
+} from "../psi/TopLevelDeclarations"
 import {isNamedFunctionNode} from "../psi/utils"
 import {ResolveState, ScopeProcessor} from "../psi/Reference"
 import {PARSED_FILES_CACHE} from "../server"
@@ -77,7 +85,11 @@ export class FileIndex {
         return index
     }
 
-    public processElementsByKey<K extends IndexKey>(key: K, processor: ScopeProcessor, state: ResolveState): boolean {
+    public processElementsByKey<K extends IndexKey>(
+        key: K,
+        processor: ScopeProcessor,
+        state: ResolveState,
+    ): boolean {
         const elements = this.elements[key]
         for (const node of elements) {
             if (!processor.execute(node, state)) return false
@@ -88,19 +100,33 @@ export class FileIndex {
     public elementByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K] | null {
         switch (key) {
             case IndexKey.Contracts:
-                return this.findElement(this.elements[IndexKey.Contracts], name) as IndexKeyToType[K] | null
+                return this.findElement(this.elements[IndexKey.Contracts], name) as
+                    | IndexKeyToType[K]
+                    | null
             case IndexKey.Functions:
-                return this.findElement(this.elements[IndexKey.Functions], name) as IndexKeyToType[K] | null
+                return this.findElement(this.elements[IndexKey.Functions], name) as
+                    | IndexKeyToType[K]
+                    | null
             case IndexKey.Messages:
-                return this.findElement(this.elements[IndexKey.Messages], name) as IndexKeyToType[K] | null
+                return this.findElement(this.elements[IndexKey.Messages], name) as
+                    | IndexKeyToType[K]
+                    | null
             case IndexKey.Structs:
-                return this.findElement(this.elements[IndexKey.Structs], name) as IndexKeyToType[K] | null
+                return this.findElement(this.elements[IndexKey.Structs], name) as
+                    | IndexKeyToType[K]
+                    | null
             case IndexKey.Traits:
-                return this.findElement(this.elements[IndexKey.Traits], name) as IndexKeyToType[K] | null
+                return this.findElement(this.elements[IndexKey.Traits], name) as
+                    | IndexKeyToType[K]
+                    | null
             case IndexKey.Primitives:
-                return this.findElement(this.elements[IndexKey.Primitives], name) as IndexKeyToType[K] | null
+                return this.findElement(this.elements[IndexKey.Primitives], name) as
+                    | IndexKeyToType[K]
+                    | null
             case IndexKey.Constants:
-                return this.findElement(this.elements[IndexKey.Constants], name) as IndexKeyToType[K] | null
+                return this.findElement(this.elements[IndexKey.Constants], name) as
+                    | IndexKeyToType[K]
+                    | null
             default:
                 return null
         }
@@ -142,7 +168,11 @@ export class GlobalIndex {
         console.log(`removed ${uri} to index`)
     }
 
-    public processElementsByKey<K extends IndexKey>(key: K, processor: ScopeProcessor, state: ResolveState): boolean {
+    public processElementsByKey<K extends IndexKey>(
+        key: K,
+        processor: ScopeProcessor,
+        state: ResolveState,
+    ): boolean {
         for (const value of this.files.values()) {
             if (!value.processElementsByKey(key, processor, state)) return false
         }

@@ -163,7 +163,10 @@ export class TestParser {
         fs.writeFileSync(filePath, newLines.join("\n") + "\n")
     }
 
-    static updateExpectedBatch(filePath: string, updates: {testName: string; actual: string}[]): void {
+    static updateExpectedBatch(
+        filePath: string,
+        updates: {testName: string; actual: string}[],
+    ): void {
         const tests = this.parseAll(fs.readFileSync(filePath, "utf8"))
         const newContent: string[] = []
 

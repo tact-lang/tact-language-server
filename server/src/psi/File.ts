@@ -1,7 +1,13 @@
 import {NamedNode} from "./Node"
-import {Constant, Contract, Function, Message, Primitive, Struct, Trait} from "./TopLevelDeclarations"
-import {readFileSync} from "fs"
-import {createParser} from "../parser"
+import {
+    Constant,
+    Contract,
+    Function,
+    Message,
+    Primitive,
+    Struct,
+    Trait,
+} from "./TopLevelDeclarations"
 import {SyntaxNode, Tree} from "web-tree-sitter"
 
 export class File {
@@ -50,16 +56,11 @@ export class File {
         nodeType: string | string[],
         constructor: new (node: any, file: File) => T,
     ): T[] {
-        const tree = this.getTree()
+        const tree = this.tree
         const types = Array.isArray(nodeType) ? nodeType : [nodeType]
 
-        return tree.rootNode.children.filter(node => types.includes(node.type)).map(node => new constructor(node, this))
-    }
-
-    private getTree() {
-        // TODO: just for now
-        const content = readFileSync(this.path).toString()
-        const parser = createParser()
-        return parser.parse(content)
+        return tree.rootNode.children
+            .filter(node => types.includes(node.type))
+            .map(node => new constructor(node, this))
     }
 }

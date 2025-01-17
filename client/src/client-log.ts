@@ -34,7 +34,9 @@ function anyItemToString(item: any): string {
     }
     if (typeof item === "object") {
         let str = "{"
-        for (let key in item) str += `${str.length === 1 ? "" : ","}\n  ${key}: ${anyItemToString(item[key])}`
+        for (let key in item) {
+            str += `${str.length === 1 ? "" : ","}\n  ${key}: ${anyItemToString(item[key])}`
+        }
         return str.length === 1 ? "{}" : str + "\n}"
     }
     return item.toString()

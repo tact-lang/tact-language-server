@@ -63,7 +63,8 @@ export class StorageMembersOwner extends NamedNode {
         const baseTraitNode = index.elementByName(IndexKey.Traits, "BaseTrait")
 
         const traitList = this.node.childForFieldName("traits")
-        const baseTraitOrEmpty = baseTraitNode !== null ? [new Trait(baseTraitNode.node, baseTraitNode.file)] : []
+        const baseTraitOrEmpty =
+            baseTraitNode !== null ? [new Trait(baseTraitNode.node, baseTraitNode.file)] : []
 
         if (!traitList) {
             return [...baseTraitOrEmpty]

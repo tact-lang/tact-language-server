@@ -17,7 +17,11 @@ export function asParserPoint(position: lsp.Position): Parser.Point {
     }
 }
 
-export function asLspTextEdit(start: Parser.Point, end: Parser.Point, newText: string): lsp.TextEdit {
+export function asLspTextEdit(
+    start: Parser.Point,
+    end: Parser.Point,
+    newText: string,
+): lsp.TextEdit {
     return {
         range: lsp.Range.create(start.row, start.column, end.row, end.column),
         newText,

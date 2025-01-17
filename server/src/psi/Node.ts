@@ -25,7 +25,11 @@ export class NamedNode extends Node {
     }
 
     public nameIdentifier(): SyntaxNode | null {
-        if (this.node.type === "identifier" || this.node.type === "self" || this.node.type === "type_identifier") {
+        if (
+            this.node.type === "identifier" ||
+            this.node.type === "self" ||
+            this.node.type === "type_identifier"
+        ) {
             return this.node
         }
 

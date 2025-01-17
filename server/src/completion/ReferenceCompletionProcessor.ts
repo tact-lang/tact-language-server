@@ -23,7 +23,8 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             }
 
             const signature = node.signatureText()
-            const hasNoParams = node.parameters().length == 0 || (node.withSelf() && node.parameters().length == 1)
+            const hasNoParams =
+                node.parameters().length == 0 || (node.withSelf() && node.parameters().length == 1)
 
             const needSemicolon = this.ctx.isExpression
 

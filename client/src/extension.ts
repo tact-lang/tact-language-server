@@ -36,8 +36,10 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         documentSelector: [{scheme: "file", language: "tact"}],
         initializationOptions: {
             clientConfig: getClientConfiguration(),
-            treeSitterWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter.wasm").fsPath,
-            langWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter-tact.wasm").fsPath,
+            treeSitterWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter.wasm")
+                .fsPath,
+            langWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter-tact.wasm")
+                .fsPath,
         },
     }
 
@@ -81,7 +83,9 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         try {
             const stat = await vscode.workspace.fs.stat(uri)
             if (stat.size > 1024 ** 2) {
-                consoleWarn(`IGNORING "${uri.toString()}" because it is too large (${stat.size}bytes)`)
+                consoleWarn(
+                    `IGNORING "${uri.toString()}" because it is too large (${stat.size}bytes)`,
+                )
                 data = Buffer.from(new Uint8Array())
             } else {
                 data = await vscode.workspace.fs.readFile(uri)
@@ -105,7 +109,11 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         await showReferencesImpl(client, uri, position)
     })
 
-    async function showReferencesImpl(client: LanguageClient | undefined, uri: string, position: Position) {
+    async function showReferencesImpl(
+        client: LanguageClient | undefined,
+        uri: string,
+        position: Position,
+    ) {
         if (!client) return
         await vscode.commands.executeCommand(
             "editor.action.showReferences",

@@ -54,7 +54,10 @@ export const PARSED_FILES_CACHE = new LRUMap<string, Tree>({
 })
 
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
-    await initParser(params.initializationOptions.treeSitterWasmUri, params.initializationOptions.langWasmUri)
+    await initParser(
+        params.initializationOptions.treeSitterWasmUri,
+        params.initializationOptions.langWasmUri,
+    )
 
     documents.onDidOpen(async event => {
         const uri = event.document.uri
@@ -121,31 +124,34 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         return file.rootNode.descendantForPosition(cursorPosition)
     }
 
-    connection.onRequest(lsp.HoverRequest.type, async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
-        const file = await findFile(params.textDocument.uri)
-        const hoverNode = nodeAtPosition(params, file)
+    connection.onRequest(
+        lsp.HoverRequest.type,
+        async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
+            const file = await findFile(params.textDocument.uri)
+            const hoverNode = nodeAtPosition(params, file)
 
-        const res = Reference.resolve(NamedNode.create(hoverNode, file))
-        if (res === null)
+            const res = Reference.resolve(NamedNode.create(hoverNode, file))
+            if (res === null)
+                return {
+                    range: asLspRange(hoverNode),
+                    contents: {
+                        kind: "plaintext",
+                        value: hoverNode.type,
+                    },
+                }
+
+            const doc = docs.generateDocFor(res)
+            if (doc === null) return null
+
             return {
                 range: asLspRange(hoverNode),
                 contents: {
-                    kind: "plaintext",
-                    value: hoverNode.type,
+                    kind: "markdown",
+                    value: doc,
                 },
             }
-
-        const doc = docs.generateDocFor(res)
-        if (doc === null) return null
-
-        return {
-            range: asLspRange(hoverNode),
-            contents: {
-                kind: "markdown",
-                value: doc,
-            },
-        }
-    })
+        },
+    )
 
     function resolveImport(uri: string, hoverNode: SyntaxNode) {
         const currentDir = path.dirname(uri.slice(7))
@@ -199,7 +205,11 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
                 return resolveImport(uri, hoverNode)
             }
 
-            if (hoverNode.type !== "identifier" && hoverNode.type !== "self" && hoverNode.type !== "type_identifier") {
+            if (
+                hoverNode.type !== "identifier" &&
+                hoverNode.type !== "self" &&
+                hoverNode.type !== "type_identifier"
+            ) {
                 return []
             }
 
@@ -226,7 +236,11 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             const content = await getContent(uri)
             const parser = createParser()
 
-            const offset = getOffsetFromPosition(content, params.position.line, params.position.character + 1)
+            const offset = getOffsetFromPosition(
+                content,
+                params.position.line,
+                params.position.character + 1,
+            )
             const start = content.slice(0, offset)
             const end = content.slice(offset)
 
@@ -311,7 +325,10 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     connection.onRequest(lsp.RenameRequest.type, (params: lsp.RenameParams) =>
         renameHandler(params).catch(reason => {
             connection
-                .sendNotification(NotificationFromServer.showErrorMessage, `Can not rename: ${reason}`)
+                .sendNotification(
+                    NotificationFromServer.showErrorMessage,
+                    `Can not rename: ${reason}`,
+                )
                 .catch(console.error)
             return {}
         }),
@@ -379,7 +396,11 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             const file = await findFile(params.textDocument.uri)
 
             const hoverNode = nodeAtPosition(params, file)
-            const callNode = parentOfType(hoverNode, "static_call_expression", "method_call_expression")
+            const callNode = parentOfType(
+                hoverNode,
+                "static_call_expression",
+                "method_call_expression",
+            )
             if (!callNode) return null
 
             const call = new CallLike(callNode, file)
@@ -409,7 +430,9 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             // TODO: support multiline calls and functions with self
 
             const rawArguments = call.rawArguments()
-            const argsCommas = rawArguments.filter(value => value.text === "," || value.text === "(")
+            const argsCommas = rawArguments.filter(
+                value => value.text === "," || value.text === "(",
+            )
 
             let currentIndex = 0
             for (const [i, argComma] of argsCommas.entries()) {
@@ -463,11 +486,14 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         },
     )
 
-    connection.onRequest(lsp.CodeLensRequest.type, async (params: lsp.CodeLensParams): Promise<lsp.CodeLens[]> => {
-        const uri = params.textDocument.uri
-        const file = await findFile(uri)
-        return lens.collect(file)
-    })
+    connection.onRequest(
+        lsp.CodeLensRequest.type,
+        async (params: lsp.CodeLensParams): Promise<lsp.CodeLens[]> => {
+            const uri = params.textDocument.uri
+            const file = await findFile(uri)
+            return lens.collect(file)
+        },
+    )
 
     const _needed = TypeInferer.inferType
 

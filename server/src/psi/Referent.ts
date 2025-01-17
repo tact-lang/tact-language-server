@@ -27,7 +27,10 @@ export class Referent {
      *
      * TODO: finish _sameFileOnly
      */
-    public findReferences(includeDefinition: boolean = false, _sameFileOnly: boolean = false): SyntaxNode[] {
+    public findReferences(
+        includeDefinition: boolean = false,
+        _sameFileOnly: boolean = false,
+    ): SyntaxNode[] {
         const resolved = this.resolved
         if (!resolved) return []
 
@@ -48,7 +51,12 @@ export class Referent {
         //       we don't need to resolve foo in bar.foo in some cases
         RecursiveVisitor.visit(useScope, (node): boolean => {
             // fast path, skip non identifiers
-            if (node.type !== "identifier" && node.type !== "self" && node.type !== "type_identifier") return true
+            if (
+                node.type !== "identifier" &&
+                node.type !== "self" &&
+                node.type !== "type_identifier"
+            )
+                return true
             // fast path, identifier name doesn't equal to definition name
             // self can refer to enclosing trait or contract
             if (node.text !== resolved?.name() && node.text !== "self") return true
@@ -57,15 +65,16 @@ export class Referent {
             if (parent === null) return true
 
             // skip definitions itself
+            // prettier-ignore
             if ((
-                parent.type === 'let_statement' ||
-                parent.type === 'global_function' ||
-                parent.type === 'storage_function' ||
-                parent.type === 'asm_function' ||
-                parent.type === 'native_function' ||
-                parent.type === 'field' ||
-                parent.type === 'storage_variable' ||
-                parent.type === 'parameter') && parent.childForFieldName('name')?.equals(node)
+                parent.type === "let_statement" ||
+                parent.type === "global_function" ||
+                parent.type === "storage_function" ||
+                parent.type === "asm_function" ||
+                parent.type === "native_function" ||
+                parent.type === "field" ||
+                parent.type === "storage_variable" ||
+                parent.type === "parameter") && parent.childForFieldName("name")?.equals(node)
             ) {
                 return true
             }
@@ -129,7 +138,11 @@ export class Referent {
             }
         }
 
-        if (node.type === "storage_variable" || node.type === "storage_constant" || node.type === "storage_function") {
+        if (
+            node.type === "storage_variable" ||
+            node.type === "storage_constant" ||
+            node.type === "storage_function"
+        ) {
             const owner = parentOfType(parent, "contract", "trait")
             if (owner?.type === "trait") {
                 // search in file for now, can be used in other traits, optimize?
