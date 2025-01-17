@@ -5,6 +5,10 @@ node_modules
 dist/
 test-workspace/
 .vscode-test/
+*.wasm
+
+# tests
+server/src/e2e/out
 
 # yarn
 yarn-error.log
