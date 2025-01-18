@@ -11,7 +11,8 @@ import {
 } from "../types/BaseTy"
 import {index, IndexKey} from "../indexes"
 import {Expression, NamedNode, Node} from "./Node"
-import {Contract, Fun, Trait} from "./TopLevelDeclarations"
+import {File} from "./File"
+import {Contract, Fun, Message, Struct, Trait} from "./TopLevelDeclarations"
 import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "../cache"
 
@@ -84,7 +85,7 @@ export class Reference {
                 }
 
                 if (!(node instanceof NamedNode) || !(element instanceof NamedNode)) {
-                    return false
+                    return true
                 }
 
                 const searchName = state.get("search-name") ?? element.name()
@@ -106,7 +107,7 @@ export class Reference {
             //
             // so process whole `foo: Int` node
             const parent = this.element.node.parent!
-            return proc.execute(new NamedNode(parent, this.element.file), state)
+            return proc.execute(this.declarationAstToNode(parent, this.element.file), state)
         }
         if (this.element.node.type === "parameter") {
             return proc.execute(this.element, state)
@@ -439,5 +440,21 @@ export class Reference {
         }
 
         return null
+    }
+
+    private declarationAstToNode(node: SyntaxNode, file: File): NamedNode {
+        if (node.type === "struct") {
+            return new Struct(node, file)
+        }
+        if (node.type === "message") {
+            return new Message(node, file)
+        }
+        if (node.type === "trait") {
+            return new Trait(node, file)
+        }
+        if (node.type === "contract") {
+            return new Contract(node, file)
+        }
+        return new NamedNode(node, file)
     }
 }

@@ -19,6 +19,7 @@ import * as inlays from "./inlays/collect"
 import * as foldings from "./foldings/collect"
 import * as semantic from "./semantic_tokens/collect"
 import * as lens from "./lens/collect"
+import * as search from "./search/implementations"
 import * as path from "node:path"
 import {existsSync} from "node:fs"
 import {LRUMap} from "./utils/lruMap"
@@ -35,6 +36,7 @@ import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvi
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
 import {BaseTy} from "./types/BaseTy"
 import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
+import {Trait} from "./psi/TopLevelDeclarations"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -366,6 +368,36 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
+    connection.onRequest(
+        lsp.ImplementationRequest.type,
+        async (params: lsp.ImplementationParams): Promise<lsp.Definition | lsp.LocationLink[]> => {
+            const uri = params.textDocument.uri
+            const file = await findFile(uri)
+
+            const elementNode = nodeAtPosition(params, file)
+            if (
+                elementNode.type !== "identifier" &&
+                elementNode.type !== "self" &&
+                elementNode.type !== "type_identifier"
+            ) {
+                return []
+            }
+
+            const element = NamedNode.create(elementNode, file)
+            const res = Reference.resolve(element)
+            if (res === null) return []
+
+            if (res instanceof Trait) {
+                return search.implementations(res).map(impl => ({
+                    uri: impl.file.uri,
+                    range: asLspRange(impl.nameIdentifier()!),
+                }))
+            }
+
+            return []
+        },
+    )
+
     connection.onRequest(lsp.RenameRequest.type, async (params: lsp.RenameParams) => {
         const uri = params.textDocument.uri
         const file = await findFile(uri)
@@ -608,6 +640,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             referencesProvider: true,
             documentHighlightProvider: true,
             foldingRangeProvider: true,
+            implementationProvider: true,
             // documentFormattingProvider: true,
             completionProvider: {
                 triggerCharacters: ["."],
