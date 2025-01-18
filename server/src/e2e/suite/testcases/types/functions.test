@@ -1,0 +1,32 @@
+=========
+Function return types
+=========
+primitive Int;
+primitive String;
+
+fun add(a: Int, b: Int): Int {
+    return a + b;
+//!        ^ Int
+}
+
+fun greet(name: String): String {
+    return "Hello, " + name;
+}
+
+fun optional(): String? {
+    return null;
+//!        ^ null
+}
+
+fun foo() {
+    let sum = add(1, 2);
+    //! ^ Int
+
+    let msg = greet("world");
+    //! ^ String
+
+    let opt = optional();
+    //! ^ String?
+}
+------------
+ok

@@ -503,7 +503,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             }
 
             const cursorPosition = asParserPoint(params.position)
-            const node = file.rootNode.descendantForPosition(cursorPosition)
+
+            let node = file.rootNode.descendantForPosition(cursorPosition)
+            if (!node) {
+                return {type: null}
+            }
+            if (node?.parent?.type === "method_call_expression") {
+                node = node.parent
+            }
             if (!node) {
                 return {type: null}
             }

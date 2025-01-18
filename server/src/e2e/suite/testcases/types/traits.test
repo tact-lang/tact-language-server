@@ -1,0 +1,62 @@
+=========
+Trait inheritance
+=========
+primitive Int;
+
+trait Base {
+    fun base(): Int;
+}
+
+trait Derived extends Base {
+    fun derived(): Int;
+}
+
+contract Implementation with Derived {
+    override fun base(): Int {
+        return 1;
+//!            ^ Int
+    }
+
+    override fun derived(): Int {
+        return self.base() + 1;
+//!                 ^ Int
+    }
+}
+------------
+ok
+
+=========
+Multiple traits
+=========
+primitive Int;
+primitive String;
+
+trait Named {
+    fun name(): String;
+}
+
+trait Countable {
+    fun count(): Int;
+}
+
+contract NamedCounter with Named, Countable {
+    name_: String;
+    value: Int;
+
+    override fun name(): String {
+        return self.name_;
+//!                 ^ String
+    }
+
+    override fun count(): Int {
+        return self.value;
+//!                 ^ Int
+    }
+
+    fun description(): String {
+        return self.name() + ": " + self.count().toString();
+//!                 ^ String
+    }
+}
+------------
+ok

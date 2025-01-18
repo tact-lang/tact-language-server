@@ -1,0 +1,48 @@
+=========
+Conditional expressions
+=========
+primitive Int;
+primitive String;
+
+fun foo() {
+    let a = true ? 1 : 2;
+    //! ^ Int
+
+    let b = false ? "hello" : "world";
+    //! ^ String
+
+    let c = 1 > 0 ? 42 : 0;
+    //! ^ Int
+
+    if (true) {
+        let d = 1;
+        //! ^ Int
+    } else {
+        let e = 2;
+        //! ^ Int
+    }
+}
+------------
+ok
+
+=========
+Null checks
+=========
+primitive String;
+
+struct User {
+    name: String?;
+}
+
+fun foo() {
+    let user = User{name: null};
+    //! ^ User
+
+    let name = user.name!!;
+    //! ^ String
+
+    let safeName = user.name;
+    //! ^ String?
+}
+------------
+ok

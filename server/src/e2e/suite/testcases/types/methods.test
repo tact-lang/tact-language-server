@@ -1,0 +1,77 @@
+=========
+Method calls
+=========
+primitive Int;
+primitive String;
+
+trait Nameable {
+    fun getName(): String;
+    fun setName(name: String);
+}
+
+contract User with Nameable {
+    name: String;
+
+    init(name: String) {
+        self.name = name;
+    }
+
+    override fun getName(): String {
+        return self.name;
+//!                 ^ String
+    }
+
+    override fun setName(name: String) {
+        self.name = name;
+//!                 ^ String
+    }
+
+    fun getNameLength(): Int {
+        return self.getName().length;
+//!                 ^ String
+    }
+}
+------------
+ok
+
+=========
+Method chaining
+=========
+primitive Int;
+primitive String;
+
+trait Chainable {
+    fun get(): Int;
+}
+
+contract Counter with Chainable {
+    value: Int;
+
+    init() {
+        self.value = 0;
+    }
+
+    override fun add(x: Int): Counter {
+        self.value = self.value + x;
+//!                       ^ Int
+        return self;
+//!            ^ Counter
+    }
+
+    override fun get(): Int {
+        return self.value;
+//!                 ^ Int
+    }
+
+    fun addTwice(x: Int): Int {
+        return self
+            .add(x)
+//!          ^ Counter
+            .add(x)
+//!          ^ Counter
+            .get();
+//!          ^ Int
+    }
+}
+------------
+ok

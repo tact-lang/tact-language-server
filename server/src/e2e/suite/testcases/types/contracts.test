@@ -1,0 +1,64 @@
+=========
+Contract state
+=========
+primitive Int;
+primitive Address;
+
+message Transfer {
+    amount: Int;
+    to: Address;
+}
+
+contract Wallet {
+    balance: Int;
+    owner: Address;
+
+    init(owner: Address) {
+        self.balance = 0;
+//!     ^ Wallet
+        self.balance = 0;
+        //!  ^ Int
+        self.owner = owner;
+        //!  ^ Address
+    }
+
+    receive(msg: Transfer) {
+        //! ^ Transfer
+        let amount = msg.amount;
+        //! ^ Int
+        let to = msg.to;
+        //! ^ Address
+    }
+}
+------------
+ok
+
+=========
+Contract methods
+=========
+primitive Int;
+
+trait Countable {
+    fun count(): Int;
+}
+
+contract Counter with Countable {
+    value: Int;
+
+    init() {
+        self.value = 0;
+//!     ^ Counter
+    }
+
+    override fun count(): Int {
+        return self.value;
+//!                 ^ Int
+    }
+
+    fun increment() {
+        self.value = self.value + 1;
+//!                       ^ Int
+    }
+}
+------------
+ok

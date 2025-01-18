@@ -1,0 +1,96 @@
+=========
+Number literals
+=========
+primitive Int;
+
+fun foo() {
+    let a = 123;
+    //! ^ Int
+
+    let b = 0xff;
+    //! ^ Int
+
+    let c = 0b1010;
+    //! ^ Int
+
+    let d = 0o777;
+    //! ^ Int
+
+    let e = -42;
+    //! ^ Int
+}
+------------
+ok
+
+=========
+String literals
+=========
+primitive String;
+
+fun foo() {
+    let a = "hello";
+    //! ^ String
+
+    let b = "escaped \"quotes\"";
+    //! ^ String
+
+    let c = "unicode \u{1F600}";
+    //! ^ String
+
+    let d = "line 1\nline 2";
+    //! ^ String
+}
+------------
+ok
+
+=========
+Boolean literals
+=========
+primitive Bool;
+
+fun foo() {
+    let a = true;
+    //! ^ Bool
+
+    let b = false;
+    //! ^ Bool
+
+    let c = !true;
+    //! ^ Bool
+
+    let d = true && false;
+    //! ^ Bool
+}
+------------
+ok
+
+=========
+Null literals
+=========
+primitive String;
+
+fun foo() {
+    let a: String? = null;
+    //! ^ String?
+
+    let b = null;
+    //! ^ null
+
+    let c: String? = "hello";
+    //! ^ String?
+}
+------------
+ok
+
+=========
+Map literals
+=========
+primitive Int;
+primitive String;
+
+fun foo() {
+    let a: map<Int, String> = emptyMap();
+    //! ^ map<Int, String>
+}
+------------
+ok

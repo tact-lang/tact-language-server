@@ -1,0 +1,40 @@
+=========
+Message handlers
+=========
+primitive Int;
+primitive Address;
+
+message Add {
+    amount: Int;
+}
+
+message Transfer {
+    to: Address;
+    amount: Int;
+}
+
+contract Wallet {
+    balance: Int;
+
+    receive(msg: Add) {
+//!         ^ Add
+        self.balance = self.balance + msg.amount;
+//!                                       ^ Int
+    }
+
+    receive(msg: Transfer) {
+//!           ^ Transfer
+        self.balance = self.balance - msg.amount;
+//!                                       ^ Int
+        send(msg.to, msg.amount);
+//!              ^ Address
+    }
+
+    bounced(msg: bounced<Transfer>) {
+//!         ^ bounced<Transfer>
+        self.balance = self.balance + msg.amount;
+//!                                       ^ Int
+    }
+}
+------------
+type inference error at line 26: expected Address, got Transfer

@@ -2,7 +2,7 @@ import {
     BouncedTy,
     ContractTy,
     MapTy,
-    MessageTy,
+    MessageTy, NullTy,
     OptionTy,
     PrimitiveTy,
     StructTy,
@@ -37,12 +37,6 @@ export class TypeInferer {
 
         if (node.node.type === "boolean") {
             return this.primitiveType("Bool")
-        }
-
-        if (node.node.type === "binary_expression") {
-            const left = node.node.children[0]
-            if (!left) return null
-            return this.inferType(new Expression(left, node.file))
         }
 
         if (node.node.type === "type_identifier") {
@@ -182,7 +176,64 @@ export class TypeInferer {
             const returnType = resolved.returnType()
             if (returnType === null) return null
 
-            return this.inferType(returnType)
+            return this.inferTypeMaybeOption(returnType.node, returnType)
+        }
+
+        if (node.node.type === "null") {
+            return new NullTy()
+        }
+
+        if (node.node.type === "unary_expression") {
+            const operator = node.node.childForFieldName("operator")?.text
+            const argument = node.node.childForFieldName("argument")
+            if (!argument) return null
+
+            const argType = this.inferType(new Expression(argument, node.file))
+            if (!argType) return null
+
+            if (operator === "!") {
+                return this.primitiveType("Bool")
+            }
+            if (operator === "-") {
+                return this.primitiveType("Int")
+            }
+            return argType
+        }
+
+        if (node.node.type === "binary_expression") {
+            const operator = node.node.children[1]?.text
+            const left = node.node.children[0]
+            const right = node.node.children[2]
+            if (!left || !right) return null
+
+            const leftType = this.inferType(new Expression(left, node.file))
+            const rightType = this.inferType(new Expression(right, node.file))
+            if (!leftType || !rightType) return null
+
+            if (operator === "&&" || operator === "||") {
+                return this.primitiveType("Bool")
+            }
+
+            if (["+", "-", "*", "/", "%", "<<", ">>", "&", "|", "^"].includes(operator)) {
+                if (leftType instanceof PrimitiveTy && leftType.name() === "String" && operator === "+") {
+                    return this.primitiveType("String")
+                }
+                return this.primitiveType("Int")
+            }
+
+            if (["<", ">", "<=", ">=", "==", "!="].includes(operator)) {
+                return this.primitiveType("Bool")
+            }
+
+            return leftType
+        }
+
+        if (node.node.type === "ternary_expression") {
+            const consequent = node.node.childForFieldName("consequence")
+            const alternate = node.node.childForFieldName("alternative")
+            if (!consequent || !alternate) return null
+
+            return this.inferType(new Expression(consequent, node.file))
         }
 
         return null
@@ -194,7 +245,7 @@ export class TypeInferer {
         return new PrimitiveTy(name, node)
     }
 
-    private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: NamedNode) {
+    private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: Node) {
         const inferred = this.inferType(new Expression(typeNode, resolved.file))
         if (inferred !== null && typeNode.nextSibling?.text === "?") {
             return new OptionTy(inferred)

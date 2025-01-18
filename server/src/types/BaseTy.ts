@@ -112,3 +112,13 @@ export class MapTy implements Ty {
         return `map<${this.keyTy.qualifiedName()}, ${this.valueTy.qualifiedName()}>`
     }
 }
+
+export class NullTy implements Ty {
+    name(): string {
+        return "null"
+    }
+
+    qualifiedName(): string {
+        return "null"
+    }
+}

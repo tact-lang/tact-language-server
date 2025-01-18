@@ -1,0 +1,39 @@
+=========
+Binary expressions
+=========
+primitive Int;
+primitive String;
+
+fun foo() {
+    let a = 1 + 2;
+    //! ^ Int
+
+    let b = "hello" + " world";
+    //! ^ String
+
+    let c = 1 * 2;
+    //! ^ Int
+
+    let d = 10 / 2;
+    //! ^ Int
+
+    let e = 7 % 3;
+    //! ^ Int
+
+    let f = 1 << 2;
+    //! ^ Int
+
+    let g = 8 >> 1;
+    //! ^ Int
+
+    let h = 7 & 3;
+    //! ^ Int
+
+    let i = 1 | 2;
+    //! ^ Int
+
+    let j = 5 ^ 3;
+    //! ^ Int
+}
+------------
+ok
