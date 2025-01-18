@@ -1,0 +1,27 @@
+=========
+Contract self
+=========
+contract Counter {
+    value: Int;
+
+    fun test() {
+        <caret>self.value = 1;
+    }
+}
+------------
+4:8 -> 0:9 resolved
+
+=========
+Bounced parameter resolve
+=========
+struct Transfer {
+    name: String;
+}
+
+contract Counter {
+    bounced(msg: bounced<Transfer>) {
+        msg.<caret>name;
+    }
+}
+------------
+6:12 -> 1:4 resolved

@@ -1,0 +1,43 @@
+=========
+Extends method resolve
+=========
+primitive Int;
+
+extends fun add(self: Int, other: Int): Int {
+    return self + other;
+}
+
+fun test() {
+    let x: Int = 5;
+    x.<caret>add(3);
+}
+------------
+8:6 -> 2:12 resolved
+
+=========
+Contract method resolve
+=========
+contract Counter {
+    fun increment(amount: Int) {}
+
+    fun test() {
+        self.<caret>increment(1);
+    }
+}
+------------
+4:13 -> 1:8 resolved
+
+=========
+Trait method resolve
+=========
+trait Incrementable {
+    fun increment(amount: Int) {}
+}
+
+contract Counter with Incrementable {
+    fun test() {
+        self.<caret>increment(1);
+    }
+}
+------------
+6:13 -> 1:8 resolved

@@ -1,0 +1,12 @@
+=========
+Contract self
+=========
+trait Counter {
+    value: Int;
+
+    fun test() {
+        <caret>self.value = 1;
+    }
+}
+------------
+4:8 -> 0:6 resolved

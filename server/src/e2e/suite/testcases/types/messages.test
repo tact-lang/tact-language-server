@@ -37,4 +37,4 @@ contract Wallet {
     }
 }
 ------------
-type inference error at line 26: expected Address, got Transfer
+ok

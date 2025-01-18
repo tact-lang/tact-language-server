@@ -1,0 +1,30 @@
+=========
+Init parameter resolve
+=========
+contract Counter {
+    init(initial: Int) {
+        <caret>initial;
+    }
+}
+------------
+2:8 -> 1:9 resolved
+
+=========
+Bounced parameter resolve
+=========
+contract Counter {
+    bounced(msg: Transfer) {
+        <caret>msg;
+    }
+}
+------------
+2:8 -> 1:12 resolved
+
+=========
+Function parameter resolve
+=========
+fun process(data: Int) {
+    <caret>data + 1;
+}
+------------
+1:4 -> 0:12 resolved

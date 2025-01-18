@@ -1,0 +1,14 @@
+=========
+Nested block variable resolve
+=========
+fun test() {
+    let outer = 1;
+    {
+        let inner = 2;
+        {
+            <caret>outer + <caret>inner;
+        }
+    }
+}
+------------
+5:12 -> 1:8 resolved

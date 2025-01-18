@@ -1,0 +1,54 @@
+=========
+Contract field resolve
+=========
+contract Counter {
+    value: Int;
+
+    fun test() {
+        self.<caret>value = 1;
+    }
+}
+------------
+4:13 -> 1:4 resolved
+
+=========
+Trait field resolve
+=========
+trait Counter {
+    value: Int;
+
+    fun test() {
+        self.<caret>value = 1;
+    }
+}
+------------
+4:13 -> 1:4 resolved
+
+=========
+Struct field resolve
+=========
+struct Point {
+    x: Int;
+    y: Int;
+}
+
+fun test() {
+    let p: Point = Point{x: 1, y: 2};
+    p.<caret>x;
+}
+------------
+7:6 -> 1:4 resolved
+
+=========
+Message field resolve
+=========
+message(0x1234) Transfer {
+    amount: Int;
+}
+
+fun test() {
+    let msg: Transfer = Transfer{amount: 100};
+    msg.<caret>amount;
+}
+------------
+6:8 -> 1:4 resolved

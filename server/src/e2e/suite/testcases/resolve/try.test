@@ -1,0 +1,12 @@
+=========
+Try-catch variable resolve
+=========
+fun test() {
+    try {
+        throw("error");
+    } catch(e) {
+        <caret>e;
+    }
+}
+------------
+4:8 -> 3:12 resolved
