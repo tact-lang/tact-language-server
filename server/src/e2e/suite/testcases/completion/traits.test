@@ -97,3 +97,29 @@ trait Child with Parent {
 }
 ------------------------------------------------------------------------
 age: Int;
+
+========================================================================
+Completion of methods and fields without self
+========================================================================
+primitive Int;
+
+trait Child with Parent {
+    field: Int;
+
+    fun foo(): Int {}
+
+    fun bar(): Int {
+        <caret>
+    }
+}
+------------------------------------------------------------------------
+Int
+self.bar
+self.foo
+self.field
+Child
+false
+return <expr>;
+self
+true
+return 0;

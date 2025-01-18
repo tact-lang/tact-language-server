@@ -248,6 +248,20 @@ export class Reference {
             }
         }
 
+        // inside a trait/contract, when we write `foo`, we want to automatically complete it
+        // with `self.foo` if there are any methods/fields/constants with the same name
+        const ownerNode = parentOfType(this.element.node, "contract_body", "trait_body")
+        if (ownerNode !== null) {
+            const constructor = ownerNode.type === "contract_body" ? Contract : Trait
+            const owner = new constructor(ownerNode.parent!, this.element.file)
+            const typeConstructor = ownerNode.type === "contract_body" ? ContractTy : TraitTy
+            const ownerTy = new typeConstructor(owner.name(), owner)
+            const expr = new Expression(this.element.node, this.element.file)
+
+            const newState = state.withValue("prefix", "self.")
+            if (!this.processType(expr, ownerTy, proc, newState)) return false
+        }
+
         const parent = this.element.node.parent!
         if (parent.type === "tvm_ordinary_word") {
             // don"t try to resolve TVM assembly

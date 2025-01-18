@@ -165,4 +165,11 @@ export class Constant extends NamedNode {
         if (!value) return null
         return new Expression(value, this.file)
     }
+
+    public owner(): StorageMembersOwner | null {
+        const ownerNode = parentOfType(this.node, "trait", "contract")
+        if (!ownerNode) return null
+
+        return new StorageMembersOwner(ownerNode, this.file)
+    }
 }

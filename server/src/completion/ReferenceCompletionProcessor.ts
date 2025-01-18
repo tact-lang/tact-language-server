@@ -1,6 +1,6 @@
-import {ScopeProcessor} from "../psi/Reference"
+import {ResolveState, ScopeProcessor} from "../psi/Reference"
 import {NamedNode, Node} from "../psi/Node"
-import {Constant, Fun, Message, Primitive, Struct} from "../psi/TopLevelDeclarations"
+import {Constant, Field, Fun, Message, Primitive, Struct} from "../psi/TopLevelDeclarations"
 import {CompletionItem, InsertTextFormat, CompletionItemKind} from "vscode-languageserver-types"
 import {TypeInferer} from "../TypeInferer"
 import {CompletionContext} from "./CompletionContext"
@@ -10,9 +10,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
     public result: Map<string, CompletionItem> = new Map()
 
-    public execute(node: Node): boolean {
+    public execute(node: Node, state: ResolveState): boolean {
         if (!(node instanceof NamedNode)) return true
 
+        const prefix = state.get("prefix") ? state.get("prefix") : ""
         const name = node.name()
         if (name.endsWith("dummyIdentifier")) return true
 
@@ -22,6 +23,9 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 return true
             }
 
+            // don't add `self.` prefix for global functions
+            const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
+
             const signature = node.signatureText()
             const hasNoParams =
                 node.parameters().length == 0 || (node.withSelf() && node.parameters().length == 1)
@@ -30,10 +34,11 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
             // TODO: check for `;` existence
             // We want to place cursor in parens only if there are any parameters to write.
-            const insertText = name + (hasNoParams ? "()" : "($1)") + (needSemicolon ? "$2;$0" : "")
+            const insertText =
+                thisPrefix + name + (hasNoParams ? "()" : "($1)") + (needSemicolon ? "$2;$0" : "")
 
             this.addItem({
-                label: name,
+                label: thisPrefix + name,
                 kind: CompletionItemKind.Function,
                 labelDetails: {
                     detail: signature,
@@ -68,16 +73,37 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 return true
             }
 
+            // don't add `self.` prefix for global constants
+            const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
+
             const typeNode = node.typeNode()
             const value = node.value()
             const valueType = typeNode?.type()?.qualifiedName() ?? ""
             this.addItem({
-                label: name,
+                label: thisPrefix + name,
                 kind: CompletionItemKind.Constant,
                 labelDetails: {
                     detail: ": " + valueType + " = " + (value?.node?.text ?? "unknown"),
                 },
-                insertText: name,
+                insertText: thisPrefix + name,
+                insertTextFormat: InsertTextFormat.Snippet,
+                sortText: `3${name}`,
+            })
+        } else if (node instanceof Field) {
+            if (this.ctx.isType) {
+                // don't add fields for type completion
+                return true
+            }
+
+            const typeNode = node.typeNode()
+            const valueType = typeNode?.type()?.qualifiedName() ?? ""
+            this.addItem({
+                label: prefix + name,
+                kind: CompletionItemKind.Property,
+                labelDetails: {
+                    detail: ": " + valueType,
+                },
+                insertText: prefix + name,
                 insertTextFormat: InsertTextFormat.Snippet,
                 sortText: `2${name}`,
             })
