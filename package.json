@@ -72,6 +72,11 @@
                 "command": "tact.showParent",
                 "title": "Show Parent",
                 "category": "tact"
+            },
+            {
+                "command": "tact/getTypeAtPosition",
+                "title": "Get Type At Position",
+                "category": "tact"
             }
         ],
         "configuration": {

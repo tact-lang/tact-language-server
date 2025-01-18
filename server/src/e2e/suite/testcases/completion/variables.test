@@ -11,8 +11,8 @@ fun test() {
 }
 ------------
 test
-myInt
 myAddress
+myInt
 myString
 
 =========
@@ -50,8 +50,8 @@ extends fun scale(self: Point, factor: Int) {
 }
 ------------
 scale
-self
 factor
+self
 temp
 
 =========
@@ -70,8 +70,8 @@ fun test() {
 ------------
 Int
 test
-outer
 inner
+outer
 
 =========
 @trigger .
@@ -110,9 +110,9 @@ fun test() {
 ------------
 Int
 test
+items
 key
 value
-items
 
 =========
 @trigger .
@@ -131,8 +131,8 @@ fun test() {
 ------------
 Int
 test
-value
 result
+value
 
 =========
 @trigger .
@@ -149,8 +149,8 @@ fun test() {
 }
 ------------
 Int
-error
 test
+error
 value
 
 =========
@@ -182,8 +182,8 @@ fun test(param: Int) {
 ------------
 Int
 test
-param
 local
+param
 
 =========
 @trigger .
@@ -243,7 +243,7 @@ fun test() {
     }
 }
 ------------
+test
 first
 second
-test
 third

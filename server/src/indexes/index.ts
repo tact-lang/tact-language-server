@@ -133,12 +133,7 @@ export class FileIndex {
     }
 
     private findElement<T extends NamedNode>(elements: T[], name: string): T | null {
-        return (
-            elements.find(value => {
-                const nameNode = value.node.childForFieldName("name")
-                return nameNode?.text === name
-            }) ?? null
-        )
+        return elements.find(value => value.name() === name) ?? null
     }
 }
 

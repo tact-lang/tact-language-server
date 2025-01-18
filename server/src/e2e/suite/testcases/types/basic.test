@@ -1,0 +1,105 @@
+=========
+Simple type inference
+=========
+primitive Int;
+
+struct Point {
+    x: Int;
+    y: Int;
+}
+
+fun foo() {
+    let p = Point{x: 1, y: 2};
+    //! ^ Point
+
+    let x = p.x;
+    //! ^ Int
+}
+------------
+ok
+
+=========
+Function return type
+=========
+primitive Int;
+
+struct Point {
+    x: Int;
+//! ^ Int
+    y: Int;
+//! ^ Int
+}
+
+fun makePoint(): Point {
+    return Point {
+//!        ^ Point
+        x: 1,
+//!     ^ Int
+        y: 2,
+//!     ^ Int
+    };
+}
+
+fun foo() {
+    let p = makePoint();
+    //! ^ Point
+
+    let sum = p.x + p.y;
+    //! ^ Int
+}
+------------
+ok
+
+=========
+Optional types
+=========
+primitive String;
+
+struct User {
+    name: String?;
+}
+
+fun foo() {
+    let user = User{name: null};
+    //! ^ User
+
+    let name = user.name;
+    //! ^ String?
+}
+------------
+ok
+
+=========
+Map types
+=========
+primitive Int;
+primitive String;
+
+fun foo() {
+    let m: Map<Int, String> = emptyMap();
+    //! ^ map<Int, String>
+}
+------------
+type inference error at line 5: expected map<Int, String>, got String
+
+=========
+Multiple expressions
+=========
+primitive Int;
+primitive String;
+
+fun foo() {
+    let a = 1;
+    //! ^ Int
+
+    let b = "hello";
+    //! ^ String
+
+    let c = a + 2;
+    //! ^ Int
+
+    let d = b + " world";
+    //! ^ String
+}
+------------
+ok

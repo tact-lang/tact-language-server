@@ -50,8 +50,8 @@ fun test(c: Counter) {
     c.<caret>
 }
 ------------
-val
 owner
+val
 
 =========
 @trigger .
@@ -66,8 +66,8 @@ fun test(s: Storage) {
     s.<caret>
 }
 ------------
-balances
 allowances
+balances
 
 =========
 @trigger .
@@ -83,9 +83,9 @@ fun test(u: User?) {
     u.<caret>
 }
 ------------
-name
-age
 address
+age
+name
 
 =========
 @trigger .
@@ -121,11 +121,11 @@ fun test(msg: TokenTransfer) {
     msg.<caret>
 }
 ------------
-queryId
 amount
 from
-to
+queryId
 responseDestination
+to
 
 =========
 @trigger .
@@ -143,9 +143,9 @@ contract Foo {
     }
 }
 ------------
-name
-age
 address
+age
+name
 
 =========
 @trigger .
@@ -161,9 +161,9 @@ fun foo(f: User?) {
     f.<caret>
 }
 ------------
-name
-age
 address
+age
+name
 
 =========
 @trigger .
@@ -179,6 +179,6 @@ fun foo(f: User?) {
     f!!.<caret>
 }
 ------------
-name
-age
 address
+age
+name

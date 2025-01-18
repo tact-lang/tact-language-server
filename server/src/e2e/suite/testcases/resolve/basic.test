@@ -67,3 +67,25 @@ fun test() {
 }
 ------------
 4:8 -> 3:12 resolved
+
+=========
+Variable in foreach resolve
+=========
+fun test() {
+    foreach (key, value in map) {
+        <caret>key;
+    }
+}
+------------
+2:8 -> 1:13 resolved
+
+=========
+Variable in foreach resolve 2
+=========
+fun test() {
+    foreach (key, value in map) {
+        <caret>value;
+    }
+}
+------------
+2:8 -> 1:18 resolved

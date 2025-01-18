@@ -27,6 +27,24 @@ export class TypeInferer {
     }
 
     private inferTypeImpl(node: Node): Ty | null {
+        if (node.node.type === "string") {
+            return this.primitiveType("String")
+        }
+
+        if (node.node.type === "integer") {
+            return this.primitiveType("Int")
+        }
+
+        if (node.node.type === "boolean") {
+            return this.primitiveType("Bool")
+        }
+
+        if (node.node.type === "binary_expression") {
+            const left = node.node.children[0]
+            if (!left) return null
+            return this.inferType(new Expression(left, node.file))
+        }
+
         if (node.node.type === "type_identifier") {
             const resolved = Reference.resolve(new NamedNode(node.node, node.file))
             if (resolved === null) return null
@@ -168,6 +186,12 @@ export class TypeInferer {
         }
 
         return null
+    }
+
+    private primitiveType(name: string) {
+        const node = index.elementByName(IndexKey.Primitives, name)
+        if (!node) return null
+        return new PrimitiveTy(name, node)
     }
 
     private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: NamedNode) {

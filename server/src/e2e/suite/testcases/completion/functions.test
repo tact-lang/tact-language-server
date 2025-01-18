@@ -17,9 +17,9 @@ fun test() {
 }
 ------------
 Int
-test
 add
 multiply
+test
 
 =========
 @trigger .
@@ -36,9 +36,9 @@ fun test() {
 }
 ------------
 Int
+add
 test
 result
-add
 
 =========
 @trigger .
@@ -59,8 +59,8 @@ fun test() {
     num.<caret>
 }
 ------------
-increment
 double
+increment
 
 =========
 @trigger .
@@ -77,8 +77,8 @@ fun test() {
 }
 ------------
 Int
-test
 add
+test
 x
 
 =========
@@ -98,6 +98,6 @@ fun test() {
 }
 ------------
 Int
-test
 add
 multiply
+test

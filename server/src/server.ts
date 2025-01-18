@@ -8,7 +8,7 @@ import {SyntaxNode, Tree} from "web-tree-sitter"
 import {NotificationFromServer} from "../../shared/src/shared-msgtypes"
 import {Referent} from "./psi/Referent"
 import {index} from "./indexes"
-import {CallLike, NamedNode} from "./psi/Node"
+import {CallLike, Expression, NamedNode} from "./psi/Node"
 import {Reference, ResolveState} from "./psi/Reference"
 import {File} from "./psi/File"
 import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProcessor"
@@ -24,6 +24,11 @@ import * as path from "node:path"
 import {existsSync} from "node:fs"
 import {LRUMap} from "./utils/lruMap"
 import {ClientOptions} from "../../shared/src/config-scheme"
+import {
+    GetTypeAtPositionRequest,
+    GetTypeAtPositionParams,
+    GetTypeAtPositionResponse,
+} from "../../shared/src/shared-msgtypes"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -445,12 +450,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 currentIndex++
             }
 
-            const parametersInfo = parameters.map(
-                value =>
-                    ({
-                        label: value.text,
-                    }) as lsp.ParameterInformation,
-            )
+            const parametersInfo: lsp.ParameterInformation[] = parameters.map(value => ({
+                label: value.text,
+            }))
             const parametersString = parametersInfo.map(el => el.label).join(", ")
 
             return {
@@ -489,6 +491,27 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const uri = params.textDocument.uri
             const file = await findFile(uri)
             return lens.collect(file)
+        },
+    )
+
+    connection.onRequest(
+        GetTypeAtPositionRequest,
+        async (params: GetTypeAtPositionParams): Promise<GetTypeAtPositionResponse> => {
+            const file = await findFile(params.textDocument.uri)
+            if (!file) {
+                return {type: null}
+            }
+
+            const cursorPosition = asParserPoint(params.position)
+            const node = file.rootNode.descendantForPosition(cursorPosition)
+            if (!node) {
+                return {type: null}
+            }
+
+            const type = TypeInferer.inferType(new Expression(node, file))
+            return {
+                type: type ? type.qualifiedName() : null,
+            }
         },
     )
 

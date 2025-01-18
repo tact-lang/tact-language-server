@@ -7,3 +7,19 @@ export enum RequestFromServer {
 export enum NotificationFromServer {
     showErrorMessage = "tact/showErrorMessage",
 }
+
+export const GetTypeAtPositionRequest = "tact/getTypeAtPosition"
+
+export interface GetTypeAtPositionParams {
+    textDocument: {
+        uri: string
+    }
+    position: {
+        line: number
+        character: number
+    }
+}
+
+export interface GetTypeAtPositionResponse {
+    type: string | null
+}

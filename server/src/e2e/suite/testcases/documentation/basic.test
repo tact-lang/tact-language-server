@@ -1,15 +1,8 @@
 =========
-Variable documentation
+Function documentation
 =========
 fun test() {
     te<caret>st();
 }
 ------------
 
-=========
-Variable documentation
-=========
-fun test() {
-    let a<caret>aa = 10;
-}
-------------

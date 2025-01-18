@@ -10,7 +10,13 @@ import {
 import * as path from "path"
 import {consoleError, consoleWarn, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
-import {NotificationFromServer, RequestFromServer} from "../../shared/src/shared-msgtypes"
+import {
+    NotificationFromServer,
+    RequestFromServer,
+    GetTypeAtPositionRequest,
+    GetTypeAtPositionParams,
+    GetTypeAtPositionResponse,
+} from "../../shared/src/shared-msgtypes"
 import {TextEncoder} from "util"
 import {Position} from "vscode-languageclient"
 import {ClientOptions} from "../../shared/src/config-scheme"
@@ -161,6 +167,46 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     //     client.sendNotification(NotificationFromClient.addFileToQueue, uri.toString());
     //     client.sendNotification(NotificationFromClient.removeFileFromFileCache, uri.toString());
     // }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            GetTypeAtPositionRequest,
+            async (params: GetTypeAtPositionParams | undefined) => {
+                if (!client) {
+                    return null
+                }
+
+                const isFromEditor = !params
+                if (!params) {
+                    const editor = vscode.window.activeTextEditor
+                    if (!editor) {
+                        return null
+                    }
+
+                    params = {
+                        textDocument: {
+                            uri: editor.document.uri.toString(),
+                        },
+                        position: {
+                            line: editor.selection.active.line,
+                            character: editor.selection.active.character,
+                        },
+                    }
+                }
+
+                const result = await client.sendRequest<GetTypeAtPositionResponse>(
+                    GetTypeAtPositionRequest,
+                    params,
+                )
+
+                if (isFromEditor && result.type) {
+                    void vscode.window.showInformationMessage(`Type: ${result.type}`)
+                }
+
+                return result
+            },
+        ),
+    )
 
     return new vscode.Disposable(() => disposables.forEach(d => void d.dispose()))
 }

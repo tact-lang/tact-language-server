@@ -7,6 +7,7 @@ import {
     Fun,
     Trait,
     StorageMembersOwner,
+    Primitive,
 } from "../psi/TopLevelDeclarations"
 import {NamedNode, Node} from "../psi/Node"
 
@@ -45,7 +46,7 @@ export class StructTy extends FieldsOwnerTy<Struct> {}
 
 export class MessageTy extends FieldsOwnerTy<Message> {}
 
-export class PrimitiveTy extends BaseTy<Node> {}
+export class PrimitiveTy extends BaseTy<Primitive> {}
 
 export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends BaseTy<Anchor> {
     public ownMethods(): Fun[] {
