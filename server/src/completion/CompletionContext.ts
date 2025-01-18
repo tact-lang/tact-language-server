@@ -13,6 +13,8 @@ export class CompletionContext {
     insideTraitOrContract: boolean = false
     topLevel: boolean = false
     topLevelInTraitOrContract: boolean = false
+    topLevelInStructOrMessage: boolean = false
+    inTlbSerialization: boolean = false
     afterDot: boolean = false
 
     constructor(
@@ -46,6 +48,12 @@ export class CompletionContext {
             this.isType = true
         }
 
+        if (parent.type === "tlb_serialization") {
+            this.inTlbSerialization = true
+            this.isExpression = false
+            this.isStatement = false
+        }
+
         // skip additional ERROR node
         if (parent.type === "ERROR" && parent.parent?.type === "source_file") {
             this.topLevel = true
@@ -65,11 +73,22 @@ export class CompletionContext {
             this.isType = false
         }
 
+        // skip additional ERROR node
+        if (
+            parent.type === "ERROR" &&
+            (parent.parent?.type === "struct_body" || parent.parent?.type === "message_body")
+        ) {
+            this.topLevelInStructOrMessage = true
+            this.isExpression = false
+            this.isStatement = false
+            this.isType = false
+        }
+
         const traitOrContractOwner = parentOfType(element.node, "contract", "trait")
         this.insideTraitOrContract = traitOrContractOwner !== null
     }
 
     public expression(): boolean {
-        return (this.isExpression || this.isStatement) && !this.afterDot
+        return (this.isExpression || this.isStatement) && !this.afterDot && !this.inTlbSerialization
     }
 }

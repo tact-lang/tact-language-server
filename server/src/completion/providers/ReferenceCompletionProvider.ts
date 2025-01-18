@@ -8,7 +8,12 @@ export class ReferenceCompletionProvider implements CompletionProvider {
     constructor(private ref: Reference) {}
 
     isAvailable(ctx: CompletionContext): boolean {
-        return !ctx.topLevelInTraitOrContract && !ctx.topLevel
+        return (
+            !ctx.topLevelInTraitOrContract &&
+            !ctx.topLevelInStructOrMessage &&
+            !ctx.topLevel &&
+            !ctx.inTlbSerialization
+        )
     }
 
     addCompletion(ctx: CompletionContext, elements: CompletionItem[]): void {

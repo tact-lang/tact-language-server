@@ -40,6 +40,7 @@ import {Trait} from "./psi/TopLevelDeclarations"
 import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompletionProvider"
 import {OverrideCompletionProvider} from "./completion/providers/OverrideCompletionProvider"
 import {TraitOrContractFieldsCompletionProvider} from "./completion/providers/TraitOrContractFieldsCompletionProvider"
+import {TlbSerializationCompletionProvider} from "./completion/providers/TlbSerializationCompletionProvider"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -346,6 +347,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const result: lsp.CompletionItem[] = []
             const providers: CompletionProvider[] = [
                 new KeywordsCompletionProvider(),
+                new TlbSerializationCompletionProvider(),
                 new OverrideCompletionProvider(),
                 new TraitOrContractFieldsCompletionProvider(),
                 new SelfCompletionProvider(),
