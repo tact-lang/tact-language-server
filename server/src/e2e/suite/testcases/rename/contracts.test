@@ -1,0 +1,66 @@
+=========
+Rename contract with self usages
+=========
+contract Foo {
+//!      ^ Bar
+    init() {
+        self.foo()
+    }
+
+    fun foo() {}
+}
+------------
+contract Bar {
+//!      ^ Bar
+    init() {
+        self.foo()
+    }
+
+    fun foo() {}
+}
+
+=========
+Rename contract field
+=========
+contract Foo {
+    value: String;
+//! ^ name
+
+    fun bar() {
+        let value = 10;
+        dump(self.value);
+    }
+}
+------------
+contract Foo {
+    name: String;
+//! ^ name
+
+    fun bar() {
+        let value = 10;
+        dump(self.name);
+    }
+}
+
+=========
+Rename contract constant
+=========
+contract Foo {
+    const value: Int = 100;
+//!       ^ age
+
+    fun bar() {
+        let value = 10;
+        dump(self.value);
+    }
+}
+------------
+contract Foo {
+    const age: Int = 100;
+//!       ^ age
+
+    fun bar() {
+        let value = 10;
+        dump(self.age);
+    }
+}

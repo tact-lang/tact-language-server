@@ -1,5 +1,14 @@
 import {SyntaxNode} from "web-tree-sitter"
-import {BouncedTy, ContractTy, MessageTy, OptionTy, StructTy, TraitTy, Ty} from "../types/BaseTy"
+import {
+    BouncedTy,
+    ContractTy,
+    MessageTy,
+    OptionTy,
+    StorageMembersOwnerTy,
+    StructTy,
+    TraitTy,
+    Ty,
+} from "../types/BaseTy"
 import {index, IndexKey} from "../indexes"
 import {Expression, NamedNode, Node} from "./Node"
 import {Contract, Fun, Trait} from "./TopLevelDeclarations"
@@ -153,42 +162,48 @@ export class Reference {
         if (qualifierType === null) return true
 
         if (qualifierType instanceof BouncedTy) {
-            return this.processType(qualifierType.innerTy, proc, state)
+            return this.processType(qualifier, qualifierType.innerTy, proc, state)
         }
 
         if (qualifierType instanceof OptionTy) {
             // show completion and resolve without explicit unwrapping
-            return this.processType(qualifierType.innerTy, proc, state)
+            return this.processType(qualifier, qualifierType.innerTy, proc, state)
         }
 
-        return this.processType(qualifierType, proc, state)
+        return this.processType(qualifier, qualifierType, proc, state)
     }
 
     private processType(
+        qualifier: Expression,
         qualifierType: Ty | StructTy | MessageTy | TraitTy | ContractTy,
         proc: ScopeProcessor,
         state: ResolveState,
     ) {
+        const methodRef = qualifier.node.parent?.type === "method_call_expression"
+
         if (!this.processTypeMethods(qualifierType, proc, state)) return false
 
         if (qualifierType instanceof StructTy) {
-            if (!this.processNamedElements(proc, state, qualifierType.fields())) return false
+            if (!this.processNamedEls(proc, state, qualifierType.fields())) return false
         }
 
         if (qualifierType instanceof MessageTy) {
-            if (!this.processNamedElements(proc, state, qualifierType.fields())) return false
+            if (!this.processNamedEls(proc, state, qualifierType.fields())) return false
         }
 
-        if (qualifierType instanceof TraitTy) {
-            if (!this.processNamedElements(proc, state, qualifierType.ownFields())) return false
-            if (!this.processNamedElements(proc, state, qualifierType.ownConstants())) return false
-            if (!this.processNamedElements(proc, state, qualifierType.methods())) return false
-        }
-
-        if (qualifierType instanceof ContractTy) {
-            if (!this.processNamedElements(proc, state, qualifierType.ownFields())) return false
-            if (!this.processNamedElements(proc, state, qualifierType.ownConstants())) return false
-            if (!this.processNamedElements(proc, state, qualifierType.methods())) return false
+        // Traits or contracts
+        if (qualifierType instanceof StorageMembersOwnerTy) {
+            // for `foo.bar()` first check for methods since there is no callable types
+            // for `foo.bar` first check for fields since there is function pointers
+            if (methodRef) {
+                if (!this.processNamedEls(proc, state, qualifierType.methods())) return false
+                if (!this.processNamedEls(proc, state, qualifierType.ownFields())) return false
+                if (!this.processNamedEls(proc, state, qualifierType.ownConstants())) return false
+            } else {
+                if (!this.processNamedEls(proc, state, qualifierType.ownFields())) return false
+                if (!this.processNamedEls(proc, state, qualifierType.ownConstants())) return false
+                if (!this.processNamedEls(proc, state, qualifierType.methods())) return false
+            }
         }
 
         return true
@@ -392,7 +407,7 @@ export class Reference {
         return false
     }
 
-    public processNamedElements(
+    public processNamedEls(
         proc: ScopeProcessor,
         state: ResolveState,
         elements: NamedNode[],

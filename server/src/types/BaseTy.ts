@@ -17,7 +17,7 @@ export interface Ty {
     qualifiedName(): string
 }
 
-export abstract class BaseTy<Anchor> implements Ty {
+export abstract class BaseTy<Anchor extends NamedNode> implements Ty {
     anchor: Anchor | null = null
     _name: string
 

@@ -5,7 +5,6 @@ import {createParser, initParser} from "./parser"
 import {asLspRange, asParserPoint} from "./utils/position"
 import {TypeInferer} from "./TypeInferer"
 import {SyntaxNode, Tree} from "web-tree-sitter"
-import {NotificationFromServer} from "../../shared/src/shared-msgtypes"
 import {Referent} from "./psi/Referent"
 import {index} from "./indexes"
 import {CallLike, Expression, NamedNode} from "./psi/Node"
@@ -31,9 +30,10 @@ import {
 } from "../../shared/src/shared-msgtypes"
 import {KeywordsCompletionProvider} from "./completion/providers/KeywordsCompletionProvider"
 import {CompletionProvider} from "./completion/CompletionProvider"
-import {CompletionItem} from "vscode-languageserver-types"
 import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvider"
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
+import {BaseTy} from "./types/BaseTy"
+import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -240,6 +240,42 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     )
 
     connection.onRequest(
+        lsp.TypeDefinitionRequest.type,
+        async (
+            params: lsp.TypeDefinitionParams,
+        ): Promise<lsp.Definition | lsp.DefinitionLink[]> => {
+            const uri = params.textDocument.uri
+            const file = await findFile(uri)
+            const hoverNode = nodeAtPosition(params, file)
+
+            if (
+                hoverNode.type !== "identifier" &&
+                hoverNode.type !== "self" &&
+                hoverNode.type !== "type_identifier"
+            ) {
+                return []
+            }
+
+            const type = TypeInferer.inferType(new Expression(hoverNode, file))
+            if (type === null) return []
+
+            if (type instanceof BaseTy) {
+                const anchor = type.anchor as NamedNode
+                const name = anchor.nameIdentifier()
+                if (name === null) return []
+                return [
+                    {
+                        uri: anchor.file.uri,
+                        range: asLspRange(name),
+                    },
+                ]
+            }
+
+            return []
+        },
+    )
+
+    connection.onRequest(
         lsp.CompletionRequest.type,
         async (params: lsp.CompletionParams): Promise<lsp.CompletionItem[]> => {
             const uri = params.textDocument.uri
@@ -295,7 +331,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked,
             )
 
-            const result: CompletionItem[] = []
+            const result: lsp.CompletionItem[] = []
             const providers: CompletionProvider[] = [
                 new KeywordsCompletionProvider(),
                 new SelfCompletionProvider(),
@@ -323,17 +359,13 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    const renameHandler = async (params: lsp.RenameParams): Promise<lsp.WorkspaceEdit | null> => {
+    connection.onRequest(lsp.RenameRequest.type, async (params: lsp.RenameParams) => {
         const uri = params.textDocument.uri
         const file = await findFile(uri)
 
         const renameNode = nodeAtPosition(params, file)
-        if (renameNode.type !== "identifier") {
-            return Promise.reject("not an identifier")
-        }
-
-        const result = new Referent(renameNode, file).findReferences(true)
-        if (result.length === 0) return Promise.reject("cannot find any references")
+        const result = new Referent(renameNode, file).findReferences(true, false, false)
+        if (result.length === 0) return null
 
         return {
             changes: {
@@ -343,17 +375,25 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 })),
             },
         }
-    }
-    connection.onRequest(lsp.RenameRequest.type, (params: lsp.RenameParams) =>
-        renameHandler(params).catch(reason => {
-            connection
-                .sendNotification(
-                    NotificationFromServer.showErrorMessage,
-                    `Can not rename: ${reason}`,
-                )
-                .catch(console.error)
-            return {}
-        }),
+    })
+
+    connection.onRequest(
+        lsp.PrepareRenameRequest.type,
+        async (params: lsp.PrepareRenameParams): Promise<PrepareRenameResult | null> => {
+            const uri = params.textDocument.uri
+            const file = await findFile(uri)
+
+            const renameNode = nodeAtPosition(params, file)
+            if (renameNode.type !== "identifier" && renameNode.type !== "type_identifier") {
+                return null
+            }
+
+            return {
+                range: asLspRange(renameNode),
+                defaultBehavior: true,
+                placeholder: renameNode.text,
+            }
+        },
     )
 
     connection.onRequest(
@@ -552,7 +592,10 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             // codeActionProvider: true,
             // documentSymbolProvider: true,
             definitionProvider: true,
-            renameProvider: true,
+            typeDefinitionProvider: true,
+            renameProvider: {
+                prepareProvider: true,
+            },
             hoverProvider: true,
             inlayHintProvider: true,
             referencesProvider: true,

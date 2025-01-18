@@ -1,0 +1,16 @@
+=========
+Rename global constant
+=========
+const VALUE: Int = 100;
+//!   ^ AGE
+
+fun foo() {
+    dump(VALUE);
+}
+------------
+const AGE: Int = 100;
+//!   ^ AGE
+
+fun foo() {
+    dump(AGE);
+}

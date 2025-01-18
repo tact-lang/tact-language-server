@@ -1,0 +1,144 @@
+=========
+Rename simple variable
+=========
+fun test() {
+    let value = 100;
+    //! ^ age
+    dump(value);
+}
+------------
+fun test() {
+    let age = 100;
+    //! ^ age
+    dump(age);
+}
+
+=========
+Rename variable with same name variable inside other block
+=========
+fun test() {
+    {
+        let value = 100;
+        //! ^ age
+        dump(value);
+    }
+    {
+        let value = 100;
+        //! ^ age2
+        dump(value);
+    }
+}
+------------
+fun test() {
+    {
+        let age = 100;
+        //! ^ age
+        dump(age);
+    }
+    {
+        let age2 = 100;
+        //! ^ age2
+        dump(age2);
+    }
+}
+
+=========
+Rename key variable in foreach
+=========
+fun test() {
+    foreach (key, value in map) {
+    //!      ^ otherKey
+        dump(key)
+        dump(value)
+    }
+}
+------------
+fun test() {
+    foreach (otherKey, value in map) {
+    //!      ^ otherKey
+        dump(otherKey)
+        dump(value)
+    }
+}
+
+=========
+Rename value variable in foreach
+=========
+fun test() {
+    foreach (key, value in map) {
+    //!           ^ otherValue
+        dump(key)
+        dump(value)
+    }
+}
+------------
+fun test() {
+    foreach (key, otherValue in map) {
+    //!           ^ otherValue
+        dump(key)
+        dump(otherValue)
+    }
+}
+
+=========
+Rename catch variable
+=========
+fun test() {
+    try {
+        dump(10)
+    } catch (e) {
+    //!      ^ error
+        dump(e)
+    }
+}
+------------
+fun test() {
+    try {
+        dump(10)
+    } catch (error) {
+    //!      ^ error
+        dump(error)
+    }
+}
+
+=========
+Rename parameter
+=========
+fun test(value: Int) {
+    //!  ^ age
+    dump(value);
+}
+------------
+fun test(age: Int) {
+    //!  ^ age
+    dump(age);
+}
+
+=========
+Rename parameters
+=========
+fun test(
+    value: Int,
+//! ^ age
+    value2: String,
+//! ^ name
+    value3: Address,
+//! ^ owner
+) {
+    dump(value);
+    dump(value2);
+    dump(value3);
+}
+------------
+fun test(
+    age: Int,
+//! ^ age
+    name: String,
+//! ^ name
+    owner: Address,
+//! ^ owner
+) {
+    dump(age);
+    dump(name);
+    dump(owner);
+}

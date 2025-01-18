@@ -250,6 +250,10 @@ export class TypeInferer {
             return this.inferType(new Expression(consequent, node.file))
         }
 
+        if (node instanceof NamedNode) {
+            return this.inferTypeFromResolved(node)
+        }
+
         return null
     }
 

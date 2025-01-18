@@ -1,0 +1,99 @@
+=========
+Rename struct field
+=========
+struct Foo {
+    value: String;
+//! ^ name
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { value: "" };
+    dump(f.value);
+}
+------------
+struct Foo {
+    name: String;
+//! ^ name
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { name: "" };
+    dump(f.name);
+}
+
+=========
+Rename struct field via usage
+=========
+struct Foo {
+    value: String;
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { value: "" };
+//!               ^ name
+    dump(f.value);
+}
+------------
+struct Foo {
+    name: String;
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { name: "" };
+//!               ^ name
+    dump(f.name);
+}
+
+=========
+Rename message field
+=========
+message Foo {
+    value: String;
+//! ^ name
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { value: "" };
+    dump(f.value);
+}
+------------
+message Foo {
+    name: String;
+//! ^ name
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { name: "" };
+    dump(f.name);
+}
+
+=========
+Rename message field via usage
+=========
+message Foo {
+    value: String;
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { value: "" };
+//!               ^ name
+    dump(f.value);
+}
+------------
+message Foo {
+    name: String;
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { name: "" };
+//!               ^ name
+    dump(f.name);
+}

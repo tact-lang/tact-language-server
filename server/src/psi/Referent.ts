@@ -23,12 +23,14 @@ export class Referent {
      * Returns a list of nodes that reference the definition.
      *
      * @param includeDefinition if true, the first element of the result contains the definition
+     * @param includeSelf if true, don't include `self` as usages (for rename)
      * @param _sameFileOnly if true, only references from the same files listed
      *
      * TODO: finish _sameFileOnly
      */
     public findReferences(
         includeDefinition: boolean = false,
+        includeSelf: boolean = true,
         _sameFileOnly: boolean = false,
     ): SyntaxNode[] {
         const resolved = this.resolved
@@ -60,23 +62,29 @@ export class Referent {
             // fast path, identifier name doesn't equal to definition name
             // self can refer to enclosing trait or contract
             if (node.text !== resolved?.name() && node.text !== "self") return true
+            if (node.text === "self" && !includeSelf) return true
 
             const parent = node.parent
             if (parent === null) return true
 
             // skip definitions itself
+            if (parent.type === "primitive" && parent.childForFieldName("type")?.equals(node)) {
+                return true
+            }
             // prettier-ignore
             if ((
                 parent.type === "let_statement" ||
                 parent.type === "global_function" ||
-                parent.type === "storage_function" ||
                 parent.type === "asm_function" ||
                 parent.type === "native_function" ||
+                parent.type === "storage_function" ||
+                parent.type === "storage_constant" ||
+                parent.type === "storage_variable" ||
+                parent.type === "global_constant" ||
                 parent.type === "trait" ||
                 parent.type === "contract" ||
                 parent.type === "primitive" ||
                 parent.type === "field" ||
-                parent.type === "storage_variable" ||
                 parent.type === "parameter") && parent.childForFieldName("name")?.equals(node)
             ) {
                 return true
@@ -156,6 +164,11 @@ export class Referent {
         }
 
         if (isNamedFunNode(parent) || isNamedFunNode(node)) {
+            // search in file for now
+            return this.file.rootNode
+        }
+
+        if (node.type === "global_constant") {
             // search in file for now
             return this.file.rootNode
         }

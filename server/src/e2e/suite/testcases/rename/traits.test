@@ -1,0 +1,66 @@
+=========
+Rename trait with self usages
+=========
+trait Foo {
+//!   ^ Bar
+    fun bar() {
+        self.foo()
+    }
+
+    fun foo() {}
+}
+------------
+trait Bar {
+//!   ^ Bar
+    fun bar() {
+        self.foo()
+    }
+
+    fun foo() {}
+}
+
+=========
+Rename trait field
+=========
+trait Foo {
+    value: String;
+//! ^ name
+
+    fun bar() {
+        let value = 10;
+        dump(self.value);
+    }
+}
+------------
+trait Foo {
+    name: String;
+//! ^ name
+
+    fun bar() {
+        let value = 10;
+        dump(self.name);
+    }
+}
+
+=========
+Rename trait constant
+=========
+trait Foo {
+    const value: Int = 100;
+//!       ^ age
+
+    fun bar() {
+        let value = 10;
+        dump(self.value);
+    }
+}
+------------
+trait Foo {
+    const age: Int = 100;
+//!       ^ age
+
+    fun bar() {
+        let value = 10;
+        dump(self.age);
+    }
+}

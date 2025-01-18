@@ -1,0 +1,137 @@
+=========
+Rename global function
+=========
+fun foo() {}
+//! ^ getValue
+
+fun test() {
+    let value = foo();
+    dump(value);
+}
+------------
+fun getValue() {}
+//! ^ getValue
+
+fun test() {
+    let value = getValue();
+    dump(value);
+}
+
+=========
+Rename global function via usage
+=========
+fun foo() {}
+
+fun test() {
+    let value = foo();
+    //!         ^ getValue
+    dump(value);
+}
+------------
+fun getValue() {}
+
+fun test() {
+    let value = getValue();
+    //!         ^ getValue
+    dump(value);
+}
+
+=========
+Rename extends function
+=========
+primitive Int;
+
+extends fun foo(self: Int) {}
+//!         ^ getValue
+
+fun test() {
+    10.foo();
+}
+------------
+primitive Int;
+
+extends fun getValue(self: Int) {}
+//!         ^ getValue
+
+fun test() {
+    10.getValue();
+}
+
+=========
+Rename extends function via usage
+=========
+primitive Int;
+
+extends fun foo(self: Int) {}
+
+fun test() {
+    10.foo();
+//!    ^ getValue
+}
+------------
+primitive Int;
+
+extends fun getValue(self: Int) {}
+
+fun test() {
+    10.getValue();
+//!    ^ getValue
+}
+
+=========
+Rename contract function
+=========
+primitive Int;
+
+contract Foo {
+    foo: Int;
+
+    init() {
+        self.foo();
+    }
+
+    fun foo() {}
+//!     ^ initValues
+}
+------------
+primitive Int;
+
+contract Foo {
+    foo: Int;
+
+    init() {
+        self.initValues();
+    }
+
+    fun initValues() {}
+//!     ^ initValues
+}
+
+=========
+Rename contract function via usage
+=========
+primitive Int;
+
+contract Foo {
+    foo: Int;
+
+    init() {
+        self.foo();
+//!          ^ initValues
+    }
+
+    fun foo() {}
+}
+------------
+primitive Int;
+
+contract Foo {
+    foo: Int;
+
+    init() {
+        self.initValues();
+//!          ^ initValues
+    }
+
+    fun initValues() {}
+}

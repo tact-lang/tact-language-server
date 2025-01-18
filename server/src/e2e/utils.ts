@@ -14,7 +14,7 @@ export async function activate(): Promise<void> {
     await ext.activate()
 
     console.log("Waiting for language server initialization...")
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     const languages = await vscode.languages.getLanguages()
     if (!languages.includes("tact")) {
