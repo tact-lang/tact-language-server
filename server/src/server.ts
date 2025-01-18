@@ -326,6 +326,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const ref = new Reference(element)
 
             const ctx = new CompletionContext(
+                newContent,
                 element,
                 params.position,
                 params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked,

@@ -12,9 +12,7 @@ fun test(msg: Transfer) {
 }
 ------------
 amount
-false
 to
-true
 
 =========
 @trigger .
@@ -30,8 +28,6 @@ fun test(p: Point) {
     p.<caret>
 }
 ------------
-false
-true
 x
 y
 z
@@ -54,9 +50,7 @@ fun test(c: Counter) {
     c.<caret>
 }
 ------------
-false
 owner
-true
 val
 
 =========
@@ -74,8 +68,6 @@ fun test(s: Storage) {
 ------------
 allowances
 balances
-false
-true
 
 =========
 @trigger .
@@ -93,9 +85,7 @@ fun test(u: User?) {
 ------------
 address
 age
-false
 name
-true
 
 =========
 @trigger .
@@ -113,8 +103,6 @@ fun test(o: Outer) {
     o.inner.<caret>
 }
 ------------
-false
-true
 value
 
 =========
@@ -134,12 +122,10 @@ fun test(msg: TokenTransfer) {
 }
 ------------
 amount
-false
 from
 queryId
 responseDestination
 to
-true
 
 =========
 @trigger .
@@ -159,10 +145,7 @@ contract Foo {
 ------------
 address
 age
-false
 name
-self
-true
 
 =========
 @trigger .
@@ -180,9 +163,7 @@ fun foo(f: User?) {
 ------------
 address
 age
-false
 name
-true
 
 =========
 @trigger .
@@ -200,6 +181,4 @@ fun foo(f: User?) {
 ------------
 address
 age
-false
 name
-true

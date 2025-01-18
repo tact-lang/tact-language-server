@@ -4,7 +4,7 @@ import {CompletionContext} from "../CompletionContext"
 
 export class SelfCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
-        return (ctx.isExpression || ctx.isStatement) && ctx.insideTraitOrContract
+        return ctx.expression() && ctx.insideTraitOrContract
     }
 
     addCompletion(_ctx: CompletionContext, elements: CompletionItem[]): void {

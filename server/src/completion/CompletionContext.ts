@@ -11,11 +11,23 @@ export class CompletionContext {
     isExpression: boolean = false
     isStatement: boolean = false
     insideTraitOrContract: boolean = false
+    afterDot: boolean = false
 
-    constructor(element: Node, position: lsp.Position, triggerKind: lsp.CompletionTriggerKind) {
+    constructor(
+        content: string,
+        element: Node,
+        position: lsp.Position,
+        triggerKind: lsp.CompletionTriggerKind,
+    ) {
         this.element = element
         this.position = position
         this.triggerKind = triggerKind
+
+        const lines = content.split(/\n/g)
+        if (lines[position.line] && lines[position.line][position.character - 1]) {
+            const symbolAfter = lines[position.line][position.character - 1]
+            this.afterDot = symbolAfter === "."
+        }
 
         const parent = element.node.parent
         if (!parent) return
@@ -34,5 +46,9 @@ export class CompletionContext {
 
         const traitOrContractOwner = parentOfType(element.node, "contract", "trait")
         this.insideTraitOrContract = traitOrContractOwner !== null
+    }
+
+    public expression(): boolean {
+        return (this.isExpression || this.isStatement) && !this.afterDot
     }
 }

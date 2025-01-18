@@ -4,7 +4,7 @@ import {CompletionContext} from "../CompletionContext"
 
 export class KeywordsCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
-        return ctx.isExpression || ctx.isStatement
+        return ctx.expression()
     }
 
     addCompletion(_ctx: CompletionContext, elements: CompletionItem[]): void {

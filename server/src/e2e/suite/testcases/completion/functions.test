@@ -66,8 +66,6 @@ fun test() {
 ------------
 double
 increment
-false
-true
 
 =========
 @trigger .
