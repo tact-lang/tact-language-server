@@ -10,3 +10,19 @@ trait Counter {
 }
 ------------
 4:8 -> 0:6 resolved
+
+=========
+Inherit trait resolve
+=========
+trait Other {}
+
+trait Counter with <caret>Other {
+    value: Int;
+
+    fun test() {
+        <caret>self.value = 1;
+    }
+}
+------------
+2:19 -> 0:6 resolved
+6:8 -> 2:6 resolved

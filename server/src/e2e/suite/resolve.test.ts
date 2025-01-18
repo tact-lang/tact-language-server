@@ -4,18 +4,28 @@ import {BaseTestSuite} from "./BaseTestSuite"
 
 suite("Resolve Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        async getDefinition(
+        async getDefinitions(
             input: string,
-        ): Promise<vscode.LocationLink[] | vscode.Location[] | undefined> {
-            const caretIndex = input.indexOf("<caret>")
-            if (caretIndex === -1) {
+        ): Promise<(vscode.LocationLink[] | vscode.Location[] | undefined)[]> {
+            const caretIndexes = this.findCaretPositions(input)
+            if (caretIndexes.length == 0) {
                 throw new Error("No <caret> marker found in input")
             }
 
-            const textWithoutCaret = input.replace("<caret>", "")
+            const textWithoutCaret = input.replace(/<caret>/g, "")
             await this.replaceDocumentText(textWithoutCaret)
-            const position = this.calculatePosition(input, caretIndex)
 
+            return await Promise.all(
+                caretIndexes.map(caretIndex => {
+                    const position = this.calculatePosition(input, caretIndex)
+                    return this.getDefinitionAt(position)
+                }),
+            )
+        }
+
+        async getDefinitionAt(
+            position: vscode.Position,
+        ): Promise<vscode.LocationLink[] | vscode.Location[] | undefined> {
             return vscode.commands.executeCommand<vscode.LocationLink[]>(
                 "vscode.executeDefinitionProvider",
                 this.document.uri,
@@ -28,31 +38,38 @@ suite("Resolve Test Suite", () => {
         }
 
         formatResult(
-            sourcePosition: vscode.Position,
-            definition?: vscode.LocationLink[] | vscode.Location[],
+            positions: vscode.Position[],
+            definitions: (vscode.LocationLink[] | vscode.Location[] | undefined)[],
         ): string {
-            if (!definition || definition.length === 0) {
-                return `${this.formatLocation(sourcePosition)} unresolved`
-            }
+            return positions
+                .map((pos, index) => {
+                    const targets = definitions[index]
+                    if (!targets || targets.length === 0) {
+                        return `${this.formatLocation(pos)} unresolved`
+                    }
 
-            const target = definition[0]
-            if (target instanceof vscode.Location) {
-                return `${this.formatLocation(sourcePosition)} -> ${this.formatLocation(
-                    target.range.start,
-                )} resolved`
-            } else {
-                return `${this.formatLocation(sourcePosition)} -> ${this.formatLocation(
-                    target.targetRange.start,
-                )} resolved`
-            }
+                    const target = targets[0]
+                    if (target instanceof vscode.Location) {
+                        return `${this.formatLocation(pos)} -> ${this.formatLocation(
+                            target.range.start,
+                        )} resolved`
+                    } else {
+                        return `${this.formatLocation(pos)} -> ${this.formatLocation(
+                            target.targetRange.start,
+                        )} resolved`
+                    }
+                })
+                .join("\n")
         }
 
         protected runTest(testFile: string, testCase: any) {
             test(`Resolve: ${testCase.name}`, async () => {
-                const caretIndex = testCase.input.indexOf("<caret>")
-                const sourcePosition = this.calculatePosition(testCase.input, caretIndex)
-                const definition = await this.getDefinition(testCase.input)
-                const actual = this.formatResult(sourcePosition, definition)
+                const caretIndexes = this.findCaretPositions(testCase.input)
+                const positions = caretIndexes.map(index =>
+                    this.calculatePosition(testCase.input, index),
+                )
+                const definitions = await this.getDefinitions(testCase.input)
+                const actual = this.formatResult(positions, definitions)
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({

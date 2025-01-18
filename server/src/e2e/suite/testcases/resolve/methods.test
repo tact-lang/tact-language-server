@@ -31,6 +31,19 @@ contract Counter {
 Trait method resolve
 =========
 trait Incrementable {
+    fun other() {}
+
+    fun increment(amount: Int) {
+        self.<caret>other()
+    }
+}
+------------
+4:13 -> 1:8 resolved
+
+=========
+Inherit trait method resolve
+=========
+trait Incrementable {
     fun increment(amount: Int) {}
 }
 

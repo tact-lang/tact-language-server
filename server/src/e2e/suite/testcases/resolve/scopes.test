@@ -12,3 +12,18 @@ fun test() {
 }
 ------------
 5:12 -> 1:8 resolved
+5:27 unresolved
+
+=========
+Shadowed variable resolve
+=========
+fun test() {
+    let x = 1;
+    {
+        let x = 2;
+        <caret>x + <caret>x;  // both should resolve to inner x
+    }
+}
+------------
+4:8 -> 3:12 resolved
+4:19 unresolved

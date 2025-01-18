@@ -61,6 +61,18 @@ export abstract class BaseTestSuite {
         })
     }
 
+    protected findCaretPositions(text: string): number[] {
+        const positions: number[] = []
+        const regex = /<caret>/g
+        let match
+
+        while ((match = regex.exec(text)) !== null) {
+            positions.push(match.index)
+        }
+
+        return positions
+    }
+
     suiteTeardown() {
         const fileUpdates = new Map<string, TestUpdate[]>()
 

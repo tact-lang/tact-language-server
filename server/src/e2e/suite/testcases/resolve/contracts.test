@@ -19,9 +19,65 @@ struct Transfer {
 }
 
 contract Counter {
-    bounced(msg: bounced<Transfer>) {
+    bounced(msg: bounced<<caret>Transfer>) {
         msg.<caret>name;
     }
 }
 ------------
+5:25 -> 0:7 resolved
 6:12 -> 1:4 resolved
+
+=========
+Contract definition with various targets
+=========
+contract Counter with Chainable {
+    value: Int;
+
+    init() {
+        self.<caret>value = 0;
+    }
+
+    override fun add(x: Int): Counter {
+        self.<caret>value =
+            self.<caret>value + x;
+        return <caret>self;
+    }
+
+    override fun get(): Int {
+        return <caret>self
+            .<caret>value;
+    }
+
+    fun addTwice(x: Int): Int {
+        return self
+            .<caret>add(x)
+            .<caret>add(x)
+            .<caret>get();
+    }
+}
+------------
+4:13 -> 1:4 resolved
+8:13 -> 1:4 resolved
+9:17 -> 1:4 resolved
+10:15 -> 0:9 resolved
+14:15 -> 0:9 resolved
+15:13 -> 1:4 resolved
+20:13 -> 7:17 resolved
+21:13 -> 7:17 resolved
+22:13 -> 13:17 resolved
+
+=========
+Inherit trait resolve
+=========
+trait Other {}
+
+contract Counter with <caret>Other {
+    value: Int;
+
+    fun test() {
+        <caret>self.value = 1;
+    }
+}
+------------
+2:22 -> 0:6 resolved
+6:8 -> 2:9 resolved
