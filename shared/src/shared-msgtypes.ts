@@ -23,3 +23,7 @@ export interface GetTypeAtPositionParams {
 export interface GetTypeAtPositionResponse {
     type: string | null
 }
+
+export enum NotificationFromClient {
+    initQueue = 'queue/init',
+}

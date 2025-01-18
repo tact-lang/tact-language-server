@@ -27,6 +27,7 @@ import {
     GetTypeAtPositionRequest,
     GetTypeAtPositionParams,
     GetTypeAtPositionResponse,
+    NotificationFromClient,
 } from "../../shared/src/shared-msgtypes"
 import {KeywordsCompletionProvider} from "./completion/providers/KeywordsCompletionProvider"
 import {CompletionProvider} from "./completion/CompletionProvider"
@@ -69,19 +70,15 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         const uri = event.document.uri
         console.log("open:", uri)
 
-        const path = uri.substring(7)
         const file = await findFile(uri)
-        index.addFile(path, file)
-    })
-
-    documents.onDidClose(event => {
-        const uri = event.document.uri
-        console.log("close:", uri)
-
-        index.removeFile(uri)
+        index.addFile(uri, file)
     })
 
     documents.onDidChangeContent(async event => {
+        if (event.document.version === 1) {
+            return
+        }
+
         const uri = event.document.uri
         console.log("changed:", uri)
 
@@ -89,6 +86,15 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
         const file = await findFile(uri, event.document.getText())
         index.addFile(uri, file)
+    })
+
+    connection.onNotification(NotificationFromClient.initQueue, async (uris: string[]) => {
+        uris.map(async uri => {
+            const file = await findFile(uri)
+            index.addFile(uri, file, false)
+
+            index.stats()
+        })
     })
 
     const findFile = async (uri: string, content?: string | undefined) => {

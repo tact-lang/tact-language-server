@@ -8,14 +8,14 @@ import {
     TransportKind,
 } from "vscode-languageclient/node"
 import * as path from "path"
-import {consoleError, consoleWarn, createClientLog} from "./client-log"
+import {consoleError, consoleLog, consoleWarn, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
     NotificationFromServer,
     RequestFromServer,
     GetTypeAtPositionRequest,
     GetTypeAtPositionParams,
-    GetTypeAtPositionResponse,
+    GetTypeAtPositionResponse, NotificationFromClient,
 } from "../../shared/src/shared-msgtypes"
 import {TextEncoder} from "util"
 import {Position} from "vscode-languageclient"
@@ -138,23 +138,23 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     // all matching files
 
     // workaround for https://github.com/microsoft/vscode/issues/48674
-    // const exclude = `{${[
-    //     ...Object.keys(vscode.workspace.getConfiguration("search", null).get("exclude") ?? {}),
-    //     ...Object.keys(vscode.workspace.getConfiguration("files", null).get("exclude") ?? {}),
-    //     "**/node_modules",
-    // ].join(",")}}`
+    const exclude = `{${[
+        ...Object.keys(vscode.workspace.getConfiguration("search", null).get("exclude") ?? {}),
+        ...Object.keys(vscode.workspace.getConfiguration("files", null).get("exclude") ?? {}),
+        "**/node_modules",
+    ].join(",")}}`
 
-    // const init = async () => {
-    //     let all = await vscode.workspace.findFiles(langPattern, exclude);
-    //
-    //     const uris = all.slice(0, 500);
-    //     consoleLog(`USING ${uris.length} of ${all.length} files for ${langPattern}`);
-    //
-    //     await client.sendNotification(NotificationFromClient.initQueue, uris.map(String));
-    // };
-    //
-    // const initCancel = new Promise<void>(resolve => disposables.push(new vscode.Disposable(resolve)));
-    // vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: '[Tact] Building Index...' }, () => Promise.race([init(), initCancel]));
+    const init = async () => {
+        let all = await vscode.workspace.findFiles(langPattern, exclude);
+
+        const uris = all.slice(0, 500);
+        consoleLog(`Using ${uris.length} of ${all.length} files for ${langPattern}`);
+
+        await client.sendNotification(NotificationFromClient.initQueue, uris.map(String));
+    };
+
+    const initCancel = new Promise<void>(resolve => disposables.push(new vscode.Disposable(resolve)));
+    vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: '[Tact] Building Index...' }, () => Promise.race([init(), initCancel]));
 
     // disposables.push(watcher.onDidCreate(uri => {
     //     client.sendNotification(NotificationFromClient.addFileToQueue, uri.toString());

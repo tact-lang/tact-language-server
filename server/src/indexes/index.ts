@@ -140,9 +140,10 @@ export class FileIndex {
 export class GlobalIndex {
     private readonly files: Map<string, FileIndex> = new Map()
 
-    public addFile(uri: string, file: File) {
-        PARSED_FILES_CACHE.clear()
-        CACHE.clear()
+    public addFile(uri: string, file: File, clearCache: boolean = true) {
+        if (clearCache) {
+            CACHE.clear()
+        }
 
         if (this.files.has(uri)) {
             return
@@ -155,10 +156,10 @@ export class GlobalIndex {
     }
 
     public removeFile(uri: string) {
-        PARSED_FILES_CACHE.clear()
         CACHE.clear()
 
         this.files.delete(uri)
+        PARSED_FILES_CACHE.delete(uri)
 
         console.log(`removed ${uri} to index`)
     }
@@ -182,6 +183,10 @@ export class GlobalIndex {
             }
         }
         return null
+    }
+
+    public stats() {
+        console.log("global index files:", this.files.size);
     }
 }
 
