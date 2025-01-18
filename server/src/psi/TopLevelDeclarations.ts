@@ -1,6 +1,7 @@
 import {Expression, NamedNode} from "./Node"
 import {Reference} from "./Reference"
 import {index, IndexKey} from "../indexes"
+import {parentOfType} from "./utils"
 
 export class FieldsOwner extends NamedNode {
     public fields(): NamedNode[] {
@@ -127,6 +128,13 @@ export class Fun extends NamedNode {
         const attributes = this.node.childForFieldName("attributes")
         if (!attributes) return false
         return attributes.text.includes("override")
+    }
+
+    public owner(): StorageMembersOwner | null {
+        const ownerNode = parentOfType(this.node, "trait", "contract")
+        if (!ownerNode) return null
+
+        return new StorageMembersOwner(ownerNode, this.file)
     }
 }
 

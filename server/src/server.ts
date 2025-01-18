@@ -37,6 +37,8 @@ import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionP
 import {BaseTy} from "./types/BaseTy"
 import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
 import {Trait} from "./psi/TopLevelDeclarations"
+import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompletionProvider"
+import {OverrideCompletionProvider} from "./completion/providers/OverrideCompletionProvider"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -343,8 +345,10 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const result: lsp.CompletionItem[] = []
             const providers: CompletionProvider[] = [
                 new KeywordsCompletionProvider(),
+                new OverrideCompletionProvider(),
                 new SelfCompletionProvider(),
                 new ReturnCompletionProvider(),
+                new ReferenceCompletionProvider(ref),
             ]
 
             providers.forEach((provider: CompletionProvider) => {
@@ -352,11 +356,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 provider.addCompletion(ctx, result)
             })
 
-            const state = new ResolveState()
-            const processor = new ReferenceCompletionProcessor(ctx)
-            ref.processResolveVariants(processor, state)
-
-            return [...result, ...Array.from(processor.result.values())]
+            return result
         },
     )
 

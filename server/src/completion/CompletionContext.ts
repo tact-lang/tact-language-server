@@ -11,6 +11,8 @@ export class CompletionContext {
     isExpression: boolean = false
     isStatement: boolean = false
     insideTraitOrContract: boolean = false
+    topLevel: boolean = false
+    topLevelInTraitOrContract: boolean = false
     afterDot: boolean = false
 
     constructor(
@@ -42,6 +44,25 @@ export class CompletionContext {
 
         if (element.node.type === "type_identifier") {
             this.isType = true
+        }
+
+        // skip additional ERROR node
+        if (parent.type === "ERROR" && parent.parent?.type === "source_file") {
+            this.topLevel = true
+            this.isExpression = false
+            this.isStatement = false
+            this.isType = false
+        }
+
+        // skip additional ERROR node
+        if (
+            parent.type === "ERROR" &&
+            (parent.parent?.type === "contract_body" || parent.parent?.type === "trait_body")
+        ) {
+            this.topLevelInTraitOrContract = true
+            this.isExpression = false
+            this.isStatement = false
+            this.isType = false
         }
 
         const traitOrContractOwner = parentOfType(element.node, "contract", "trait")

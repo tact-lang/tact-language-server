@@ -1,0 +1,45 @@
+========================================================================
+Completion of override methods in trait
+========================================================================
+trait Parent {
+    fun foo(): Int {}
+}
+
+trait Child with Parent {
+    <caret>
+}
+------------------------------------------------------------------------
+override fun foo(): Int {}
+
+========================================================================
+Completion of override methods in trait with deep inheritance
+========================================================================
+trait Grand {
+    fun bar(name: String): Bool {}
+}
+
+trait Parent with Grand {
+    fun foo(): Int {}
+}
+
+trait Child with Parent {
+    <caret>
+}
+------------------------------------------------------------------------
+override fun bar(name: String): Bool {}
+override fun foo(): Int {}
+
+========================================================================
+Completion of override methods in trait with methods
+========================================================================
+trait Parent {
+    fun foo(): Int {}
+    fun bar(): Int {}
+}
+
+trait Child with Parent {
+    override fun foo(): Int {}
+    <caret>
+}
+------------------------------------------------------------------------
+override fun bar(): Int {}
