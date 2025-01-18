@@ -30,7 +30,7 @@ override fun bar(name: String): Bool {}
 override fun foo(): Int {}
 
 ========================================================================
-Completion of override methods in trait with methods
+Completion of override methods in trait with method
 ========================================================================
 trait Parent {
     fun foo(): Int {}
@@ -43,3 +43,57 @@ trait Child with Parent {
 }
 ------------------------------------------------------------------------
 override fun bar(): Int {}
+
+========================================================================
+Completion of fields in trait
+========================================================================
+primitive String;
+
+trait Parent {
+    name: String;
+}
+
+trait Child with Parent {
+    <caret>
+}
+------------------------------------------------------------------------
+name: String;
+
+========================================================================
+Completion of fields in trait with deep inheritance
+========================================================================
+primitive String;
+primitive Int;
+
+trait Grand {
+    age: Int;
+}
+
+trait Parent with Grand {
+    name: String;
+}
+
+trait Child with Parent {
+    <caret>
+}
+------------------------------------------------------------------------
+age: Int;
+name: String;
+
+========================================================================
+Completion of fields in trait with field
+========================================================================
+primitive String;
+primitive Int;
+
+trait Parent {
+    age: Int;
+    name: String;
+}
+
+trait Child with Parent {
+    name: String;
+    <caret>
+}
+------------------------------------------------------------------------
+age: Int;

@@ -28,12 +28,12 @@ export class StorageMembersOwner extends NamedNode {
             .map(value => new Fun(value, this.file))
     }
 
-    public ownFields(): NamedNode[] {
+    public ownFields(): Field[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
             .filter(value => value.type === "storage_variable")
-            .map(value => new NamedNode(value, this.file))
+            .map(value => new Field(value, this.file))
     }
 
     public ownConstants(): Constant[] {
@@ -50,7 +50,7 @@ export class StorageMembersOwner extends NamedNode {
         return [...own, ...inherited]
     }
 
-    public fields(): NamedNode[] {
+    public fields(): Field[] {
         const own = this.ownFields()
         const inherited = this.inheritTraits().flatMap(trait => trait.fields())
         return [...own, ...inherited]
@@ -128,6 +128,21 @@ export class Fun extends NamedNode {
         const attributes = this.node.childForFieldName("attributes")
         if (!attributes) return false
         return attributes.text.includes("override")
+    }
+
+    public owner(): StorageMembersOwner | null {
+        const ownerNode = parentOfType(this.node, "trait", "contract")
+        if (!ownerNode) return null
+
+        return new StorageMembersOwner(ownerNode, this.file)
+    }
+}
+
+export class Field extends NamedNode {
+    public typeNode(): Expression | null {
+        const value = this.node.childForFieldName("type")
+        if (!value) return null
+        return new Expression(value, this.file)
     }
 
     public owner(): StorageMembersOwner | null {

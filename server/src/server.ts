@@ -39,6 +39,7 @@ import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/pro
 import {Trait} from "./psi/TopLevelDeclarations"
 import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompletionProvider"
 import {OverrideCompletionProvider} from "./completion/providers/OverrideCompletionProvider"
+import {TraitOrContractFieldsCompletionProvider} from "./completion/providers/TraitOrContractFieldsCompletionProvider"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -346,6 +347,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const providers: CompletionProvider[] = [
                 new KeywordsCompletionProvider(),
                 new OverrideCompletionProvider(),
+                new TraitOrContractFieldsCompletionProvider(),
                 new SelfCompletionProvider(),
                 new ReturnCompletionProvider(),
                 new ReferenceCompletionProvider(ref),
