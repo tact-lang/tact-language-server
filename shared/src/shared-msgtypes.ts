@@ -25,5 +25,5 @@ export interface GetTypeAtPositionResponse {
 }
 
 export enum NotificationFromClient {
-    initQueue = 'queue/init',
+    initQueue = "queue/init",
 }

@@ -15,7 +15,8 @@ import {
     RequestFromServer,
     GetTypeAtPositionRequest,
     GetTypeAtPositionParams,
-    GetTypeAtPositionResponse, NotificationFromClient,
+    GetTypeAtPositionResponse,
+    NotificationFromClient,
 } from "../../shared/src/shared-msgtypes"
 import {TextEncoder} from "util"
 import {Position} from "vscode-languageclient"
@@ -145,16 +146,21 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     ].join(",")}}`
 
     const init = async () => {
-        let all = await vscode.workspace.findFiles(langPattern, exclude);
+        let all = await vscode.workspace.findFiles(langPattern, exclude)
 
-        const uris = all.slice(0, 500);
-        consoleLog(`Using ${uris.length} of ${all.length} files for ${langPattern}`);
+        const uris = all.slice(0, 500)
+        consoleLog(`Using ${uris.length} of ${all.length} files for ${langPattern}`)
 
-        await client.sendNotification(NotificationFromClient.initQueue, uris.map(String));
-    };
+        await client.sendNotification(NotificationFromClient.initQueue, uris.map(String))
+    }
 
-    const initCancel = new Promise<void>(resolve => disposables.push(new vscode.Disposable(resolve)));
-    vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: '[Tact] Building Index...' }, () => Promise.race([init(), initCancel]));
+    const initCancel = new Promise<void>(resolve =>
+        disposables.push(new vscode.Disposable(resolve)),
+    )
+    vscode.window.withProgress(
+        {location: vscode.ProgressLocation.Window, title: "[Tact] Building Index..."},
+        () => Promise.race([init(), initCancel]),
+    )
 
     // disposables.push(watcher.onDidCreate(uri => {
     //     client.sendNotification(NotificationFromClient.addFileToQueue, uri.toString());

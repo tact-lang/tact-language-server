@@ -186,7 +186,7 @@ export class GlobalIndex {
     }
 
     public stats() {
-        console.log("global index files:", this.files.size);
+        console.log("global index files:", this.files.size)
     }
 }
 
