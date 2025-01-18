@@ -27,8 +27,8 @@ export class TraitOrContractFieldsCompletionProvider implements CompletionProvid
         for (const field of inheritFields) {
             if (added.has(field.name())) continue
 
-            const methodOwner = field.owner()
-            if (methodOwner === null) continue
+            const fieldOwner = field.owner()
+            if (fieldOwner === null) continue
 
             const type = field.typeNode()?.type()?.qualifiedName() ?? "unknown"
 
@@ -36,7 +36,7 @@ export class TraitOrContractFieldsCompletionProvider implements CompletionProvid
                 label: `${field.name()}: ${type};`,
                 kind: CompletionItemKind.Property,
                 labelDetails: {
-                    detail: ` of ${methodOwner.name()}`,
+                    detail: ` of ${fieldOwner.name()}`,
                 },
                 insertText: `${field.name()}: ${type};$0`,
                 insertTextFormat: InsertTextFormat.Snippet,
