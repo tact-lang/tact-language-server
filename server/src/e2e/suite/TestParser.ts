@@ -16,6 +16,9 @@ enum ParserState {
     ReadingExpected,
 }
 
+const SEPARATOR = "========================================================================"
+const THIN_SEPARATOR = "------------------------------------------------------------------------"
+
 export class TestParser {
     static parseAll(content: string): TestCase[] {
         const tests: TestCase[] = []
@@ -30,7 +33,7 @@ export class TestParser {
 
             switch (state) {
                 case ParserState.WaitingForTestStart:
-                    if (line === "=========") {
+                    if (line === SEPARATOR) {
                         state = ParserState.ReadingProperties
                         currentTest = {properties: {}}
                     }
@@ -47,14 +50,14 @@ export class TestParser {
                     break
 
                 case ParserState.ReadingName:
-                    if (line === "=========") {
+                    if (line === SEPARATOR) {
                         state = ParserState.ReadingInput
                         currentContent = ""
                     }
                     break
 
                 case ParserState.ReadingInput:
-                    if (line === "------------") {
+                    if (line === THIN_SEPARATOR) {
                         currentTest.input = currentContent.trim()
                         state = ParserState.ReadingExpected
                         currentContent = ""
@@ -64,7 +67,7 @@ export class TestParser {
                     break
 
                 case ParserState.ReadingExpected:
-                    if (line === "=========") {
+                    if (line === SEPARATOR) {
                         currentTest.expected = currentContent.trim()
                         tests.push(currentTest as TestCase)
                         state = ParserState.ReadingProperties
@@ -86,83 +89,6 @@ export class TestParser {
         return tests
     }
 
-    static updateExpected(filePath: string, testName: string, actual: string): void {
-        const content = fs.readFileSync(filePath, "utf8")
-        const lines = content.trim().replace(/\r\n/g, "\n").split("\n")
-        const newLines: string[] = []
-
-        let state = ParserState.WaitingForTestStart
-        let isTargetTest = false
-        let skipUntilNextTest = false
-
-        for (let line of lines) {
-            line = line.trimEnd()
-
-            // Если встретили начало нового теста, прекращаем пропуск
-            if (line === "=========") {
-                skipUntilNextTest = false
-            }
-
-            // Пропускаем строки если это помеченный тест и мы в режиме пропуска
-            if (skipUntilNextTest) {
-                continue
-            }
-
-            switch (state) {
-                case ParserState.WaitingForTestStart:
-                    if (line === "=========") {
-                        state = ParserState.ReadingProperties
-                    }
-                    newLines.push(line)
-                    break
-
-                case ParserState.ReadingProperties:
-                    if (line.startsWith("@")) {
-                        newLines.push(line)
-                    } else {
-                        isTargetTest = line === testName
-                        state = ParserState.ReadingName
-                        newLines.push(line)
-                    }
-                    break
-
-                case ParserState.ReadingName:
-                    if (line === "=========") {
-                        state = ParserState.ReadingInput
-                    }
-                    newLines.push(line)
-                    break
-
-                case ParserState.ReadingInput:
-                    if (line === "------------") {
-                        state = ParserState.ReadingExpected
-                        newLines.push(line)
-                        if (isTargetTest) {
-                            newLines.push(actual)
-                            skipUntilNextTest = true
-                            state = ParserState.WaitingForTestStart
-                        }
-                    } else {
-                        newLines.push(line)
-                    }
-                    break
-
-                case ParserState.ReadingExpected:
-                    if (line === "=========") {
-                        state = ParserState.ReadingProperties
-                        newLines.push("")
-                        newLines.push(line)
-                    } else if (!isTargetTest) {
-                        newLines.push(line)
-                    }
-                    break
-            }
-        }
-
-        // Добавляем финальный перенос строки
-        fs.writeFileSync(filePath, newLines.join("\n") + "\n")
-    }
-
     static updateExpectedBatch(
         filePath: string,
         updates: {testName: string; actual: string}[],
@@ -175,16 +101,16 @@ export class TestParser {
                 newContent.push("")
             }
 
-            newContent.push("=========")
+            newContent.push(SEPARATOR)
 
             for (const [key, value] of Object.entries(test.properties)) {
                 newContent.push(`@${key} ${value}`)
             }
 
             newContent.push(test.name)
-            newContent.push("=========")
+            newContent.push(SEPARATOR)
             newContent.push(test.input)
-            newContent.push("------------")
+            newContent.push(THIN_SEPARATOR)
 
             const update = updates.find(u => u.testName === test.name)
             newContent.push(update ? update.actual : test.expected)

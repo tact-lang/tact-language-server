@@ -30,10 +30,7 @@ suite("Completion Test Suite", () => {
 
         protected runTest(testFile: string, testCase: any) {
             test(`Completion: ${testCase.name}`, async () => {
-                const completions = await this.getCompletions(
-                    testCase.input,
-                    testCase.properties["trigger"],
-                )
+                const completions = await this.getCompletions(testCase.input, ".")
 
                 if (testCase.properties["json"] === "true") {
                     const expected = JSON.parse(testCase.expected)
