@@ -2,7 +2,8 @@ import {
     BouncedTy,
     ContractTy,
     MapTy,
-    MessageTy, NullTy,
+    MessageTy,
+    NullTy,
     OptionTy,
     PrimitiveTy,
     StructTy,
@@ -215,7 +216,11 @@ export class TypeInferer {
             }
 
             if (["+", "-", "*", "/", "%", "<<", ">>", "&", "|", "^"].includes(operator)) {
-                if (leftType instanceof PrimitiveTy && leftType.name() === "String" && operator === "+") {
+                if (
+                    leftType instanceof PrimitiveTy &&
+                    leftType.name() === "String" &&
+                    operator === "+"
+                ) {
                     return this.primitiveType("String")
                 }
                 return this.primitiveType("Int")
