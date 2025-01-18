@@ -20,6 +20,9 @@ Int
 add
 multiply
 test
+false
+return;
+true
 
 =========
 @trigger .
@@ -39,6 +42,8 @@ Int
 add
 test
 result
+false
+true
 
 =========
 @trigger .
@@ -61,6 +66,8 @@ fun test() {
 ------------
 double
 increment
+false
+true
 
 =========
 @trigger .
@@ -80,6 +87,8 @@ Int
 add
 test
 x
+false
+true
 
 =========
 @trigger .
@@ -101,3 +110,6 @@ Int
 add
 multiply
 test
+false
+return;
+true

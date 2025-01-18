@@ -75,7 +75,7 @@ export function collect(file: File): InlayHint[] | null {
             const args = rawArgs.filter(value => value.type === "argument")
 
             // skip self parameter
-            const shift = n.type === "method_call_expression" ? 1 : 0
+            const shift = n.type === "method_call_expression" && res.withSelf() ? 1 : 0
 
             for (let i = 0; i < min(params.length - shift, args.length); i++) {
                 const param = params[i + shift]

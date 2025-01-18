@@ -72,6 +72,9 @@ export class Referent {
                 parent.type === "storage_function" ||
                 parent.type === "asm_function" ||
                 parent.type === "native_function" ||
+                parent.type === "trait" ||
+                parent.type === "contract" ||
+                parent.type === "primitive" ||
                 parent.type === "field" ||
                 parent.type === "storage_variable" ||
                 parent.type === "parameter") && parent.childForFieldName("name")?.equals(node)
@@ -163,6 +166,11 @@ export class Referent {
         }
 
         if (node.type === "trait") {
+            // search in file for now
+            return this.file.rootNode
+        }
+
+        if (node.type === "primitive") {
             // search in file for now
             return this.file.rootNode
         }

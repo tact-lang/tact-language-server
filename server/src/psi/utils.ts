@@ -29,6 +29,10 @@ export function isNamedFunNode(node: SyntaxNode): boolean {
     )
 }
 
+export function funNodesTypes(): string[] {
+    return ["global_function", "asm_function", "native_function", "storage_function"]
+}
+
 export function isTypeOwnerNode(node: SyntaxNode): boolean {
     return (
         node.type === "field" ||

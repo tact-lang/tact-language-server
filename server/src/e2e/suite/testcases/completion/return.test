@@ -1,0 +1,81 @@
+=========
+@trigger .
+Return inside void function
+=========
+fun test() {
+    <caret>
+}
+------------
+test
+false
+return;
+true
+
+=========
+@trigger .
+Return inside bool function
+=========
+primitive Bool;
+
+fun test(): Bool {
+    <caret>
+}
+------------
+Bool
+test
+false
+return <expr>;
+true
+return false;
+return true;
+
+=========
+@trigger .
+Return inside int function
+=========
+primitive Int;
+
+fun test(): Int {
+    <caret>
+}
+------------
+Int
+test
+false
+return <expr>;
+true
+return 0;
+
+=========
+@trigger .
+Return inside string function
+=========
+primitive String;
+
+fun test(): String {
+    <caret>
+}
+------------
+String
+test
+false
+return <expr>;
+true
+return "";
+
+=========
+@trigger .
+Return inside option function
+=========
+primitive String;
+
+fun test(): String? {
+    <caret>
+}
+------------
+String
+test
+false
+return <expr>;
+true
+return null;

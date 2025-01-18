@@ -29,6 +29,11 @@ import {
     GetTypeAtPositionParams,
     GetTypeAtPositionResponse,
 } from "../../shared/src/shared-msgtypes"
+import {KeywordsCompletionProvider} from "./completion/providers/KeywordsCompletionProvider"
+import {CompletionProvider} from "./completion/CompletionProvider"
+import {CompletionItem} from "vscode-languageserver-types"
+import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvider"
+import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -156,7 +161,10 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     )
 
     function resolveImport(uri: string, hoverNode: SyntaxNode) {
-        const currentDir = path.dirname(uri.slice(7))
+        let currentDir = path.dirname(uri.slice(7))
+        if (currentDir.endsWith("sources")) {
+            currentDir = path.dirname(currentDir)
+        }
 
         let importPath = hoverNode.text.slice(1, -1)
         if (importPath.startsWith("@stdlib")) {
@@ -287,11 +295,23 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked,
             )
 
+            const result: CompletionItem[] = []
+            const providers: CompletionProvider[] = [
+                new KeywordsCompletionProvider(),
+                new SelfCompletionProvider(),
+                new ReturnCompletionProvider(),
+            ]
+
+            providers.forEach((provider: CompletionProvider) => {
+                if (!provider.isAvailable(ctx)) return
+                provider.addCompletion(ctx, result)
+            })
+
             const state = new ResolveState()
             const processor = new ReferenceCompletionProcessor(ctx)
             ref.processResolveVariants(processor, state)
 
-            return Array.from(processor.result.values())
+            return [...result, ...Array.from(processor.result.values())]
         },
     )
 

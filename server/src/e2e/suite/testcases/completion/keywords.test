@@ -1,0 +1,44 @@
+=========
+@trigger .
+Self keyword inside trait
+=========
+trait Foo {
+    fun foo() {
+        <caret>
+    }
+}
+------------
+false
+Foo
+return;
+self
+true
+
+=========
+@trigger .
+Self keyword inside contract
+=========
+contract Foo {
+    fun foo() {
+        <caret>
+    }
+}
+------------
+false
+Foo
+return;
+self
+true
+
+=========
+@trigger .
+Self keyword inside function
+=========
+fun foo() {
+    <caret>
+}
+------------
+foo
+false
+return;
+true

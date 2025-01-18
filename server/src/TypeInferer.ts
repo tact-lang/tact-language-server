@@ -43,7 +43,16 @@ export class TypeInferer {
         if (node.node.type === "type_identifier") {
             const resolved = Reference.resolve(new NamedNode(node.node, node.file))
             if (resolved === null) return null
-            return this.inferTypeFromResolved(resolved)
+
+            const inferred = this.inferTypeFromResolved(resolved)
+            if (
+                inferred &&
+                !(inferred instanceof OptionTy) &&
+                node.node.nextSibling?.text === "?"
+            ) {
+                return new OptionTy(inferred)
+            }
+            return inferred
         }
 
         if (node.node.type === "identifier" || node.node.type === "self") {
@@ -252,7 +261,7 @@ export class TypeInferer {
 
     private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: Node) {
         const inferred = this.inferType(new Expression(typeNode, resolved.file))
-        if (inferred !== null && typeNode.nextSibling?.text === "?") {
+        if (inferred && !(inferred instanceof OptionTy) && typeNode.nextSibling?.text === "?") {
             return new OptionTy(inferred)
         }
         return inferred
