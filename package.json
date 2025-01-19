@@ -31,7 +31,7 @@
         "build": "webpack",
         "format": "prettier --write --cache .",
         "format:check": "prettier --check --cache .",
-        "grammar:wasm": "cd tree-sitter-tact && tree-sitter generate && tree-sitter build-wasm && cp tree-sitter-tact.wasm ../server/tree-sitter-tact.wasm",
+        "grammar:wasm": "cd tree-sitter-tact && tree-sitter generate && tree-sitter build --wasm && cp tree-sitter-tact.wasm ../server/tree-sitter-tact.wasm",
         "watch": "webpack --watch",
         "test:e2e": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts",
         "test:e2e:coverage": "yarn test:e2e:compile && c8 ts-node server/src/e2e/runTest.ts",
@@ -114,12 +114,20 @@
         "jest": "^29.7.0",
         "mocha": "^10.3.0",
         "prettier": "3.4.2",
-        "tree-sitter-cli": "^0.20.6",
+        "tree-sitter-cli": "^0.23.0",
         "ts-jest": "^29.2.4",
         "ts-loader": "^9.5.1",
         "typescript": "^5.4.5",
         "webpack": "^5.92.1",
         "webpack-cli": "^5.1.4"
+    },
+    "peerDependencies": {
+        "tree-sitter": "^0.21.1"
+    },
+    "peerDependenciesMeta": {
+        "tree-sitter": {
+            "optional": true
+        }
     },
     "packageManager": "yarn@4.6.0",
     "prettier": {
