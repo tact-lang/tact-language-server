@@ -83,8 +83,8 @@ export const PARSED_FILES_CACHE = new LRUMap<string, Tree>({
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     const opts = params.initializationOptions as ClientOptions
-    const treeSitterUri = opts?.treeSitterWasmUri ?? "/Users/petrmakhnev/tact-vscode/dist/tree-sitter.wasm"
-    const langUri = opts?.langWasmUri ?? "/Users/petrmakhnev/tact-vscode/dist/tree-sitter-tact.wasm"
+    const treeSitterUri = opts?.treeSitterWasmUri
+    const langUri = opts?.langWasmUri
     await initParser(treeSitterUri, langUri)
 
     documents.onDidOpen(async event => {
