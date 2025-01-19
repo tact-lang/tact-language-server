@@ -8,9 +8,8 @@ import {SyntaxNode, Tree} from "web-tree-sitter"
 import {Referent} from "./psi/Referent"
 import {index} from "./indexes"
 import {CallLike, Expression, NamedNode} from "./psi/Node"
-import {Reference, ResolveState} from "./psi/Reference"
+import {Reference} from "./psi/Reference"
 import {File} from "./psi/File"
-import {ReferenceCompletionProcessor} from "./completion/ReferenceCompletionProcessor"
 import {CompletionContext} from "./completion/CompletionContext"
 import {TextDocument} from "vscode-languageserver-textdocument"
 import * as lsp from "vscode-languageserver"
@@ -36,7 +35,16 @@ import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvi
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
 import {BaseTy} from "./types/BaseTy"
 import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
-import {Trait} from "./psi/TopLevelDeclarations"
+import {
+    Constant,
+    Contract,
+    Field,
+    Fun,
+    Message,
+    Primitive,
+    Struct,
+    Trait,
+} from "./psi/TopLevelDeclarations"
 import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompletionProvider"
 import {OverrideCompletionProvider} from "./completion/providers/OverrideCompletionProvider"
 import {TraitOrContractFieldsCompletionProvider} from "./completion/providers/TraitOrContractFieldsCompletionProvider"
@@ -44,6 +52,7 @@ import {TlbSerializationCompletionProvider} from "./completion/providers/TlbSeri
 import {MessageMethodCompletionProvider} from "./completion/providers/MessageMethodCompletionProvider"
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
+import {SymbolKind} from "vscode-languageserver"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -631,6 +640,91 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
+    connection.onRequest(
+        lsp.DocumentSymbolRequest.type,
+        async (params: lsp.DocumentSymbolParams): Promise<lsp.DocumentSymbol[]> => {
+            const uri = params.textDocument.uri
+            const file = await findFile(uri)
+
+            const result: lsp.DocumentSymbol[] = []
+
+            function createSymbol(element: NamedNode): lsp.DocumentSymbol {
+                let detail = ""
+                let kind: SymbolKind = SymbolKind.Function
+
+                if (element instanceof Fun) {
+                    detail = element.signatureText()
+                } else if (element instanceof Struct) {
+                    kind = SymbolKind.Struct
+                } else if (element instanceof Message) {
+                    kind = SymbolKind.Struct
+                } else if (element instanceof Trait) {
+                    kind = SymbolKind.TypeParameter
+                } else if (element instanceof Contract) {
+                    kind = SymbolKind.Class
+                } else if (element instanceof Primitive) {
+                    kind = SymbolKind.Property
+                } else if (element instanceof Field) {
+                    const type = element.typeNode()?.node?.text ?? "unknown"
+                    detail = `: ${type}`
+                    kind = SymbolKind.Field
+                } else if (element instanceof Constant) {
+                    const type = element.typeNode()?.node?.text ?? "unknown"
+                    const value = element.value()?.node?.text ?? "unknown"
+                    detail = `: ${type} = ${value}`
+                    kind = SymbolKind.Constant
+                }
+
+                const children = symbolChildren(element)
+
+                return {
+                    name: element.name(),
+                    kind: kind,
+                    range: asLspRange(element.nameIdentifier()!),
+                    detail: detail,
+                    selectionRange: asLspRange(element.nameIdentifier()!),
+                    children: children,
+                }
+            }
+
+            function symbolChildren(element: NamedNode): lsp.DocumentSymbol[] {
+                const children: NamedNode[] = []
+
+                if (element instanceof Struct) {
+                    children.push(...element.fields())
+                }
+
+                if (element instanceof Message) {
+                    children.push(...element.fields())
+                }
+
+                if (element instanceof Contract) {
+                    children.push(...element.ownConstants())
+                    children.push(...element.ownFields())
+                    children.push(...element.ownMethods())
+                }
+
+                if (element instanceof Trait) {
+                    children.push(...element.ownConstants())
+                    children.push(...element.ownFields())
+                    children.push(...element.ownMethods())
+                }
+
+                return children.map(el => createSymbol(el))
+            }
+
+            file.getFuns().forEach(n => result.push(createSymbol(n)))
+            file.getStructs().forEach(n => result.push(createSymbol(n)))
+            file.getMessages().forEach(n => result.push(createSymbol(n)))
+            file.getTraits().forEach(n => result.push(createSymbol(n)))
+            file.getConstants().forEach(n => result.push(createSymbol(n)))
+            file.getContracts().forEach(n => result.push(createSymbol(n)))
+            file.getPrimitives().forEach(n => result.push(createSymbol(n)))
+
+            return result
+        },
+    )
+
     const _needed = TypeInferer.inferType
 
     console.log("Tact language server is ready!")
@@ -639,7 +733,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         capabilities: {
             textDocumentSync: lsp.TextDocumentSyncKind.Incremental,
             // codeActionProvider: true,
-            // documentSymbolProvider: true,
+            documentSymbolProvider: true,
             definitionProvider: true,
             typeDefinitionProvider: true,
             renameProvider: {

@@ -9,7 +9,7 @@ export class FieldsOwner extends NamedNode {
         if (!body) return []
         return body.children
             .filter(value => value.type === "field")
-            .map(value => new NamedNode(value, this.file))
+            .map(value => new Field(value, this.file))
     }
 }
 
