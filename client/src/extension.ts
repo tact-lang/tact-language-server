@@ -11,12 +11,13 @@ import * as path from "path"
 import {consoleError, consoleLog, consoleWarn, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
-    NotificationFromServer,
-    RequestFromServer,
-    GetTypeAtPositionRequest,
+    GetDocumentationAtPositionRequest,
     GetTypeAtPositionParams,
+    GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
     NotificationFromClient,
+    NotificationFromServer,
+    RequestFromServer,
 } from "../../shared/src/shared-msgtypes"
 import {TextEncoder} from "util"
 import {Position} from "vscode-languageclient"
@@ -210,6 +211,22 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
                 }
 
                 return result
+            },
+        ),
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            GetDocumentationAtPositionRequest,
+            async (params: GetTypeAtPositionParams | undefined) => {
+                if (!client || !params) {
+                    return null
+                }
+
+                return await client.sendRequest<GetTypeAtPositionResponse>(
+                    GetDocumentationAtPositionRequest,
+                    params,
+                )
             },
         ),
     )

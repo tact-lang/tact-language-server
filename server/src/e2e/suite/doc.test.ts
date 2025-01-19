@@ -2,42 +2,48 @@ import * as vscode from "vscode"
 import * as assert from "assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import * as lsp from "vscode-languageserver"
+import {GetTypeAtPositionParams} from "./types.test"
 
 suite("Documentation Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        async getHover(input: string): Promise<lsp.Hover[] | undefined> {
-            const caretIndex = input.indexOf("<caret>")
-            if (caretIndex === -1) {
+        async getHovers(input: string): Promise<(lsp.Hover | undefined)[]> {
+            const caretIndexes = this.findCaretPositions(input)
+            if (caretIndexes.length == 0) {
                 throw new Error("No <caret> marker found in input")
             }
 
-            const textWithoutCaret = input.replace("<caret>", "")
+            const textWithoutCaret = input.replace(/<caret>/g, "")
             await this.replaceDocumentText(textWithoutCaret)
-            const position = this.calculatePosition(input, caretIndex)
-            this.editor.selection = new vscode.Selection(position, position)
-            this.editor.revealRange(new vscode.Range(position, position))
 
-            // await new Promise(resolve => setTimeout(resolve, 50000))
-
-            return vscode.commands.executeCommand<lsp.Hover[]>(
-                "vscode.executeHoverProvider",
-                this.document.uri,
-                position,
+            return await Promise.all(
+                caretIndexes.map(caretIndex => {
+                    const position = this.calculatePosition(input, caretIndex)
+                    return this.getHover(position)
+                }),
             )
         }
 
-        formatDocumentation(hover?: lsp.Hover[]): string {
+        async getHover(position: vscode.Position): Promise<lsp.Hover | undefined> {
+            return vscode.commands.executeCommand<lsp.Hover>("tact/executeHoverProvider", {
+                textDocument: {
+                    uri: this.document.uri.toString(),
+                },
+                position: {
+                    line: position.line,
+                    character: position.character,
+                },
+            } as GetTypeAtPositionParams)
+        }
+
+        formatDocumentation(hover?: lsp.Hover): string {
             if (!hover) return "no documentation"
-            console.log("hover", hover)
-            console.log("hover", (hover[0].contents as lsp.MarkedString[])[0])
-            console.log("hover", hover[0].range)
-            return ""
+            return (hover.contents as lsp.MarkupContent).value
         }
 
         protected runTest(testFile: string, testCase: any) {
             test(`Documentation: ${testCase.name}`, async () => {
-                const hover = await this.getHover(testCase.input)
-                const actual = this.formatDocumentation(hover)
+                const hovers = await this.getHovers(testCase.input)
+                const actual = hovers.map(hover => this.formatDocumentation(hover)).join("\n")
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({

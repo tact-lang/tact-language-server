@@ -136,6 +136,25 @@ export class Fun extends NamedNode {
 
         return new StorageMembersOwner(ownerNode, this.file)
     }
+
+    public modifiers(): string {
+        let parts: string[] = []
+        const asm = this.node.children[0]
+        if (asm && asm.text === "asm") {
+            const asmArrangement = this.node.childForFieldName("arrangement")
+            if (asmArrangement) {
+                parts.push("asm" + asmArrangement.text)
+            } else {
+                parts.push("asm")
+            }
+        }
+        const attributes = this.node.childForFieldName("attributes")
+        if (attributes) {
+            parts.push(attributes.text)
+        }
+        if (parts.length === 0) return ""
+        return parts.join(" ") + " "
+    }
 }
 
 export class Field extends NamedNode {
@@ -171,5 +190,11 @@ export class Constant extends NamedNode {
         if (!ownerNode) return null
 
         return new StorageMembersOwner(ownerNode, this.file)
+    }
+
+    public modifiers(): string {
+        const attributes = this.node.childForFieldName("attributes")
+        if (!attributes) return ""
+        return attributes.text + " "
     }
 }

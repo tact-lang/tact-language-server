@@ -12,7 +12,7 @@ import {
 import {index, IndexKey} from "../indexes"
 import {Expression, NamedNode, Node} from "./Node"
 import {File} from "./File"
-import {Contract, Fun, Message, Struct, Trait} from "./TopLevelDeclarations"
+import {Contract, Field, Fun, Message, Struct, Trait} from "./TopLevelDeclarations"
 import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "../cache"
 
@@ -317,7 +317,7 @@ export class Reference {
         const fields = body.children.slice(1, -1)
 
         for (const field of fields) {
-            if (!proc.execute(new NamedNode(field, resolvedType.file), state)) return false
+            if (!proc.execute(new Field(field, resolvedType.file), state)) return false
         }
         return true
     }

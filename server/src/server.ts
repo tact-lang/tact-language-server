@@ -24,6 +24,8 @@ import {existsSync} from "node:fs"
 import {LRUMap} from "./utils/lruMap"
 import {ClientOptions} from "../../shared/src/config-scheme"
 import {
+    GetDocumentationAtPositionRequest,
+    GetDocumentationAtPositionResponse,
     GetTypeAtPositionParams,
     GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
@@ -635,6 +637,38 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const type = TypeInferer.inferType(new Expression(node, file))
             return {
                 type: type ? type.qualifiedName() : null,
+            }
+        },
+    )
+
+    connection.onRequest(
+        GetDocumentationAtPositionRequest,
+        async (
+            params: GetTypeAtPositionParams,
+        ): Promise<GetDocumentationAtPositionResponse | null> => {
+            const file = await findFile(params.textDocument.uri)
+            const hoverNode = nodeAtPosition(params, file)
+
+            const res = Reference.resolve(NamedNode.create(hoverNode, file))
+            if (res === null) {
+                return {
+                    range: asLspRange(hoverNode),
+                    contents: {
+                        kind: "plaintext",
+                        value: hoverNode.type,
+                    },
+                }
+            }
+
+            const doc = docs.generateDocFor(res)
+            if (doc === null) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
             }
         },
     )

@@ -1,6 +1,7 @@
 import {NamedNode} from "../psi/Node"
 import {TypeInferer} from "../TypeInferer"
-import {Constant, Fun} from "../psi/TopLevelDeclarations"
+import {Constant, Contract, Fun, Trait} from "../psi/TopLevelDeclarations"
+import {SyntaxNode} from "web-tree-sitter"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -22,15 +23,36 @@ export function generateDocFor(node: NamedNode): string | null {
             const parametersNode = astNode.childForFieldName("parameters")
             if (!parametersNode) return null
 
-            return defaultResult(`fun ${node.name()}${func.signatureText()}`, doc)
+            const kind = astNode.type === "native_function" ? "native" : "fun"
+
+            return defaultResult(
+                `${func.modifiers()}${kind} ${node.name()}${func.signatureText()}`,
+                doc,
+            )
         }
         case "contract": {
+            const contract = new Contract(astNode, node.file)
+            const inherited = contract
+                .inheritTraits()
+                .map(it => it.name())
+                .filter(it => it !== "BaseTrait")
+                .join(", ")
+            const inheritedString = inherited.length > 0 ? ` with ${inherited}` : ``
             const doc = extractCommentsDoc(node)
-            return defaultResult(`contract ${node.name()}`, doc)
+
+            return defaultResult(`contract ${node.name()}${inheritedString}`, doc)
         }
         case "trait": {
+            const trait = new Trait(astNode, node.file)
+            const inherited = trait
+                .inheritTraits()
+                .map(it => it.name())
+                .filter(it => it !== "BaseTrait")
+                .join(", ")
+            const inheritedString = inherited.length > 0 ? ` with ${inherited}` : ``
             const doc = extractCommentsDoc(node)
-            return defaultResult(`trait ${node.name()}`, doc)
+
+            return defaultResult(`trait ${node.name()}${inheritedString}`, doc)
         }
         case "struct": {
             const doc = extractCommentsDoc(node)
@@ -54,7 +76,10 @@ export function generateDocFor(node: NamedNode): string | null {
             if (!value) return null
 
             const doc = extractCommentsDoc(node)
-            return defaultResult(`const ${node.name()}: ${type} = ${value.node.text}`, doc)
+            return defaultResult(
+                `${constant.modifiers()}const ${node.name()}: ${type} = ${value.node.text}`,
+                doc,
+            )
         }
         case "storage_variable":
         case "field": {
@@ -106,8 +131,76 @@ export function generateDocFor(node: NamedNode): string | null {
     return null
 }
 
-function extractCommentsDoc(_node: NamedNode): string {
-    return "" // TODO
+function trimPrefix(text: string, prefix: string): string {
+    if (text.startsWith(prefix)) {
+        return text.slice(prefix.length)
+    }
+    return text
+}
+
+function extractCommentsDoc(node: NamedNode): string {
+    const prevSibling = node.node.previousSibling
+    if (!prevSibling || prevSibling.type !== "comment") return ""
+
+    const comments: SyntaxNode[] = []
+    let comment: SyntaxNode | null = prevSibling
+    while (comment?.type === "comment") {
+        const nodeStartLine = node.node.startPosition.row
+        const commentStartLine = comment.startPosition.row
+
+        if (commentStartLine + 1 + comments.length != nodeStartLine) {
+            break
+        }
+
+        comments.push(comment)
+        comment = comment.previousSibling
+    }
+
+    const finalComments = comments.reverse()
+
+    const lines = finalComments.map(c =>
+        trimPrefix(trimPrefix(trimPrefix(c.text, "///"), "//"), " ").trimEnd(),
+    )
+
+    let result = ""
+    let insideCodeBlock = false
+
+    for (const rawLine of lines) {
+        const line = rawLine.trimEnd()
+
+        if (line.replace(/-/g, "").length === 0 && line.length !== 0) {
+            result += "\n\n"
+            continue
+        }
+
+        const isEndOfSentence = /[.!?:]$/.test(line)
+        const isList = line.startsWith("-") || line.startsWith("*")
+        const isHeader = line.startsWith("#")
+        const isTable = line.startsWith("|")
+        const isCodeBlock = line.startsWith("```")
+
+        if (isCodeBlock && !insideCodeBlock) {
+            result += "\n"
+        }
+
+        result += line
+
+        if (insideCodeBlock || isCodeBlock || isTable) {
+            result += "\n"
+        }
+
+        if ((isEndOfSentence || isList || isHeader) && !insideCodeBlock) {
+            result += "\n\n"
+        } else if (!insideCodeBlock && !isCodeBlock) {
+            result += " "
+        }
+
+        if (isCodeBlock) {
+            insideCodeBlock = !insideCodeBlock
+        }
+    }
+
+    return result.trimEnd()
 }
 
 function defaultResult(signature: string, documentation: string = "") {

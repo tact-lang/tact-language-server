@@ -77,6 +77,11 @@
                 "command": "tact/getTypeAtPosition",
                 "title": "Get Type At Position",
                 "category": "tact"
+            },
+            {
+                "command": "tact/executeHoverProvider",
+                "title": "Get Documentation At Position",
+                "category": "tact"
             }
         ],
         "configuration": {
