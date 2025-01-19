@@ -41,6 +41,9 @@ import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompl
 import {OverrideCompletionProvider} from "./completion/providers/OverrideCompletionProvider"
 import {TraitOrContractFieldsCompletionProvider} from "./completion/providers/TraitOrContractFieldsCompletionProvider"
 import {TlbSerializationCompletionProvider} from "./completion/providers/TlbSerializationCompletionProvider"
+import {MessageMethodCompletionProvider} from "./completion/providers/MessageMethodCompletionProvider"
+import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
+import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -347,6 +350,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const result: lsp.CompletionItem[] = []
             const providers: CompletionProvider[] = [
                 new KeywordsCompletionProvider(),
+                new TopLevelFunctionCompletionProvider(),
+                new MemberFunctionCompletionProvider(),
+                new MessageMethodCompletionProvider(),
                 new TlbSerializationCompletionProvider(),
                 new OverrideCompletionProvider(),
                 new TraitOrContractFieldsCompletionProvider(),

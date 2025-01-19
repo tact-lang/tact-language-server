@@ -9,7 +9,14 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+abstract fun name();
+bounced(msg: <type>) {}
+fun name() {}
+get fun name() {}
+inline fun name() {}
 override fun foo(): Int {}
+receive("<message>") {}
+receive(msg: <type>) {}
 
 ========================================================================
 Completion of override methods in trait with deep inheritance
@@ -26,8 +33,15 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+abstract fun name();
+bounced(msg: <type>) {}
+fun name() {}
+get fun name() {}
+inline fun name() {}
 override fun bar(name: String): Bool {}
 override fun foo(): Int {}
+receive("<message>") {}
+receive(msg: <type>) {}
 
 ========================================================================
 Completion of override methods in trait with method
@@ -42,7 +56,14 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+abstract fun name();
+bounced(msg: <type>) {}
+fun name() {}
+get fun name() {}
+inline fun name() {}
 override fun bar(): Int {}
+receive("<message>") {}
+receive(msg: <type>) {}
 
 ========================================================================
 Completion of fields in trait
@@ -57,7 +78,14 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+abstract fun name();
+bounced(msg: <type>) {}
+fun name() {}
+get fun name() {}
+inline fun name() {}
 name: String;
+receive("<message>") {}
+receive(msg: <type>) {}
 
 ========================================================================
 Completion of fields in trait with deep inheritance
@@ -77,8 +105,15 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+abstract fun name();
 age: Int;
+bounced(msg: <type>) {}
+fun name() {}
+get fun name() {}
+inline fun name() {}
 name: String;
+receive("<message>") {}
+receive(msg: <type>) {}
 
 ========================================================================
 Completion of fields in trait with field
@@ -96,7 +131,14 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+abstract fun name();
 age: Int;
+bounced(msg: <type>) {}
+fun name() {}
+get fun name() {}
+inline fun name() {}
+receive("<message>") {}
+receive(msg: <type>) {}
 
 ========================================================================
 Completion of methods and fields without self

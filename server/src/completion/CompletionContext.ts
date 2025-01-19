@@ -11,6 +11,7 @@ export class CompletionContext {
     isExpression: boolean = false
     isStatement: boolean = false
     insideTraitOrContract: boolean = false
+    insideTrait: boolean = false
     topLevel: boolean = false
     topLevelInTraitOrContract: boolean = false
     topLevelInStructOrMessage: boolean = false
@@ -86,6 +87,7 @@ export class CompletionContext {
 
         const traitOrContractOwner = parentOfType(element.node, "contract", "trait")
         this.insideTraitOrContract = traitOrContractOwner !== null
+        this.insideTrait = parentOfType(element.node, "trait") !== null
     }
 
     public expression(): boolean {
