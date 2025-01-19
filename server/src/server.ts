@@ -6,9 +6,9 @@ import {asLspRange, asParserPoint} from "./utils/position"
 import {TypeInferer} from "./TypeInferer"
 import {SyntaxNode, Tree} from "web-tree-sitter"
 import {Referent} from "./psi/Referent"
-import {index} from "./indexes"
-import {CallLike, Expression, NamedNode} from "./psi/Node"
-import {Reference} from "./psi/Reference"
+import {index, IndexKey} from "./indexes"
+import {CallLike, Expression, NamedNode, Node} from "./psi/Node"
+import {Reference, ResolveState, ScopeProcessor} from "./psi/Reference"
 import {File} from "./psi/File"
 import {CompletionContext} from "./completion/CompletionContext"
 import {TextDocument} from "vscode-languageserver-textdocument"
@@ -24,8 +24,8 @@ import {existsSync} from "node:fs"
 import {LRUMap} from "./utils/lruMap"
 import {ClientOptions} from "../../shared/src/config-scheme"
 import {
-    GetTypeAtPositionRequest,
     GetTypeAtPositionParams,
+    GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
     NotificationFromClient,
 } from "../../shared/src/shared-msgtypes"
@@ -52,7 +52,6 @@ import {TlbSerializationCompletionProvider} from "./completion/providers/TlbSeri
 import {MessageMethodCompletionProvider} from "./completion/providers/MessageMethodCompletionProvider"
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
-import {SymbolKind} from "vscode-languageserver"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -640,6 +639,31 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
+    function symbolKind(node: NamedNode): lsp.SymbolKind {
+        if (node instanceof Fun) {
+            return lsp.SymbolKind.Function
+        }
+        if (node instanceof Contract) {
+            return lsp.SymbolKind.Class
+        }
+        if (node instanceof Message) {
+            return lsp.SymbolKind.Struct
+        }
+        if (node instanceof Struct) {
+            return lsp.SymbolKind.Struct
+        }
+        if (node instanceof Trait) {
+            return lsp.SymbolKind.TypeParameter
+        }
+        if (node instanceof Primitive) {
+            return lsp.SymbolKind.Property
+        }
+        if (node instanceof Constant) {
+            return lsp.SymbolKind.Constant
+        }
+        return lsp.SymbolKind.Object
+    }
+
     connection.onRequest(
         lsp.DocumentSymbolRequest.type,
         async (params: lsp.DocumentSymbolParams): Promise<lsp.DocumentSymbol[]> => {
@@ -650,31 +674,19 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             function createSymbol(element: NamedNode): lsp.DocumentSymbol {
                 let detail = ""
-                let kind: SymbolKind = SymbolKind.Function
 
                 if (element instanceof Fun) {
                     detail = element.signatureText()
-                } else if (element instanceof Struct) {
-                    kind = SymbolKind.Struct
-                } else if (element instanceof Message) {
-                    kind = SymbolKind.Struct
-                } else if (element instanceof Trait) {
-                    kind = SymbolKind.TypeParameter
-                } else if (element instanceof Contract) {
-                    kind = SymbolKind.Class
-                } else if (element instanceof Primitive) {
-                    kind = SymbolKind.Property
                 } else if (element instanceof Field) {
                     const type = element.typeNode()?.node?.text ?? "unknown"
                     detail = `: ${type}`
-                    kind = SymbolKind.Field
                 } else if (element instanceof Constant) {
                     const type = element.typeNode()?.node?.text ?? "unknown"
                     const value = element.value()?.node?.text ?? "unknown"
                     detail = `: ${type} = ${value}`
-                    kind = SymbolKind.Constant
                 }
 
+                const kind = symbolKind(element)
                 const children = symbolChildren(element)
 
                 return {
@@ -725,6 +737,41 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
+    connection.onRequest(
+        lsp.WorkspaceSymbolRequest.type,
+        async (_params: lsp.WorkspaceSymbolParams): Promise<lsp.WorkspaceSymbol[]> => {
+            const result: lsp.WorkspaceSymbol[] = []
+
+            const state = new ResolveState()
+            const proc = new (class implements ScopeProcessor {
+                execute(node: Node, _state: ResolveState): boolean {
+                    if (!(node instanceof NamedNode)) return true
+
+                    result.push({
+                        name: node.name(),
+                        containerName: "",
+                        kind: symbolKind(node),
+                        location: {
+                            uri: node.file.uri,
+                            range: asLspRange(node.nameIdentifier()!),
+                        },
+                    })
+                    return true
+                }
+            })()
+
+            index.processElementsByKey(IndexKey.Contracts, proc, state)
+            index.processElementsByKey(IndexKey.Funs, proc, state)
+            index.processElementsByKey(IndexKey.Messages, proc, state)
+            index.processElementsByKey(IndexKey.Structs, proc, state)
+            index.processElementsByKey(IndexKey.Traits, proc, state)
+            index.processElementsByKey(IndexKey.Primitives, proc, state)
+            index.processElementsByKey(IndexKey.Constants, proc, state)
+
+            return result
+        },
+    )
+
     const _needed = TypeInferer.inferType
 
     console.log("Tact language server is ready!")
@@ -734,6 +781,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             textDocumentSync: lsp.TextDocumentSyncKind.Incremental,
             // codeActionProvider: true,
             documentSymbolProvider: true,
+            workspaceSymbolProvider: true,
             definitionProvider: true,
             typeDefinitionProvider: true,
             renameProvider: {
