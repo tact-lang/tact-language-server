@@ -54,6 +54,7 @@ import {TlbSerializationCompletionProvider} from "./completion/providers/TlbSeri
 import {MessageMethodCompletionProvider} from "./completion/providers/MessageMethodCompletionProvider"
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
+import {glob} from "glob"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -75,10 +76,92 @@ function getOffsetFromPosition(fileContent: string, line: number, column: number
 }
 
 const documents = new DocumentStore(connection)
+let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
 export const PARSED_FILES_CACHE = new LRUMap<string, Tree>({
     size: 100,
     dispose: _entries => {},
+})
+
+enum IndexRootKind {
+    Stdlib = "stdlib",
+    Workspace = "workspace",
+}
+
+class IndexRoot {
+    constructor(
+        public root: string,
+        public kind: IndexRootKind,
+    ) {}
+
+    async index() {
+        const rootPath = this.root.slice(7)
+        const files = await glob("**/*.tact", {
+            cwd: rootPath,
+            ignore: "node_modules/**",
+        })
+        for (const filePath of files) {
+            console.log("Indexing:", filePath)
+            const uri = this.root + "/" + filePath
+            const file = await findFile(uri)
+            index.addFile(uri, file, false)
+        }
+    }
+}
+
+async function findFile(uri: string, content?: string | undefined) {
+    const cached = PARSED_FILES_CACHE.get(uri)
+    if (cached !== undefined) {
+        return new File(uri, cached)
+    }
+
+    let realContent: string
+    let document: TextDocument | undefined
+    try {
+        document = await documents.retrieve(uri)
+        if (!document) {
+            realContent = content ?? readFileSync(uri.slice(7)).toString()
+        } else {
+            realContent = content ?? document.getText()
+        }
+    } catch (e) {
+        realContent = content ?? readFileSync(uri.slice(7)).toString()
+    }
+
+    const parser = createParser()
+    const tree = parser.parse(realContent)
+    PARSED_FILES_CACHE.set(uri, tree)
+    return new File(uri, tree)
+}
+
+connection.onInitialized(async () => {
+    const reporter = await connection.window.createWorkDoneProgress()
+
+    reporter.begin("Tact Language Server", 0)
+
+    const rootUri = workspaceFolders![0].uri
+    const stdlibNodeModules = rootUri + "/node_modules/@tact-lang/compiler/stdlib"
+
+    let resultStdlibPath = stdlibNodeModules
+    if (existsSync(resultStdlibPath.slice(7))) {
+        resultStdlibPath = stdlibNodeModules
+        console.log("usage stdlib from node_modules")
+    } else {
+        resultStdlibPath = rootUri + "/stdlib"
+        console.log("usage stdlib from stdlib/ directory")
+    }
+
+    reporter.report(50, "Indexing: (1/2) Standard Library")
+    const stdlibRoot = new IndexRoot(resultStdlibPath, IndexRootKind.Stdlib)
+    await stdlibRoot.index()
+
+    reporter.report(80, "Indexing: (2/2) Workspace")
+    const workspaceRoot = new IndexRoot(rootUri, IndexRootKind.Workspace)
+    await workspaceRoot.index()
+
+    reporter.report(100, "Ready")
+
+    reporter.done()
 })
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
@@ -86,6 +169,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     const treeSitterUri = opts?.treeSitterWasmUri
     const langUri = opts?.langWasmUri
     await initParser(treeSitterUri, langUri)
+    workspaceFolders = params.workspaceFolders ?? []
 
     documents.onDidOpen(async event => {
         const uri = event.document.uri
@@ -117,31 +201,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             index.stats()
         })
     })
-
-    const findFile = async (uri: string, content?: string | undefined) => {
-        const cached = PARSED_FILES_CACHE.get(uri)
-        if (cached !== undefined) {
-            return new File(uri, cached)
-        }
-
-        let realContent: string
-        let document: TextDocument | undefined
-        try {
-            document = await documents.retrieve(uri)
-            if (!document) {
-                realContent = content ?? readFileSync(uri.slice(7)).toString()
-            } else {
-                realContent = content ?? document.getText()
-            }
-        } catch (e) {
-            realContent = content ?? readFileSync(uri.slice(7)).toString()
-        }
-
-        const parser = createParser()
-        const tree = parser.parse(realContent)
-        PARSED_FILES_CACHE.set(uri, tree)
-        return new File(uri, tree)
-    }
 
     const getContent = async (uri: string, content?: string | undefined) => {
         const document = await documents.retrieve(uri)

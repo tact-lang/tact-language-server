@@ -8,14 +8,13 @@ import {
     TransportKind,
 } from "vscode-languageclient/node"
 import * as path from "path"
-import {consoleError, consoleLog, consoleWarn, createClientLog} from "./client-log"
+import {consoleError, consoleWarn, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
     GetDocumentationAtPositionRequest,
     GetTypeAtPositionParams,
     GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
-    NotificationFromClient,
     NotificationFromServer,
     RequestFromServer,
 } from "../../shared/src/shared-msgtypes"
@@ -131,49 +130,6 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
             [],
         )
     }
-
-    const langPattern = `**/*.tact`
-    const watcher = vscode.workspace.createFileSystemWatcher(langPattern)
-    disposables.push(watcher)
-
-    // file discover and watching. in addition to text documents we annouce and provide
-    // all matching files
-
-    // workaround for https://github.com/microsoft/vscode/issues/48674
-    const exclude = `{${[
-        ...Object.keys(vscode.workspace.getConfiguration("search", null).get("exclude") ?? {}),
-        ...Object.keys(vscode.workspace.getConfiguration("files", null).get("exclude") ?? {}),
-        "**/node_modules",
-    ].join(",")}}`
-
-    const init = async () => {
-        let all = await vscode.workspace.findFiles(langPattern, exclude)
-
-        const uris = all.slice(0, 500)
-        consoleLog(`Using ${uris.length} of ${all.length} files for ${langPattern}`)
-
-        await client.sendNotification(NotificationFromClient.initQueue, uris.map(String))
-    }
-
-    const initCancel = new Promise<void>(resolve =>
-        disposables.push(new vscode.Disposable(resolve)),
-    )
-    vscode.window.withProgress(
-        {location: vscode.ProgressLocation.Window, title: "[Tact] Building Index..."},
-        () => Promise.race([init(), initCancel]),
-    )
-
-    // disposables.push(watcher.onDidCreate(uri => {
-    //     client.sendNotification(NotificationFromClient.addFileToQueue, uri.toString());
-    // }));
-    // disposables.push(watcher.onDidDelete(uri => {
-    //     client.sendNotification(NotificationFromClient.removeFileFromQueue, uri.toString());
-    //     client.sendNotification(NotificationFromClient.removeFileFromFileCache, uri.toString());
-    // }));
-    // disposables.push(watcher.onDidChange(uri => {
-    //     client.sendNotification(NotificationFromClient.addFileToQueue, uri.toString());
-    //     client.sendNotification(NotificationFromClient.removeFileFromFileCache, uri.toString());
-    // }));
 
     context.subscriptions.push(
         vscode.commands.registerCommand(

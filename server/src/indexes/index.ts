@@ -141,12 +141,12 @@ export class GlobalIndex {
     private readonly files: Map<string, FileIndex> = new Map()
 
     public addFile(uri: string, file: File, clearCache: boolean = true) {
-        if (clearCache) {
-            CACHE.clear()
-        }
-
         if (this.files.has(uri)) {
             return
+        }
+
+        if (clearCache) {
+            CACHE.clear()
         }
 
         const index = FileIndex.create(file)
