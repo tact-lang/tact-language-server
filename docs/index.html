@@ -239,10 +239,22 @@
             }
 
             .testimonials {
+                padding: 4rem 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .testimonials h2 {
+                font-size: 2.5rem;
+                color: #fff;
+                margin-bottom: 2rem;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+            }
+
+            .testimonials-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 2rem;
-                padding: 4rem 0;
             }
 
             .testimonial {
@@ -440,6 +452,11 @@
 
                 .image-nav-button {
                     padding: 4px 8px;
+                }
+
+                .testimonials h2 {
+                    font-size: 2rem;
+                    margin-bottom: 1.5rem;
                 }
             }
 
@@ -660,6 +677,75 @@
                     padding: 0 0 1rem;
                 }
             }
+
+            .updates-section {
+                padding: 6rem 0 4rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .updates-section h2 {
+                font-size: 2.5rem;
+                color: #fff;
+                margin-bottom: 2rem;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+            }
+
+            .updates-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+            }
+
+            .update-card {
+                background: rgba(0, 0, 0, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                padding: 1.5rem;
+                transition:
+                    transform 0.3s,
+                    background-color 0.3s;
+            }
+
+            .update-card:hover {
+                background: rgba(255, 255, 255, 0.05);
+                transform: translateY(-2px);
+            }
+
+            .update-date {
+                font-size: 0.9rem;
+                color: rgba(255, 255, 255, 0.5);
+                margin-bottom: 0.75rem;
+            }
+
+            .update-title {
+                font-size: 1.1rem;
+                color: #fff;
+                margin-bottom: 1rem;
+                font-weight: 600;
+            }
+
+            .update-description {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+
+            @media (max-width: 768px) {
+                .updates-grid {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+
+                .updates-section {
+                    padding: 3rem 0;
+                }
+
+                .updates-section h2 {
+                    font-size: 2rem;
+                    margin-bottom: 1.5rem;
+                }
+            }
         </style>
     </head>
     <body>
@@ -785,20 +871,55 @@
                 </div>
             </div>
 
-            <section class="testimonials">
-                <div class="testimonial">
-                    <p>
-                        "Language Server significantly accelerated our development. Code completion
-                        and navigation work flawlessly."
-                    </p>
-                    <cite>- Lead Developer</cite>
+            <section class="updates-section">
+                <h2>Latest Updates</h2>
+                <div class="updates-grid">
+                    <div class="update-card">
+                        <div class="update-date">December 15, 2023</div>
+                        <div class="update-title">Enhanced Type Inference</div>
+                        <p class="update-description">
+                            Improved type inference system for better code completion and error
+                            detection. Now supports complex generic types and type aliases.
+                        </p>
+                    </div>
+
+                    <div class="update-card">
+                        <div class="update-date">December 1, 2023</div>
+                        <div class="update-title">New Refactoring Tools</div>
+                        <p class="update-description">
+                            Added new refactoring capabilities including extract method, inline
+                            variable, and smart contract optimization suggestions.
+                        </p>
+                    </div>
+
+                    <div class="update-card">
+                        <div class="update-date">November 20, 2023</div>
+                        <div class="update-title">Performance Improvements</div>
+                        <p class="update-description">
+                            Major performance optimizations for large projects. Reduced memory usage
+                            and faster code analysis for complex smart contracts.
+                        </p>
+                    </div>
                 </div>
-                <div class="testimonial">
-                    <p>
-                        "Well, looks like they won't fire me after all. This Language Server
-                        actually works (well, mostly...)!"
-                    </p>
-                    <cite>- The Author</cite>
+            </section>
+
+            <section class="testimonials">
+                <h2>What Developers Say</h2>
+                <div class="testimonials-grid">
+                    <div class="testimonial">
+                        <p>
+                            "Language Server significantly accelerated our development. Code
+                            completion and navigation work flawlessly."
+                        </p>
+                        <cite>- Lead Developer</cite>
+                    </div>
+                    <div class="testimonial">
+                        <p>
+                            "Well, looks like they won't fire me after all. This Language Server
+                            actually works (well, mostly...)!"
+                        </p>
+                        <cite>- The Author</cite>
+                    </div>
                 </div>
             </section>
 
