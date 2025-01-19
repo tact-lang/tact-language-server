@@ -19,7 +19,7 @@ export class ReferenceCompletionProvider implements CompletionProvider {
     addCompletion(ctx: CompletionContext, elements: CompletionItem[]): void {
         const state = new ResolveState()
         const processor = new ReferenceCompletionProcessor(ctx)
-        this.ref.processResolveVariants(processor, state)
+        this.ref.processResolveVariants(processor, state.withValue("completion", "true"))
 
         elements.push(...processor.result.values())
     }

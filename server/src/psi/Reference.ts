@@ -195,7 +195,7 @@ export class Reference {
         // Traits or contracts
         if (qualifierType instanceof StorageMembersOwnerTy) {
             // for `foo.bar()` first check for methods since there is no callable types
-            // for `foo.bar` first check for fields since there is function pointers
+            // for `foo.bar` first check for fields since there is no function pointers
             if (methodRef) {
                 if (!this.processNamedEls(proc, state, qualifierType.methods())) return false
                 if (!this.processNamedEls(proc, state, qualifierType.ownFields())) return false
@@ -251,7 +251,7 @@ export class Reference {
         // inside a trait/contract, when we write `foo`, we want to automatically complete it
         // with `self.foo` if there are any methods/fields/constants with the same name
         const ownerNode = parentOfType(this.element.node, "contract_body", "trait_body")
-        if (ownerNode !== null) {
+        if (ownerNode !== null && state.get("completion")) {
             const constructor = ownerNode.type === "contract_body" ? Contract : Trait
             const owner = new constructor(ownerNode.parent!, this.element.file)
             const typeConstructor = ownerNode.type === "contract_body" ? ContractTy : TraitTy

@@ -81,3 +81,23 @@ contract Counter with <caret>Other {
 ------------------------------------------------------------------------
 2:22 -> 0:6 resolved
 6:8 -> 2:9 resolved
+
+========================================================================
+Contract init and fields
+========================================================================
+contract JettonMinter {
+    owner: Address;
+    jettonContent: Cell;
+
+    init(owner: Address, jettonContent: Cell) {
+        self.<caret>owner =
+            <caret>owner;
+        self.<caret>jettonContent =
+            <caret>jettonContent;
+    }
+}
+------------------------------------------------------------------------
+5:13 -> 1:4 resolved
+6:12 -> 4:9 resolved
+7:13 -> 2:4 resolved
+8:12 -> 4:25 resolved
