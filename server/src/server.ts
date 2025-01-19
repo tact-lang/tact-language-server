@@ -29,7 +29,6 @@ import {
     GetTypeAtPositionParams,
     GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
-    NotificationFromClient,
 } from "../../shared/src/shared-msgtypes"
 import {KeywordsCompletionProvider} from "./completion/providers/KeywordsCompletionProvider"
 import {CompletionProvider} from "./completion/CompletionProvider"
@@ -55,6 +54,7 @@ import {MessageMethodCompletionProvider} from "./completion/providers/MessageMet
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
 import {glob} from "glob"
+import {parentOfType} from "./psi/utils"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -196,15 +196,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
         const file = await findFile(uri, event.document.getText())
         index.addFile(uri, file)
-    })
-
-    connection.onNotification(NotificationFromClient.initQueue, async (uris: string[]) => {
-        uris.map(async uri => {
-            const file = await findFile(uri)
-            index.addFile(uri, file, false)
-
-            index.stats()
-        })
     })
 
     const getContent = async (uri: string, content?: string | undefined) => {
@@ -915,15 +906,5 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     }
 })
-
-function parentOfType(node: SyntaxNode, ...types: string[]): SyntaxNode | null {
-    let parent = node.parent
-
-    while (true) {
-        if (parent === null) return null
-        if (types.includes(parent.type)) return parent
-        parent = parent.parent
-    }
-}
 
 connection.listen()

@@ -146,10 +146,18 @@ body {
     letter-spacing: -0.01em;
 }
 
+.features-section h2 {
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
 .feature {
     display: grid;
-    grid-template-columns: 40% 60%;
-    grid-template-areas: "hero1 hero2";
+    grid-template-columns: 60% 40%;
+    grid-template-areas: "hero2 hero1";
     align-items: flex-start;
     gap: 4rem;
     padding: 4rem 0;
@@ -157,8 +165,8 @@ body {
 }
 
 .feature:nth-child(even) {
-    grid-template-columns: 60% 40%;
-    grid-template-areas: "hero2 hero1";
+    grid-template-columns: 40% 60%;
+    grid-template-areas: "hero1 hero2";
     order: 1;
 }
 

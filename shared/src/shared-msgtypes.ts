@@ -28,7 +28,3 @@ export interface GetTypeAtPositionResponse {
 }
 
 export type GetDocumentationAtPositionResponse = lsp.Hover
-
-export enum NotificationFromClient {
-    initQueue = "queue/init",
-}
