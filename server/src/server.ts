@@ -135,6 +135,10 @@ async function findFile(uri: string, content?: string | undefined) {
 }
 
 connection.onInitialized(async () => {
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+        return
+    }
+
     const reporter = await connection.window.createWorkDoneProgress()
 
     reporter.begin("Tact Language Server", 0)
@@ -165,11 +169,12 @@ connection.onInitialized(async () => {
 })
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
-    const opts = params.initializationOptions as ClientOptions
-    const treeSitterUri = opts?.treeSitterWasmUri
-    const langUri = opts?.langWasmUri
-    await initParser(treeSitterUri, langUri)
     workspaceFolders = params.workspaceFolders ?? []
+    const opts = params.initializationOptions as ClientOptions
+    const treeSitterUri =
+        opts?.treeSitterWasmUri ?? "/Users/petrmakhnev/tact-vscode/dist/tree-sitter.wasm"
+    const langUri = opts?.langWasmUri ?? "/Users/petrmakhnev/tact-vscode/dist/tree-sitter-tact.wasm"
+    await initParser(treeSitterUri, langUri)
 
     documents.onDidOpen(async event => {
         const uri = event.document.uri
