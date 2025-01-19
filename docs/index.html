@@ -389,22 +389,36 @@
                 }
 
                 .feature {
+                    display: flex;
                     flex-direction: column !important;
-                    padding: 3rem 0;
                     gap: 2rem;
+                    padding: 3rem 0;
+                }
+
+                .feature:nth-child(even) {
+                    flex-direction: column !important;
+                }
+
+                .feature-content {
+                    order: 1;
+                    width: 100%;
                 }
 
                 .feature-image {
-                    max-width: 100%;
+                    order: 2;
+                    width: 100%;
+                    max-width: none;
                 }
 
                 .feature h3 {
                     font-size: 1.75rem;
+                    margin-bottom: 1rem;
                 }
 
                 .feature p {
                     font-size: 1rem;
-                    max-width: 90%;
+                    line-height: 1.5;
+                    opacity: 0.8;
                 }
 
                 .container {
@@ -415,6 +429,17 @@
                     width: 100%;
                     text-align: center;
                     padding: 1rem;
+                }
+
+                .image-nav {
+                    bottom: 12px;
+                    right: 12px;
+                    padding: 6px 12px;
+                    font-size: 13px;
+                }
+
+                .image-nav-button {
+                    padding: 4px 8px;
                 }
             }
 
@@ -480,12 +505,32 @@
                 .testimonial p {
                     font-size: 0.95rem;
                 }
+
+                .feature {
+                    padding: 2rem 0;
+                    gap: 1.5rem;
+                }
+
+                .feature h3 {
+                    font-size: 1.5rem;
+                }
+
+                .feature p {
+                    font-size: 0.95rem;
+                }
+
+                .image-nav {
+                    bottom: 8px;
+                    right: 8px;
+                    padding: 4px 10px;
+                    font-size: 12px;
+                }
             }
 
             .image-nav {
                 position: absolute;
                 bottom: 20px;
-                right: 20px;
+                right: 15px;
                 display: flex;
                 align-items: center;
                 gap: 12px;
