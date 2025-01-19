@@ -159,7 +159,9 @@
             }
 
             .feature {
-                display: flex;
+                display: grid;
+                grid-template-columns: 40% 60%;
+                grid-template-areas: "hero1 hero2";
                 align-items: flex-start;
                 gap: 4rem;
                 padding: 4rem 0;
@@ -167,16 +169,21 @@
             }
 
             .feature:nth-child(even) {
-                flex-direction: row-reverse;
+                grid-template-columns: 60% 40%;
+                grid-template-areas: "hero2 hero1";
+                order: 1;
             }
 
             .feature-content {
                 flex: 1;
+                grid-area: hero1;
             }
 
             .feature-image {
                 flex: 1;
-                max-width: 600px;
+                max-width: 700px;
+                grid-area: hero2;
+                position: relative;
             }
 
             .feature-image img {
@@ -474,6 +481,47 @@
                     font-size: 0.95rem;
                 }
             }
+
+            .image-nav {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 14px;
+                background: rgba(0, 0, 0, 0.6);
+                padding: 8px 16px;
+                border-radius: 6px;
+                backdrop-filter: blur(10px);
+            }
+
+            .image-nav-buttons {
+                display: flex;
+                gap: 8px;
+            }
+
+            .image-nav-button {
+                background: none;
+                border: none;
+                color: rgba(255, 255, 255, 0.7);
+                cursor: pointer;
+                padding: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: color 0.2s;
+            }
+
+            .image-nav-button:hover {
+                color: white;
+            }
+
+            .image-nav-button:disabled {
+                color: rgba(255, 255, 255, 0.3);
+                cursor: not-allowed;
+            }
         </style>
     </head>
     <body>
@@ -524,12 +572,21 @@
                     <div class="feature-content">
                         <h3>Smart Code Completion</h3>
                         <p>
-                            Context-aware real-time suggestions with support for all modern
-                            programming languages.
+                            Intelligent code suggestions as you type. Get context-aware completions
+                            for variables, functions, and types. Smart snippets help you write
+                            common code patterns faster, while inline documentation keeps you
+                            informed.
                         </p>
                     </div>
                     <div class="feature-image">
                         <img src="./public/default-image.png" alt="Code Completion" />
+                        <div class="image-nav">
+                            <span>1 / 3</span>
+                            <div class="image-nav-buttons">
+                                <button class="image-nav-button" disabled>←</button>
+                                <button class="image-nav-button">→</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -537,12 +594,21 @@
                     <div class="feature-content">
                         <h3>Quick Navigation</h3>
                         <p>
-                            Instant jump to definitions and usages. Full understanding of your code
-                            structure.
+                            Navigate through your codebase with precision. Jump instantly to
+                            definitions and find all usages across the project. Explore workspace
+                            symbols for quick access to any declaration, and use the file symbols
+                            tree to understand code structure at a glance.
                         </p>
                     </div>
                     <div class="feature-image">
                         <img src="./public/default-image.png" alt="Code Navigation" />
+                        <div class="image-nav">
+                            <span>1 / 3</span>
+                            <div class="image-nav-buttons">
+                                <button class="image-nav-button" disabled>←</button>
+                                <button class="image-nav-button">→</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -553,6 +619,13 @@
                     </div>
                     <div class="feature-image">
                         <img src="./public/default-image.png" alt="Error Detection" />
+                        <div class="image-nav">
+                            <span>1 / 3</span>
+                            <div class="image-nav-buttons">
+                                <button class="image-nav-button" disabled>←</button>
+                                <button class="image-nav-button">→</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -563,6 +636,13 @@
                     </div>
                     <div class="feature-image">
                         <img src="./public/default-image.png" alt="Refactoring" />
+                        <div class="image-nav">
+                            <span>1 / 3</span>
+                            <div class="image-nav-buttons">
+                                <button class="image-nav-button" disabled>←</button>
+                                <button class="image-nav-button">→</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -598,5 +678,67 @@
                 </div>
             </div>
         </footer>
+
+        <script>
+            const featureImages = {
+                completion: [
+                    "./public/default-image.png",
+                    "./public/default-image.png",
+                    "./public/default-image.png",
+                ],
+                navigation: [
+                    "./public/default-image.png",
+                    "./public/navigation-1.png",
+                    "./public/default-image.png",
+                ],
+                error: [
+                    "./public/default-image.png",
+                    "./public/default-image.png",
+                    "./public/default-image.png",
+                ],
+                refactoring: [
+                    "./public/default-image.png",
+                    "./public/default-image.png",
+                    "./public/default-image.png",
+                ],
+            }
+
+            document.querySelectorAll(".feature").forEach((feature, featureIndex) => {
+                const img = feature.querySelector("img")
+                const counter = feature.querySelector(".image-nav span")
+                const prevBtn = feature.querySelector(".image-nav-button:first-child")
+                const nextBtn = feature.querySelector(".image-nav-button:last-child")
+
+                const featureType = ["completion", "navigation", "error", "refactoring"][
+                    featureIndex
+                ]
+                const images = featureImages[featureType]
+                let currentIndex = 0
+
+                const updateNavigation = () => {
+                    counter.textContent = `${currentIndex + 1} / ${images.length}`
+                    prevBtn.disabled = currentIndex === 0
+                    nextBtn.disabled = currentIndex === images.length - 1
+                }
+
+                prevBtn.addEventListener("click", () => {
+                    if (currentIndex > 0) {
+                        currentIndex--
+                        img.src = images[currentIndex]
+                        updateNavigation()
+                    }
+                })
+
+                nextBtn.addEventListener("click", () => {
+                    if (currentIndex < images.length - 1) {
+                        currentIndex++
+                        img.src = images[currentIndex]
+                        updateNavigation()
+                    }
+                })
+
+                updateNavigation()
+            })
+        </script>
     </body>
 </html>
