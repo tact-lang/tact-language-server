@@ -567,6 +567,99 @@
                 color: rgba(255, 255, 255, 0.3);
                 cursor: not-allowed;
             }
+
+            .faq-section {
+                padding: 2rem 0 6rem;
+            }
+
+            .faq-section h2 {
+                font-size: 2.5rem;
+                color: #fff;
+                margin-bottom: 2rem;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+            }
+
+            .faq-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .faq-item {
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                background: rgba(0, 0, 0, 0.2);
+                overflow: hidden;
+            }
+
+            .faq-question {
+                padding: 1.25rem 1.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                color: #fff;
+                font-size: 1.1rem;
+                font-weight: 500;
+                transition: background-color 0.3s;
+            }
+
+            .faq-question:hover {
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .faq-answer {
+                margin: 0 1.5rem;
+                height: 0;
+                overflow: hidden;
+                transition: all 0.3s;
+                opacity: 0;
+            }
+
+            .faq-answer p {
+                margin-top: 1.5rem;
+                padding: 0 0 1.25rem;
+                color: rgba(255, 255, 255, 0.7);
+                line-height: 1.6;
+            }
+
+            .faq-item.active .faq-answer p {
+                margin-top: 1.5rem;
+            }
+
+            .faq-item.active .faq-answer {
+                height: auto;
+                opacity: 1;
+            }
+
+            .faq-item.active .faq-question {
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            @media (max-width: 768px) {
+                .faq-section {
+                    padding: 1rem 0 4rem;
+                }
+
+                .faq-section h2 {
+                    font-size: 2rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                .faq-question {
+                    padding: 1rem 1.25rem;
+                    font-size: 1rem;
+                }
+
+                .faq-answer {
+                    padding: 0 1.25rem;
+                }
+
+                .faq-answer p {
+                    padding: 0 0 1rem;
+                }
+            }
         </style>
     </head>
     <body>
@@ -708,6 +801,68 @@
                     <cite>- The Author</cite>
                 </div>
             </section>
+
+            <section class="faq-section">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How to get started with Tact Language Server?
+                            <span class="toggle">+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>
+                                Install the Tact Language Server extension in your preferred IDE
+                                (VSCode, WebStorm, etc.), open a Tact project, and you're ready to
+                                go. The server will automatically start providing smart completions
+                                and other features.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Which IDEs are supported?
+                            <span class="toggle">+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>
+                                Tact Language Server works with any editor that supports the
+                                Language Server Protocol (LSP). This includes VS Code, Sublime Text,
+                                Atom, and many others.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            How to report issues or request features?
+                            <span class="toggle">+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>
+                                You can report issues and request features on our GitHub repository.
+                                For quick questions and community support, join Tact Telegram
+                                channel.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            Is Tact Language Server free to use?
+                            <span class="toggle">+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>
+                                Yes, Tact Language Server is completely free and open source. You
+                                can use it for both personal and commercial projects without any
+                                limitations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <footer class="site-footer">
@@ -783,6 +938,23 @@
                 })
 
                 updateNavigation()
+            })
+
+            document.querySelectorAll(".faq-question").forEach(question => {
+                question.addEventListener("click", () => {
+                    const item = question.parentElement
+                    const isActive = item.classList.contains("active")
+
+                    document.querySelectorAll(".faq-item").forEach(item => {
+                        item.classList.remove("active")
+                        item.querySelector(".toggle").textContent = "+"
+                    })
+
+                    if (!isActive) {
+                        item.classList.add("active")
+                        question.querySelector(".toggle").textContent = "−"
+                    }
+                })
             })
         </script>
     </body>
