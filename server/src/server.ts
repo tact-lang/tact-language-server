@@ -57,7 +57,7 @@ import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLeve
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
-    if (line < 1 || line > lines.length) {
+    if (line < 0 || line > lines.length) {
         return 0
     }
 
@@ -83,7 +83,9 @@ export const PARSED_FILES_CACHE = new LRUMap<string, Tree>({
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     const opts = params.initializationOptions as ClientOptions
-    await initParser(opts.treeSitterWasmUri, opts.langWasmUri)
+    const treeSitterUri = opts?.treeSitterWasmUri ?? "/Users/petrmakhnev/tact-vscode/dist/tree-sitter.wasm"
+    const langUri = opts?.langWasmUri ?? "/Users/petrmakhnev/tact-vscode/dist/tree-sitter-tact.wasm"
+    await initParser(treeSitterUri, langUri)
 
     documents.onDidOpen(async event => {
         const uri = event.document.uri
@@ -336,9 +338,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             // Which will be parsed without any problems now.
             //
             // Now that we have valid code, we can use `Reference.processResolveVariants`
-            // to resolve `dummyIdentifier` into a list of possible variants, which will
+            // to resolve `DummyIdentifier` into a list of possible variants, which will
             // become the autocompletion list. See `Reference` class documentation.
-            const newContent = `${start}dummyIdentifier${end}`
+            const newContent = `${start}DummyIdentifier${end}`
             const tree = parser.parse(newContent)
 
             const cursorPosition = asParserPoint(params.position)

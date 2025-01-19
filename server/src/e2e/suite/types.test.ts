@@ -82,7 +82,7 @@ suite("Type Inference Test Suite", () => {
 
                     if (actual !== pos.expectedType) {
                         errors.push(
-                            `type inference error at line ${pos.line + 1}: expected ${pos.expectedType}, got ${actual}`,
+                            `type inference error at line ${pos.line + 1}:${pos.character}: expected ${pos.expectedType}, got ${actual}`,
                         )
                     }
                 }

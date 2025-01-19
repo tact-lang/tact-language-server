@@ -11,3 +11,24 @@ get fun name() {}
 inline fun name() {}
 receive("<message>") {}
 receive(msg: <type>) {}
+
+========================================================================
+Completion of contract constants
+========================================================================
+contract Foo {
+    const FOO: Int = 100;
+    const BAR: Int = 100;
+
+    fun foo() {
+        <caret>
+    }
+}
+------------------------------------------------------------------------
+self.foo
+self.BAR
+self.FOO
+false
+Foo
+return;
+self
+true

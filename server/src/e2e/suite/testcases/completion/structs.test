@@ -1,25 +1,39 @@
 ========================================================================
-Completion in struct top-level
+Struct completion
 ========================================================================
-struct Transfer {
-    amount: Int;
+primitive Int;
+
+struct Foo {
+    age: Int;
+}
+
+fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-amount
 Int
-struct
-Transfer
+test
+Foo
+false
+return;
+true
 
 ========================================================================
-Completion in message top-level
+Message completion
 ========================================================================
-message Transfer {
-    amount: Int;
+primitive Int;
+
+message Foo {
+    age: Int;
+}
+
+fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-amount
 Int
-message
-Transfer
+test
+Foo
+false
+return;
+true

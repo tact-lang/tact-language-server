@@ -91,6 +91,11 @@ export class CompletionContext {
     }
 
     public expression(): boolean {
-        return (this.isExpression || this.isStatement) && !this.afterDot && !this.inTlbSerialization
+        return (
+            (this.isExpression || this.isStatement) &&
+            !this.isType &&
+            !this.afterDot &&
+            !this.inTlbSerialization
+        )
     }
 }

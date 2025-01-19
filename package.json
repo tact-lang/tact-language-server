@@ -34,6 +34,7 @@
         "grammar:wasm": "cd tree-sitter-tact && tree-sitter generate && tree-sitter build-wasm && cp tree-sitter-tact.wasm ../server/tree-sitter-tact.wasm",
         "watch": "webpack --watch",
         "test:e2e": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts",
+        "test:e2e:coverage": "yarn test:e2e:compile && c8 ts-node server/src/e2e/runTest.ts",
         "test:e2e:compile": "tsc -p ./server/src/e2e/tsconfig.json"
     },
     "main": "./dist/client",
@@ -91,6 +92,7 @@
         }
     },
     "dependencies": {
+        "c8": "^10.1.3",
         "glob": "^11.0.1",
         "nan": "^2.16.0",
         "ts-node": "^10.9.2",
