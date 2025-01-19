@@ -3,10 +3,10 @@ import * as vscode from "vscode"
 export async function activate(): Promise<void> {
     console.log("Activating extension...")
 
-    const ext = vscode.extensions.getExtension("ton-core.tact-vscode")
+    const ext = vscode.extensions.getExtension("ton-studio.tact-vscode")
     if (!ext) {
         throw new Error(
-            "Extension not found. Make sure the extension is installed and the ID is correct (ton-core.tact-vscode)",
+            "Extension not found. Make sure the extension is installed and the ID is correct (ton-studio.tact-vscode)",
         )
     }
 

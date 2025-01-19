@@ -9,7 +9,7 @@
         "Smart contract"
     ],
     "icon": "logo.png",
-    "version": "0.6.0",
+    "version": "0.0.1",
     "engines": {
         "vscode": "^1.63.0"
     },
@@ -21,14 +21,15 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/ton-blockchain/tact-vscode"
+        "url": "https://github.com/i582/language-server"
     },
-    "author": "TON Core",
-    "publisher": "ton-core",
+    "author": "TON Studio",
+    "publisher": "ton-studio",
     "license": "MIT",
     "scripts": {
         "test": "yarn jest",
         "build": "webpack",
+        "package": "npx vsce package --no-yarn",
         "format": "prettier --write --cache .",
         "format:check": "prettier --check --cache .",
         "grammar:wasm": "cd tree-sitter-tact && tree-sitter generate && tree-sitter build --wasm && cp tree-sitter-tact.wasm ../server/tree-sitter-tact.wasm",
@@ -95,6 +96,7 @@
         "glob": "^11.0.1",
         "nan": "^2.16.0",
         "ts-node": "^10.9.2",
+        "vsce": "2.15.0",
         "vscode-languageclient": "^8.0.2",
         "vscode-languageserver": "^8.0.2",
         "vscode-languageserver-textdocument": "^1.0.7",
