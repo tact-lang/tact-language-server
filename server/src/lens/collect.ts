@@ -86,6 +86,7 @@ export function collect(file: File): lsp.CodeLens[] {
             n.type === "struct" ||
             n.type === "message" ||
             n.type === "global_constant" ||
+            n.type === "storage_constant" ||
             isNamedFunNode(n)
         ) {
             usagesLens(n, file, result)
@@ -104,9 +105,9 @@ function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]) {
     }
 
     const struct = new Struct(n, file)
-    const references = new Referent(n, file).findReferences(false, false, false)
     const nodeIdentifier = struct.nameIdentifier()
     if (!nodeIdentifier) return
+    const references = new Referent(nodeIdentifier, file).findReferences(false, false, false)
 
     result.push(
         newLens(n, {
