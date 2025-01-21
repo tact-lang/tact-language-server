@@ -2,11 +2,19 @@ import * as lsp from "vscode-languageserver"
 import {File} from "../psi/File"
 import {RecursiveVisitor} from "../visitor"
 import {SyntaxNode} from "web-tree-sitter"
-import {parentOfType} from "../psi/utils"
-import {Fun, StorageMembersOwner} from "../psi/TopLevelDeclarations"
+import {isNamedFunNode, parentOfType} from "../psi/utils"
+import {Fun, StorageMembersOwner, Struct} from "../psi/TopLevelDeclarations"
 import {NamedNode} from "../psi/Node"
+import {Referent} from "../psi/Referent"
+import {Location} from "vscode-languageclient"
+import {asLspRange} from "../utils/position"
 
 export function collect(file: File): lsp.CodeLens[] {
+    if (file.fromStdlib) {
+        // we don't need to count usages or show anything for stdlib symbols
+        return []
+    }
+
     const result: lsp.CodeLens[] = []
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
@@ -73,10 +81,52 @@ export function collect(file: File): lsp.CodeLens[] {
             }
         }
 
+        if (
+            n.type === "trait" ||
+            n.type === "struct" ||
+            n.type === "message" ||
+            n.type === "global_constant" ||
+            isNamedFunNode(n)
+        ) {
+            usagesLens(n, file, result)
+        }
+
         return true
     })
 
     return result
+}
+
+function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]) {
+    if (file.fromStdlib || !file.fromStdlib) {
+        // disabled for now
+        return
+    }
+
+    const struct = new Struct(n, file)
+    const references = new Referent(n, file).findReferences(false, false, false)
+    const nodeIdentifier = struct.nameIdentifier()
+    if (!nodeIdentifier) return
+
+    result.push(
+        newLens(n, {
+            title: `${references.length} usages`,
+            command: "tact.showReferences",
+            arguments: [
+                file.uri,
+                {
+                    line: nodeIdentifier.startPosition.row,
+                    character: nodeIdentifier.startPosition.column,
+                } as lsp.Position,
+                references.map(r => {
+                    return {
+                        uri: r.file.uri,
+                        range: asLspRange(r.node),
+                    } as Location
+                }),
+            ],
+        }),
+    )
 }
 
 function newLens(node: SyntaxNode, cmd: lsp.Command): lsp.CodeLens {

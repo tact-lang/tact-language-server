@@ -8,6 +8,10 @@ export class File {
         public readonly tree: Tree,
     ) {}
 
+    public get fromStdlib(): boolean {
+        return this.uri.includes("stdlib")
+    }
+
     public get rootNode(): SyntaxNode {
         return this.tree.rootNode
     }
