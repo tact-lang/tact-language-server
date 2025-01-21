@@ -3576,7 +3576,7 @@
     },
     "_type_identifier": {
       "type": "PATTERN",
-      "value": "[A-Z][a-zA-Z0-9_]*"
+      "value": "[a-zA-Z][a-zA-Z0-9_]*"
     },
     "tlb_serialization": {
       "type": "SEQ",
