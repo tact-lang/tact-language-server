@@ -4,14 +4,13 @@ import {readFileSync} from "fs"
 import {createParser, initParser} from "./parser"
 import {asLspRange, asParserPoint} from "./utils/position"
 import {TypeInferer} from "./TypeInferer"
-import {SyntaxNode, Tree} from "web-tree-sitter"
+import {SyntaxNode} from "web-tree-sitter"
 import {LocalSearchScope, Referent} from "./psi/Referent"
 import {index, IndexKey} from "./indexes"
 import {CallLike, Expression, NamedNode, Node} from "./psi/Node"
 import {Reference, ResolveState, ScopeProcessor} from "./psi/Reference"
 import {File} from "./psi/File"
 import {CompletionContext} from "./completion/CompletionContext"
-import {TextDocument} from "vscode-languageserver-textdocument"
 import * as lsp from "vscode-languageserver"
 import * as docs from "./documentation/documentation"
 import * as inlays from "./inlays/collect"
@@ -55,6 +54,7 @@ import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFun
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
 import {glob} from "glob"
 import {parentOfType} from "./psi/utils"
+import {URI} from "vscode-uri"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -77,6 +77,11 @@ function getOffsetFromPosition(fileContent: string, line: number, column: number
 
 const documents = new DocumentStore(connection)
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
+
+console.log = connection.console.log.bind(connection.console);
+console.info = connection.console.info.bind(connection.console);
+console.warn = connection.console.warn.bind(connection.console);
+console.error = connection.console.error.bind(connection.console);
 
 export const PARSED_FILES_CACHE = new LRUMap<string, File>({
     size: 100,
@@ -115,22 +120,10 @@ async function findFile(uri: string, content?: string | undefined) {
         return cached
     }
 
-    let realContent: string
-    let document: TextDocument | undefined
-    try {
-        document = await documents.retrieve(uri)
-        if (!document) {
-            realContent = content ?? readFileSync(uri.slice(7)).toString()
-        } else {
-            realContent = content ?? document.getText()
-        }
-    } catch (e) {
-        realContent = content ?? readFileSync(uri.slice(7)).toString()
-    }
-
+    const realContent = content ?? readFileSync(URI.parse(uri).path).toString()
     const parser = createParser()
     const tree = parser.parse(realContent)
-    const file = new File(uri, tree)
+    const file = new File(uri, tree, realContent)
     PARSED_FILES_CACHE.set(uri, file)
     return file
 }
@@ -199,12 +192,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     })
 
     const getContent = async (uri: string, content?: string | undefined) => {
-        const document = await documents.retrieve(uri)
-        if (!document) {
-            return content ?? readFileSync(uri.slice(7)).toString()
-        }
-
-        return content ?? document.getText()
+        const file = await findFile(uri, content)
+        return file.content
     }
 
     function nodeAtPosition(params: lsp.TextDocumentPositionParams, file: File) {
@@ -404,7 +393,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 return []
             }
 
-            const element = new NamedNode(cursorNode, new File(uri, tree))
+            const element = new NamedNode(cursorNode, new File(uri, tree, newContent))
             const ref = new Reference(element)
 
             const ctx = new CompletionContext(

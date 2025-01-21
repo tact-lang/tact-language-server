@@ -6,6 +6,7 @@ export class File {
     public constructor(
         public readonly uri: string,
         public readonly tree: Tree,
+        public readonly content: string,
     ) {}
 
     public get fromStdlib(): boolean {
