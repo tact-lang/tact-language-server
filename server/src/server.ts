@@ -172,9 +172,8 @@ connection.onInitialized(async () => {
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     workspaceFolders = params.workspaceFolders ?? []
     const opts = params.initializationOptions as ClientOptions
-    const treeSitterUri =
-        opts?.treeSitterWasmUri ?? "/Users/petrmakhnev/tact-vscode/dist/tree-sitter.wasm"
-    const langUri = opts?.langWasmUri ?? "/Users/petrmakhnev/tact-vscode/dist/tree-sitter-tact.wasm"
+    const treeSitterUri = opts?.treeSitterWasmUri ?? `${__dirname}/tree-sitter.wasm`
+    const langUri = opts?.langWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
     await initParser(treeSitterUri, langUri)
 
     documents.onDidOpen(async event => {
