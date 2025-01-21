@@ -152,7 +152,7 @@ export class GlobalIndex {
         const index = FileIndex.create(file)
         this.files.set(uri, index)
 
-        console.log(`added ${uri} to index`)
+        console.info(`added ${uri} to index`)
     }
 
     public removeFile(uri: string) {
@@ -161,7 +161,7 @@ export class GlobalIndex {
         this.files.delete(uri)
         PARSED_FILES_CACHE.delete(uri)
 
-        console.log(`removed ${uri} to index`)
+        console.info(`removed ${uri} to index`)
     }
 
     public processElementsByKey<K extends IndexKey>(
@@ -186,7 +186,7 @@ export class GlobalIndex {
     }
 
     public stats() {
-        console.log("global index files:", this.files.size)
+        console.info("global index files:", this.files.size)
     }
 }
 

@@ -46,10 +46,9 @@ export class CacheManager {
     }
 
     public clear(): void {
-        console.log("Clearing caches")
-        console.log("Type cache size:", this.typeCache.size)
-        console.log("Resolve cache size:", this.resolveCache.size)
-
+        console.info(
+            `Clearing caches (types: ${this.typeCache.size}, resolve: ${this.resolveCache.size})`,
+        )
         this.typeCache.clear()
         this.resolveCache.clear()
     }

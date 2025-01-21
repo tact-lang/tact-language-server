@@ -56,6 +56,7 @@ import {glob} from "glob"
 import {parentOfType} from "./psi/utils"
 import {URI} from "vscode-uri"
 import {FileChangeType} from "vscode-languageserver"
+import {Logger} from "./utils/logger"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -79,10 +80,7 @@ function getOffsetFromPosition(fileContent: string, line: number, column: number
 const documents = new DocumentStore(connection)
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
-console.log = connection.console.log.bind(connection.console)
-console.info = connection.console.info.bind(connection.console)
-console.warn = connection.console.warn.bind(connection.console)
-console.error = connection.console.error.bind(connection.console)
+Logger.initialize(connection, `${__dirname}/tact-language-server.log`)
 
 export const PARSED_FILES_CACHE = new LRUMap<string, File>({
     size: 100,
@@ -104,10 +102,18 @@ class IndexRoot {
         const rootPath = this.root.slice(7)
         const files = await glob("**/*.tact", {
             cwd: rootPath,
-            ignore: "node_modules/**",
+            ignore: [
+                "node_modules/**",
+                "*/test/e2e-emulated/**",
+                "**/__testdata/**",
+                "**/test/**",
+                "**/test-failed/**",
+                "**/types/stmts-failed/**",
+                "**/types/stmts/**",
+            ],
         })
         for (const filePath of files) {
-            console.log("Indexing:", filePath)
+            console.info("Indexing:", filePath)
             const uri = this.root + "/" + filePath
             const file = await findFile(uri)
             index.addFile(uri, file, false)
@@ -144,10 +150,10 @@ connection.onInitialized(async () => {
     let resultStdlibPath = stdlibNodeModules
     if (existsSync(resultStdlibPath.slice(7))) {
         resultStdlibPath = stdlibNodeModules
-        console.log("usage stdlib from node_modules")
+        console.info("using stdlib from node_modules")
     } else {
         resultStdlibPath = rootUri + "/stdlib"
-        console.log("usage stdlib from stdlib/ directory")
+        console.info("using stdlib from stdlib/ directory")
     }
 
     reporter.report(50, "Indexing: (1/2) Standard Library")
@@ -164,6 +170,9 @@ connection.onInitialized(async () => {
 })
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
+    console.info("Started new session")
+    console.info("workspaceFolders:", params.workspaceFolders)
+
     workspaceFolders = params.workspaceFolders ?? []
     const opts = params.initializationOptions as ClientOptions
     const treeSitterUri = opts?.treeSitterWasmUri ?? `${__dirname}/tree-sitter.wasm`
@@ -172,7 +181,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     documents.onDidOpen(async event => {
         const uri = event.document.uri
-        console.log("open:", uri)
+        console.info("open:", uri)
 
         const file = await findFile(uri)
         index.addFile(uri, file)
@@ -184,7 +193,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         }
 
         const uri = event.document.uri
-        console.log("changed:", uri)
+        console.info("changed:", uri)
 
         index.removeFile(uri)
 
@@ -198,7 +207,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             if (!uri.endsWith(".tact")) continue
 
             if (change.type === FileChangeType.Created) {
-                console.log(`Find external create of ${uri}`)
+                console.info(`Find external create of ${uri}`)
                 const file = await findFile(uri)
                 index.addFile(uri, file)
                 continue
@@ -210,14 +219,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             }
 
             if (change.type === FileChangeType.Changed) {
-                console.log(`Find external change of ${uri}`)
+                console.info(`Find external change of ${uri}`)
                 index.removeFile(uri)
                 const file = await findFile(uri)
                 index.addFile(uri, file)
             }
 
             if (change.type === FileChangeType.Deleted) {
-                console.log(`Find external delete of ${uri}`)
+                console.info(`Find external delete of ${uri}`)
                 index.removeFile(uri)
             }
         }
@@ -328,7 +337,10 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const element = NamedNode.create(hoverNode, file)
             const res = Reference.resolve(element)
-            if (res === null) return []
+            if (res === null) {
+                console.warn(`Cannot find definition for: ${hoverNode.text}`)
+                return []
+            }
 
             const ident = res.nameIdentifier()
             if (ident === null) return []
@@ -360,7 +372,10 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             }
 
             const type = TypeInferer.inferType(new Expression(hoverNode, file))
-            if (type === null) return []
+            if (type === null) {
+                console.warn(`Cannot infer type for Go to Type Definition for: ${hoverNode.text}`)
+                return []
+            }
 
             if (type instanceof BaseTy) {
                 const anchor = type.anchor as NamedNode
@@ -909,7 +924,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     const _needed = TypeInferer.inferType
 
-    console.log("Tact language server is ready!")
+    console.info("Tact language server is ready!")
 
     return {
         capabilities: {

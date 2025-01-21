@@ -49,7 +49,7 @@ export function measureTime<T>(label: string, fn: () => T): T {
     const endTime = performance.now()
     const time = endTime - startTime
     if (time > 0.3) {
-        console.log(`${label}: ${time}ms`)
+        console.info(`${label}: ${time}ms`)
     }
     return result
 }
