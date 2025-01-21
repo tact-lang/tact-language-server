@@ -42,6 +42,9 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         outputChannel: createClientLog(),
         revealOutputChannelOn: RevealOutputChannelOn.Never,
         documentSelector: [{scheme: "file", language: "tact"}],
+        synchronize: {
+            fileEvents: vscode.workspace.createFileSystemWatcher("**/*.tact"),
+        },
         initializationOptions: {
             clientConfig: getClientConfiguration(),
             treeSitterWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter.wasm")

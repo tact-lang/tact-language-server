@@ -55,6 +55,7 @@ import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLeve
 import {glob} from "glob"
 import {parentOfType} from "./psi/utils"
 import {URI} from "vscode-uri"
+import {FileChangeType} from "vscode-languageserver"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -78,10 +79,10 @@ function getOffsetFromPosition(fileContent: string, line: number, column: number
 const documents = new DocumentStore(connection)
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
-console.log = connection.console.log.bind(connection.console);
-console.info = connection.console.info.bind(connection.console);
-console.warn = connection.console.warn.bind(connection.console);
-console.error = connection.console.error.bind(connection.console);
+console.log = connection.console.log.bind(connection.console)
+console.info = connection.console.info.bind(connection.console)
+console.warn = connection.console.warn.bind(connection.console)
+console.error = connection.console.error.bind(connection.console)
 
 export const PARSED_FILES_CACHE = new LRUMap<string, File>({
     size: 100,
@@ -189,6 +190,37 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
         const file = await findFile(uri, event.document.getText())
         index.addFile(uri, file)
+    })
+
+    connection.onDidChangeWatchedFiles(async params => {
+        for (const change of params.changes) {
+            const uri = change.uri
+            if (!uri.endsWith(".tact")) continue
+
+            if (change.type === FileChangeType.Created) {
+                console.log(`Find external create of ${uri}`)
+                const file = await findFile(uri)
+                index.addFile(uri, file)
+                continue
+            }
+
+            if (!PARSED_FILES_CACHE.has(uri)) {
+                // we don't care about this file
+                continue
+            }
+
+            if (change.type === FileChangeType.Changed) {
+                console.log(`Find external change of ${uri}`)
+                index.removeFile(uri)
+                const file = await findFile(uri)
+                index.addFile(uri, file)
+            }
+
+            if (change.type === FileChangeType.Deleted) {
+                console.log(`Find external delete of ${uri}`)
+                index.removeFile(uri)
+            }
+        }
     })
 
     const getContent = async (uri: string, content?: string | undefined) => {
