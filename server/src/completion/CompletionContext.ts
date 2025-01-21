@@ -17,6 +17,7 @@ export class CompletionContext {
     topLevelInStructOrMessage: boolean = false
     inTlbSerialization: boolean = false
     afterDot: boolean = false
+    beforeSemicolon: boolean = false
 
     constructor(
         content: string,
@@ -33,6 +34,9 @@ export class CompletionContext {
             const symbolAfter = lines[position.line][position.character - 1]
             this.afterDot = symbolAfter === "."
         }
+
+        const symbolAfter = element.file.symbolAt(element.node.endIndex)
+        this.beforeSemicolon = symbolAfter === ";"
 
         const parent = element.node.parent
         if (!parent) return

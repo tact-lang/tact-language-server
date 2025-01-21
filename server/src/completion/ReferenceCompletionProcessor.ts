@@ -30,7 +30,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             const hasNoParams =
                 node.parameters().length == 0 || (node.withSelf() && node.parameters().length == 1)
 
-            const needSemicolon = this.ctx.isExpression
+            const needSemicolon = this.ctx.isStatement && !this.ctx.beforeSemicolon
 
             // TODO: check for `;` existence
             // We want to place cursor in parens only if there are any parameters to write.

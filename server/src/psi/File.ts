@@ -17,6 +17,10 @@ export class File {
         return this.tree.rootNode
     }
 
+    public symbolAt(offset: number): string {
+        return this.content[offset] ?? ""
+    }
+
     public get path(): string {
         return this.uri.slice(7)
     }
