@@ -1,0 +1,135 @@
+========================================================================
+Trait function with multiple implementations and extends
+========================================================================
+trait Animal {
+    fun <caret>speak(): String;
+}
+
+contract Dog with Animal {
+    override fun speak(): String {
+        return "woof";
+    }
+}
+
+contract Cat with Animal {
+    override fun speak(): String {
+        return "meow";
+    }
+}
+
+extends fun makeNoise(self: Animal) {
+    self.speak();
+}
+------------------------------------------------------------------------
+References: [17:9]
+Scope: GlobalSearchScope
+
+========================================================================
+Message field with bounced handler
+========================================================================
+message Transfer {
+    <caret>amount: Int;
+}
+
+contract Wallet {
+    receive(msg: Transfer) {
+        let value = msg.amount;
+    }
+
+    bounced(msg: Transfer) {
+        // Handle failed transfer
+        dump(msg.amount);
+    }
+}
+------------------------------------------------------------------------
+References: [6:24, 11:17]
+Scope: GlobalSearchScope
+
+========================================================================
+Struct field with multiple extends functions
+========================================================================
+struct Point {
+    <caret>x: Int;
+    y: Int;
+}
+
+extends fun getX(self: Point): Int {
+    return self.x;
+}
+
+extends fun setX(self: Point, value: Int) {
+    self.x = value;
+}
+------------------------------------------------------------------------
+References: [6:16, 10:9]
+Scope: GlobalSearchScope
+
+========================================================================
+Contract with trait override and virtual
+========================================================================
+trait Mintable {
+    virtual fun <caret>mint(amount: Int) {
+        // default implementation
+    }
+}
+
+contract Token with Mintable {
+    override fun mint(amount: Int) {
+        // custom implementation
+    }
+}
+
+contract RestrictedToken with Mintable {
+    override fun mint(amount: Int) {
+        require(amount > 0, "Invalid amount");
+        super.mint(amount);
+    }
+}
+------------------------------------------------------------------------
+References: []
+Scope: GlobalSearchScope
+
+========================================================================
+Storage variable with multiple receivers
+========================================================================
+contract Counter {
+    <caret>value: Int;
+
+    receive("increment") {
+        self.value = self.value + 1;
+    }
+
+    receive("decrement") {
+        self.value = self.value - 1;
+    }
+
+    receive("set") {
+        self.value = 10;
+    }
+
+    receive(msg: Int) {
+        self.value = msg;
+    }
+}
+------------------------------------------------------------------------
+References: [4:13, 4:26, 8:13, 8:26, 12:13, 16:13]
+Scope: LocalSearchScope:
+contract Counter {
+    value: Int;
+
+    receive("increment") {
+        self.value = self.value + 1;
+    }
+
+    receive("decrement") {
+        self.value = self.value - 1;
+    }
+
+    receive("set") {
+        self.value = 10;
+    }
+
+    receive(msg: Int) {
+        self.value = msg;
+    }
+}

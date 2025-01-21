@@ -85,6 +85,10 @@
                 "command": "tact/executeHoverProvider",
                 "title": "Get Documentation At Position",
                 "category": "tact"
+            },
+            {
+                "command": "tact/executeGetScopeProvider",
+                "title": "Get Scope Information"
             }
         ],
         "configuration": {

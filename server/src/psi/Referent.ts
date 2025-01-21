@@ -1,13 +1,68 @@
 import type {SyntaxNode} from "web-tree-sitter"
 
 import {RecursiveVisitor} from "../visitor"
-import {NamedNode} from "./Node"
+import {NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
 import {File} from "./File"
 import {isFunNode, isNamedFunNode, parentOfType} from "./utils"
+import {PARSED_FILES_CACHE} from "../server"
+
+/**
+ * Describes a scope that contains all possible uses of a certain symbol.
+ */
+export interface SearchScope {
+    toString(): string
+}
+
+/**
+ * Describes the scope described by some AST node, the search for usages will be
+ * performed only within this node.
+ *
+ * For example, the scope for a local variable will be the block in which it is defined.
+ */
+export class LocalSearchScope implements SearchScope {
+    constructor(public node: SyntaxNode) {}
+
+    toString(): string {
+        return `LocalSearchScope:\n${this.node.text}`
+    }
+}
+
+/**
+ * Describes a scope consisting of one or more files.
+ *
+ * For example, the scope of a global function from the standard library is all project files.
+ */
+export class GlobalSearchScope implements SearchScope {
+    public static allFiles(): GlobalSearchScope {
+        const files = [...PARSED_FILES_CACHE.values()]
+        return new GlobalSearchScope(files)
+    }
+
+    constructor(public files: File[]) {}
+
+    toString(): string {
+        return `GlobalSearchScope:\n${this.files.map(f => `- ${f.uri}`).join("\n")}`
+    }
+}
 
 /**
  * Referent encapsulates the logic for finding all references to a definition.
+ *
+ * The search logic is simple, each symbol has a certain scope in which it can be used.
+ * If it is a local variable, then the block in which it is defined, if a parameter, then
+ * the function in which it is defined. If it is a global function, then all project files.
+ *
+ * When the scope is defined, it is enough to go through all the nodes from it and find those
+ * that refer to the searched element.
+ * For optimization, we do not try to resolve each identifier, we resolve only those that have
+ * the same name as the searched element (and a bit of logic for processing `self`).
+ *
+ * Searching for uses of global symbols can be improved, now we use all files from the index,
+ * but following the Tact imports logic we can reduce the search scope. For example, when searching
+ * for uses of a global function defined within the project, there is no point in searching
+ * for its uses within the standard library.
+ * These optimizations and improvements are the object of further work.
  */
 export class Referent {
     private readonly resolved: NamedNode | null = null
@@ -24,41 +79,70 @@ export class Referent {
      *
      * @param includeDefinition if true, the first element of the result contains the definition
      * @param includeSelf if true, don't include `self` as usages (for rename)
-     * @param _sameFileOnly if true, only references from the same files listed
-     *
-     * TODO: finish _sameFileOnly
+     * @param sameFileOnly if true, only references from the same files listed
      */
     public findReferences(
         includeDefinition: boolean = false,
         includeSelf: boolean = true,
-        _sameFileOnly: boolean = false,
-    ): SyntaxNode[] {
+        sameFileOnly: boolean = false,
+    ): Node[] {
         const resolved = this.resolved
         if (!resolved) return []
 
         const useScope = this.useScope()
         if (!useScope) return []
 
-        const result: SyntaxNode[] = []
+        const result: Node[] = []
         if (includeDefinition) {
-            result.push(resolved.nameIdentifier()!)
+            result.push(resolved.nameNode()!)
         }
+
+        this.searchInScope(useScope, sameFileOnly, includeSelf, result)
+        return result
+    }
+
+    private searchInScope(
+        scope: SearchScope,
+        sameFileOnly: boolean,
+        includeSelf: boolean,
+        result: Node[],
+    ) {
+        if (!this.resolved) return
+
+        if (scope instanceof LocalSearchScope) {
+            this.traverseTree(this.resolved.file, scope.node, includeSelf, result)
+        }
+
+        if (scope instanceof GlobalSearchScope) {
+            if (sameFileOnly) {
+                this.traverseTree(this.file, this.file.rootNode, includeSelf, result)
+                return
+            }
+
+            for (const file of scope.files) {
+                this.traverseTree(file, file.rootNode, includeSelf, result)
+            }
+        }
+    }
+
+    private traverseTree(file: File, node: SyntaxNode, includeSelf: boolean, result: Node[]) {
+        const resolved = this.resolved
+        if (!resolved) return
 
         // The algorithm for finding references is simple:
         // we traverse the node that contains all the uses and resolve
-        // each identifier. If that identifier refers to the definition
-        // we are looking for, we add it to the list.
-        //
-        // TODO: optimize for field/method search
-        //       we don't need to resolve foo in bar.foo in some cases
-        RecursiveVisitor.visit(useScope, (node): boolean => {
+        // each identifier with the same name as searched symbol.
+        // If that identifier refers to the definition we are looking for,
+        // we add it to the list.
+        RecursiveVisitor.visit(node, (node): boolean => {
             // fast path, skip non identifiers
             if (
                 node.type !== "identifier" &&
                 node.type !== "self" &&
                 node.type !== "type_identifier"
-            )
+            ) {
                 return true
+            }
             // fast path, identifier name doesn't equal to definition name
             // self can refer to enclosing trait or contract
             if (node.text !== resolved?.name() && node.text !== "self") return true
@@ -82,6 +166,8 @@ export class Referent {
                 parent.type === "storage_variable" ||
                 parent.type === "global_constant" ||
                 parent.type === "trait" ||
+                parent.type === "struct" ||
+                parent.type === "message" ||
                 parent.type === "contract" ||
                 parent.type === "primitive" ||
                 parent.type === "field" ||
@@ -90,7 +176,7 @@ export class Referent {
                 return true
             }
 
-            const res = Reference.resolve(new NamedNode(node, resolved.file))
+            const res = Reference.resolve(new NamedNode(node, file))
             if (!res) return true
 
             const identifier = res.nameIdentifier()
@@ -101,12 +187,10 @@ export class Referent {
                 (identifier.text === resolved?.name() || identifier.text === "self")
             ) {
                 // found new reference
-                result.push(node)
+                result.push(new Node(node, file))
             }
             return true
         })
-
-        return result
     }
 
     /**
@@ -114,7 +198,7 @@ export class Referent {
      * Outside this node, no usages are assumed to exist. For example, variable
      * can be used only in outer block statement where it defined.
      */
-    private useScope(): SyntaxNode | null {
+    public useScope(): SearchScope | null {
         if (!this.resolved) return null
 
         const node = this.resolved.node
@@ -123,29 +207,34 @@ export class Referent {
 
         if (parent.type === "let_statement") {
             // search only in outer block/function
-            return parentOfType(parent, "function_body", "block_statement")
+            return this.localSearchScope(parentOfType(parent, "function_body", "block_statement"))
         }
 
         if (parent.type === "foreach_statement") {
             // search only in foreach block
-            return parent.lastChild
+            return this.localSearchScope(parent.lastChild)
         }
 
         if (parent.type === "catch_clause") {
             // search only in catch block
-            return parent.lastChild
+            return this.localSearchScope(parent.lastChild)
         }
 
         if (node.type === "parameter") {
             const grand = node.parent!.parent!
             if (grand.type === "asm_function") {
                 // search in function body and potentially asm arrangement
-                return grand
+                return this.localSearchScope(grand)
+            }
+
+            if (parent.type === "receive_function") {
+                // search in function body
+                return this.localSearchScope(parent)
             }
 
             if (isFunNode(grand)) {
                 // search in function body
-                return grand.lastChild
+                return this.localSearchScope(grand.lastChild)
             }
         }
 
@@ -156,43 +245,35 @@ export class Referent {
         ) {
             const owner = parentOfType(parent, "contract", "trait")
             if (owner?.type === "trait") {
-                // search in file for now, can be used in other traits, optimize?
-                return this.file.rootNode
+                // can be used in other traits, optimize?
+                return GlobalSearchScope.allFiles()
             }
             // search in whole contract
-            return owner
+            return this.localSearchScope(owner)
         }
 
-        if (isNamedFunNode(parent) || isNamedFunNode(node)) {
-            // search in file for now
-            return this.file.rootNode
-        }
-
-        if (node.type === "global_constant") {
-            // search in file for now
-            return this.file.rootNode
-        }
-
-        if (node.type === "contract") {
-            // search in file for now
-            return this.file.rootNode
-        }
-
-        if (node.type === "trait") {
-            // search in file for now
-            return this.file.rootNode
-        }
-
-        if (node.type === "primitive") {
-            // search in file for now
-            return this.file.rootNode
+        if (
+            isNamedFunNode(parent) ||
+            isNamedFunNode(node) ||
+            node.type === "global_constant" ||
+            node.type === "contract" ||
+            node.type === "trait" ||
+            node.type === "primitive" ||
+            node.type === "struct" ||
+            node.type === "message"
+        ) {
+            return GlobalSearchScope.allFiles()
         }
 
         if (node.type === "field") {
-            // search in file for now
-            return this.file.rootNode
+            return GlobalSearchScope.allFiles()
         }
 
         return null
+    }
+
+    private localSearchScope(node: SyntaxNode | null): SearchScope | null {
+        if (!node) return null
+        return new LocalSearchScope(node)
     }
 }

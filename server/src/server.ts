@@ -5,7 +5,7 @@ import {createParser, initParser} from "./parser"
 import {asLspRange, asParserPoint} from "./utils/position"
 import {TypeInferer} from "./TypeInferer"
 import {SyntaxNode, Tree} from "web-tree-sitter"
-import {Referent} from "./psi/Referent"
+import {LocalSearchScope, Referent} from "./psi/Referent"
 import {index, IndexKey} from "./indexes"
 import {CallLike, Expression, NamedNode, Node} from "./psi/Node"
 import {Reference, ResolveState, ScopeProcessor} from "./psi/Reference"
@@ -78,7 +78,7 @@ function getOffsetFromPosition(fileContent: string, line: number, column: number
 const documents = new DocumentStore(connection)
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
-export const PARSED_FILES_CACHE = new LRUMap<string, Tree>({
+export const PARSED_FILES_CACHE = new LRUMap<string, File>({
     size: 100,
     dispose: _entries => {},
 })
@@ -112,7 +112,7 @@ class IndexRoot {
 async function findFile(uri: string, content?: string | undefined) {
     const cached = PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined) {
-        return new File(uri, cached)
+        return cached
     }
 
     let realContent: string
@@ -130,8 +130,9 @@ async function findFile(uri: string, content?: string | undefined) {
 
     const parser = createParser()
     const tree = parser.parse(realContent)
-    PARSED_FILES_CACHE.set(uri, tree)
-    return new File(uri, tree)
+    const file = new File(uri, tree)
+    PARSED_FILES_CACHE.set(uri, file)
+    return file
 }
 
 connection.onInitialized(async () => {
@@ -486,7 +487,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         return {
             changes: {
                 [uri]: result.map(a => ({
-                    range: asLspRange(a),
+                    range: asLspRange(a.node),
                     newText: params.newName,
                 })),
             },
@@ -525,14 +526,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 return []
             }
 
-            const result = new Referent(highlightNode, file).findReferences(true, true)
+            const result = new Referent(highlightNode, file).findReferences(true, true, true)
             if (result.length === 0) return null
 
             return result.map(value => {
                 let kind: lsp.DocumentHighlightKind = lsp.DocumentHighlightKind.Read
-                const parent = value.parent!
+                const parent = value.node.parent!
                 if (parent.type === "assignment_statement") {
-                    if (parent.childForFieldName("left")!.equals(value)) {
+                    if (parent.childForFieldName("left")!.equals(value.node)) {
                         // left = 10
                         // ^^^^
                         kind = lsp.DocumentHighlightKind.Write
@@ -540,7 +541,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 }
 
                 return {
-                    range: asLspRange(value),
+                    range: asLspRange(value.node),
                     kind: kind,
                 }
             })
@@ -562,8 +563,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             if (result.length === 0) return null
 
             return result.map(value => ({
-                uri: uri,
-                range: asLspRange(value),
+                uri: value.file.uri,
+                range: asLspRange(value.node),
             }))
         },
     )
@@ -863,6 +864,29 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
+    connection.onExecuteCommand(async params => {
+        if (params.command !== "tact/executeGetScopeProvider") return
+
+        const commandParams = params.arguments?.[0] as lsp.TextDocumentPositionParams
+        if (!commandParams) return "Invalid parameters"
+
+        const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)
+        if (!file) {
+            return "File not found"
+        }
+
+        const node = nodeAtPosition(commandParams, file)
+        if (!node) {
+            return "Node not found"
+        }
+
+        const referent = new Referent(node, file)
+        const scope = referent.useScope()
+        if (!scope) return "Scope not found"
+        if (scope instanceof LocalSearchScope) return scope.toString()
+        return "GlobalSearchScope"
+    })
+
     const _needed = TypeInferer.inferType
 
     console.log("Tact language server is ready!")
@@ -902,6 +926,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             },
             codeLensProvider: {
                 resolveProvider: false,
+            },
+            executeCommandProvider: {
+                commands: ["tact/executeGetScopeProvider"],
             },
         },
     }

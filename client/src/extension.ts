@@ -19,7 +19,7 @@ import {
     RequestFromServer,
 } from "../../shared/src/shared-msgtypes"
 import {TextEncoder} from "util"
-import {Position} from "vscode-languageclient"
+import {Location, Position} from "vscode-languageclient"
 import {ClientOptions} from "../../shared/src/config-scheme"
 
 let client: LanguageClient
@@ -130,6 +130,19 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
             [],
         )
     }
+
+    vscode.commands.registerCommand(
+        "tact.showReferences",
+        async (uri: string, position: Position, locations: Location[]) => {
+            if (!client) return
+            await vscode.commands.executeCommand(
+                "editor.action.showReferences",
+                vscode.Uri.parse(uri),
+                client.protocol2CodeConverter.asPosition(position),
+                locations.map(client.protocol2CodeConverter.asLocation),
+            )
+        },
+    )
 
     context.subscriptions.push(
         vscode.commands.registerCommand(

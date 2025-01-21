@@ -280,8 +280,8 @@ export class Reference {
             return this.resolveAsmArrangementArgs(parent, proc, state)
         }
 
-        if (!this.processAllEntities(proc, state)) return false
         if (!this.processBlock(proc, state)) return false
+        if (!this.processAllEntities(proc, state)) return false
 
         return true
     }
@@ -372,7 +372,7 @@ export class Reference {
                         //     ^^^^ this
                         const name = stmt.childForFieldName("name")
                         if (name === null) continue
-                        if (!proc.execute(new NamedNode(name, file), state)) break
+                        if (!proc.execute(new NamedNode(name, file), state)) return false
                     }
                 }
             }
@@ -382,19 +382,19 @@ export class Reference {
                 //          ^^^ this
                 const key = descendant.childForFieldName("key")
                 if (key === null) continue
-                if (!proc.execute(new NamedNode(key, file), state)) break
+                if (!proc.execute(new NamedNode(key, file), state)) return false
 
                 // foreach (key, value in expr)
                 //               ^^^^^ this
                 const value = descendant.childForFieldName("value")
                 if (value === null) continue
-                if (!proc.execute(new NamedNode(value, file), state)) break
+                if (!proc.execute(new NamedNode(value, file), state)) return false
             }
 
             if (descendant.type === "catch_clause") {
                 const name = descendant.childForFieldName("name")
                 if (name === null) continue
-                if (!proc.execute(new NamedNode(name, file), state)) break
+                if (!proc.execute(new NamedNode(name, file), state)) return false
             }
 
             // process parameters of function
@@ -404,14 +404,14 @@ export class Reference {
                     const parameter = descendant.childForFieldName("parameter")
                     if (parameter === null) continue
 
-                    if (!proc.execute(new NamedNode(parameter, file), state)) break
+                    if (!proc.execute(new NamedNode(parameter, file), state)) return false
                 } else {
                     const children = rawParameters.children
                     if (children.length < 2) continue
                     const params = children.slice(1, -1)
 
                     for (const param of params) {
-                        if (!proc.execute(new NamedNode(param, file), state)) break
+                        if (!proc.execute(new NamedNode(param, file), state)) return false
                     }
                 }
             }
@@ -419,7 +419,7 @@ export class Reference {
             descendant = descendant.parent
         }
 
-        return false
+        return true
     }
 
     public processNamedEls(
