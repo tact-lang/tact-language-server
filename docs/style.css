@@ -55,7 +55,7 @@ body {
     gap: 12px;
 }
 
-.logo img {
+.logo svg {
     height: 20px;
     width: auto;
 }
@@ -296,11 +296,11 @@ main {
     margin-bottom: -3px;
 }
 
-.tact-logo-name img {
+.tact-logo-name svg {
     margin-top: 5px;
 }
 
-.hero-title img {
+.hero-title svg {
     height: 64px;
     width: auto;
 }
