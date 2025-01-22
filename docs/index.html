@@ -177,6 +177,92 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="feature">
+                        <div class="feature-content">
+                            <h3>Signature Help</h3>
+                            <p>
+                                Get real-time information about function parameters as you type.
+                                See parameter types, names, and documentation without leaving your
+                                current context. Supports method calls, constructors, and native
+                                functions.
+                            </p>
+                        </div>
+                        <div class="feature-image">
+                            <img src="./public/default-image.png" alt="Signature Help" />
+                            <div class="image-nav">
+                                <span>1 / 1</span>
+                                <div class="image-nav-buttons">
+                                    <button class="image-nav-button" disabled>←</button>
+                                    <button class="image-nav-button">→</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-content">
+                            <h3>Smart Folding</h3>
+                            <p>
+                                Intelligent code folding that understands Tact's structure.
+                                Collapse contracts, functions, and code blocks to focus on what
+                                matters. Custom folding regions help organize large files.
+                            </p>
+                        </div>
+                        <div class="feature-image">
+                            <img src="./public/default-image.png" alt="Code Folding" />
+                            <div class="image-nav">
+                                <span>1 / 1</span>
+                                <div class="image-nav-buttons">
+                                    <button class="image-nav-button" disabled>←</button>
+                                    <button class="image-nav-button">→</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-content">
+                            <h3>Semantic Highlighting</h3>
+                            <p>
+                                Advanced syntax highlighting that understands code semantics.
+                                Different colors for variables, functions, types, and more.
+                                Distinguishes between mutable and immutable variables, highlights
+                                unused code.
+                            </p>
+                        </div>
+                        <div class="feature-image">
+                            <img src="./public/default-image.png" alt="Semantic Highlighting" />
+                            <div class="image-nav">
+                                <span>1 / 1</span>
+                                <div class="image-nav-buttons">
+                                    <button class="image-nav-button" disabled>←</button>
+                                    <button class="image-nav-button">→</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-content">
+                            <h3>Code Lens</h3>
+                            <p>
+                                Inline actionable information about your code. See references count,
+                                inheritance chain, implementation details. Quick access to related
+                                code and documentation.
+                            </p>
+                        </div>
+                        <div class="feature-image">
+                            <img src="./public/default-image.png" alt="Code Lens" />
+                            <div class="image-nav">
+                                <span>1 / 1</span>
+                                <div class="image-nav-buttons">
+                                    <button class="image-nav-button" disabled>←</button>
+                                    <button class="image-nav-button">→</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -324,12 +410,16 @@
                     "./public/find-symbol.png",
                     "./public/symbol-tree.png",
                 ],
-                documentation: ["./public/hover-doc-1.png"],
+                documentation: ["./public/documentation.png"],
                 refactoring: [
                     "./public/default-image.png",
                     "./public/default-image.png",
                     "./public/default-image.png",
                 ],
+                signature: ["./public/default-image.png"],
+                folding: ["./public/default-image.png"],
+                semantic: ["./public/default-image.png"],
+                codelens: ["./public/default-image.png"],
             }
 
             document.querySelectorAll(".feature").forEach((feature, featureIndex) => {
@@ -338,9 +428,16 @@
                 const prevBtn = feature.querySelector(".image-nav-button:first-child")
                 const nextBtn = feature.querySelector(".image-nav-button:last-child")
 
-                const featureType = ["completion", "navigation", "documentation", "refactoring"][
-                    featureIndex
-                ]
+                const featureType = [
+                    "completion",
+                    "navigation",
+                    "documentation",
+                    "refactoring",
+                    "signature",
+                    "folding",
+                    "semantic",
+                    "codelens"
+                ][featureIndex]
                 feature.dataset.featureType = featureType
                 const images = featureImages[featureType]
                 let currentIndex = 0

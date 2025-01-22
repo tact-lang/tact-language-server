@@ -58,6 +58,7 @@ import {URI} from "vscode-uri"
 import {FileChangeType} from "vscode-languageserver"
 import {Logger} from "./utils/logger"
 import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
+import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -207,6 +208,13 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
         const file = await findFile(uri, event.document.getText())
         index.addFile(uri, file)
+
+        const diagnostics: lsp.Diagnostic[] = []
+
+        const unusedParamInspection = new UnusedParameterInspection()
+        diagnostics.push(...unusedParamInspection.inspect(file))
+
+        await connection.sendDiagnostics({uri, diagnostics})
     })
 
     connection.onDidChangeWatchedFiles(async params => {
@@ -952,7 +960,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             documentHighlightProvider: true,
             foldingRangeProvider: true,
             implementationProvider: true,
-            // documentFormattingProvider: true,
             completionProvider: {
                 triggerCharacters: ["."],
             },

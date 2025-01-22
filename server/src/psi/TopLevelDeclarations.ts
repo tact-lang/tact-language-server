@@ -87,6 +87,10 @@ export class Trait extends StorageMembersOwner {}
 export class Contract extends StorageMembersOwner {}
 
 export class Fun extends NamedNode {
+    public hasBody(): boolean {
+        return this.node.type !== "native_function"
+    }
+
     public returnType(): Expression | null {
         const result = this.node.childForFieldName("result")
         if (!result) return null
