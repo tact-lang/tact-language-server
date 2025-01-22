@@ -1,18 +1,10 @@
 import * as lsp from "vscode-languageserver"
-import {SyntaxNode} from "web-tree-sitter"
 import {File} from "../psi/File"
-import {asLspRange} from "../utils/position"
 import {Fun} from "../psi/TopLevelDeclarations"
-import {Logger} from "../utils/logger"
-import {Referent} from "../psi/Referent"
-import {Node} from "../psi/Node"
+import {UnusedInspection} from "./UnusedInspection"
 
-export class UnusedParameterInspection {
-    inspect(file: File): lsp.Diagnostic[] {
-        if (file.fromStdlib) return []
-
-        const diagnostics: lsp.Diagnostic[] = []
-
+export class UnusedParameterInspection extends UnusedInspection {
+    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
         file.getFuns().forEach(fun => {
             this.inspectFunction(fun, diagnostics)
         })
@@ -28,8 +20,6 @@ export class UnusedParameterInspection {
                 this.inspectFunction(method, diagnostics)
             })
         })
-
-        return diagnostics
     }
 
     private inspectFunction(fun: Fun, diagnostics: lsp.Diagnostic[]) {
@@ -38,30 +28,14 @@ export class UnusedParameterInspection {
         if (!parameters) return
 
         parameters.forEach(param => {
-            const paramName = param.name()
-            const references = this.findUsages(param.node, fun.file)
+            const nameIdent = param.nameIdentifier()
+            if (!nameIdent) return
 
-            if (references.length === 0) {
-                const nameIdent = param.nameIdentifier()
-                if (!nameIdent) return
-
-                diagnostics.push({
-                    severity: lsp.DiagnosticSeverity.Warning,
-                    range: asLspRange(nameIdent),
-                    message: `Parameter '${paramName}' is never used`,
-                    source: "tact",
-                    code: "unused-parameter",
-                    tags: [lsp.DiagnosticTag.Unnecessary],
-                })
-
-                Logger.getInstance().info(
-                    `Found unused parameter '${paramName}' in function '${fun.name()}'`,
-                )
-            }
+            this.checkUnused(param.node, fun.file, diagnostics, {
+                kind: "Parameter",
+                code: "unused-parameter",
+                rangeNode: nameIdent
+            })
         })
-    }
-
-    private findUsages(param: SyntaxNode, file: File): Node[] {
-        return new Referent(param, file).findReferences()
     }
 }

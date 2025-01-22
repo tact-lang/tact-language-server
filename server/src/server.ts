@@ -59,6 +59,8 @@ import {FileChangeType} from "vscode-languageserver"
 import {Logger} from "./utils/logger"
 import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
 import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection"
+import {EmptyBlockInspection} from "./inspections/EmptyBlockInspection"
+import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -213,6 +215,15 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
         const unusedParamInspection = new UnusedParameterInspection()
         diagnostics.push(...unusedParamInspection.inspect(file))
+
+        const emptyBlockInspection = new EmptyBlockInspection()
+        diagnostics.push(...emptyBlockInspection.inspect(file))
+
+        const unusedVariableInspection = new UnusedVariableInspection()
+        diagnostics.push(...unusedVariableInspection.inspect(file))
+
+        // const compilerInspection = new CompilerInspection()
+        // diagnostics.push(...await compilerInspection.inspect(file))
 
         await connection.sendDiagnostics({uri, diagnostics})
     })
