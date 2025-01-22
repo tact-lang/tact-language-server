@@ -88,7 +88,7 @@ export class Contract extends StorageMembersOwner {}
 
 export class Fun extends NamedNode {
     public hasBody(): boolean {
-        return this.node.type !== "native_function"
+        return this.node.type !== "native_function" && this.node.type !== "asm_function"
     }
 
     public returnType(): Expression | null {
