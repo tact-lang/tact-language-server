@@ -15,7 +15,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
         const prefix = state.get("prefix") ? state.get("prefix") : ""
         const name = node.name()
-        if (name.endsWith("dummyIdentifier")) return true
+        if (name.endsWith("dummyIdentifier") || name === "AnyStruct") return true
 
         if (node instanceof Fun) {
             if (this.ctx.isType) {

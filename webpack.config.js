@@ -53,6 +53,7 @@ const config = {
         new CopyPlugin({
             patterns: [
                 {from: "./node_modules/web-tree-sitter/tree-sitter.wasm", to: distDir},
+                {from: "./stubs/stubs.tact", to: path.join(distDir, "stubs")},
                 {from: "./server/tree-sitter-tact.wasm", to: distDir},
                 {from: "./ton-icon.svg", to: distDir},
             ],

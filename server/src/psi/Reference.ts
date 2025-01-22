@@ -2,8 +2,10 @@ import {SyntaxNode} from "web-tree-sitter"
 import {
     BouncedTy,
     ContractTy,
+    MapTy,
     MessageTy,
     OptionTy,
+    PrimitiveTy,
     StorageMembersOwnerTy,
     StructTy,
     TraitTy,
@@ -162,6 +164,14 @@ export class Reference {
         const qualifierType = qualifier.type()
         if (qualifierType === null) return true
 
+        if (qualifierType instanceof StructTy || qualifierType instanceof MessageTy) {
+            const node = index.elementByName(IndexKey.Primitives, "AnyStruct")
+            if (node) {
+                const structPrimitiveTy = new PrimitiveTy("AnyStruct", node)
+                if (!this.processType(qualifier, structPrimitiveTy, proc, state)) return false
+            }
+        }
+
         if (qualifierType instanceof BouncedTy) {
             return this.processType(qualifier, qualifierType.innerTy, proc, state)
         }
@@ -222,6 +232,10 @@ export class Reference {
                     if (typeNode === null) return true
                     const typeExpr = new Expression(typeNode, fun.file)
                     const selfType = typeExpr.type()
+                    if (selfType instanceof MapTy && ty instanceof MapTy) {
+                        return proc.execute(fun, state)
+                    }
+
                     if (selfType?.qualifiedName() === ty.qualifiedName()) {
                         return proc.execute(fun, state)
                     }
@@ -271,7 +285,7 @@ export class Reference {
         if (parent.type === "instance_argument") {
             // `Foo { name: "" }`
             //        ^^^^^^^^ this
-            return this.resolveInstanceInitField(parent, proc, state)
+            if (!this.resolveInstanceInitField(parent, proc, state)) return false
         }
 
         if (parent.type === "asm_arrangement_args") {

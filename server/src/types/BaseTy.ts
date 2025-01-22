@@ -48,6 +48,8 @@ export class MessageTy extends FieldsOwnerTy<Message> {}
 
 export class PrimitiveTy extends BaseTy<Primitive> {}
 
+export class PlaceholderTy extends BaseTy<NamedNode> {}
+
 export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends BaseTy<Anchor> {
     public ownMethods(): Fun[] {
         if (this.anchor === null) return []

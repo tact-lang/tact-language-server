@@ -5,12 +5,13 @@ import {
     MessageTy,
     NullTy,
     OptionTy,
+    PlaceholderTy,
     PrimitiveTy,
     StructTy,
     TraitTy,
     Ty,
 } from "./types/BaseTy"
-import {Expression, NamedNode, Node} from "./psi/Node"
+import {CallLike, Expression, NamedNode, Node} from "./psi/Node"
 import {Reference} from "./psi/Reference"
 import {Struct, Message, Fun, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations"
 import {isTypeOwnerNode} from "./psi/utils"
@@ -42,7 +43,12 @@ export class TypeInferer {
 
         if (node.node.type === "type_identifier") {
             const resolved = Reference.resolve(new NamedNode(node.node, node.file))
-            if (resolved === null) return null
+            if (resolved === null) {
+                if (node.node.text === "K" || node.node.text === "V") {
+                    return new PlaceholderTy(node.node.text, new NamedNode(node.node, node.file))
+                }
+                return null
+            }
 
             const inferred = this.inferTypeFromResolved(resolved)
             if (
@@ -147,7 +153,7 @@ export class TypeInferer {
         }
 
         if (node.node.type === "parameter") {
-            return this.inferChildFieldType(node, "name")
+            return this.inferChildFieldType(node, "type")
         }
 
         if (node.node.type === "field_access_expression") {
@@ -185,8 +191,42 @@ export class TypeInferer {
 
             const returnType = resolved.returnType()
             if (returnType === null) return null
+            const type = this.inferTypeMaybeOption(returnType.node, returnType)
+            if (!type) return null
 
-            return this.inferTypeMaybeOption(returnType.node, returnType)
+            // following code is completely garbage, we need to replace it with actual generics
+            if (
+                type instanceof PlaceholderTy ||
+                (type instanceof OptionTy && type.innerTy instanceof PlaceholderTy)
+            ) {
+                const innerTy = type instanceof OptionTy ? type.innerTy : type
+
+                const call = new CallLike(node.node, node.file)
+                const selfArgument =
+                    node.node.type === "method_call_expression"
+                        ? call.node.childForFieldName("object")
+                        : call.rawArguments()[0]
+                if (!selfArgument) return type
+
+                const selfType = this.inferType(new Expression(selfArgument, node.file))
+                if (!selfType) return type
+                if (!(selfType instanceof MapTy)) return type
+
+                const resultType =
+                    innerTy.name() === "K"
+                        ? selfType.keyTy
+                        : innerTy.name() === "V"
+                          ? selfType.valueTy
+                          : null
+                if (!resultType) return type
+
+                if (type instanceof OptionTy) {
+                    return new OptionTy(resultType)
+                }
+                return resultType
+            }
+
+            return type
         }
 
         if (node.node.type === "null") {

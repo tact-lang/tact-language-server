@@ -57,6 +57,7 @@ import {parentOfType} from "./psi/utils"
 import {URI} from "vscode-uri"
 import {FileChangeType} from "vscode-languageserver"
 import {Logger} from "./utils/logger"
+import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
 
 function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
     const lines = fileContent.split("\n")
@@ -110,6 +111,7 @@ class IndexRoot {
                 "**/test-failed/**",
                 "**/types/stmts-failed/**",
                 "**/types/stmts/**",
+                "**/tact-lang/compiler/**",
             ],
         })
         for (const filePath of files) {
@@ -156,11 +158,17 @@ connection.onInitialized(async () => {
         console.info("using stdlib from stdlib/ directory")
     }
 
-    reporter.report(50, "Indexing: (1/2) Standard Library")
+    reporter.report(50, "Indexing: (1/3) Standard Library")
     const stdlibRoot = new IndexRoot(resultStdlibPath, IndexRootKind.Stdlib)
     await stdlibRoot.index()
 
-    reporter.report(80, "Indexing: (2/2) Workspace")
+    reporter.report(55, "Indexing: (2/3) Stubs")
+    const stubsPath = path.join(__dirname, "stubs")
+    console.log("stubsPath", stubsPath)
+    const stubsRoot = new IndexRoot("file://" + stubsPath, IndexRootKind.Stdlib)
+    await stubsRoot.index()
+
+    reporter.report(80, "Indexing: (3/3) Workspace")
     const workspaceRoot = new IndexRoot(rootUri, IndexRootKind.Workspace)
     await workspaceRoot.index()
 
@@ -453,6 +461,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const result: lsp.CompletionItem[] = []
             const providers: CompletionProvider[] = [
                 new KeywordsCompletionProvider(),
+                new MapTypeCompletionProvider(),
                 new TopLevelFunctionCompletionProvider(),
                 new MemberFunctionCompletionProvider(),
                 new MessageMethodCompletionProvider(),
