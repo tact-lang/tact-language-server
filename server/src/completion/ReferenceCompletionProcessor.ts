@@ -15,7 +15,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
         const prefix = state.get("prefix") ? state.get("prefix") : ""
         const name = node.name()
-        if (name.endsWith("dummyIdentifier") || name === "AnyStruct") return true
+        if (name.endsWith("DummyIdentifier") || name === "AnyStruct") return true
 
         if (node instanceof Fun) {
             if (this.ctx.isType) {
@@ -32,7 +32,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
             const needSemicolon = this.ctx.isStatement && !this.ctx.beforeSemicolon
 
-            // TODO: check for `;` existence
             // We want to place cursor in parens only if there are any parameters to write.
             const insertText =
                 thisPrefix + name + (hasNoParams ? "()" : "($1)") + (needSemicolon ? "$2;$0" : "")
