@@ -34,7 +34,7 @@ export class UnusedParameterInspection extends UnusedInspection {
             this.checkUnused(param.node, fun.file, diagnostics, {
                 kind: "Parameter",
                 code: "unused-parameter",
-                rangeNode: nameIdent
+                rangeNode: nameIdent,
             })
         })
     }

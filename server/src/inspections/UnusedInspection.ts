@@ -24,7 +24,7 @@ export abstract class UnusedInspection {
             severity?: lsp.DiagnosticSeverity
             code?: string
             rangeNode?: SyntaxNode
-        }
+        },
     ) {
         const references = new Referent(node, file).findReferences()
         if (references.length === 0) {
@@ -36,12 +36,10 @@ export abstract class UnusedInspection {
                 message: `${options.kind} '${node.text}' is never used`,
                 source: "tact",
                 code: options.code || "unused",
-                tags: [lsp.DiagnosticTag.Unnecessary]
+                tags: [lsp.DiagnosticTag.Unnecessary],
             })
 
-            Logger.getInstance().info(
-                `Found unused ${options.kind.toLowerCase()} '${node.text}'`
-            )
+            Logger.getInstance().info(`Found unused ${options.kind.toLowerCase()} '${node.text}'`)
         }
     }
 }

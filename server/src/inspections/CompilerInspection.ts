@@ -16,19 +16,19 @@ export class CompilerInspection {
                 range: {
                     start: {
                         line: error.line,
-                        character: error.character
+                        character: error.character,
                     },
                     end: {
                         line: error.line,
-                        character: error.character + (error.length || 1)
-                    }
+                        character: error.character + (error.length || 1),
+                    },
                 },
                 message: error.message,
                 source: "tact-compiler",
-                code: "compiler-error"
+                code: "compiler-error",
             }))
         } catch (error) {
             return []
         }
     }
-} 
+}
