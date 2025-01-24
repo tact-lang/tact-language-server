@@ -158,9 +158,11 @@ async function initialize() {
     if (existsSync(resultStdlibPath.slice(7))) {
         resultStdlibPath = stdlibNodeModules
         console.info("using stdlib from node_modules")
-    } else {
+    } else if (existsSync(rootUri + "/stdlib")) {
         resultStdlibPath = rootUri + "/stdlib"
         console.info("using stdlib from stdlib/ directory")
+    } else {
+        console.info("stdlib not found")
     }
 
     reporter.report(50, "Indexing: (1/3) Standard Library")
