@@ -117,6 +117,9 @@ class IndexRoot {
                 "**/tact-lang/compiler/**",
             ],
         })
+        if (files.length === 0) {
+            console.warn(`No file to index in ${this.root}`)
+        }
         for (const filePath of files) {
             console.info("Indexing:", filePath)
             const uri = this.root + "/" + filePath
