@@ -152,22 +152,30 @@ async function initialize() {
     reporter.begin("Tact Language Server", 0)
 
     const rootUri = workspaceFolders![0].uri
-    const stdlibNodeModules = rootUri + "/node_modules/@tact-lang/compiler/stdlib"
+    const rootDir = rootUri.slice(7)
 
-    let resultStdlibPath = stdlibNodeModules
-    if (existsSync(resultStdlibPath.slice(7))) {
-        resultStdlibPath = stdlibNodeModules
-        console.info("using stdlib from node_modules")
-    } else if (existsSync(rootUri + "/stdlib")) {
-        resultStdlibPath = rootUri + "/stdlib"
-        console.info("using stdlib from stdlib/ directory")
-    } else {
+    const searchDirs = [
+        rootDir + "/node_modules/@tact-lang/compiler/src/stdlib/stdlib",
+        rootDir + "/node_modules/@tact-lang/compiler/src/stdlib",
+        rootDir + "/node_modules/@tact-lang/compiler/stdlib",
+        rootDir + "/stdlib",
+    ]
+
+    const stdlibPath = searchDirs.find(searchDir => {
+        return existsSync(searchDir)
+    })
+
+    if (!stdlibPath) {
         console.info("stdlib not found")
+    } else {
+        console.info(`using stdlib from ${stdlibPath}`)
     }
 
-    reporter.report(50, "Indexing: (1/3) Standard Library")
-    const stdlibRoot = new IndexRoot(resultStdlibPath, IndexRootKind.Stdlib)
-    await stdlibRoot.index()
+    if (stdlibPath) {
+        reporter.report(50, "Indexing: (1/3) Standard Library")
+        const stdlibRoot = new IndexRoot(stdlibPath, IndexRootKind.Stdlib)
+        await stdlibRoot.index()
+    }
 
     reporter.report(55, "Indexing: (2/3) Stubs")
     const stubsPath = path.join(__dirname, "stubs")
