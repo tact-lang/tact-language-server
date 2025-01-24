@@ -171,7 +171,7 @@ async function initialize() {
         console.info(`using stdlib from ${stdlibPath}`)
     }
 
-    if (stdlibPath) {
+    if (stdlibPath !== undefined) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
         const stdlibRoot = new IndexRoot(stdlibPath, IndexRootKind.Stdlib)
         await stdlibRoot.index()
