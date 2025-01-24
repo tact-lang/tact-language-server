@@ -140,8 +140,10 @@ async function findFile(uri: string, content?: string | undefined) {
     return file
 }
 
-connection.onInitialized(async () => {
-    if (!workspaceFolders || workspaceFolders.length === 0) {
+let initialized = false
+
+async function initialize() {
+    if (!workspaceFolders || workspaceFolders.length === 0 || initialized) {
         return
     }
 
@@ -178,7 +180,33 @@ connection.onInitialized(async () => {
     reporter.report(100, "Ready")
 
     reporter.done()
+
+    initialized = true
+}
+
+connection.onInitialized(async () => {
+    await initialize()
 })
+
+function findConfigFileDir(startPath: string, fileName: string): string | null {
+    let currentPath = startPath
+
+    while (true) {
+        const potentialPath = path.join(currentPath, fileName)
+        if (existsSync(potentialPath)) {
+            return currentPath
+        }
+
+        const parentPath = path.dirname(currentPath)
+        if (parentPath === currentPath) {
+            break
+        }
+
+        currentPath = parentPath
+    }
+
+    return null
+}
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     console.info("Started new session")
@@ -193,6 +221,23 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     documents.onDidOpen(async event => {
         const uri = event.document.uri
         console.info("open:", uri)
+
+        if (!initialized) {
+            // let's try to initialize with this way
+            const projectDir = findConfigFileDir(path.dirname(uri.slice(7)), "tact.config.json")
+            if (projectDir !== null) {
+                console.info(`found project directory: ${projectDir}`)
+                workspaceFolders = [
+                    {
+                        uri: "file://" + projectDir,
+                        name: path.basename(projectDir),
+                    },
+                ]
+                await initialize()
+            } else {
+                console.info(`project directory not found`)
+            }
+        }
 
         const file = await findFile(uri)
         index.addFile(uri, file)
