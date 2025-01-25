@@ -12,6 +12,16 @@ yarn grammar:wasm
 yarn build
 ```
 
+### VS Code
+
+If you want to run LS in VS Code, also run the following command to create the extension.
+
+```shell
+yarn package
+```
+
+In VS Code, open the Command Pallet, type "Install from VSIX", select the file, and reload VS Code.
+
 ## Run
 
 ```shell
