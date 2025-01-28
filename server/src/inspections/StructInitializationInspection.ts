@@ -57,7 +57,7 @@ export class StructInitializationInspection {
         if (missingFields.length > 0) {
             diagnostics.push({
                 severity: lsp.DiagnosticSeverity.Error,
-                range:  asLspRange(structName),
+                range: asLspRange(structName),
                 message: message,
                 source: "tact",
                 code: "missing-fields",
