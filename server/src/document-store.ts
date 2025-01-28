@@ -39,3 +39,22 @@ export class DocumentStore extends TextDocuments<TextDocument> {
         super.listen(_connection)
     }
 }
+
+export function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
+    const lines = fileContent.split("\n")
+    if (line < 0 || line > lines.length) {
+        return 0
+    }
+
+    const targetLine = lines[line]
+    if (column < 1 || column > targetLine.length + 1) {
+        return 0
+    }
+
+    let offset = 0
+    for (let i = 0; i < line; i++) {
+        offset += lines[i].length + 1 // +1 for '\n'
+    }
+    offset += column - 1
+    return offset
+}

@@ -1,6 +1,5 @@
 import {connection} from "./connection"
-import {DocumentStore} from "./document-store"
-import {readFileSync} from "fs"
+import {DocumentStore, getOffsetFromPosition} from "./document-store"
 import {createParser, initParser} from "./parser"
 import {asLspRange, asParserPoint} from "./utils/position"
 import {TypeInferer} from "./TypeInferer"
@@ -20,7 +19,6 @@ import * as lens from "./lens/collect"
 import * as search from "./search/implementations"
 import * as path from "node:path"
 import {existsSync} from "node:fs"
-import {LRUMap} from "./utils/lruMap"
 import {ClientOptions} from "../../shared/src/config-scheme"
 import {
     GetDocumentationAtPositionRequest,
@@ -52,101 +50,33 @@ import {TlbSerializationCompletionProvider} from "./completion/providers/TlbSeri
 import {MessageMethodCompletionProvider} from "./completion/providers/MessageMethodCompletionProvider"
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
-import {glob} from "glob"
 import {parentOfType} from "./psi/utils"
-import {URI} from "vscode-uri"
 import {FileChangeType} from "vscode-languageserver"
 import {Logger} from "./utils/logger"
 import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
 import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection"
 import {EmptyBlockInspection} from "./inspections/EmptyBlockInspection"
 import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
+import {CACHE} from "./cache"
+import {findFile, IndexRoot, IndexRootKind, PARSED_FILES_CACHE} from "./index-root"
 
-function getOffsetFromPosition(fileContent: string, line: number, column: number): number {
-    const lines = fileContent.split("\n")
-    if (line < 0 || line > lines.length) {
-        return 0
-    }
-
-    const targetLine = lines[line]
-    if (column < 1 || column > targetLine.length + 1) {
-        return 0
-    }
-
-    let offset = 0
-    for (let i = 0; i < line; i++) {
-        offset += lines[i].length + 1 // +1 for '\n'
-    }
-    offset += column - 1
-    return offset
-}
-
-const documents = new DocumentStore(connection)
-let workspaceFolders: lsp.WorkspaceFolder[] | null = null
-
-Logger.initialize(connection, `${__dirname}/tact-language-server.log`)
-
-export const PARSED_FILES_CACHE = new LRUMap<string, File>({
-    size: 100,
-    dispose: _entries => {},
-})
-
-enum IndexRootKind {
-    Stdlib = "stdlib",
-    Workspace = "workspace",
-}
-
-class IndexRoot {
-    constructor(
-        public root: string,
-        public kind: IndexRootKind,
-    ) {}
-
-    async index() {
-        const rootPath = this.root.slice(7)
-        const files = await glob("**/*.tact", {
-            cwd: rootPath,
-            ignore: [
-                "node_modules/**",
-                "*/test/e2e-emulated/**",
-                "**/__testdata/**",
-                "**/test/**",
-                "**/test-failed/**",
-                "**/types/stmts-failed/**",
-                "**/types/stmts/**",
-                "**/tact-lang/compiler/**",
-            ],
-        })
-        if (files.length === 0) {
-            console.warn(`No file to index in ${this.root}`)
-        }
-        for (const filePath of files) {
-            console.info("Indexing:", filePath)
-            const uri = this.root + "/" + filePath
-            const file = await findFile(uri)
-            index.addFile(uri, file, false)
-        }
-    }
-}
-
-async function findFile(uri: string, content?: string | undefined) {
-    const cached = PARSED_FILES_CACHE.get(uri)
-    if (cached !== undefined) {
-        return cached
-    }
-
-    const realContent = content ?? readFileSync(URI.parse(uri).path).toString()
-    const parser = createParser()
-    const tree = parser.parse(realContent)
-    const file = new File(uri, tree, realContent)
-    PARSED_FILES_CACHE.set(uri, file)
-    return file
-}
-
+/**
+ * Whenever LS is initialized.
+ *
+ * @see initialize
+ * @see initializeFallback
+ */
 let initialized = false
+
+/**
+ * Root folders for project.
+ * Used to find files to index.
+ */
+let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
 async function initialize() {
     if (!workspaceFolders || workspaceFolders.length === 0 || initialized) {
+        // use fallback later, see `initializeFallback`
         return
     }
 
@@ -158,14 +88,14 @@ async function initialize() {
     const rootDir = rootUri.slice(7)
 
     const searchDirs = [
-        rootDir + "/node_modules/@tact-lang/compiler/src/stdlib/stdlib",
-        rootDir + "/node_modules/@tact-lang/compiler/src/stdlib",
-        rootDir + "/node_modules/@tact-lang/compiler/stdlib",
-        rootDir + "/stdlib",
+        "node_modules/@tact-lang/compiler/src/stdlib/stdlib",
+        "node_modules/@tact-lang/compiler/src/stdlib",
+        "node_modules/@tact-lang/compiler/stdlib",
+        "stdlib",
     ]
 
     const stdlibPath = searchDirs.find(searchDir => {
-        return existsSync(searchDir)
+        return existsSync(path.join(rootDir, searchDir))
     })
 
     if (!stdlibPath) {
@@ -183,7 +113,7 @@ async function initialize() {
     reporter.report(55, "Indexing: (2/3) Stubs")
     const stubsPath = path.join(__dirname, "stubs")
     console.log("stubsPath", stubsPath)
-    const stubsRoot = new IndexRoot("file://" + stubsPath, IndexRootKind.Stdlib)
+    const stubsRoot = new IndexRoot(`file://${stubsPath}`, IndexRootKind.Stdlib)
     await stubsRoot.index()
 
     reporter.report(80, "Indexing: (3/3) Workspace")
@@ -191,6 +121,12 @@ async function initialize() {
     await workspaceRoot.index()
 
     reporter.report(100, "Ready")
+
+    // When we are ready, just reload all applied highlighting and hints and clear cache
+    // This way we support fast local resolving and then full resolving after indexing.
+    await connection.sendRequest(lsp.SemanticTokensRefreshRequest.type)
+    await connection.sendRequest(lsp.InlayHintRefreshRequest.type)
+    CACHE.clear()
 
     reporter.done()
 
@@ -206,19 +142,35 @@ function findConfigFileDir(startPath: string, fileName: string): string | null {
 
     while (true) {
         const potentialPath = path.join(currentPath, fileName)
-        if (existsSync(potentialPath)) {
-            return currentPath
-        }
+        if (existsSync(potentialPath)) return currentPath
 
         const parentPath = path.dirname(currentPath)
-        if (parentPath === currentPath) {
-            break
-        }
+        if (parentPath === currentPath) break
 
         currentPath = parentPath
     }
 
     return null
+}
+
+// For some reason some editors (like Neovim) doesn't pass workspace folders to initialization.
+// So we need to find root first and then call initialize.
+async function initializeFallback(uri: string) {
+    // let's try to initialize with this way
+    const projectDir = findConfigFileDir(path.dirname(uri.slice(7)), "tact.config.json")
+    if (projectDir === null) {
+        console.info(`project directory not found`)
+        return
+    }
+
+    console.info(`found project directory: ${projectDir}`)
+    workspaceFolders = [
+        {
+            uri: `file://${projectDir}`,
+            name: path.basename(projectDir),
+        },
+    ]
+    await initialize()
 }
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
@@ -231,25 +183,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     const langUri = opts?.langWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
     await initParser(treeSitterUri, langUri)
 
+    const documents = new DocumentStore(connection)
+
     documents.onDidOpen(async event => {
         const uri = event.document.uri
         console.info("open:", uri)
 
         if (!initialized) {
-            // let's try to initialize with this way
-            const projectDir = findConfigFileDir(path.dirname(uri.slice(7)), "tact.config.json")
-            if (projectDir !== null) {
-                console.info(`found project directory: ${projectDir}`)
-                workspaceFolders = [
-                    {
-                        uri: "file://" + projectDir,
-                        name: path.basename(projectDir),
-                    },
-                ]
-                await initialize()
-            } else {
-                console.info(`project directory not found`)
-            }
+            await initializeFallback(uri)
         }
 
         const file = await findFile(uri)
@@ -316,11 +257,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             }
         }
     })
-
-    const getContent = async (uri: string, content?: string | undefined) => {
-        const file = await findFile(uri, content)
-        return file.content
-    }
 
     function nodeAtPosition(params: lsp.TextDocumentPositionParams, file: File) {
         const cursorPosition = asParserPoint(params.position)
@@ -482,7 +418,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         lsp.CompletionRequest.type,
         async (params: lsp.CompletionParams): Promise<lsp.CompletionItem[]> => {
             const uri = params.textDocument.uri
-            const content = await getContent(uri)
+            const file = await findFile(uri)
+            const content = file.content
             const parser = createParser()
 
             const offset = getOffsetFromPosition(
@@ -1053,5 +990,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     }
 })
+
+Logger.initialize(connection, `${__dirname}/tact-language-server.log`)
 
 connection.listen()

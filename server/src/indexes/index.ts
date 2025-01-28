@@ -11,8 +11,8 @@ import {
 } from "../psi/TopLevelDeclarations"
 import {isNamedFunNode} from "../psi/utils"
 import {ResolveState, ScopeProcessor} from "../psi/Reference"
-import {PARSED_FILES_CACHE} from "../server"
 import {CACHE} from "../cache"
+import {PARSED_FILES_CACHE} from "../index-root"
 
 export interface IndexKeyToType {
     [IndexKey.Contracts]: Contract
@@ -161,7 +161,7 @@ export class GlobalIndex {
         this.files.delete(uri)
         PARSED_FILES_CACHE.delete(uri)
 
-        console.info(`removed ${uri} to index`)
+        console.info(`removed ${uri} from index`)
     }
 
     public processElementsByKey<K extends IndexKey>(
