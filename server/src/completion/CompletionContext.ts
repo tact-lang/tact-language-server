@@ -18,6 +18,8 @@ export class CompletionContext {
     inTlbSerialization: boolean = false
     afterDot: boolean = false
     beforeSemicolon: boolean = false
+    inNameOfFieldInit: boolean = false
+    inMultilineStructInit: boolean = false
 
     constructor(
         content: string,
@@ -47,6 +49,29 @@ export class CompletionContext {
 
         if (parent.type === "expression_statement") {
             this.isStatement = true
+        }
+
+        const valueNode = parent.childForFieldName("value")
+        if (parent.type === "instance_argument") {
+            const nameNode = parent.childForFieldName("name")
+            // hack for completion
+            if (valueNode === null || parent.text.includes("\n")) {
+                // Foo { name }
+                //       ^^^^
+                this.inNameOfFieldInit = true
+
+                const init = parentOfType(parent, "instance_expression")
+                const args = init?.childForFieldName("arguments")
+                if (args) {
+                    const openBracket = args.firstChild
+                    const closeBracket = args.lastChild
+                    if (!openBracket || !closeBracket) return
+
+                    if (openBracket.startPosition.row != closeBracket.startPosition.row) {
+                        this.inMultilineStructInit = true
+                    }
+                }
+            }
         }
 
         if (element.node.type === "type_identifier") {
@@ -99,7 +124,8 @@ export class CompletionContext {
             (this.isExpression || this.isStatement) &&
             !this.isType &&
             !this.afterDot &&
-            !this.inTlbSerialization
+            !this.inTlbSerialization &&
+            !this.inNameOfFieldInit
         )
     }
 }

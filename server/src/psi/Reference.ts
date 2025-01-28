@@ -282,6 +282,13 @@ export class Reference {
             return true
         }
 
+        // first we need to check block since we have such case
+        // ```
+        // let name = "";
+        // Foo { name };
+        // ````
+        if (!this.processBlock(proc, state)) return false
+
         if (parent.type === "instance_argument") {
             // `Foo { name: "" }`
             //        ^^^^^^^^ this
@@ -294,10 +301,7 @@ export class Reference {
             return this.resolveAsmArrangementArgs(parent, proc, state)
         }
 
-        if (!this.processBlock(proc, state)) return false
-        if (!this.processAllEntities(proc, state)) return false
-
-        return true
+        return this.processAllEntities(proc, state)
     }
 
     private resolveInstanceInitField(

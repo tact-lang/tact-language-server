@@ -4,7 +4,7 @@ import {index, IndexKey} from "../indexes"
 import {parentOfType} from "./utils"
 
 export class FieldsOwner extends NamedNode {
-    public fields(): NamedNode[] {
+    public fields(): Field[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children

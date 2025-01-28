@@ -59,6 +59,12 @@ export class NamedNode extends Node {
         if (ident === null) return ""
         return ident.text
     }
+
+    public defaultValue(): Expression | null {
+        const valueNode = this.node.childForFieldName("value")
+        if (valueNode === null) return null
+        return new Expression(valueNode, this.file)
+    }
 }
 
 export class VarDeclaration extends NamedNode {

@@ -59,6 +59,7 @@ import {EmptyBlockInspection} from "./inspections/EmptyBlockInspection"
 import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
 import {CACHE} from "./cache"
 import {findFile, IndexRoot, IndexRootKind, PARSED_FILES_CACHE} from "./index-root"
+import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
 
 /**
  * Whenever LS is initialized.
@@ -217,6 +218,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
         const emptyBlockInspection = new EmptyBlockInspection()
         diagnostics.push(...emptyBlockInspection.inspect(file))
+
+        const structInitInspection = new StructInitializationInspection()
+        diagnostics.push(...structInitInspection.inspect(file))
 
         const unusedVariableInspection = new UnusedVariableInspection()
         diagnostics.push(...unusedVariableInspection.inspect(file))

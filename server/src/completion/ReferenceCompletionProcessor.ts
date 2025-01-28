@@ -1,5 +1,5 @@
 import {ResolveState, ScopeProcessor} from "../psi/Reference"
-import {NamedNode, Node} from "../psi/Node"
+import {NamedNode, Node, VarDeclaration} from "../psi/Node"
 import {Constant, Field, Fun, Message, Primitive, Struct} from "../psi/TopLevelDeclarations"
 import {CompletionItem, InsertTextFormat, CompletionItemKind} from "vscode-languageserver-types"
 import {TypeInferer} from "../TypeInferer"
@@ -16,6 +16,20 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         const prefix = state.get("prefix") ? state.get("prefix") : ""
         const name = node.name()
         if (name.endsWith("DummyIdentifier") || name === "AnyStruct") return true
+
+        if (
+            this.ctx.inNameOfFieldInit &&
+            node.node.type !== "identifier" &&
+            !(node instanceof Field)
+        ) {
+            // For
+            // Foo { n<caret> }
+            // complete only local variables, parameters and fields
+            // but for
+            // Foo { name: <caret> }
+            // complete everything
+            return true
+        }
 
         if (node instanceof Fun) {
             if (this.ctx.isType) {
@@ -94,15 +108,20 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 return true
             }
 
+            // don't add `self.` for completion of field in init
+            const thisPrefix = this.ctx.inNameOfFieldInit ? "" : prefix
+            const comma = this.ctx.inMultilineStructInit ? "," : ""
+            const suffix = this.ctx.inNameOfFieldInit ? `: $1${comma}$0` : ""
+
             const typeNode = node.typeNode()
             const valueType = typeNode?.type()?.qualifiedName() ?? ""
             this.addItem({
-                label: prefix + name,
+                label: thisPrefix + name,
                 kind: CompletionItemKind.Property,
                 labelDetails: {
                     detail: ": " + valueType,
                 },
-                insertText: prefix + name,
+                insertText: thisPrefix + name + suffix,
                 insertTextFormat: InsertTextFormat.Snippet,
                 sortText: `2${name}`,
             })
