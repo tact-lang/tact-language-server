@@ -60,6 +60,8 @@ import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
 import {CACHE} from "./cache"
 import {findFile, IndexRoot, IndexRootKind, PARSED_FILES_CACHE} from "./index-root"
 import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
+import {AsmInstructionCompletionProvider} from "./completion/providers/AsmInstructionCompletionProvider"
+import {generateAsmDoc} from "./documentation/asm_documentation"
 
 /**
  * Whenever LS is initialized.
@@ -272,6 +274,20 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
             const file = await findFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
+
+            const parent = hoverNode.parent
+            if (parent?.type === "tvm_ordinary_word") {
+                const doc = generateAsmDoc(hoverNode.text)
+                if (doc === null) return null
+
+                return {
+                    range: asLspRange(hoverNode),
+                    contents: {
+                        kind: "markdown",
+                        value: doc,
+                    },
+                }
+            }
 
             const res = Reference.resolve(NamedNode.create(hoverNode, file))
             if (res === null) {
@@ -489,6 +505,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 new SelfCompletionProvider(),
                 new ReturnCompletionProvider(),
                 new ReferenceCompletionProvider(ref),
+                new AsmInstructionCompletionProvider(),
             ]
 
             providers.forEach((provider: CompletionProvider) => {
