@@ -56,6 +56,10 @@ const config = {
                 {from: "./stubs/stubs.tact", to: path.join(distDir, "stubs")},
                 {from: "./server/tree-sitter-tact.wasm", to: distDir},
                 {from: "./ton-icon.svg", to: distDir},
+                {
+                    from: "server/src/completion/data/asm.json",
+                    to: distDir,
+                },
             ],
         }),
     ],

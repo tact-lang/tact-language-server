@@ -56,6 +56,12 @@ export function collect(file: File): SemanticTokens {
         }
 
         if (n.type === "identifier") {
+            const parent = n.parent!
+            if (parent.type === "tvm_ordinary_word") {
+                pushToken(n, lsp.SemanticTokenTypes.macro)
+                return true
+            }
+
             const element = new NamedNode(n, file)
             const resolved = Reference.resolve(element)
             if (!resolved) return true
