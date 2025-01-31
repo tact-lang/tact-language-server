@@ -3,11 +3,12 @@ import {File} from "../psi/File"
 import {RecursiveVisitor} from "../visitor"
 import {SyntaxNode} from "web-tree-sitter"
 import {isNamedFunNode, parentOfType} from "../psi/utils"
-import {Fun, StorageMembersOwner, Struct} from "../psi/TopLevelDeclarations"
+import {Fun, StorageMembersOwner, Struct, Trait} from "../psi/TopLevelDeclarations"
 import {NamedNode} from "../psi/Node"
 import {Referent} from "../psi/Referent"
 import {Location} from "vscode-languageclient"
 import {asLspRange} from "../utils/position"
+import * as search from "../search/implementations"
 
 export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
     if (file.fromStdlib || !enabled) {
@@ -79,6 +80,32 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
                     }),
                 )
             }
+        }
+
+        if (n.type === "trait" && n.text !== "trait") {
+            const trait = new Trait(n, file)
+            const impls = search.implementations(trait)
+
+            result.push(
+                newLens(n, {
+                    title: `${impls.length} implementation` + (impls.length > 1 ? "s" : ""),
+                    command: "tact.showReferences",
+                    arguments: [
+                        file.uri,
+                        {
+                            line: n.startPosition.row,
+                            character: n.startPosition.column,
+                        } as lsp.Position,
+                        impls.map(r => {
+                            const nameNode = r.nameNode()
+                            return {
+                                uri: r.file.uri,
+                                range: asLspRange(nameNode?.node!),
+                            } as Location
+                        }),
+                    ],
+                }),
+            )
         }
 
         if (
