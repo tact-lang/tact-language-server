@@ -4043,7 +4043,12 @@
       "name": "comment"
     }
   ],
-  "conflicts": [["constant_attributes", "function_attributes"]],
+  "conflicts": [
+    [
+      "constant_attributes",
+      "function_attributes"
+    ]
+  ],
   "precedences": [
     [
       {
@@ -4126,5 +4131,7 @@
   ],
   "externals": [],
   "inline": [],
-  "supertypes": ["value_expression"]
+  "supertypes": [
+    "value_expression"
+  ]
 }
