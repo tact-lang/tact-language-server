@@ -9,8 +9,8 @@ import {Referent} from "../psi/Referent"
 import {Location} from "vscode-languageclient"
 import {asLspRange} from "../utils/position"
 
-export function collect(file: File): lsp.CodeLens[] {
-    if (file.fromStdlib) {
+export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
+    if (file.fromStdlib || !enabled) {
         // we don't need to count usages or show anything for stdlib symbols
         return []
     }

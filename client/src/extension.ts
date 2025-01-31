@@ -43,6 +43,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         revealOutputChannelOn: RevealOutputChannelOn.Never,
         documentSelector: [{scheme: "file", language: "tact"}],
         synchronize: {
+            configurationSection: "tact",
             fileEvents: vscode.workspace.createFileSystemWatcher("**/*.tact"),
         },
         initializationOptions: {

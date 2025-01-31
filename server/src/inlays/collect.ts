@@ -7,11 +7,19 @@ import {Fun} from "../psi/TopLevelDeclarations"
 import {CallLike, Expression, VarDeclaration} from "../psi/Node"
 import {MapTy} from "../types/BaseTy"
 
-export function collect(file: File): InlayHint[] | null {
+export function collect(
+    file: File,
+    hints: {
+        types: boolean
+        parameters: boolean
+    },
+): InlayHint[] | null {
+    if (!hints.types && !hints.parameters) return []
+
     const result: InlayHint[] = []
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
-        if (n.type === "let_statement") {
+        if (n.type === "let_statement" && hints.types) {
             const decl = new VarDeclaration(n, file)
             if (decl.typeHint() !== null) return true // already have typehint
 
@@ -34,7 +42,7 @@ export function collect(file: File): InlayHint[] | null {
             })
         }
 
-        if (n.type === "foreach_statement") {
+        if (n.type === "foreach_statement" && hints.types) {
             const expr = n.childForFieldName("map")
             if (!expr) return true
             const exprTy = new Expression(expr, file).type()
@@ -65,7 +73,10 @@ export function collect(file: File): InlayHint[] | null {
             }
         }
 
-        if (n.type === "static_call_expression" || n.type === "method_call_expression") {
+        if (
+            (n.type === "static_call_expression" || n.type === "method_call_expression") &&
+            hints.parameters
+        ) {
             const call = new CallLike(n, file)
             const res = Reference.resolve(call.nameNode())
             if (!(res instanceof Fun)) return true

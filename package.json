@@ -93,7 +93,28 @@
         "configuration": {
             "title": "Tact",
             "type": "object",
-            "properties": {}
+            "properties": {
+                "tact.stdlib.path": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Path to Tact standard library. If empty, will try to find in node_modules"
+                },
+                "tact.hints.types": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show type hints for variables and expressions"
+                },
+                "tact.hints.parameters": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show parameter name hints in function calls"
+                },
+                "tact.codeLens.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable/disable all code lens"
+                }
+            }
         }
     },
     "dependencies": {

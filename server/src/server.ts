@@ -62,6 +62,7 @@ import {findFile, IndexRoot, IndexRootKind, PARSED_FILES_CACHE} from "./index-ro
 import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
 import {AsmInstructionCompletionProvider} from "./completion/providers/AsmInstructionCompletionProvider"
 import {generateAsmDoc} from "./documentation/asm_documentation"
+import {clearDocumentSettings, getDocumentSettings} from "./utils/settings"
 
 /**
  * Whenever LS is initialized.
@@ -90,16 +91,22 @@ async function initialize() {
     const rootUri = workspaceFolders![0].uri
     const rootDir = rootUri.slice(7)
 
-    const searchDirs = [
-        "node_modules/@tact-lang/compiler/src/stdlib/stdlib",
-        "node_modules/@tact-lang/compiler/src/stdlib",
-        "node_modules/@tact-lang/compiler/stdlib",
-        "stdlib",
-    ]
+    const settings = await getDocumentSettings(rootUri)
+    let stdlibPath = settings.stdlib.path
 
-    const stdlibPath = searchDirs.find(searchDir => {
-        return existsSync(path.join(rootDir, searchDir))
-    })
+    if (!stdlibPath) {
+        const searchDirs = [
+            "node_modules/@tact-lang/compiler/src/stdlib/stdlib",
+            "node_modules/@tact-lang/compiler/src/stdlib",
+            "node_modules/@tact-lang/compiler/stdlib",
+            "stdlib",
+        ]
+
+        stdlibPath =
+            searchDirs.find(searchDir => {
+                return existsSync(path.join(rootDir, searchDir))
+            }) ?? null
+    }
 
     if (!stdlibPath) {
         console.info("stdlib not found")
@@ -107,7 +114,7 @@ async function initialize() {
         console.info(`using stdlib from ${stdlibPath}`)
     }
 
-    if (stdlibPath !== undefined) {
+    if (stdlibPath) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
         const stdlibRoot = new IndexRoot(stdlibPath, IndexRootKind.Stdlib)
         await stdlibRoot.index()
@@ -115,7 +122,6 @@ async function initialize() {
 
     reporter.report(55, "Indexing: (2/3) Stubs")
     const stubsPath = path.join(__dirname, "stubs")
-    console.log("stubsPath", stubsPath)
     const stubsRoot = new IndexRoot(`file://${stubsPath}`, IndexRootKind.Stdlib)
     await stubsRoot.index()
 
@@ -262,6 +268,13 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 index.removeFile(uri)
             }
         }
+    })
+
+    connection.onDidChangeConfiguration(async _change => {
+        clearDocumentSettings()
+
+        await connection.sendRequest(lsp.InlayHintRefreshRequest.type)
+        await connection.sendRequest(lsp.CodeLensRefreshRequest.type)
     })
 
     function nodeAtPosition(params: lsp.TextDocumentPositionParams, file: File) {
@@ -521,7 +534,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         lsp.InlayHintRequest.type,
         async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
             const file = await findFile(params.textDocument.uri)
-            return inlays.collect(file)
+            const settings = await getDocumentSettings(params.textDocument.uri)
+            return inlays.collect(file, settings.hints)
         },
     )
 
@@ -746,7 +760,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         async (params: lsp.CodeLensParams): Promise<lsp.CodeLens[]> => {
             const uri = params.textDocument.uri
             const file = await findFile(uri)
-            return lens.collect(file)
+            const settings = await getDocumentSettings(uri)
+            return lens.collect(file, settings.codeLens.enabled)
         },
     )
 
