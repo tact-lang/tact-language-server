@@ -38,7 +38,7 @@
         "test:e2e": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts",
         "test:e2e:coverage": "yarn test:e2e:compile && c8 ts-node server/src/e2e/runTest.ts",
         "test:e2e:compile": "tsc -p ./server/src/e2e/tsconfig.json",
-        "prepare": "husky"
+        "postinstall": "husky"
     },
     "main": "./dist/client",
     "contributes": {
