@@ -1,15 +1,6 @@
 import {ResolveState, ScopeProcessor} from "../psi/Reference"
 import {NamedNode, Node, VarDeclaration} from "../psi/Node"
-import {
-    Constant,
-    Contract,
-    Field,
-    Fun,
-    Message,
-    Primitive,
-    Struct,
-    Trait,
-} from "../psi/TopLevelDeclarations"
+import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from "../psi/Decls"
 import {CompletionItem, InsertTextFormat, CompletionItemKind} from "vscode-languageserver-types"
 import {TypeInferer} from "../TypeInferer"
 import {CompletionContext} from "./CompletionContext"

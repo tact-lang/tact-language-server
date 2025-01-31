@@ -1,4 +1,4 @@
-import {Contract, Trait} from "../psi/TopLevelDeclarations"
+import {Contract, Trait} from "../psi/Decls"
 import {index, IndexKey} from "../indexes"
 import {ResolveState, ScopeProcessor} from "../psi/Reference"
 import {Node} from "../psi/Node"

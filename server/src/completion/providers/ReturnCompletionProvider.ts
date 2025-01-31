@@ -2,7 +2,7 @@ import {CompletionProvider} from "../CompletionProvider"
 import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import {CompletionContext} from "../CompletionContext"
 import {funNodesTypes, parentOfType} from "../../psi/utils"
-import {Fun} from "../../psi/TopLevelDeclarations"
+import {Fun} from "../../psi/Decls"
 import {OptionTy, PrimitiveTy} from "../../types/BaseTy"
 import {TypeInferer} from "../../TypeInferer"
 

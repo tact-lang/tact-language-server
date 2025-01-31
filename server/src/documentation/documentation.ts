@@ -1,6 +1,6 @@
 import {NamedNode} from "../psi/Node"
 import {TypeInferer} from "../TypeInferer"
-import {Constant, Contract, Fun, Trait} from "../psi/TopLevelDeclarations"
+import {Constant, Contract, Fun, Trait} from "../psi/Decls"
 import {SyntaxNode} from "web-tree-sitter"
 
 const CODE_FENCE = "```"

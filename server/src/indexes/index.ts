@@ -1,14 +1,6 @@
 import {NamedNode} from "../psi/Node"
 import {File} from "../psi/File"
-import {
-    Constant,
-    Contract,
-    Fun,
-    Message,
-    Primitive,
-    Struct,
-    Trait,
-} from "../psi/TopLevelDeclarations"
+import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "../psi/Decls"
 import {isNamedFunNode} from "../psi/utils"
 import {ResolveState, ScopeProcessor} from "../psi/Reference"
 import {CACHE} from "../cache"

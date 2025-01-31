@@ -2,7 +2,7 @@ import {CompletionProvider} from "../CompletionProvider"
 import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import {CompletionContext} from "../CompletionContext"
 import {parentOfType} from "../../psi/utils"
-import {StorageMembersOwner} from "../../psi/TopLevelDeclarations"
+import {StorageMembersOwner} from "../../psi/Decls"
 
 export class OverrideCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {

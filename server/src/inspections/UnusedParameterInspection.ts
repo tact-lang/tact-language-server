@@ -1,6 +1,6 @@
 import * as lsp from "vscode-languageserver"
 import {File} from "../psi/File"
-import {Fun} from "../psi/TopLevelDeclarations"
+import {Fun} from "../psi/Decls"
 import {UnusedInspection} from "./UnusedInspection"
 
 export class UnusedParameterInspection extends UnusedInspection {

@@ -33,16 +33,7 @@ import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvi
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
 import {BaseTy} from "./types/BaseTy"
 import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
-import {
-    Constant,
-    Contract,
-    Field,
-    Fun,
-    Message,
-    Primitive,
-    Struct,
-    Trait,
-} from "./psi/TopLevelDeclarations"
+import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from "./psi/Decls"
 import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompletionProvider"
 import {OverrideCompletionProvider} from "./completion/providers/OverrideCompletionProvider"
 import {TraitOrContractFieldsCompletionProvider} from "./completion/providers/TraitOrContractFieldsCompletionProvider"

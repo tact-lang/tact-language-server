@@ -3,7 +3,7 @@ import {RecursiveVisitor} from "../visitor"
 import {File} from "../psi/File"
 import {TypeInferer} from "../TypeInferer"
 import {Reference} from "../psi/Reference"
-import {Fun} from "../psi/TopLevelDeclarations"
+import {Fun} from "../psi/Decls"
 import {CallLike, Expression, VarDeclaration} from "../psi/Node"
 import {MapTy} from "../types/BaseTy"
 

@@ -8,7 +8,7 @@ import {
     Trait,
     StorageMembersOwner,
     Primitive,
-} from "../psi/TopLevelDeclarations"
+} from "../psi/Decls"
 import {NamedNode, Node} from "../psi/Node"
 
 export interface Ty {

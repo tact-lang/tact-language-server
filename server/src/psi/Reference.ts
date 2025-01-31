@@ -14,7 +14,7 @@ import {
 import {index, IndexKey} from "../indexes"
 import {Expression, NamedNode, Node} from "./Node"
 import {File} from "./File"
-import {Contract, Field, Fun, Message, Struct, Trait} from "./TopLevelDeclarations"
+import {Contract, Field, Fun, Message, Struct, Trait} from "./Decls"
 import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "../cache"
 
@@ -278,7 +278,7 @@ export class Reference {
 
         const parent = this.element.node.parent!
         if (parent.type === "tvm_ordinary_word") {
-            // don"t try to resolve TVM assembly
+            // don't try to resolve TVM assembly
             return true
         }
 
@@ -371,9 +371,7 @@ export class Reference {
         if (!index.processElementsByKey(IndexKey.Messages, proc, state)) return false
         if (!index.processElementsByKey(IndexKey.Traits, proc, state)) return false
         if (!index.processElementsByKey(IndexKey.Constants, proc, state)) return false
-        if (!index.processElementsByKey(IndexKey.Contracts, proc, state)) return false
-
-        return true
+        return index.processElementsByKey(IndexKey.Contracts, proc, state)
     }
 
     private processBlock(proc: ScopeProcessor, state: ResolveState) {

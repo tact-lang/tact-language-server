@@ -13,7 +13,7 @@ import {
 } from "./types/BaseTy"
 import {CallLike, Expression, NamedNode, Node} from "./psi/Node"
 import {Reference} from "./psi/Reference"
-import {Struct, Message, Fun, Primitive, Contract, Trait} from "./psi/TopLevelDeclarations"
+import {Struct, Message, Fun, Primitive, Contract, Trait} from "./psi/Decls"
 import {isTypeOwnerNode} from "./psi/utils"
 import {SyntaxNode} from "web-tree-sitter"
 import {CACHE} from "./cache"
