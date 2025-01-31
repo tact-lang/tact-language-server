@@ -11,12 +11,12 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-Int
-test
-Foo
-false
-return;
-true
+2  test()
+21 Foo{}
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Message completion
@@ -31,9 +31,9 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-Int
-test
-Foo
-false
-return;
-true
+2  test()
+21 Foo{}
+13 false
+13 null
+13 return;
+13 true

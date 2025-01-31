@@ -4,7 +4,7 @@ import {CompletionContext} from "../CompletionContext"
 
 export class MapTypeCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
-        return ctx.isType
+        return ctx.isType && !ctx.inTraitList
     }
 
     addCompletion(_ctx: CompletionContext, elements: CompletionItem[]): void {

@@ -5,19 +5,19 @@ struct Transfer {
     amount: Int as <caret>;
 }
 ------------------------------------------------------------------------
-coins
-int128
-int16
-int256
-int257
-int32
-int64
-int8
-int{X}
-uint128
-uint16
-uint256
-uint32
-uint64
-uint8
-uint{X}
+13 coins
+13 int128
+13 int16
+13 int256
+13 int257
+13 int32
+13 int64
+13 int8
+13 int{X}
+13 uint128
+13 uint16
+13 uint256
+13 uint32
+13 uint64
+13 uint8
+13 uint{X}

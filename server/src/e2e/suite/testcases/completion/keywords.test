@@ -7,12 +7,13 @@ trait Foo {
     }
 }
 ------------------------------------------------------------------------
-self.foo
-false
-Foo
-return;
-self
-true
+2  self.foo()
+24 Foo
+13 false
+13 null
+13 return;
+13 self
+13 true
 
 ========================================================================
 Self keyword inside contract
@@ -23,12 +24,12 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-self.foo
-false
-Foo
-return;
-self
-true
+2  self.foo()
+13 false
+13 null
+13 return;
+13 self
+13 true
 
 ========================================================================
 Self keyword inside function
@@ -37,7 +38,8 @@ fun foo() {
     <caret>
 }
 ------------------------------------------------------------------------
-foo
-false
-return;
-true
+2  foo()
+13 false
+13 null
+13 return;
+13 true

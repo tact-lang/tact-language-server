@@ -52,9 +52,13 @@ suite("Completion Test Suite", () => {
                         assert.deepStrictEqual(actual, expected)
                     }
                 } else {
-                    const items = completions.items
-                        .map(item => item.label)
-                        .map(item => (typeof item === "object" ? item.label : item))
+                    const items = completions.items.map(item => {
+                        const label = typeof item.label === "object" ? item.label.label : item.label
+                        const details =
+                            (typeof item.label === "object" ? item.label.detail : item.detail) ?? ""
+
+                        return `${item.kind?.toString()?.padEnd(2)} ${label}${details}`
+                    })
                     const expected = testCase.expected
                         .split("\n")
                         .filter((line: string) => line !== "")

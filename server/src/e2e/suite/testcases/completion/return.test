@@ -2,13 +2,14 @@
 Return inside void function
 ========================================================================
 fun test() {
-    <caret>
+    ret<caret>
 }
 ------------------------------------------------------------------------
-test
-false
-return;
-true
+2  test()
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Return inside bool function
@@ -16,16 +17,16 @@ Return inside bool function
 primitive Bool;
 
 fun test(): Bool {
-    <caret>
+    ret<caret>
 }
 ------------------------------------------------------------------------
-Bool
-test
-false
-return <expr>;
-true
-return false;
-return true;
+2  test(): Bool
+13 false
+13 null
+13 return <expr>;
+13 true
+14 return false;
+14 return true;
 
 ========================================================================
 Return inside int function
@@ -33,15 +34,15 @@ Return inside int function
 primitive Int;
 
 fun test(): Int {
-    <caret>
+    ret<caret>
 }
 ------------------------------------------------------------------------
-Int
-test
-false
-return <expr>;
-true
-return 0;
+2  test(): Int
+13 false
+13 null
+13 return <expr>;
+13 true
+14 return 0;
 
 ========================================================================
 Return inside string function
@@ -49,15 +50,15 @@ Return inside string function
 primitive String;
 
 fun test(): String {
-    <caret>
+    ret<caret>
 }
 ------------------------------------------------------------------------
-String
-test
-false
-return <expr>;
-true
-return "";
+2  test(): String
+13 false
+13 null
+13 return <expr>;
+13 true
+14 return "";
 
 ========================================================================
 Return inside option function
@@ -65,12 +66,12 @@ Return inside option function
 primitive String;
 
 fun test(): String? {
-    <caret>
+    ret<caret>
 }
 ------------------------------------------------------------------------
-String
-test
-false
-return <expr>;
-true
-return null;
+2  test(): String
+13 false
+13 null
+13 return <expr>;
+13 true
+14 return null;

@@ -1,6 +1,15 @@
 import {ResolveState, ScopeProcessor} from "../psi/Reference"
 import {NamedNode, Node, VarDeclaration} from "../psi/Node"
-import {Constant, Field, Fun, Message, Primitive, Struct} from "../psi/TopLevelDeclarations"
+import {
+    Constant,
+    Contract,
+    Field,
+    Fun,
+    Message,
+    Primitive,
+    Struct,
+    Trait,
+} from "../psi/TopLevelDeclarations"
 import {CompletionItem, InsertTextFormat, CompletionItemKind} from "vscode-languageserver-types"
 import {TypeInferer} from "../TypeInferer"
 import {CompletionContext} from "./CompletionContext"
@@ -62,17 +71,42 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 sortText: `1${name}`,
             })
         } else if (node instanceof Struct || node instanceof Message) {
+            if (this.ctx.inTraitList) return true
+
             // we don't want to add `{}` for type completion
-            const braces = this.ctx.isType ? "" : "{$1}"
+            const bracesSnippet = this.ctx.isType ? "" : "{$1}"
+            const braces = this.ctx.isType ? "" : "{}"
 
             this.addItem({
                 label: name,
+                labelDetails: {
+                    detail: braces,
+                },
                 kind: CompletionItemKind.Struct,
-                insertText: `${name}${braces}$0`,
+                insertText: `${name}${bracesSnippet}$0`,
                 insertTextFormat: InsertTextFormat.Snippet,
                 sortText: `2${name}`,
             })
+        } else if (node instanceof Trait) {
+            if (name === "BaseTrait") return true
+            const importance = this.ctx.inTraitList ? "0" : "3"
+
+            this.addItem({
+                label: name,
+                kind: CompletionItemKind.TypeParameter,
+                insertText: `${name}$0`,
+                insertTextFormat: InsertTextFormat.Snippet,
+                sortText: `${importance}${name}`,
+            })
+        } else if (node instanceof Contract) {
+            // don't add contract in completion for now
+            return true
         } else if (node instanceof Primitive) {
+            if (!this.ctx.isType || this.ctx.inTraitList) {
+                // don't add primitive types for non-type or trait completion
+                return true
+            }
+
             this.addItem({
                 label: name,
                 kind: CompletionItemKind.Property,

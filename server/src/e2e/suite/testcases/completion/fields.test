@@ -1,6 +1,9 @@
 ========================================================================
 Message fields completion
 ========================================================================
+primitive Int;
+primitive Address;
+
 message Transfer {
     amount: Int;
     to: Address;
@@ -10,12 +13,14 @@ fun test(msg: Transfer) {
     msg.<caret>
 }
 ------------------------------------------------------------------------
-amount
-to
+9  amount: Int
+9  to: Address
 
 ========================================================================
 Struct fields completion
 ========================================================================
+primitive Int;
+
 struct Point {
     x: Int;
     y: Int as uint32;
@@ -26,13 +31,16 @@ fun test(p: Point) {
     p.<caret>
 }
 ------------------------------------------------------------------------
-x
-y
-z
+9  x: Int
+9  y: Int
+9  z: Int?
 
 ========================================================================
 Contract fields completion
 ========================================================================
+primitive Int;
+primitive Address;
+
 contract Counter {
     val: Int;
     owner: Address;
@@ -47,12 +55,15 @@ fun test(c: Counter) {
     c.<caret>
 }
 ------------------------------------------------------------------------
-owner
-val
+9  owner: Address
+9  val: Int
 
 ========================================================================
 Map fields completion
 ========================================================================
+primitive Int;
+primitive Address;
+
 struct Storage {
     balances: map<Address, Int>;
     allowances: map<Address, map<Address, Int>>;
@@ -62,12 +73,15 @@ fun test(s: Storage) {
     s.<caret>
 }
 ------------------------------------------------------------------------
-allowances
-balances
+9  allowances: map<Address, Int>
+9  balances: map<Address, Int>
 
 ========================================================================
 Optional fields completion
 ========================================================================
+primitive Int;
+primitive Address;
+
 struct User {
     name: String;
     age: Int?;
@@ -78,13 +92,16 @@ fun test(u: User?) {
     u.<caret>
 }
 ------------------------------------------------------------------------
-address
-age
-name
+9  address: Address?
+9  age: Int?
+9  name: 
 
 ========================================================================
 Nested fields completion
 ========================================================================
+primitive Int;
+primitive Address;
+
 struct Inner {
     value: Int;
 }
@@ -97,11 +114,14 @@ fun test(o: Outer) {
     o.inner.<caret>
 }
 ------------------------------------------------------------------------
-value
+9  value: Int
 
 ========================================================================
 Message with TLB fields completion
 ========================================================================
+primitive Int;
+primitive Address;
+
 message TokenTransfer {
     queryId: Int as uint64;
     amount: Int as coins;
@@ -114,15 +134,19 @@ fun test(msg: TokenTransfer) {
     msg.<caret>
 }
 ------------------------------------------------------------------------
-amount
-from
-queryId
-responseDestination
-to
+9  amount: Int
+9  from: Address
+9  queryId: Int
+9  responseDestination: Address?
+9  to: Address
 
 ========================================================================
 Field of bounced<struct>
 ========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
 struct User {
     name: String;
     age: Int?;
@@ -135,13 +159,17 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-address
-age
-name
+9  address: Address?
+9  age: Int?
+9  name: String
 
 ========================================================================
 Field of option struct without unwrapping
 ========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
 struct User {
     name: String;
     age: Int?;
@@ -152,13 +180,17 @@ fun foo(f: User?) {
     f.<caret>
 }
 ------------------------------------------------------------------------
-address
-age
-name
+9  address: Address?
+9  age: Int?
+9  name: String
 
 ========================================================================
 Field of option struct with unwrapping
 ========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
 struct User {
     name: String;
     age: Int?;
@@ -169,6 +201,6 @@ fun foo(f: User?) {
     f!!.<caret>
 }
 ------------------------------------------------------------------------
-address
-age
-name
+9  address: Address?
+9  age: Int?
+9  name: String

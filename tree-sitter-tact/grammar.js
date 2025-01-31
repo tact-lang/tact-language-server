@@ -328,7 +328,11 @@ module.exports = grammar({
 
     contract_attributes: ($) => repeat1(seq("@interface", "(", $.string, ")")),
 
-    trait_list: ($) => seq("with", commaSepWithTrailing($.identifier)),
+    trait_list: ($) =>
+      seq(
+        "with",
+        commaSepWithTrailing(alias($._type_identifier, $.type_identifier)),
+      ),
 
     contract_body: ($) =>
       seq(
@@ -763,7 +767,7 @@ module.exports = grammar({
     _simple_type: ($) =>
       seq(alias($._type_identifier, $.type_identifier), optional("?")),
 
-    _type_identifier: (_) => /[a-zA-Z][a-zA-Z0-9_]*/,
+    _type_identifier: (_) => /[A-Z][a-zA-Z0-9_]*/,
 
     /* Serialization to TL-B types */
 

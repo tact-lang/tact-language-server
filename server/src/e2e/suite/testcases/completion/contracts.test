@@ -5,12 +5,12 @@ contract Foo {
     <caret>
 }
 ------------------------------------------------------------------------
-bounced(msg: <type>) {}
-fun name() {}
-get fun name() {}
-inline fun name() {}
-receive("<message>") {}
-receive(msg: <type>) {}
+13 bounced(msg: <type>) {}
+13 fun name() {}
+13 get fun name() {}
+13 inline fun name() {}
+13 receive("<message>") {}
+13 receive(msg: <type>) {}
 
 ========================================================================
 Completion of contract constants
@@ -24,11 +24,11 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-self.foo
-self.BAR
-self.FOO
-false
-Foo
-return;
-self
-true
+2  self.foo()
+20 self.BAR:  = 100
+20 self.FOO:  = 100
+13 false
+13 null
+13 return;
+13 self
+13 true

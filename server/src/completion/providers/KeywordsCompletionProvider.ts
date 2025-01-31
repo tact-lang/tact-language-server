@@ -17,5 +17,10 @@ export class KeywordsCompletionProvider implements CompletionProvider {
             label: "false",
             kind: CompletionItemKind.Keyword,
         })
+
+        elements.push({
+            label: "null",
+            kind: CompletionItemKind.Keyword,
+        })
     }
 }

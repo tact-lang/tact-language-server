@@ -9,14 +9,14 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-abstract fun name();
-bounced(msg: <type>) {}
-fun name() {}
-get fun name() {}
-inline fun name() {}
-override fun foo(): Int {}
-receive("<message>") {}
-receive(msg: <type>) {}
+13 abstract fun name();
+13 bounced(msg: <type>) {}
+13 fun name() {}
+13 get fun name() {}
+13 inline fun name() {}
+2  override fun foo(): Int {} of Parent
+13 receive("<message>") {}
+13 receive(msg: <type>) {}
 
 ========================================================================
 Completion of override methods in trait with deep inheritance
@@ -33,15 +33,15 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-abstract fun name();
-bounced(msg: <type>) {}
-fun name() {}
-get fun name() {}
-inline fun name() {}
-override fun bar(name: String): Bool {}
-override fun foo(): Int {}
-receive("<message>") {}
-receive(msg: <type>) {}
+13 abstract fun name();
+13 bounced(msg: <type>) {}
+13 fun name() {}
+13 get fun name() {}
+13 inline fun name() {}
+2  override fun bar(name: String): Bool {} of Grand
+2  override fun foo(): Int {} of Parent
+13 receive("<message>") {}
+13 receive(msg: <type>) {}
 
 ========================================================================
 Completion of override methods in trait with method
@@ -56,14 +56,14 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-abstract fun name();
-bounced(msg: <type>) {}
-fun name() {}
-get fun name() {}
-inline fun name() {}
-override fun bar(): Int {}
-receive("<message>") {}
-receive(msg: <type>) {}
+13 abstract fun name();
+13 bounced(msg: <type>) {}
+13 fun name() {}
+13 get fun name() {}
+13 inline fun name() {}
+2  override fun bar(): Int {} of Parent
+13 receive("<message>") {}
+13 receive(msg: <type>) {}
 
 ========================================================================
 Completion of fields in trait
@@ -78,14 +78,14 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-abstract fun name();
-bounced(msg: <type>) {}
-fun name() {}
-get fun name() {}
-inline fun name() {}
-name: String;
-receive("<message>") {}
-receive(msg: <type>) {}
+13 abstract fun name();
+13 bounced(msg: <type>) {}
+13 fun name() {}
+13 get fun name() {}
+13 inline fun name() {}
+9  name: String; of Parent
+13 receive("<message>") {}
+13 receive(msg: <type>) {}
 
 ========================================================================
 Completion of fields in trait with deep inheritance
@@ -105,15 +105,15 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-abstract fun name();
-age: Int;
-bounced(msg: <type>) {}
-fun name() {}
-get fun name() {}
-inline fun name() {}
-name: String;
-receive("<message>") {}
-receive(msg: <type>) {}
+13 abstract fun name();
+9  age: Int; of Grand
+13 bounced(msg: <type>) {}
+13 fun name() {}
+13 get fun name() {}
+13 inline fun name() {}
+9  name: String; of Parent
+13 receive("<message>") {}
+13 receive(msg: <type>) {}
 
 ========================================================================
 Completion of fields in trait with field
@@ -131,14 +131,14 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-abstract fun name();
-age: Int;
-bounced(msg: <type>) {}
-fun name() {}
-get fun name() {}
-inline fun name() {}
-receive("<message>") {}
-receive(msg: <type>) {}
+13 abstract fun name();
+9  age: Int; of Parent
+13 bounced(msg: <type>) {}
+13 fun name() {}
+13 get fun name() {}
+13 inline fun name() {}
+13 receive("<message>") {}
+13 receive(msg: <type>) {}
 
 ========================================================================
 Completion of methods and fields without self
@@ -155,13 +155,29 @@ trait Child with Parent {
     }
 }
 ------------------------------------------------------------------------
-Int
-self.bar
-self.foo
-self.field
-Child
-false
-return <expr>;
-self
-true
-return 0;
+2  self.bar(): Int
+2  self.foo(): Int
+9  self.field: Int
+24 Child
+13 false
+13 null
+13 return <expr>;
+13 self
+13 true
+14 return 0;
+
+========================================================================
+Completion of traits to override
+========================================================================
+primitive Int;
+
+trait A1 {}
+trait A2 {}
+trait A3 {}
+
+trait Child with <caret> {}
+------------------------------------------------------------------------
+24 A1
+24 A2
+24 A3
+24 Child

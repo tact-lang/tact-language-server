@@ -6,5 +6,5 @@ primitive Int;
 const BAR: Int = 100;
 const FOO: <caret> = 100;
 ------------------------------------------------------------------------
-Int
-map<K, V>
+9  Int
+13 map<K, V>

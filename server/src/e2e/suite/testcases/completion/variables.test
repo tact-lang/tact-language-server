@@ -1,6 +1,8 @@
 ========================================================================
 Local variable completion
 ========================================================================
+primitive Int;
+
 fun test() {
     let myInt: Int = 0;
     let myAddress: Address = address("0");
@@ -9,63 +11,79 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-test
-myAddress
-myInt
-myString
-false
-return;
-true
+2  test()
+5  myAddress: unknown
+5  myInt: Int
+5  myString: unknown
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Fun parameter completion
 ========================================================================
+primitive Int;
+primitive Address;
+
 fun test(amount: Int, to: Address) {
     <caret>
 }
 ------------------------------------------------------------------------
-test
-amount
-to
-false
-return;
-true
+2  test(amount: Int, to: Address)
+5  amount: Int
+5  to: Address
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Extends function parameter completion
 ========================================================================
+primitive Int;
+struct Point {}
+
 extends fun move(self: Point, x: Int, y: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-move
-self
-x
-y
-false
-return;
-true
+2  move(self: Point, x: Int, y: Int)
+21 Point{}
+5  self: Point
+5  x: Int
+5  y: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Extends function with local variables
 ========================================================================
+primitive Int;
+struct Point {}
+
 extends fun scale(self: Point, factor: Int) {
     let temp = factor * 2;
     <caret>
 }
 ------------------------------------------------------------------------
-scale
-factor
-self
-temp
-false
-return;
-true
+2  scale(self: Point, factor: Int)
+21 Point{}
+5  factor: Int
+5  self: Point
+5  temp: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Nested scope completion
 ========================================================================
 primitive Int;
+
 fun test() {
     let outer: Int = 1;
 
@@ -75,18 +93,19 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-Int
-test
-inner
-outer
-false
-return;
-true
+2  test()
+5  inner: Int
+5  outer: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Multiple scopes completion
 ========================================================================
 primitive Int;
+
 fun test() {
     let a: Int = 1;
     {
@@ -98,19 +117,20 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-Int
-test
-a
-b
-c
-false
-return;
-true
+2  test()
+5  a: Int
+5  b: Int
+5  c: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Loop variable completion
 ========================================================================
 primitive Int;
+
 fun test() {
     let items: map<Int, Int> = emptyMap();
 
@@ -119,19 +139,20 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-Int
-test
-items
-key
-value
-false
-return;
-true
+2  test()
+5  items: map<Int, Int>
+5  key: Int
+5  value: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Try-catch variable completion in try
 ========================================================================
 primitive Int;
+
 fun test() {
     let value: Int = 0;
     try {
@@ -142,18 +163,19 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-Int
-test
-result
-value
-false
-return;
-true
+2  test()
+5  result: Int
+5  value: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Try-catch variable completion in catch
 ========================================================================
 primitive Int;
+
 fun test() {
     let value: Int = 0;
     try {
@@ -163,18 +185,19 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-Int
-test
-error
-value
-false
-return;
-true
+2  test()
+5  error: unknown
+5  value: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Variable shadowing
 ========================================================================
 primitive Int;
+
 fun test() {
     let value: Int = 1;
     {
@@ -183,65 +206,70 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-Int
-test
-value
-false
-return;
-true
+2  test()
+5  value: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Fun parameter and local variable
 ========================================================================
 primitive Int;
+
 fun test(param: Int) {
     let local: Int = 2;
     <caret>
 }
 ------------------------------------------------------------------------
-Int
-test
-local
-param
-false
-return;
-true
+2  test(param: Int)
+5  local: Int
+5  param: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Variable not accessible before declaration // TODO
 ========================================================================
 primitive Int;
+
 fun test() {
     <caret>
     let variable: Int = 1;
 }
 ------------------------------------------------------------------------
-Int
-test
-variable
-false
-return;
-true
+2  test()
+5  variable: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Variable accessible after declaration
 ========================================================================
 primitive Int;
+
 fun test() {
     let variable: Int = 1;
     <caret>
 }
 ------------------------------------------------------------------------
-Int
-test
-variable
-false
-return;
-true
+2  test()
+5  variable: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Multiple variables declaration order // TODO
 ========================================================================
+primitive Int;
+
 fun test() {
     <caret>
     let first = 1;
@@ -251,16 +279,19 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-test
-first
-second
-false
-return;
-true
+2  test()
+5  first: Int
+5  second: Int
+13 false
+13 null
+13 return;
+13 true
 
 ========================================================================
 Multiple variables after declarations
 ========================================================================
+primitive Int;
+
 fun test() {
     let first = 1;
     let second = 2;
@@ -270,10 +301,11 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-test
-first
-second
-third
-false
-return;
-true
+2  test()
+5  first: Int
+5  second: Int
+5  third: Int
+13 false
+13 null
+13 return;
+13 true

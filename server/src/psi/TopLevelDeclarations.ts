@@ -72,7 +72,7 @@ export class StorageMembersOwner extends NamedNode {
         }
 
         const inheritTraits = traitList.children
-            .filter(value => value.type === "identifier")
+            .filter(value => value.type === "type_identifier")
             .map(value => new NamedNode(value, this.file))
             .map(node => Reference.resolve(node))
             .filter(node => node !== null)

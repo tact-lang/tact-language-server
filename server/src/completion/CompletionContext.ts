@@ -20,6 +20,7 @@ export class CompletionContext {
     beforeSemicolon: boolean = false
     inNameOfFieldInit: boolean = false
     inMultilineStructInit: boolean = false
+    inTraitList: boolean = false
 
     constructor(
         content: string,
@@ -84,6 +85,10 @@ export class CompletionContext {
             this.isStatement = false
         }
 
+        if (parent.type === "trait_list") {
+            this.inTraitList = true
+        }
+
         // skip additional ERROR node
         if (parent.type === "ERROR" && parent.parent?.type === "source_file") {
             this.topLevel = true
@@ -125,7 +130,8 @@ export class CompletionContext {
             !this.isType &&
             !this.afterDot &&
             !this.inTlbSerialization &&
-            !this.inNameOfFieldInit
+            !this.inNameOfFieldInit &&
+            !this.inTraitList
         )
     }
 }

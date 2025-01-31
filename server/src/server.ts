@@ -63,6 +63,7 @@ import {StructInitializationInspection} from "./inspections/StructInitialization
 import {AsmInstructionCompletionProvider} from "./completion/providers/AsmInstructionCompletionProvider"
 import {generateAsmDoc} from "./documentation/asm_documentation"
 import {clearDocumentSettings, getDocumentSettings} from "./utils/settings"
+import {ContractDeclCompletionProvider} from "./completion/providers/ContractDeclCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -509,6 +510,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const providers: CompletionProvider[] = [
                 new KeywordsCompletionProvider(),
                 new MapTypeCompletionProvider(),
+                new ContractDeclCompletionProvider(),
                 new TopLevelFunctionCompletionProvider(),
                 new MemberFunctionCompletionProvider(),
                 new MessageMethodCompletionProvider(),

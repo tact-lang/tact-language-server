@@ -7,11 +7,13 @@ fun foo() {}
 
 <caret>
 ------------------------------------------------------------------------
-asm fun
-extends fun
-extends native
-fun
-native
+13 asm fun name() {}
+13 contract Name {}
+13 contract Name with Trait {}
+13 extends fun name(self: <type>) {}
+13 extends native name(self: <type>);
+13 fun name() {}
+13 native name() {}
 
 ========================================================================
 Completion on top-level 2
@@ -22,8 +24,10 @@ fun foo() {}
 
 <caret>
 ------------------------------------------------------------------------
-asm fun
-extends fun
-extends native
-fun
-native
+13 asm fun name() {}
+13 contract Name {}
+13 contract Name with Trait {}
+13 extends fun name(self: <type>) {}
+13 extends native name(self: <type>);
+13 fun name() {}
+13 native name() {}
