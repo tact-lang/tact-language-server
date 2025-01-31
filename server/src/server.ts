@@ -1,6 +1,6 @@
 import {connection} from "./connection"
 import {DocumentStore, getOffsetFromPosition} from "./document-store"
-import {createFiftParser, createTactParser, initParser} from "./parser"
+import {createTactParser, initParser} from "./parser"
 import {asLspRange, asParserPoint} from "./utils/position"
 import {TypeInferer} from "./TypeInferer"
 import {SyntaxNode} from "web-tree-sitter"

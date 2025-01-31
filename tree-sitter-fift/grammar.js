@@ -6,7 +6,7 @@ module.exports = grammar({
   rules: {
     source_file: ($) => seq(optional($.include_directive), $.program),
 
-    include_directive: ($) => seq('"', /[^"]+/, '"', "include"),
+    include_directive: () => seq('"', /[^"]+/, '"', "include"),
 
     comment: (_) => token(seq("//", /[^\n]*/)),
 
@@ -84,27 +84,27 @@ module.exports = grammar({
 
     proc_call: ($) => seq($.identifier, choice("CALLDICT", "INLINECALLDICT")),
 
-    slice_literal: ($) =>
+    slice_literal: () =>
       choice(
         seq("b{", /[01]+/, "}"),
         seq("x{", /[0-9a-fA-F_]+/, "}"),
         seq("B{", /[0-9a-fA-F_]+/, "}"),
       ),
 
-    hex_literal: ($) => /0[xX][0-9a-fA-F]+/,
+    hex_literal: () => /0[xX][0-9a-fA-F]+/,
 
-    identifier: ($) => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    identifier: () => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
     negative_identifier: ($) => seq("-", $.identifier),
 
-    number: ($) => /-?\d+/,
+    number: () => /-?\d+/,
 
-    stack_ref: ($) => seq("s", "(", /-?\d+/, ")"),
+    stack_ref: () => seq("s", "(", /-?\d+/, ")"),
 
     stack_op: ($) => seq($.stack_index, $.stack_index, $.identifier),
 
-    stack_index: ($) => seq("s", /[0-9]+/),
+    stack_index: () => seq("s", /[0-9]+/),
 
-    string: ($) => seq('"', /[^"]*/, '"'),
+    string: () => seq('"', /[^"]*/, '"'),
   },
 });

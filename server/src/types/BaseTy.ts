@@ -9,7 +9,7 @@ import {
     StorageMembersOwner,
     Primitive,
 } from "../psi/Decls"
-import {NamedNode, Node} from "../psi/Node"
+import {NamedNode} from "../psi/Node"
 
 export interface Ty {
     name(): string
