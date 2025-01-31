@@ -1,6 +1,6 @@
 import {connection} from "./connection"
 import {DocumentStore, getOffsetFromPosition} from "./document-store"
-import {createParser, initParser} from "./parser"
+import {createFiftParser, createTactParser, initParser} from "./parser"
 import {asLspRange, asParserPoint} from "./utils/position"
 import {TypeInferer} from "./TypeInferer"
 import {SyntaxNode} from "web-tree-sitter"
@@ -49,12 +49,25 @@ import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection
 import {EmptyBlockInspection} from "./inspections/EmptyBlockInspection"
 import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
 import {CACHE} from "./cache"
-import {findFile, IndexRoot, IndexRootKind, PARSED_FILES_CACHE} from "./index-root"
+import {
+    findFile,
+    IndexRoot,
+    IndexRootKind,
+    PARSED_FILES_CACHE,
+    FIFT_PARSED_FILES_CACHE,
+} from "./index-root"
 import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
 import {AsmInstructionCompletionProvider} from "./completion/providers/AsmInstructionCompletionProvider"
 import {generateAsmDoc} from "./documentation/asm_documentation"
 import {clearDocumentSettings, getDocumentSettings} from "./utils/settings"
 import {ContractDeclCompletionProvider} from "./completion/providers/ContractDeclCompletionProvider"
+import {collectFift} from "./foldings/fift_collect"
+import {collectFift as collectFiftSemanticTokens} from "./semantic_tokens/fift_collect"
+import {FiftReference} from "./psi/FiftReference"
+import {collectFift as collectFiftInlays} from "./inlays/fift_collect"
+import {FiftReferent} from "./psi/FiftReferent"
+import {findFiftFile} from "./index-root"
+import {generateFiftDocFor} from "./documentation/fift_documentation"
 
 /**
  * Whenever LS is initialized.
@@ -181,8 +194,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     workspaceFolders = params.workspaceFolders ?? []
     const opts = params.initializationOptions as ClientOptions
     const treeSitterUri = opts?.treeSitterWasmUri ?? `${__dirname}/tree-sitter.wasm`
-    const langUri = opts?.langWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
-    await initParser(treeSitterUri, langUri)
+    const tactLangUri = opts?.tactLangWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
+    const fiftLangUri = opts?.fiftLangWasmUri ?? `${__dirname}/tree-sitter-fift.wasm`
+    await initParser(treeSitterUri, tactLangUri, fiftLangUri)
 
     const documents = new DocumentStore(connection)
 
@@ -206,8 +220,12 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         const uri = event.document.uri
         console.info("changed:", uri)
 
-        index.removeFile(uri)
+        if (uri.endsWith(".fif")) {
+            FIFT_PARSED_FILES_CACHE.delete(uri)
+            return
+        }
 
+        index.removeFile(uri)
         const file = await findFile(uri, event.document.getText())
         index.addFile(uri, file)
 
@@ -277,6 +295,25 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     connection.onRequest(
         lsp.HoverRequest.type,
         async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
+            const uri = params.textDocument.uri
+
+            if (uri.endsWith(".fif")) {
+                const file = findFiftFile(uri)
+                const hoverNode = nodeAtPosition(params, file)
+                if (!hoverNode || hoverNode.type !== "identifier") return null
+
+                const doc = generateFiftDocFor(hoverNode, file)
+                if (doc === null) return null
+
+                return {
+                    range: asLspRange(hoverNode),
+                    contents: {
+                        kind: "markdown",
+                        value: doc,
+                    },
+                }
+            }
+
             const file = await findFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
 
@@ -366,6 +403,23 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         lsp.DefinitionRequest.type,
         async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
             const uri = params.textDocument.uri
+
+            if (uri.endsWith(".fif")) {
+                const file = findFiftFile(uri)
+                const node = nodeAtPosition(params, file)
+                if (!node || node.type !== "identifier") return []
+
+                const definition = FiftReference.resolve(node, file)
+                if (!definition) return []
+
+                return [
+                    {
+                        uri: file.uri,
+                        range: asLspRange(definition),
+                    },
+                ]
+            }
+
             const file = await findFile(uri)
             const hoverNode = nodeAtPosition(params, file)
 
@@ -445,7 +499,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const uri = params.textDocument.uri
             const file = await findFile(uri)
             const content = file.content
-            const parser = createParser()
+            const parser = createTactParser()
 
             const offset = getOffsetFromPosition(
                 content,
@@ -526,7 +580,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     connection.onRequest(
         lsp.InlayHintRequest.type,
         async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
-            const file = await findFile(params.textDocument.uri)
+            const uri = params.textDocument.uri
+
+            if (uri.endsWith(".fif")) {
+                const file = findFiftFile(uri)
+                return collectFiftInlays(file)
+            }
+
+            const file = await findFile(uri)
             const settings = await getDocumentSettings(params.textDocument.uri)
             return inlays.collect(file, settings.hints)
         },
@@ -638,8 +699,22 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         lsp.ReferencesRequest.type,
         async (params: lsp.ReferenceParams): Promise<lsp.Location[] | null> => {
             const uri = params.textDocument.uri
-            const file = await findFile(uri)
 
+            if (uri.endsWith(".fif")) {
+                const file = findFiftFile(uri)
+                const node = nodeAtPosition(params, file)
+                if (!node || node.type !== "identifier") return []
+
+                const result = new FiftReferent(node, file).findReferences(false)
+                if (result.length === 0) return null
+
+                return result.map(n => ({
+                    uri: n.file.uri,
+                    range: asLspRange(n.node),
+                }))
+            }
+
+            const file = await findFile(uri)
             const referenceNode = nodeAtPosition(params, file)
             if (referenceNode.type !== "identifier" && referenceNode.type !== "type_identifier") {
                 return []
@@ -732,8 +807,13 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.FoldingRangeRequest.type,
-        async (params: lsp.FoldingRangeParams): Promise<lsp.FoldingRange[] | null> => {
+        async (params: lsp.FoldingRangeParams): Promise<lsp.FoldingRange[]> => {
             const uri = params.textDocument.uri
+            if (uri.endsWith(".fif")) {
+                const file = findFiftFile(uri)
+                return collectFift(file)
+            }
+
             const file = await findFile(uri)
             return foldings.collect(file)
         },
@@ -743,6 +823,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         lsp.SemanticTokensRequest.type,
         async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
             const uri = params.textDocument.uri
+            if (uri.endsWith(".fif")) {
+                const file = findFiftFile(uri)
+                return collectFiftSemanticTokens(file)
+            }
+
             const file = await findFile(uri)
             return semantic.collect(file)
         },

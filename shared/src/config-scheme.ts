@@ -8,5 +8,6 @@ export const defaultConfig: TactPluginConfigScheme = {}
 
 export type ClientOptions = {
     treeSitterWasmUri: string
-    langWasmUri: string
+    tactLangWasmUri: string
+    fiftLangWasmUri: string
 }

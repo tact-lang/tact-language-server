@@ -1,0 +1,30 @@
+[package]
+name = "tree-sitter-tact"
+description = "Tact grammar for the tree-sitter"
+version = "1.5.2"
+authors = ["Novus Nota (https://github.com/novusnota)"]
+license = "MIT"
+keywords = ["incremental", "parsing", "tree-sitter", "tact"]
+categories = ["parsing", "text-editors"]
+repository = "https://github.com/tact-lang/tree-sitter-tact"
+edition = "2021"
+
+build = "bindings/rust/build.rs"
+include = [
+  "bindings/rust/*",
+  "grammar.js",
+  "queries/*",
+  "src/*",
+]
+
+[lib]
+path = "bindings/rust/lib.rs"
+
+[dependencies]
+tree-sitter-language = "0.1.0"
+
+[build-dependencies]
+cc = "1.1.22"
+
+[dev-dependencies]
+tree-sitter = "0.23.0"

@@ -1,9 +1,14 @@
 import * as Parser from "web-tree-sitter"
 
-export let language: Parser.Language
+export let tactLanguage: Parser.Language
+export let fiftLanguage: Parser.Language
 
-export const initParser = async (treeSitterUri: string, langUri: string) => {
-    if (language) {
+export const initParser = async (
+    treeSitterUri: string,
+    tactLangUri: string,
+    fiftLangUri: string,
+) => {
+    if (tactLanguage && fiftLanguage) {
         return
     }
     const options: object | undefined = {
@@ -12,12 +17,20 @@ export const initParser = async (treeSitterUri: string, langUri: string) => {
         },
     }
     await Parser.init(options)
-    language = await Parser.Language.load(langUri)
+    tactLanguage = await Parser.Language.load(tactLangUri)
+    fiftLanguage = await Parser.Language.load(fiftLangUri)
 }
 
-export function createParser() {
+export function createTactParser() {
     const parser = new Parser()
-    parser.setLanguage(language)
+    parser.setLanguage(tactLanguage)
+    parser.setTimeoutMicros(1000 * 1000)
+    return parser
+}
+
+export function createFiftParser() {
+    const parser = new Parser()
+    parser.setLanguage(fiftLanguage)
     parser.setTimeoutMicros(1000 * 1000)
     return parser
 }

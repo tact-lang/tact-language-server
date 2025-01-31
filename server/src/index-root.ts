@@ -3,10 +3,16 @@ import {File} from "./psi/File"
 import {glob} from "glob"
 import {readFileSync} from "fs"
 import {URI} from "vscode-uri"
-import {createParser} from "./parser"
+import {createTactParser} from "./parser"
 import {index} from "./indexes"
+import {createFiftParser} from "./parser"
 
 export const PARSED_FILES_CACHE = new LRUMap<string, File>({
+    size: 100,
+    dispose: _entries => {},
+})
+
+export const FIFT_PARSED_FILES_CACHE = new LRUMap<string, File>({
     size: 100,
     dispose: _entries => {},
 })
@@ -56,9 +62,23 @@ export async function findFile(uri: string, content?: string | undefined) {
     }
 
     const realContent = content ?? readFileSync(URI.parse(uri).path).toString()
-    const parser = createParser()
+    const parser = createTactParser()
     const tree = parser.parse(realContent)
     const file = new File(uri, tree, realContent)
     PARSED_FILES_CACHE.set(uri, file)
+    return file
+}
+
+export function findFiftFile(uri: string, content?: string): File {
+    const cached = FIFT_PARSED_FILES_CACHE.get(uri)
+    if (cached !== undefined) {
+        return cached
+    }
+
+    const realContent = content ?? readFileSync(URI.parse(uri).path).toString()
+    const parser = createFiftParser()
+    const tree = parser.parse(realContent)
+    const file = new File(uri, tree, realContent)
+    FIFT_PARSED_FILES_CACHE.set(uri, file)
     return file
 }

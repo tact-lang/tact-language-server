@@ -41,7 +41,10 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     const clientOptions: LanguageClientOptions = {
         outputChannel: createClientLog(),
         revealOutputChannelOn: RevealOutputChannelOn.Never,
-        documentSelector: [{scheme: "file", language: "tact"}],
+        documentSelector: [
+            {scheme: "file", language: "tact"},
+            {scheme: "file", language: "fift"},
+        ],
         synchronize: {
             configurationSection: "tact",
             fileEvents: vscode.workspace.createFileSystemWatcher("**/*.tact"),
@@ -50,8 +53,14 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
             clientConfig: getClientConfiguration(),
             treeSitterWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter.wasm")
                 .fsPath,
-            langWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter-tact.wasm")
-                .fsPath,
+            tactLangWasmUri: vscode_uri.joinPath(
+                context.extensionUri,
+                "./dist/tree-sitter-tact.wasm",
+            ).fsPath,
+            fiftLangWasmUri: vscode_uri.joinPath(
+                context.extensionUri,
+                "./dist/tree-sitter-fift.wasm",
+            ).fsPath,
         } as ClientOptions,
     }
 

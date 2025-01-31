@@ -1,0 +1,79 @@
+============================================
+asm function
+============================================
+
+/*
+  Not yet supported due to +":
+  { char " word 1 ' $+ } ::_ +"
+*/
+
+asm(-> 1_0_1) fun pushInt(): Int {
+    42 PUSHINT
+}
+
+asm fun pushIntWithNewWord(): Int {
+    { 42 PUSHINT } : mostly-harmless
+    mostly-harmless
+}
+
+asm(x -> 000) fun isIntAnInt(x: Int): Int {
+    <{
+        TRY:<{
+            0 PUSHINT ADD DROP -1 PUSHINT
+        }>CATCH<{
+            2DROP 0 PUSHINT
+        }>
+    }>CONT 1 1 CALLXARGS
+}
+
+asm fun moreInterestingExamples() {
+  x{00} @Defop NOP
+  { swap ({) over 2+ -roll swap (compile) (}) } : does
+  B{123}
+  b{0101}
+  char }
+  abort" }}} "
+}
+
+---
+
+(source_file
+  (comment)
+  (asm_function
+    arrangement: (asm_arrangement
+      returns: (asm_arrangement_rets
+        (integer)))
+    name: (identifier)
+    parameters: (parameter_list)
+    result: (type_identifier)
+    body: (asm_function_body)
+  )
+  (asm_function
+    name: (identifier)
+    parameters: (parameter_list)
+    result: (type_identifier)
+    body: (asm_function_body
+      (asm_list))
+  )
+  (asm_function
+    arrangement: (asm_arrangement
+      arguments: (asm_arrangement_args
+        (identifier))
+      returns: (asm_arrangement_rets
+        (integer)))
+    name: (identifier)
+    parameters: (parameter_list
+      (parameter
+        name: (identifier)
+        type: (type_identifier))
+    )
+    result: (type_identifier)
+    body: (asm_function_body)
+  )
+  (asm_function
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (asm_function_body
+      (asm_list))
+  )
+)

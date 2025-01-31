@@ -6,7 +6,6 @@ import {isNamedFunNode, parentOfType} from "../psi/utils"
 import {Fun, StorageMembersOwner, Struct, Trait} from "../psi/Decls"
 import {NamedNode} from "../psi/Node"
 import {Referent} from "../psi/Referent"
-import {Location} from "vscode-languageclient"
 import {asLspRange} from "../utils/position"
 import * as search from "../search/implementations"
 
@@ -101,7 +100,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
                             return {
                                 uri: r.file.uri,
                                 range: asLspRange(nameNode?.node!),
-                            } as Location
+                            } as lsp.Location
                         }),
                     ],
                 }),
@@ -150,7 +149,7 @@ function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]) {
                     return {
                         uri: r.file.uri,
                         range: asLspRange(r.node),
-                    } as Location
+                    } as lsp.Location
                 }),
             ],
         }),

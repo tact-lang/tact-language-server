@@ -54,6 +54,20 @@
                     "dark": "./ton-icon.svg"
                 },
                 "configuration": "./language-configuration.json"
+            },
+            {
+                "id": "fift",
+                "aliases": [
+                    "Fift"
+                ],
+                "extensions": [
+                    ".fif"
+                ],
+                "icon": {
+                    "light": "./ton-icon.svg",
+                    "dark": "./ton-icon.svg"
+                },
+                "configuration": "./fift-language-configuration.json"
             }
         ],
         "grammars": [
@@ -61,6 +75,11 @@
                 "language": "tact",
                 "scopeName": "source.tact",
                 "path": "./syntaxes/.tmLanguage.json"
+            },
+            {
+                "language": "fift",
+                "scopeName": "source.fift",
+                "path": "./syntaxes/fift.tmLanguage.json"
             }
         ],
         "snippets": [
