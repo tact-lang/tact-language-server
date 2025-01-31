@@ -16,18 +16,29 @@ export function generateDocFor(node: NamedNode): string | null {
     switch (astNode.type) {
         case "global_function":
         case "native_function":
-        case "storage_function":
-        case "asm_function": {
+        case "storage_function": {
             const func = new Fun(astNode, node.file)
             const doc = extractCommentsDoc(node)
-            const parametersNode = astNode.childForFieldName("parameters")
-            if (!parametersNode) return null
 
             const kind = astNode.type === "native_function" ? "native" : "fun"
 
             return defaultResult(
                 `${func.modifiers()}${kind} ${node.name()}${func.signatureText()}`,
                 doc,
+            )
+        }
+        case "asm_function": {
+            const func = new Fun(astNode, node.file)
+            const doc = extractCommentsDoc(node)
+
+            const gas = func.computeGasConsumption()
+
+            const presentation = gas.exact ? gas.value.toString() : `~${gas.value}`
+            const gasPresentation = gas.unknown ? "" : `Gas: \`${presentation}\``
+
+            return defaultResult(
+                `${func.modifiers()}fun ${node.name()}${func.signatureText()}`,
+                gasPresentation + "\n\n" + doc,
             )
         }
         case "contract": {

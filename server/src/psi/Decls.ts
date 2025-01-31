@@ -2,6 +2,8 @@ import {Expression, NamedNode} from "./Node"
 import {Reference} from "./Reference"
 import {index, IndexKey} from "../indexes"
 import {parentOfType} from "./utils"
+import {SyntaxNode} from "web-tree-sitter"
+import {findInstruction} from "../completion/data/types"
 
 export class FieldsOwner extends NamedNode {
     public fields(): Field[] {
@@ -159,6 +161,65 @@ export class Fun extends NamedNode {
         if (parts.length === 0) return ""
         return parts.join(" ") + " "
     }
+
+    public openBrace(): SyntaxNode | null {
+        const body = this.node.childForFieldName("body")
+        if (!body) return null
+        return body.firstChild
+    }
+
+    public computeGasConsumption(): GasConsumption {
+        const body = this.node.childForFieldName("body")
+        if (!body) {
+            return {
+                value: 0,
+                unknown: true,
+                exact: false,
+                singleInstr: false,
+            }
+        }
+
+        const singleInstr = body.children.length === 3
+        let exact = true
+        let res = 0
+
+        for (const child of body.children) {
+            if (child.type !== "tvm_ordinary_word") continue
+            const name = child.text
+            const instr = findInstruction(name)
+            if (!instr || instr.doc.gas === "") {
+                exact = false
+                continue
+            }
+            if (instr.doc.gas.includes("|") || instr.doc.gas.includes("+")) {
+                exact = false
+            }
+            res += parseInt(instr.doc.gas)
+        }
+
+        if (!exact && singleInstr) {
+            return {
+                value: 0,
+                unknown: true,
+                exact: false,
+                singleInstr: true,
+            }
+        }
+
+        return {
+            value: res,
+            unknown: false,
+            exact,
+            singleInstr: singleInstr,
+        }
+    }
+}
+
+export type GasConsumption = {
+    value: number
+    unknown: boolean
+    exact: boolean
+    singleInstr: boolean
 }
 
 export class Field extends NamedNode {

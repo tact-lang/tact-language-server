@@ -1,19 +1,4 @@
-import * as fs from "fs"
-import * as path from "path"
-import {AsmData} from "../completion/data/types"
-
-let asmData: AsmData | null = null
-
-function loadAsmData(): AsmData {
-    if (asmData !== null) {
-        return asmData
-    }
-
-    const filePath = path.join(__dirname, "asm.json")
-    const content = fs.readFileSync(filePath, "utf-8")
-    asmData = JSON.parse(content) as AsmData
-    return asmData
-}
+import {asmData} from "../completion/data/types"
 
 function formatOperands(operands: Record<string, number | string>): string {
     return Object.entries(operands)
@@ -22,7 +7,7 @@ function formatOperands(operands: Record<string, number | string>): string {
 }
 
 export function generateAsmDoc(word: string): string | null {
-    const data = loadAsmData()
+    const data = asmData()
     const upperWord = word.toUpperCase()
 
     const instruction = data.instructions.find(i => i.mnemonic === upperWord)

@@ -6,6 +6,7 @@ import {Reference} from "../psi/Reference"
 import {Fun} from "../psi/Decls"
 import {CallLike, Expression, VarDeclaration} from "../psi/Node"
 import {MapTy} from "../types/BaseTy"
+import {findInstruction} from "../completion/data/types"
 
 export function collect(
     file: File,
@@ -101,6 +102,40 @@ export function collect(
                     },
                 })
             }
+        }
+
+        if (n.type === "tvm_ordinary_word") {
+            const instruction = findInstruction(n.text)
+            if (instruction) {
+                result.push({
+                    kind: InlayHintKind.Type,
+                    label: instruction.doc.gas,
+                    position: {
+                        line: n.endPosition.row,
+                        character: n.endPosition.column,
+                    },
+                })
+            }
+        }
+
+        if (n.type === "asm_function") {
+            const func = new Fun(n, file)
+            const openBrace = func.openBrace()
+            if (!openBrace) return true
+
+            const gas = func.computeGasConsumption()
+            if (gas.unknown || gas.singleInstr) return true
+
+            const presentation = gas.exact ? `${gas.value} gas` : `~${gas.value} gas`
+
+            result.push({
+                kind: InlayHintKind.Type,
+                label: `  ${presentation}`,
+                position: {
+                    line: openBrace.endPosition.row,
+                    character: openBrace.endPosition.column,
+                },
+            })
         }
 
         return true
