@@ -8,9 +8,10 @@ contract Foo {
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}
+13 init() {}
 13 inline fun name() {}
-13 receive("<message>") {}
 13 receive(msg: <type>) {}
+13 receive("<message>") {}
 
 ========================================================================
 Completion of contract constants

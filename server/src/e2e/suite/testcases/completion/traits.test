@@ -13,10 +13,11 @@ trait Child with Parent {
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}
+13 init() {}
 13 inline fun name() {}
 2  override fun foo(): Int {} of Parent
-13 receive("<message>") {}
 13 receive(msg: <type>) {}
+13 receive("<message>") {}
 
 ========================================================================
 Completion of override methods in trait with deep inheritance
@@ -37,11 +38,12 @@ trait Child with Parent {
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}
+13 init() {}
 13 inline fun name() {}
-2  override fun bar(name: String): Bool {} of Grand
 2  override fun foo(): Int {} of Parent
-13 receive("<message>") {}
+2  override fun bar(name: String): Bool {} of Grand
 13 receive(msg: <type>) {}
+13 receive("<message>") {}
 
 ========================================================================
 Completion of override methods in trait with method
@@ -60,10 +62,11 @@ trait Child with Parent {
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}
+13 init() {}
 13 inline fun name() {}
 2  override fun bar(): Int {} of Parent
-13 receive("<message>") {}
 13 receive(msg: <type>) {}
+13 receive("<message>") {}
 
 ========================================================================
 Completion of fields in trait
@@ -82,10 +85,11 @@ trait Child with Parent {
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}
+13 init() {}
 13 inline fun name() {}
 9  name: String; of Parent
-13 receive("<message>") {}
 13 receive(msg: <type>) {}
+13 receive("<message>") {}
 
 ========================================================================
 Completion of fields in trait with deep inheritance
@@ -110,10 +114,11 @@ trait Child with Parent {
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}
+13 init() {}
 13 inline fun name() {}
 9  name: String; of Parent
-13 receive("<message>") {}
 13 receive(msg: <type>) {}
+13 receive("<message>") {}
 
 ========================================================================
 Completion of fields in trait with field
@@ -136,9 +141,10 @@ trait Child with Parent {
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}
+13 init() {}
 13 inline fun name() {}
-13 receive("<message>") {}
 13 receive(msg: <type>) {}
+13 receive("<message>") {}
 
 ========================================================================
 Completion of methods and fields without self
@@ -177,7 +183,9 @@ trait A3 {}
 
 trait Child with <caret> {}
 ------------------------------------------------------------------------
+9  Int
 24 A1
 24 A2
 24 A3
 24 Child
+13 map<K, V>
