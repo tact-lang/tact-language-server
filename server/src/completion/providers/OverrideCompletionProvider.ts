@@ -31,10 +31,10 @@ export class OverrideCompletionProvider implements CompletionProvider {
             if (methodOwner === null) continue
 
             elements.push({
-                label: `override fun ${method.name()}${method.signatureText()} {}`,
+                label: `override`,
                 kind: CompletionItemKind.Function,
                 labelDetails: {
-                    detail: ` of ${methodOwner.name()}`,
+                    detail: ` fun ${method.name()}${method.signatureText()} {} of ${methodOwner.name()}`,
                 },
                 insertText: `override fun ${method.name()}${method.signatureText()} {$0}`,
                 insertTextFormat: InsertTextFormat.Snippet,

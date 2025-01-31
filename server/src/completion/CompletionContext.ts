@@ -21,6 +21,7 @@ export class CompletionContext {
     inNameOfFieldInit: boolean = false
     inMultilineStructInit: boolean = false
     inTraitList: boolean = false
+    inParameter: boolean = false
 
     constructor(
         content: string,
@@ -85,8 +86,8 @@ export class CompletionContext {
             this.isStatement = false
         }
 
-        if (parent.type === "trait_list") {
-            this.inTraitList = true
+        if (parent.type === "ERROR" && parent.parent?.type === "parameter_list") {
+            this.inParameter = true
         }
 
         // skip additional ERROR node
@@ -131,7 +132,8 @@ export class CompletionContext {
             !this.afterDot &&
             !this.inTlbSerialization &&
             !this.inNameOfFieldInit &&
-            !this.inTraitList
+            !this.inTraitList &&
+            !this.inParameter
         )
     }
 }

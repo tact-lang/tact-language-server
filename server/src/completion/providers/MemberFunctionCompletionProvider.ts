@@ -8,12 +8,15 @@ export class MemberFunctionCompletionProvider implements CompletionProvider {
     }
 
     addCompletion(ctx: CompletionContext, elements: CompletionItem[]): void {
-        const funLabel = "fun name() {}"
+        const funLabel = "fun"
         const funTemplate = "fun $1($2)$3 {$0}"
         const modifiers = ["inline", "get"]
 
         elements.push({
             label: funLabel,
+            labelDetails: {
+                detail: " name() {}",
+            },
             kind: CompletionItemKind.Keyword,
             insertText: funTemplate,
             insertTextFormat: InsertTextFormat.Snippet,
@@ -22,6 +25,9 @@ export class MemberFunctionCompletionProvider implements CompletionProvider {
         modifiers.forEach(modifier => {
             elements.push({
                 label: modifier + " " + funLabel,
+                labelDetails: {
+                    detail: " name() {}",
+                },
                 kind: CompletionItemKind.Keyword,
                 insertText: modifier + " " + funTemplate,
                 insertTextFormat: InsertTextFormat.Snippet,
@@ -30,7 +36,10 @@ export class MemberFunctionCompletionProvider implements CompletionProvider {
 
         if (ctx.insideTrait) {
             elements.push({
-                label: "abstract fun name();",
+                label: "abstract fun",
+                labelDetails: {
+                    detail: " name();",
+                },
                 kind: CompletionItemKind.Keyword,
                 insertText: "abstract fun $1($2)$3;",
                 insertTextFormat: InsertTextFormat.Snippet,

@@ -9,23 +9,42 @@ export class MessageMethodCompletionProvider implements CompletionProvider {
 
     addCompletion(_ctx: CompletionContext, elements: CompletionItem[]): void {
         elements.push({
-            label: "receive(msg: <type>) {}",
+            label: "receive",
+            labelDetails: {
+                detail: "(msg: <type>) {}",
+            },
             kind: CompletionItemKind.Keyword,
             insertText: "receive(msg: $1) {$0}",
             insertTextFormat: InsertTextFormat.Snippet,
         })
 
         elements.push({
-            label: 'receive("<message>") {}',
+            label: "receive",
+            labelDetails: {
+                detail: `("<message>") {}`,
+            },
             kind: CompletionItemKind.Keyword,
             insertText: 'receive("$1") {$0}',
             insertTextFormat: InsertTextFormat.Snippet,
         })
 
         elements.push({
-            label: "bounced(msg: <type>) {}",
+            label: "bounced",
+            labelDetails: {
+                detail: "(msg: <type>) {}",
+            },
             kind: CompletionItemKind.Keyword,
             insertText: "bounced(msg: $1) {$0}",
+            insertTextFormat: InsertTextFormat.Snippet,
+        })
+
+        elements.push({
+            label: "init",
+            labelDetails: {
+                detail: "() {}",
+            },
+            kind: CompletionItemKind.Keyword,
+            insertText: "init($1) {$0}",
             insertTextFormat: InsertTextFormat.Snippet,
         })
     }
