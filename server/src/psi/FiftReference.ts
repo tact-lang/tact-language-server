@@ -26,6 +26,7 @@ export class FiftReference {
             if (
                 node.type === "proc_definition" ||
                 node.type === "proc_inline_definition" ||
+                node.type === "proc_ref_definition" ||
                 node.type === "method_definition"
             ) {
                 const nameNode = node.childForFieldName("name")

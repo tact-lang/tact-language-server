@@ -11,16 +11,30 @@ module.exports = grammar({
     comment: (_) => token(seq("//", /[^\n]*/)),
 
     program: ($) =>
-      seq("PROGRAM{", repeat($.declaration), repeat($.definition), "END>c"),
+      seq(
+        "PROGRAM{",
+        repeat($.declaration),
+        repeat($.definition),
+        repeat($.global_var),
+        "END>c",
+      ),
 
     declaration: ($) =>
       choice(
         seq(field("name", $.identifier), "DECLPROC"),
         seq(/\d+/, "DECLMETHOD", field("name", $.identifier)),
+        seq(field("name", $.identifier), "DECLGLOBVAR"),
       ),
 
+    global_var: ($) => seq("DECLGLOBVAR", field("name", $.identifier)),
+
     definition: ($) =>
-      choice($.proc_definition, $.proc_inline_definition, $.method_definition),
+      choice(
+        $.proc_definition,
+        $.proc_inline_definition,
+        $.proc_ref_definition,
+        $.method_definition,
+      ),
 
     proc_definition: ($) =>
       seq(field("name", $.identifier), "PROC:<{", repeat($.instruction), "}>"),
@@ -29,6 +43,14 @@ module.exports = grammar({
       seq(
         field("name", $.identifier),
         "PROCINLINE:<{",
+        repeat($.instruction),
+        "}>",
+      ),
+
+    proc_ref_definition: ($) =>
+      seq(
+        field("name", $.identifier),
+        "PROCREF:<{",
         repeat($.instruction),
         "}>",
       ),
@@ -93,7 +115,7 @@ module.exports = grammar({
 
     hex_literal: () => /0[xX][0-9a-fA-F]+/,
 
-    identifier: () => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    identifier: () => /[a-zA-Z$_%][a-zA-Z0-9$_]*/,
 
     negative_identifier: ($) => seq("-", $.identifier),
 

@@ -222,6 +222,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
         if (uri.endsWith(".fif")) {
             FIFT_PARSED_FILES_CACHE.delete(uri)
+            findFiftFile(uri, event.document.getText())
             return
         }
 

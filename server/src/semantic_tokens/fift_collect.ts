@@ -23,6 +23,7 @@ export function collectFift(file: File): SemanticTokens {
         if (
             node.type === "proc_definition" ||
             node.type === "proc_inline_definition" ||
+            node.type === "proc_ref_definition" ||
             node.type === "method_definition" ||
             node.type === "declaration"
         ) {
