@@ -1,13 +1,13 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "../psi/File"
-import {RecursiveVisitor} from "../visitor"
+import {File} from "@server/psi/File"
+import {RecursiveVisitor} from "@server/visitor"
 import {SyntaxNode} from "web-tree-sitter"
-import {isNamedFunNode, parentOfType} from "../psi/utils"
-import {Fun, StorageMembersOwner, Struct, Trait} from "../psi/Decls"
-import {NamedNode} from "../psi/Node"
-import {Referent} from "../psi/Referent"
-import {asLspRange} from "../utils/position"
-import * as search from "../search/implementations"
+import {isNamedFunNode, parentOfType} from "@server/psi/utils"
+import {Fun, StorageMembersOwner, Struct, Trait} from "@server/psi/Decls"
+import {NamedNode} from "@server/psi/Node"
+import {Referent} from "@server/psi/Referent"
+import {asLspRange} from "@server/utils/position"
+import * as search from "@server/search/implementations"
 
 export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
     if (file.fromStdlib || !enabled) {

@@ -1,7 +1,7 @@
-import {CompletionProvider} from "../CompletionProvider"
+import {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItem, CompletionItemKind} from "vscode-languageserver-types"
-import {CompletionContext} from "../CompletionContext"
-import {asmData} from "../data/types"
+import {CompletionContext} from "@server/completion/CompletionContext"
+import {asmData} from "@server/completion/data/types"
 
 export class AsmInstructionCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {

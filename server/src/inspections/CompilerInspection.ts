@@ -1,6 +1,6 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "../psi/File"
-import {TactCompiler} from "../compiler/TactCompiler"
+import {File} from "@server/psi/File"
+import {TactCompiler} from "@server/compiler/TactCompiler"
 import {URI} from "vscode-uri"
 
 export class CompilerInspection {

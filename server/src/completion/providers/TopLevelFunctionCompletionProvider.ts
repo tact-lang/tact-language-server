@@ -1,6 +1,6 @@
-import {CompletionProvider} from "../CompletionProvider"
+import {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "../CompletionContext"
+import {CompletionContext} from "@server/completion/CompletionContext"
 
 export class TopLevelFunctionCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {

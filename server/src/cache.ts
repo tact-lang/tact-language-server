@@ -1,6 +1,6 @@
-import {LRUMap} from "./utils/lruMap"
+import {LRUMap} from "@server/utils/lruMap"
 import {Ty} from "./types/BaseTy"
-import {NamedNode} from "./psi/Node"
+import {NamedNode} from "@server/psi/Node"
 
 export interface CacheConfig {
     size: number

@@ -1,6 +1,6 @@
 import * as cp from "child_process"
 import * as path from "path"
-import {Logger} from "../utils/logger"
+import {Logger} from "@server/utils/logger"
 
 interface CompilerError {
     line: number

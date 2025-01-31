@@ -1,9 +1,9 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "../psi/File"
-import {asLspRange} from "../utils/position"
-import {RecursiveVisitor} from "../psi/RecursiveVisitor"
+import {File} from "@server/psi/File"
+import {asLspRange} from "@server/utils/position"
+import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 import {SyntaxNode} from "web-tree-sitter"
-import {index, IndexKey} from "../indexes"
+import {index, IndexKey} from "@server/indexes"
 
 export class StructInitializationInspection {
     inspect(file: File): lsp.Diagnostic[] {

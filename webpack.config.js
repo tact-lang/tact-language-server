@@ -4,6 +4,7 @@
 
 const path = require("path")
 const CopyPlugin = require("copy-webpack-plugin")
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin")
 
 const distDir = path.resolve(__dirname, "dist")
 
@@ -34,6 +35,7 @@ const config = {
         alias: {
             // provides alternate implementation for node module and source files
         },
+        plugins: [new TsconfigPathsPlugin()],
         fallback: {},
     },
     module: {

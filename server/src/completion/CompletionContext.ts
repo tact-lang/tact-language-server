@@ -1,6 +1,6 @@
-import {Node} from "../psi/Node"
+import {Node} from "@server/psi/Node"
 import * as lsp from "vscode-languageserver/node"
-import {parentOfType} from "../psi/utils"
+import {parentOfType} from "@server/psi/utils"
 
 export class CompletionContext {
     element: Node

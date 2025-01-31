@@ -1,11 +1,11 @@
 import type {SyntaxNode} from "web-tree-sitter"
 
-import {RecursiveVisitor} from "../visitor"
+import {RecursiveVisitor} from "@server/visitor"
 import {NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
 import {File} from "./File"
 import {isFunNode, isNamedFunNode, parentOfType} from "./utils"
-import {PARSED_FILES_CACHE} from "../index-root"
+import {PARSED_FILES_CACHE} from "@server/index-root"
 
 /**
  * Describes a scope that contains all possible uses of a certain symbol.

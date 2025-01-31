@@ -1,4 +1,4 @@
-import {connection} from "../connection"
+import {connection} from "@server/connection"
 
 export interface TactSettings {
     stdlib: {

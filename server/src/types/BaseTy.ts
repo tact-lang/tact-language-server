@@ -8,8 +8,8 @@ import {
     Trait,
     StorageMembersOwner,
     Primitive,
-} from "../psi/Decls"
-import {NamedNode} from "../psi/Node"
+} from "@server/psi/Decls"
+import {NamedNode} from "@server/psi/Node"
 
 export interface Ty {
     name(): string

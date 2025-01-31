@@ -1,7 +1,7 @@
 import {SyntaxNode} from "web-tree-sitter"
 import {File} from "./File"
-import {Ty} from "../types/BaseTy"
-import {TypeInferer} from "../TypeInferer"
+import {Ty} from "@server/types/BaseTy"
+import {TypeInferer} from "@server/TypeInferer"
 
 export class Node {
     public node: SyntaxNode

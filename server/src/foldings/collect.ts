@@ -1,6 +1,6 @@
 import {FoldingRange, FoldingRangeKind} from "vscode-languageserver-types"
-import {RecursiveVisitor} from "../visitor"
-import {File} from "../psi/File"
+import {RecursiveVisitor} from "@server/visitor"
+import {File} from "@server/psi/File"
 import {Point} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"
 
