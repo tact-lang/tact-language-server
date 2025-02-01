@@ -4,7 +4,7 @@ import {RecursiveVisitor} from "@server/visitor"
 import {findInstruction} from "@server/completion/data/types"
 import {InlayHintKind} from "vscode-languageserver-types"
 
-export function collectFift(file: File): InlayHint[] {
+export function collectFiftInlays(file: File): InlayHint[] {
     const result: InlayHint[] = []
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {

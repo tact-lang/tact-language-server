@@ -43,31 +43,34 @@ import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFun
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
 import {measureTime, parentOfType} from "@server/psi/utils"
 import {FileChangeType} from "vscode-languageserver"
-import {Logger} from "@server/utils/logger"
-import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
-import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection"
-import {EmptyBlockInspection} from "./inspections/EmptyBlockInspection"
-import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
-import {CACHE} from "./cache"
+import {Logger} from "./utils/logger"
+import {Metrics} from "./utils/metrics"
+import {RefactoringProvider} from "./refactoring/RefactoringProvider"
+import {TextDocumentRangeParams} from "./refactoring/Refactoring"
+import {clearDocumentSettings, getDocumentSettings} from "@server/utils/settings"
 import {
+    FIFT_PARSED_FILES_CACHE,
+    findFiftFile,
     findFile,
     IndexRoot,
     IndexRootKind,
     PARSED_FILES_CACHE,
-    FIFT_PARSED_FILES_CACHE,
-} from "./index-root"
-import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
-import {AsmInstructionCompletionProvider} from "./completion/providers/AsmInstructionCompletionProvider"
-import {generateAsmDoc} from "./documentation/asm_documentation"
-import {clearDocumentSettings, getDocumentSettings} from "@server/utils/settings"
-import {ContractDeclCompletionProvider} from "./completion/providers/ContractDeclCompletionProvider"
-import {collectFift} from "./foldings/fift_collect"
-import {collectFift as collectFiftSemanticTokens} from "./semantic_tokens/fift_collect"
+} from "@server/index-root"
+import {UnusedParameterInspection} from "@server/inspections/UnusedParameterInspection"
+import {EmptyBlockInspection} from "@server/inspections/EmptyBlockInspection"
+import {StructInitializationInspection} from "@server/inspections/StructInitializationInspection"
+import {UnusedVariableInspection} from "@server/inspections/UnusedVariableInspection"
+import {generateAsmDoc} from "@server/documentation/asm_documentation"
+import {generateFiftDocFor} from "@server/documentation/fift_documentation"
 import {FiftReference} from "@server/psi/FiftReference"
-import {collectFift as collectFiftInlays} from "./inlays/fift_collect"
+import {MapTypeCompletionProvider} from "@server/completion/providers/MapTypeCompletionProvider"
+import {ContractDeclCompletionProvider} from "@server/completion/providers/ContractDeclCompletionProvider"
+import {AsmInstructionCompletionProvider} from "@server/completion/providers/AsmInstructionCompletionProvider"
 import {FiftReferent} from "@server/psi/FiftReferent"
-import {findFiftFile} from "./index-root"
-import {generateFiftDocFor} from "./documentation/fift_documentation"
+import {CACHE} from "@server/cache"
+import {collectFiftInlays} from "@server/inlays/fift_collect"
+import {collectFift} from "@server/foldings/fift_collect"
+import {collectFiftSemanticTokens} from "@server/semantic_tokens/fift_collect"
 
 /**
  * Whenever LS is initialized.
@@ -84,6 +87,7 @@ let initialized = false
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
 async function initialize() {
+    const metrics = Metrics.getInstance()
     if (!workspaceFolders || workspaceFolders.length === 0 || initialized) {
         // use fallback later, see `initializeFallback`
         return
@@ -190,6 +194,9 @@ async function initializeFallback(uri: string) {
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     console.info("Started new session")
     console.info("workspaceFolders:", params.workspaceFolders)
+
+    const metrics = Metrics.getInstance()
+    metrics.startTimer("server_initialization")
 
     workspaceFolders = params.workspaceFolders ?? []
     const opts = params.initializationOptions as ClientOptions
@@ -499,6 +506,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     connection.onRequest(
         lsp.CompletionRequest.type,
         async (params: lsp.CompletionParams): Promise<lsp.CompletionItem[]> => {
+            const metrics = Metrics.getInstance()
+            metrics.startTimer("completion", {uri: params.textDocument.uri})
+
             const uri = params.textDocument.uri
             const file = await findFile(uri)
             const content = file.content
@@ -580,6 +590,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 provider.addCompletion(ctx, result)
             })
 
+            metrics.endTimer("completion", {uri: params.textDocument.uri})
             return result
         },
     )
@@ -763,6 +774,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const res = Reference.resolve(call.nameNode())
             if (res === null) return null
+            if (!(res instanceof Fun)) return null
 
             const parametersNode = res.node.childForFieldName("parameters")
             if (!parametersNode) return null
@@ -801,7 +813,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 currentIndex = i
             }
 
-            if (callNode.type === "method_call_expression") {
+            if (callNode.type === "method_call_expression" && res.withSelf()) {
                 // skip self
                 currentIndex++
             }
@@ -1056,36 +1068,94 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     )
 
     connection.onExecuteCommand(async params => {
-        if (params.command !== "tact/executeGetScopeProvider") return
+        if (params.command === "tact/executeGetScopeProvider") {
+            const commandParams = params.arguments?.[0] as lsp.TextDocumentPositionParams
+            if (!commandParams) return "Invalid parameters"
 
-        const commandParams = params.arguments?.[0] as lsp.TextDocumentPositionParams
-        if (!commandParams) return "Invalid parameters"
+            const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)
+            if (!file) {
+                return "File not found"
+            }
 
-        const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)
-        if (!file) {
-            return "File not found"
+            const node = nodeAtPosition(commandParams, file)
+            if (!node) {
+                return "Node not found"
+            }
+
+            const referent = new Referent(node, file)
+            const scope = referent.useScope()
+            if (!scope) return "Scope not found"
+            return scope instanceof LocalSearchScope ? scope.toString() : "GlobalSearchScope"
         }
 
-        const node = nodeAtPosition(commandParams, file)
-        if (!node) {
-            return "Node not found"
+        if (params.command === "tact/extractVariable") {
+            const commandParams = params.arguments?.[0] as TextDocumentRangeParams
+            if (!commandParams) return "Invalid parameters"
+
+            const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)
+            if (!file) return "File not found"
+
+            const result = await RefactoringProvider.getInstance().executeRefactoring(
+                "extract.variable",
+                {
+                    file,
+                    selection: commandParams.range,
+                },
+            )
+
+            if (result.error) {
+                connection.window.showErrorMessage(result.error)
+            }
+
+            return result.edit
         }
 
-        const referent = new Referent(node, file)
-        const scope = referent.useScope()
-        if (!scope) return "Scope not found"
-        if (scope instanceof LocalSearchScope) return scope.toString()
-        return "GlobalSearchScope"
+        return null
+    })
+
+    connection.onCodeAction(async (params: lsp.CodeActionParams): Promise<lsp.CodeAction[]> => {
+        const actions: lsp.CodeAction[] = []
+
+        if (
+            params.range.start.line === params.range.end.line &&
+            params.range.start.character === params.range.end.character
+        ) {
+            return actions
+        }
+
+        const file = PARSED_FILES_CACHE.get(params.textDocument.uri)
+        if (!file) return actions
+
+        actions.push({
+            title: "Extract Variable",
+            kind: lsp.CodeActionKind.RefactorExtract,
+            command: {
+                title: "Extract Variable",
+                command: "tact.extractVariable",
+                arguments: [
+                    {
+                        textDocument: params.textDocument,
+                        range: params.range,
+                    },
+                ],
+            },
+        })
+
+        return actions
     })
 
     const _needed = TypeInferer.inferType
 
     console.info("Tact language server is ready!")
 
+    metrics.endTimer("server_initialization")
+
     return {
         capabilities: {
             textDocumentSync: lsp.TextDocumentSyncKind.Incremental,
-            // codeActionProvider: true,
+            codeActionProvider: {
+                codeActionKinds: [lsp.CodeActionKind.RefactorExtract],
+            },
             documentSymbolProvider: true,
             workspaceSymbolProvider: true,
             definitionProvider: true,
@@ -1118,7 +1188,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 resolveProvider: false,
             },
             executeCommandProvider: {
-                commands: ["tact/executeGetScopeProvider"],
+                commands: ["tact/executeGetScopeProvider", "tact/extractVariable"],
             },
         },
     }
@@ -1127,3 +1197,12 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 Logger.initialize(connection, `${__dirname}/tact-language-server.log`)
 
 connection.listen()
+
+setInterval(() => {
+    const metrics = Metrics.getInstance()
+    const used = process.memoryUsage()
+
+    metrics.record("memory_heap_used", used.heapUsed / 1024 / 1024, {unit: "MB"})
+    metrics.record("memory_heap_total", used.heapTotal / 1024 / 1024, {unit: "MB"})
+    metrics.record("memory_rss", used.rss / 1024 / 1024, {unit: "MB"})
+}, 60000)

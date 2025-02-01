@@ -21,11 +21,93 @@ import {
 import {TextEncoder} from "util"
 import {Location, Position} from "vscode-languageclient"
 import {ClientOptions} from "@shared/config-scheme"
+import * as lsp from "vscode-languageserver"
 
 let client: LanguageClient
 
 export function activate(context: vscode.ExtensionContext) {
     startServer(context).catch(consoleError)
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("tact.extractVariable", async () => {
+            const editor = vscode.window.activeTextEditor
+            if (!editor) return
+
+            try {
+                const selection = editor.selection
+                if (selection.isEmpty) {
+                    vscode.window.showErrorMessage("Please select an expression to extract")
+                    return
+                }
+
+                const result: lsp.WorkspaceEdit = await vscode.commands.executeCommand(
+                    "tact/extractVariable",
+                    {
+                        textDocument: {uri: editor.document.uri.toString()},
+                        range: {
+                            start: {
+                                line: selection.start.line,
+                                character: selection.start.character,
+                            },
+                            end: {
+                                line: selection.end.line,
+                                character: selection.end.character,
+                            },
+                        },
+                    },
+                )
+
+                if (result && result.changes) {
+                    const workspaceEdit = new vscode.WorkspaceEdit()
+
+                    for (const [uri, edits] of Object.entries(result.changes)) {
+                        const resourceUri = vscode.Uri.parse(uri)
+                        edits.forEach(edit => {
+                            workspaceEdit.replace(
+                                resourceUri,
+                                new vscode.Range(
+                                    new vscode.Position(
+                                        edit.range.start.line,
+                                        edit.range.start.character,
+                                    ),
+                                    new vscode.Position(
+                                        edit.range.end.line,
+                                        edit.range.end.character,
+                                    ),
+                                ),
+                                edit.newText,
+                            )
+                        })
+                    }
+
+                    const success = await vscode.workspace.applyEdit(workspaceEdit)
+                    if (success) {
+                        for (const [uri, edits] of Object.entries(result.changes)) {
+                            const varDeclaration = edits.find(edit => edit.newText.includes("let"))
+                            if (varDeclaration) {
+                                const varNamePos = new vscode.Position(
+                                    varDeclaration.range.start.line,
+                                    varDeclaration.range.start.character + "        let ".length,
+                                )
+
+                                const doc = await vscode.workspace.openTextDocument(
+                                    vscode.Uri.parse(uri),
+                                )
+                                const editor = await vscode.window.showTextDocument(doc)
+
+                                editor.selection = new vscode.Selection(varNamePos, varNamePos)
+
+                                await vscode.commands.executeCommand("editor.action.rename")
+                                break
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to extract variable: ${error}`)
+            }
+        }),
+    )
 }
 
 export function deactivate(): Thenable<void> | undefined {

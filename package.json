@@ -109,6 +109,11 @@
             {
                 "command": "tact/executeGetScopeProvider",
                 "title": "Get Scope Information"
+            },
+            {
+                "command": "tact.extractVariable",
+                "title": "Extract Variable",
+                "category": "tact"
             }
         ],
         "configuration": {

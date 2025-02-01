@@ -6,7 +6,7 @@ import {Node as SyntaxNode} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"
 import {FiftReference} from "@server/psi/FiftReference"
 
-export function collectFift(file: File): SemanticTokens {
+export function collectFiftSemanticTokens(file: File): SemanticTokens {
     const builder = new SemanticTokensBuilder()
 
     function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes) {
