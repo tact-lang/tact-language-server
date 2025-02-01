@@ -7,12 +7,14 @@ import {Fun} from "@server/psi/Decls"
 import {CallLike, Expression, VarDeclaration} from "@server/psi/Node"
 import {MapTy} from "@server/types/BaseTy"
 import {findInstruction} from "@server/completion/data/types"
+import {createHash} from "crypto"
 
 export function collect(
     file: File,
     hints: {
         types: boolean
         parameters: boolean
+        exitCodeFormat: "decimal" | "hex"
     },
 ): InlayHint[] | null {
     if (!hints.types && !hints.parameters) return []
@@ -91,6 +93,33 @@ export function collect(
             if (!(res instanceof Fun)) return true
 
             const params = res.parameters()
+
+            // We want to show the actual exit code for message in require
+            // require(true, "message")
+            // =>
+            // require(true, "message" exit code: 999)
+            if (call.name() === "require") {
+                const message = args.at(-1)
+                if (message) {
+                    const content = message.text.slice(1, -1)
+                    const buff = createHash("sha256").update(content).digest() as Buffer
+                    const code = (buff.readUInt32BE(0) % 63000) + 1000
+
+                    const codeStr =
+                        hints.exitCodeFormat === "hex"
+                            ? `0x${code.toString(16).toUpperCase()}`
+                            : code.toString()
+
+                    result.push({
+                        kind: InlayHintKind.Parameter,
+                        label: `exit code: ${codeStr}`,
+                        position: {
+                            line: message.endPosition.row,
+                            character: message.endPosition.column,
+                        },
+                    })
+                }
+            }
 
             // skip self parameter
             const shift = type === "method_call_expression" && res.withSelf() ? 1 : 0

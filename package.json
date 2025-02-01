@@ -134,6 +134,19 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Enable/disable all code lens"
+                },
+                "tact.hints.exitCodeFormat": {
+                    "type": "string",
+                    "enum": [
+                        "decimal",
+                        "hex"
+                    ],
+                    "default": "decimal",
+                    "description": "Format of exit codes in require() hints",
+                    "enumDescriptions": [
+                        "Show exit codes in decimal format (e.g. 1234)",
+                        "Show exit codes in hexadecimal format (e.g. 0x4D2)"
+                    ]
                 }
             }
         }
