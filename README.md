@@ -21,7 +21,6 @@ First, clone and build the language server:
 git clone https://github.com/i582/language-server
 cd language-server
 yarn install
-yarn grammar:wasm
 yarn build
 ```
 

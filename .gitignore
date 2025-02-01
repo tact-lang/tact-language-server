@@ -6,6 +6,8 @@ dist/
 test-workspace/
 .vscode-test/
 *.wasm
+!tree-sitter-fift/tree-sitter-fift.wasm
+!tree-sitter-tact/tree-sitter-tact.wasm
 
 # tests
 server/src/e2e/out
