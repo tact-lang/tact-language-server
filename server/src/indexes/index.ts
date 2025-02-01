@@ -158,6 +158,12 @@ export class GlobalIndex {
         console.info(`removed ${uri} from index`)
     }
 
+    public fileChanged(uri: string) {
+        CACHE.clear()
+        this.files.delete(uri)
+        console.info(`found changes in ${uri}`)
+    }
+
     public processElementsByKey<K extends IndexKey>(
         key: K,
         processor: ScopeProcessor,

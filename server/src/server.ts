@@ -41,7 +41,7 @@ import {TlbSerializationCompletionProvider} from "./completion/providers/TlbSeri
 import {MessageMethodCompletionProvider} from "./completion/providers/MessageMethodCompletionProvider"
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
-import {parentOfType} from "@server/psi/utils"
+import {measureTime, parentOfType} from "@server/psi/utils"
 import {FileChangeType} from "vscode-languageserver"
 import {Logger} from "@server/utils/logger"
 import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
@@ -226,9 +226,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             return
         }
 
-        index.removeFile(uri)
-        const file = await findFile(uri, event.document.getText())
-        index.addFile(uri, file)
+        index.fileChanged(uri)
+        const file = await findFile(uri, event.document.getText(), true)
+        index.addFile(uri, file, false)
 
         const diagnostics: lsp.Diagnostic[] = []
 
@@ -269,9 +269,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             if (change.type === FileChangeType.Changed) {
                 console.info(`Find external change of ${uri}`)
-                index.removeFile(uri)
-                const file = await findFile(uri)
-                index.addFile(uri, file)
+                index.fileChanged(uri)
+                const file = await findFile(uri, undefined, true)
+                index.addFile(uri, file, false)
             }
 
             if (change.type === FileChangeType.Deleted) {
@@ -596,7 +596,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const file = await findFile(uri)
             const settings = await getDocumentSettings(params.textDocument.uri)
-            return inlays.collect(file, settings.hints)
+            return measureTime("inlay hints", () => inlays.collect(file, settings.hints))
         },
     )
 
@@ -833,7 +833,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             }
 
             const file = await findFile(uri)
-            return foldings.collect(file)
+            return measureTime("folding range", () => foldings.collect(file))
         },
     )
 
@@ -847,7 +847,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             }
 
             const file = await findFile(uri)
-            return semantic.collect(file)
+            return measureTime("semantic tokens", () => semantic.collect(file))
         },
     )
 

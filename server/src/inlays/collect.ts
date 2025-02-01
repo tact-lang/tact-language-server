@@ -20,9 +20,11 @@ export function collect(
     const result: InlayHint[] = []
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
-        if (n.type === "let_statement" && hints.types) {
+        const type = n.type
+
+        if (type === "let_statement" && hints.types) {
             const decl = new VarDeclaration(n, file)
-            if (decl.typeHint() !== null) return true // already have typehint
+            if (decl.hasTypeHint()) return true // already have typehint
 
             const expr = decl.value()
             if (!expr) return true
@@ -41,9 +43,10 @@ export function collect(
                     character: name.endPosition.column,
                 },
             })
+            return true
         }
 
-        if (n.type === "foreach_statement" && hints.types) {
+        if (type === "foreach_statement" && hints.types) {
             const expr = n.childForFieldName("map")
             if (!expr) return true
             const exprTy = new Expression(expr, file).type()
@@ -72,22 +75,25 @@ export function collect(
                     },
                 })
             }
+            return true
         }
 
         if (
-            (n.type === "static_call_expression" || n.type === "method_call_expression") &&
+            (type === "static_call_expression" || type === "method_call_expression") &&
             hints.parameters
         ) {
             const call = new CallLike(n, file)
+            const rawArgs = call.rawArguments()
+            const args = rawArgs.filter(value => value.type === "argument")
+            if (args.length === 0) return true // no parameters, no need to resolve anything
+
             const res = Reference.resolve(call.nameNode())
             if (!(res instanceof Fun)) return true
 
             const params = res.parameters()
-            const rawArgs = call.rawArguments()
-            const args = rawArgs.filter(value => value.type === "argument")
 
             // skip self parameter
-            const shift = n.type === "method_call_expression" && res.withSelf() ? 1 : 0
+            const shift = type === "method_call_expression" && res.withSelf() ? 1 : 0
 
             for (let i = 0; i < min(params.length - shift, args.length); i++) {
                 const param = params[i + shift]
@@ -102,9 +108,10 @@ export function collect(
                     },
                 })
             }
+            return true
         }
 
-        if (n.type === "tvm_ordinary_word") {
+        if (type === "tvm_ordinary_word") {
             const instruction = findInstruction(n.text)
             if (instruction) {
                 result.push({
@@ -116,9 +123,10 @@ export function collect(
                     },
                 })
             }
+            return true
         }
 
-        if (n.type === "asm_function") {
+        if (type === "asm_function") {
             const func = new Fun(n, file)
             const openBrace = func.openBrace()
             if (!openBrace) return true
@@ -136,6 +144,7 @@ export function collect(
                     character: openBrace.endPosition.column,
                 },
             })
+            return true
         }
 
         return true

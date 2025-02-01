@@ -6,6 +6,7 @@ import {URI} from "vscode-uri"
 import {createTactParser} from "./parser"
 import {index} from "./indexes"
 import {createFiftParser} from "./parser"
+import {measureTime} from "@server/psi/utils"
 
 export const PARSED_FILES_CACHE = new LRUMap<string, File>({
     size: 100,
@@ -55,15 +56,19 @@ export class IndexRoot {
     }
 }
 
-export async function findFile(uri: string, content?: string | undefined) {
+export async function findFile(
+    uri: string,
+    content?: string | undefined,
+    changed: boolean = false,
+) {
     const cached = PARSED_FILES_CACHE.get(uri)
-    if (cached !== undefined) {
+    if (cached !== undefined && !changed) {
         return cached
     }
 
     const realContent = content ?? readFileSync(URI.parse(uri).path).toString()
     const parser = createTactParser()
-    const tree = parser.parse(realContent)
+    const tree = measureTime(`reparse file ${uri}`, () => parser.parse(realContent))
     const file = new File(uri, tree!, realContent)
     PARSED_FILES_CACHE.set(uri, file)
     return file

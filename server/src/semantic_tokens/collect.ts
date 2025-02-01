@@ -15,49 +15,61 @@ export function collect(file: File): SemanticTokens {
             n.startPosition.row,
             n.startPosition.column,
             n.endPosition.column - n.startPosition.column,
-            Object.keys(lsp.SemanticTokenTypes).indexOf(tokenType.toString()),
+            Object.keys(lsp.SemanticTokenTypes).indexOf(tokenType),
             0,
         )
     }
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
-        if (n.type === "asm" && n.parent!.type === "asm_function") {
+        const type = n.type
+
+        // asm fun foo() {}
+        // ^^^ this
+        if (type === "asm" && n.parent?.type === "asm_function") {
             pushToken(n, lsp.SemanticTokenTypes.keyword)
+            return true
         }
 
-        if (n.type === "global_constant") {
+        if (type === "global_constant") {
             const name = n.childForFieldName("name")!
             pushToken(name, lsp.SemanticTokenTypes.property)
+            return true
         }
 
-        if (n.type === "storage_function") {
+        if (type === "storage_function") {
             const name = n.childForFieldName("name")!
             pushToken(name, lsp.SemanticTokenTypes.function)
+            return true
         }
 
-        if (n.type === "parameter") {
+        if (type === "parameter") {
             const name = n.childForFieldName("name")!
             pushToken(name, lsp.SemanticTokenTypes.parameter)
+            return true
         }
 
-        if (n.type === "let_statement") {
+        if (type === "let_statement") {
             const name = n.childForFieldName("name")!
             pushToken(name, lsp.SemanticTokenTypes.variable)
+            return true
         }
 
-        if (n.type === "field" || n.type === "storage_variable") {
+        if (type === "field" || type === "storage_variable") {
             const name = n.childForFieldName("name")!
             pushToken(name, lsp.SemanticTokenTypes.property)
+            return true
         }
 
-        if (n.type === "constant" || n.type === "storage_constant") {
+        if (type === "constant" || type === "storage_constant") {
             const name = n.childForFieldName("name")!
             pushToken(name, lsp.SemanticTokenTypes.enumMember)
+            return true
         }
 
-        if (n.type === "identifier") {
-            const parent = n.parent!
-            if (parent.type === "tvm_ordinary_word") {
+        if (type === "identifier") {
+            // asm fun foo() { ONE }
+            //                 ^^^ this
+            if (n.parent?.type === "tvm_ordinary_word") {
                 pushToken(n, lsp.SemanticTokenTypes.macro)
                 return true
             }
@@ -65,21 +77,18 @@ export function collect(file: File): SemanticTokens {
             const element = new NamedNode(n, file)
             const resolved = Reference.resolve(element)
             if (!resolved) return true
+            const resolvedType = resolved.node.type
 
-            if (resolved.node.parent!.type === "let_statement") {
-                pushToken(n, lsp.SemanticTokenTypes.variable)
-            }
-            if (resolved.node.type === "parameter") {
+            if (resolvedType === "parameter") {
                 pushToken(n, lsp.SemanticTokenTypes.parameter)
-            }
-            if (resolved.node.type === "field" || resolved.node.type === "storage_variable") {
+            } else if (resolvedType === "field" || resolvedType === "storage_variable") {
                 pushToken(n, lsp.SemanticTokenTypes.property)
-            }
-            if (resolved.node.type === "constant" || resolved.node.type === "storage_constant") {
+            } else if (resolvedType === "constant" || resolvedType === "storage_constant") {
                 pushToken(n, lsp.SemanticTokenTypes.enumMember)
-            }
-            if (isNamedFunNode(resolved.node)) {
+            } else if (isNamedFunNode(resolved.node)) {
                 pushToken(n, lsp.SemanticTokenTypes.function)
+            } else if (resolved.node.parent!.type === "let_statement") {
+                pushToken(n, lsp.SemanticTokenTypes.variable)
             }
         }
 
