@@ -10838,10 +10838,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"napi-build-utils@npm:^1.0.1":
-  version: 1.0.2
-  resolution: "napi-build-utils@npm:1.0.2"
-  checksum: 10c0/37fd2cd0ff2ad20073ce78d83fd718a740d568b225924e753ae51cb69d68f330c80544d487e5e5bd18e28702ed2ca469c2424ad948becd1862c1b0209542b2e9
+"napi-build-utils@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "napi-build-utils@npm:2.0.0"
+  checksum: 10c0/5833aaeb5cc5c173da47a102efa4680a95842c13e0d9cc70428bd3ee8d96bb2172f8860d2811799b5daa5cbeda779933601492a2028a6a5351c6d0fcf6de83db
   languageName: node
   linkType: hard
 
@@ -10891,11 +10891,11 @@ __metadata:
   linkType: hard
 
 "node-abi@npm:^3.3.0":
-  version: 3.73.0
-  resolution: "node-abi@npm:3.73.0"
+  version: 3.74.0
+  resolution: "node-abi@npm:3.74.0"
   dependencies:
     semver: "npm:^7.3.5"
-  checksum: 10c0/4cd237f2507f80048310f381198a07387b11cbaab7dfac61ccc40cdc83f2296c647df02b5ddfead9f40b845c696f0ce75fdaa01973d3f3f0686151e4f96d2c8c
+  checksum: 10c0/a6c83c448d5e8b591f749a0157c9ec02f653021cdf3415c1a44fcb5fc8afc124acad186bc1ec76cb4db2485cc2dcdda187aacd382c54b6e3093ffc0389603643
   languageName: node
   linkType: hard
 
@@ -11543,15 +11543,15 @@ __metadata:
   linkType: hard
 
 "prebuild-install@npm:^7.0.1":
-  version: 7.1.2
-  resolution: "prebuild-install@npm:7.1.2"
+  version: 7.1.3
+  resolution: "prebuild-install@npm:7.1.3"
   dependencies:
     detect-libc: "npm:^2.0.0"
     expand-template: "npm:^2.0.3"
     github-from-package: "npm:0.0.0"
     minimist: "npm:^1.2.3"
     mkdirp-classic: "npm:^0.5.3"
-    napi-build-utils: "npm:^1.0.1"
+    napi-build-utils: "npm:^2.0.0"
     node-abi: "npm:^3.3.0"
     pump: "npm:^3.0.0"
     rc: "npm:^1.2.7"
@@ -11560,7 +11560,7 @@ __metadata:
     tunnel-agent: "npm:^0.6.0"
   bin:
     prebuild-install: bin.js
-  checksum: 10c0/e64868ba9ef2068fd7264f5b03e5298a901e02a450acdb1f56258d88c09dea601eefdb3d1dfdff8513fdd230a92961712be0676192626a3b4d01ba154d48bdd3
+  checksum: 10c0/25919a42b52734606a4036ab492d37cfe8b601273d8dfb1fa3c84e141a0a475e7bad3ab848c741d2f810cef892fcf6059b8c7fe5b29f98d30e0c29ad009bedff
   languageName: node
   linkType: hard
 
@@ -13607,7 +13607,7 @@ __metadata:
     mocha: "npm:^10.3.0"
     nan: "npm:^2.16.0"
     prettier: "npm:3.4.2"
-    tree-sitter-cli: "npm:^0.23.0"
+    tree-sitter-cli: "npm:^0.25.0"
     ts-jest: "npm:^29.2.4"
     ts-loader: "npm:^9.5.1"
     ts-node: "npm:^10.9.2"
@@ -13779,12 +13779,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tree-sitter-cli@npm:^0.23.0":
-  version: 0.23.2
-  resolution: "tree-sitter-cli@npm:0.23.2"
+"tree-sitter-cli@npm:^0.25.0":
+  version: 0.25.0
+  resolution: "tree-sitter-cli@npm:0.25.0"
   bin:
     tree-sitter: cli.js
-  checksum: 10c0/26bc30b881992efd07c6da36d07de37594f16e5388ea38d3b6e59df5b3ba62620d60e5a19a9f9f3c95d0627edd52dda1a6134328e8d01235923aebed7bb389cf
+  checksum: 10c0/c38b85cb5017787eddbc173fbb0e29cd23c6c0637c9670179dd6b9034e0da01c705b23fd0e4143a94d948a5945174c7ae629cbcb5e9277e330d27e7278471cb3
   languageName: node
   linkType: hard
 

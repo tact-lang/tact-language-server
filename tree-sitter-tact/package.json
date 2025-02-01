@@ -4,13 +4,13 @@
   "description": "A tree-sitter grammar for the Tact programming language",
   "author": "Novus Nota (https://github.com/novusnota)",
   "license": "MIT",
-  "homepage": "https://github.com/novusnota/tree-sitter-tact#readme",
+  "homepage": "https://github.com/tact-lang/tree-sitter-tact",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/novusnota/tree-sitter-tact"
+    "url": "git+ssh://git@github.com/tact-lang/tree-sitter-tact"
   },
   "bugs": {
-    "url": "https://github.com/novusnota/tree-sitter-tact/issues"
+    "url": "https://github.com/tact-lang/tree-sitter-tact/issues"
   },
   "keywords": [
     "tact",
@@ -67,9 +67,9 @@
     }
   },
   "devDependencies": {
+    "prebuildify": "^6.0.0",
     "prettier": "^3.2.5",
-    "tree-sitter-cli": "^0.23.0",
-    "prebuildify": "^6.0.0"
+    "tree-sitter-cli": "^0.25.0"
   },
   "tree-sitter": [
     {
@@ -87,5 +87,5 @@
     "singleQuote": false,
     "semi": true
   },
-  "packageManager": "npm@10.5.0"
+  "packageManager": "yarn@4.6.0"
 }

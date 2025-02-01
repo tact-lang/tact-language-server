@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "tact",
   "word": "identifier",
   "rules": {
@@ -4126,5 +4127,6 @@
   ],
   "externals": [],
   "inline": [],
-  "supertypes": ["value_expression"]
+  "supertypes": ["value_expression"],
+  "reserved": {}
 }

@@ -1,11 +1,12 @@
 from unittest import TestCase
 
-import tree_sitter, tree_sitter_tact
+import tree_sitter
+import tree_sitter_fift
 
 
 class TestLanguage(TestCase):
     def test_can_load_grammar(self):
         try:
-            tree_sitter.Language(tree_sitter_tact.language())
+            tree_sitter.Language(tree_sitter_fift.language())
         except Exception:
-            self.fail("Error loading Tact grammar")
+            self.fail("Error loading Fift grammar")

@@ -1,15 +1,15 @@
-package tree_sitter_tact_test
+package tree_sitter_fift_test
 
 import (
 	"testing"
 
 	tree_sitter "github.com/tree-sitter/go-tree-sitter"
-	tree_sitter_tact "github.com/tree-sitter/tree-sitter-tact/bindings/go"
+	tree_sitter_fift "github.com/i582/language-server/bindings/go"
 )
 
 func TestCanLoadGrammar(t *testing.T) {
-	language := tree_sitter.NewLanguage(tree_sitter_tact.Language())
+	language := tree_sitter.NewLanguage(tree_sitter_fift.Language())
 	if language == nil {
-		t.Errorf("Error loading Tact grammar")
+		t.Errorf("Error loading Fift grammar")
 	}
 }
