@@ -69,6 +69,7 @@ import {FiftReferent} from "@server/psi/FiftReferent"
 import {findFiftFile} from "./index-root"
 import {generateFiftDocFor} from "./documentation/fift_documentation"
 import {UnusedContractMembersInspection} from "./inspections/UnusedContractMembersInspection"
+import {generateKeywordDoc} from "@server/documentation/keywords_documentation"
 
 /**
  * Whenever LS is initialized.
@@ -319,6 +320,19 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const file = await findFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
+
+            if (hoverNode.type === "initOf") {
+                const doc = generateKeywordDoc("initOf")
+                if (doc === null) return null
+
+                return {
+                    range: asLspRange(hoverNode),
+                    contents: {
+                        kind: "markdown",
+                        value: doc,
+                    },
+                }
+            }
 
             const parent = hoverNode.parent
             if (parent?.type === "tvm_ordinary_word") {
