@@ -4,7 +4,7 @@ import {RecursiveVisitor} from "@server/visitor"
 import {SemanticTokenTypes} from "vscode-languageserver-protocol"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"
-import {FiftReference} from "@server/psi/FiftReference"
+import {FiftReference} from "@server/fift/psi/FiftReference"
 
 export function collectFift(file: File): SemanticTokens {
     const builder = new SemanticTokensBuilder()

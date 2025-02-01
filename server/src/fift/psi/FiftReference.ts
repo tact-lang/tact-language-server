@@ -1,5 +1,5 @@
 import {Node as SyntaxNode} from "web-tree-sitter"
-import {File} from "./File"
+import {File} from "../../psi/File"
 import {RecursiveVisitor} from "@server/visitor"
 
 export class FiftReference {
