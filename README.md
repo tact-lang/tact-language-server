@@ -47,28 +47,28 @@ The extension will automatically activate when you open any `.tact` file.
 
 The language server supports the following settings:
 
-```json
+```json5
 {
-    "tact": {
-        "stdlib": {
-            "path": ""
+    tact: {
+        stdlib: {
+            path: "",
             // Path to Tact standard library. If empty, will try to find in node_modules
         },
-        "hints": {
-            "types": true,
+        hints: {
+            types: true,
             // Show type hints for variables and expressions
-            "parameters": true,
+            parameters: true,
             // Show parameter name hints in function calls
-            "showMethodId": true,
+            showMethodId: true,
             // Show method ID hints for contract functions
-            "exitCodeFormat": "decimal"
+            exitCodeFormat: "decimal",
             // Format of exit codes in require(): "decimal" or "hex"
         },
-        "codeLens": {
-            "enabled": true
+        codeLens: {
+            enabled: true,
             // Enable/disable all code lens
-        }
-    }
+        },
+    },
 }
 ```
 
