@@ -35,7 +35,7 @@ export abstract class UnusedInspection {
                 range,
                 message: `${options.kind} '${node.text}' is never used`,
                 source: "tact",
-                code: options.code || "unused",
+                code: options.code ?? "unused",
                 tags: [lsp.DiagnosticTag.Unnecessary],
             })
 
