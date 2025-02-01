@@ -1,2 +1,2 @@
 echo "Running pre-commit tasks" >&2
-yarn run format:check || (echo 'Please run `yarn run format` to autofix.' >&2 && exit 1)
+yarn run fmt:check || (echo 'Please run `yarn run fmt -u` to autofix.' >&2 && exit 1)
