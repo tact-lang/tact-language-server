@@ -32,4 +32,4 @@ jobs:
         run: yarn dedupe --check
 
       - name: Run prettier
-        run: yarn run format:check
+        run: yarn run fmt:check
