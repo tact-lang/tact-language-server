@@ -81,6 +81,8 @@ import {ImportResolver} from "@server/psi/ImportResolver"
  */
 let initialized = false
 
+let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
+
 /**
  * Root folders for project.
  * Used to find files to index.
@@ -142,8 +144,12 @@ async function initialize() {
 
     // When we are ready, just reload all applied highlighting and hints and clear cache
     // This way we support fast local resolving and then full resolving after indexing.
-    await connection.sendRequest(lsp.SemanticTokensRefreshRequest.type)
-    await connection.sendRequest(lsp.InlayHintRefreshRequest.type)
+
+    // Only run this in VS Code, as other editors may not handle these requests (like Helix)
+    if (clientInfo.name?.includes("Code") || clientInfo.name?.includes("Codium")) {
+        await connection.sendRequest(lsp.SemanticTokensRefreshRequest.type)
+        await connection.sendRequest(lsp.InlayHintRefreshRequest.type)
+    }
     CACHE.clear()
 
     reporter.done()
@@ -193,7 +199,12 @@ async function initializeFallback(uri: string) {
 
 connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     console.info("Started new session")
+    console.info("Running in", params.clientInfo?.name)
     console.info("workspaceFolders:", params.workspaceFolders)
+
+    if (params.clientInfo) {
+        clientInfo = params.clientInfo
+    }
 
     workspaceFolders = params.workspaceFolders ?? []
     const opts = params.initializationOptions as ClientOptions

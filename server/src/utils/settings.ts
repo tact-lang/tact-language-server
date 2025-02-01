@@ -30,7 +30,7 @@ const defaultSettings: TactSettings = {
     },
 }
 
-const documentSettings = new Map<string, Thenable<TactSettings>>()
+const documentSettings = new Map<string, TactSettings>()
 
 function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
     return {
@@ -53,14 +53,19 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
 export async function getDocumentSettings(resource: string): Promise<TactSettings> {
     let vsCodeSettings = documentSettings.get(resource)
     if (!vsCodeSettings) {
-        vsCodeSettings = connection.workspace.getConfiguration({
+        vsCodeSettings = await connection.workspace.getConfiguration({
             scopeUri: resource,
             section: "tact",
         })
-        documentSettings.set(resource, vsCodeSettings)
+        if (vsCodeSettings) {
+            documentSettings.set(resource, vsCodeSettings)
+        }
+    }
+    if (!vsCodeSettings) {
+        return defaultSettings
     }
 
-    return vsCodeSettings.then(settings => mergeSettings(settings))
+    return mergeSettings(vsCodeSettings)
 }
 
 export function clearDocumentSettings(): void {

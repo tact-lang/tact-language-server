@@ -129,7 +129,7 @@ export function collect(
 
                     result.push({
                         kind: InlayHintKind.Parameter,
-                        label: `exit code: ${codeStr}`,
+                        label: ` exit code: ${codeStr}`,
                         position: {
                             line: message.endPosition.row,
                             character: message.endPosition.column,
