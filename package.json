@@ -53,8 +53,8 @@
                     ".tact"
                 ],
                 "icon": {
-                    "light": "./ton-icon.svg",
-                    "dark": "./ton-icon.svg"
+                    "light": "./icons/icon-light.svg",
+                    "dark": "./icons/icon-dark.svg"
                 },
                 "configuration": "./language-configuration.json"
             },
