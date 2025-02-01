@@ -197,6 +197,8 @@ export function collect(
             if (!hints.showMethodId) return true
 
             const func = new Fun(n, file)
+            if (!func.modifiers().includes("get")) return true
+
             const modifiers = n.childForFieldName("attributes")
             if (!modifiers) return true
 
