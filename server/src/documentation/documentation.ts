@@ -1,6 +1,6 @@
 import {NamedNode} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
-import {Constant, Contract, Fun, Trait} from "@server/psi/Decls"
+import {Constant, Contract, Fun, Message, Struct, Trait} from "@server/psi/Decls"
 import {Node as SyntaxNode} from "web-tree-sitter"
 
 const CODE_FENCE = "```"
@@ -67,11 +67,16 @@ export function generateDocFor(node: NamedNode): string | null {
         }
         case "struct": {
             const doc = extractCommentsDoc(node)
-            return defaultResult(`struct ${node.name()}`, doc)
+            const struct = new Struct(node.node, node.file)
+            const body = struct.body()?.text ?? ""
+            return defaultResult(`struct ${node.name()} ${body}`, doc)
         }
         case "message": {
             const doc = extractCommentsDoc(node)
-            return defaultResult(`message ${node.name()}`, doc)
+            const message = new Message(node.node, node.file)
+            const body = message.body()?.text ?? ""
+            const value = message.value()
+            return defaultResult(`message${value} ${node.name()} ${body}`, doc)
         }
         case "primitive": {
             const doc = extractCommentsDoc(node)

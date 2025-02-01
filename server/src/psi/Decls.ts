@@ -15,9 +15,23 @@ export class FieldsOwner extends NamedNode {
     }
 }
 
-export class Message extends FieldsOwner {}
+export class Message extends FieldsOwner {
+    public body(): SyntaxNode | null {
+        return this.node.childForFieldName("body")
+    }
 
-export class Struct extends FieldsOwner {}
+    public value(): string {
+        const value = this.node.childForFieldName("value")
+        if (!value) return ""
+        return value?.text ?? ""
+    }
+}
+
+export class Struct extends FieldsOwner {
+    public body(): SyntaxNode | null {
+        return this.node.childForFieldName("body")
+    }
+}
 
 export class Primitive extends NamedNode {}
 
