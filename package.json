@@ -166,6 +166,7 @@
         "tree-sitter-cli": "^0.23.0",
         "ts-jest": "^29.2.4",
         "ts-loader": "^9.5.1",
+        "tsconfig-paths-webpack-plugin": "^4.2.0",
         "typescript": "^5.7.0",
         "webpack": "^5.92.1",
         "webpack-cli": "^5.1.4"

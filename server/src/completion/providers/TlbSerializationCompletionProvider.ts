@@ -1,6 +1,6 @@
-import {CompletionProvider} from "../CompletionProvider"
+import {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "../CompletionContext"
+import {CompletionContext} from "@server/completion/CompletionContext"
 
 export class TlbSerializationCompletionProvider implements CompletionProvider {
     // see https://docs.tact-lang.org/book/integers/#common-serialization-types

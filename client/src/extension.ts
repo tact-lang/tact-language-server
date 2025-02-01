@@ -17,10 +17,10 @@ import {
     GetTypeAtPositionResponse,
     NotificationFromServer,
     RequestFromServer,
-} from "../../shared/src/shared-msgtypes"
+} from "@shared/shared-msgtypes"
 import {TextEncoder} from "util"
 import {Location, Position} from "vscode-languageclient"
-import {ClientOptions} from "../../shared/src/config-scheme"
+import {ClientOptions} from "@shared/config-scheme"
 
 let client: LanguageClient
 

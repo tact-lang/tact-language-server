@@ -1,9 +1,9 @@
 import {Expression, NamedNode} from "./Node"
 import {Reference} from "./Reference"
-import {index, IndexKey} from "../indexes"
+import {index, IndexKey} from "@server/indexes"
 import {parentOfType} from "./utils"
 import {SyntaxNode} from "web-tree-sitter"
-import {findInstruction} from "../completion/data/types"
+import {findInstruction} from "@server/completion/data/types"
 
 export class FieldsOwner extends NamedNode {
     public fields(): Field[] {

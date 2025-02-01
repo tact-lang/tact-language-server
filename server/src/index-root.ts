@@ -1,5 +1,5 @@
-import {LRUMap} from "./utils/lruMap"
-import {File} from "./psi/File"
+import {LRUMap} from "@server/utils/lruMap"
+import {File} from "@server/psi/File"
 import {glob} from "glob"
 import {readFileSync} from "fs"
 import {URI} from "vscode-uri"

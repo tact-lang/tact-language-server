@@ -1,7 +1,7 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "../psi/File"
-import {asLspRange} from "../utils/position"
-import {RecursiveVisitor} from "../psi/RecursiveVisitor"
+import {File} from "@server/psi/File"
+import {asLspRange} from "@server/utils/position"
+import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 
 export class EmptyBlockInspection {
     inspect(file: File): lsp.Diagnostic[] {

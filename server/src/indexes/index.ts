@@ -1,10 +1,10 @@
-import {NamedNode} from "../psi/Node"
-import {File} from "../psi/File"
-import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "../psi/Decls"
-import {isNamedFunNode} from "../psi/utils"
-import {ResolveState, ScopeProcessor} from "../psi/Reference"
-import {CACHE} from "../cache"
-import {PARSED_FILES_CACHE} from "../index-root"
+import {NamedNode} from "@server/psi/Node"
+import {File} from "@server/psi/File"
+import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "@server/psi/Decls"
+import {isNamedFunNode} from "@server/psi/utils"
+import {ResolveState, ScopeProcessor} from "@server/psi/Reference"
+import {CACHE} from "@server/cache"
+import {PARSED_FILES_CACHE} from "@server/index-root"
 
 export interface IndexKeyToType {
     [IndexKey.Contracts]: Contract

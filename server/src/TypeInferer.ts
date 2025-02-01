@@ -11,10 +11,10 @@ import {
     TraitTy,
     Ty,
 } from "./types/BaseTy"
-import {CallLike, Expression, NamedNode, Node} from "./psi/Node"
-import {Reference} from "./psi/Reference"
-import {Struct, Message, Fun, Primitive, Contract, Trait} from "./psi/Decls"
-import {isTypeOwnerNode} from "./psi/utils"
+import {CallLike, Expression, NamedNode, Node} from "@server/psi/Node"
+import {Reference} from "@server/psi/Reference"
+import {Struct, Message, Fun, Primitive, Contract, Trait} from "@server/psi/Decls"
+import {isTypeOwnerNode} from "@server/psi/utils"
 import {SyntaxNode} from "web-tree-sitter"
 import {CACHE} from "./cache"
 import {index, IndexKey} from "./indexes"

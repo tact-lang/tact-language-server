@@ -1,12 +1,12 @@
 import {InlayHint, InlayHintKind} from "vscode-languageserver-types"
-import {RecursiveVisitor} from "../visitor"
-import {File} from "../psi/File"
-import {TypeInferer} from "../TypeInferer"
-import {Reference} from "../psi/Reference"
-import {Fun} from "../psi/Decls"
-import {CallLike, Expression, VarDeclaration} from "../psi/Node"
-import {MapTy} from "../types/BaseTy"
-import {findInstruction} from "../completion/data/types"
+import {RecursiveVisitor} from "@server/visitor"
+import {File} from "@server/psi/File"
+import {TypeInferer} from "@server/TypeInferer"
+import {Reference} from "@server/psi/Reference"
+import {Fun} from "@server/psi/Decls"
+import {CallLike, Expression, VarDeclaration} from "@server/psi/Node"
+import {MapTy} from "@server/types/BaseTy"
+import {findInstruction} from "@server/completion/data/types"
 
 export function collect(
     file: File,

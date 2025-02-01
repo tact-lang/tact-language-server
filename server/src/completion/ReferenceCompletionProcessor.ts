@@ -1,8 +1,8 @@
-import {ResolveState, ScopeProcessor} from "../psi/Reference"
-import {NamedNode, Node} from "../psi/Node"
-import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from "../psi/Decls"
+import {ResolveState, ScopeProcessor} from "@server/psi/Reference"
+import {NamedNode, Node} from "@server/psi/Node"
+import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from "@server/psi/Decls"
 import {CompletionItem, InsertTextFormat, CompletionItemKind} from "vscode-languageserver-types"
-import {TypeInferer} from "../TypeInferer"
+import {TypeInferer} from "@server/TypeInferer"
 import {CompletionContext} from "./CompletionContext"
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {

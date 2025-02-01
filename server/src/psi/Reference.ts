@@ -10,13 +10,13 @@ import {
     StructTy,
     TraitTy,
     Ty,
-} from "../types/BaseTy"
-import {index, IndexKey} from "../indexes"
+} from "@server/types/BaseTy"
+import {index, IndexKey} from "@server/indexes"
 import {Expression, NamedNode, Node} from "./Node"
 import {File} from "./File"
 import {Contract, Field, Fun, Message, Struct, Trait} from "./Decls"
 import {isFunNode, parentOfType} from "./utils"
-import {CACHE} from "../cache"
+import {CACHE} from "@server/cache"
 
 export class ResolveState {
     private values: Map<string, string> = new Map()

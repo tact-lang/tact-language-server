@@ -1,8 +1,8 @@
-import {CompletionProvider} from "../CompletionProvider"
+import {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItem} from "vscode-languageserver-types"
-import {CompletionContext} from "../CompletionContext"
-import {Reference, ResolveState} from "../../psi/Reference"
-import {ReferenceCompletionProcessor} from "../ReferenceCompletionProcessor"
+import {CompletionContext} from "@server/completion/CompletionContext"
+import {Reference, ResolveState} from "@server/psi/Reference"
+import {ReferenceCompletionProcessor} from "@server/completion/ReferenceCompletionProcessor"
 
 export class ReferenceCompletionProvider implements CompletionProvider {
     constructor(private ref: Reference) {}

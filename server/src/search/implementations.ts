@@ -1,7 +1,7 @@
-import {Contract, Trait} from "../psi/Decls"
-import {index, IndexKey} from "../indexes"
-import {ResolveState, ScopeProcessor} from "../psi/Reference"
-import {Node} from "../psi/Node"
+import {Contract, Trait} from "@server/psi/Decls"
+import {index, IndexKey} from "@server/indexes"
+import {ResolveState, ScopeProcessor} from "@server/psi/Reference"
+import {Node} from "@server/psi/Node"
 
 export function implementations(trait: Trait): (Contract | Trait)[] {
     const result: (Contract | Trait)[] = []

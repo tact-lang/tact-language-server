@@ -1,7 +1,7 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "../psi/File"
+import {File} from "@server/psi/File"
 import {UnusedInspection} from "./UnusedInspection"
-import {RecursiveVisitor} from "../psi/RecursiveVisitor"
+import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 
 export class UnusedVariableInspection extends UnusedInspection {
     protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {

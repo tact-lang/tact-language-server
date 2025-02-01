@@ -1,8 +1,8 @@
-import {CompletionProvider} from "../CompletionProvider"
+import {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "../CompletionContext"
-import {parentOfType} from "../../psi/utils"
-import {StorageMembersOwner} from "../../psi/Decls"
+import {CompletionContext} from "@server/completion/CompletionContext"
+import {parentOfType} from "@server/psi/utils"
+import {StorageMembersOwner} from "@server/psi/Decls"
 
 export class OverrideCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {

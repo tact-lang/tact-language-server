@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import {defaultConfig, TactPluginConfigScheme} from "../../shared/src/config-scheme"
+import {defaultConfig, TactPluginConfigScheme} from "@shared/config-scheme"
 
 let cachedClientConfig: TactPluginConfigScheme | undefined = undefined
 

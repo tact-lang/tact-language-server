@@ -1,10 +1,10 @@
-import {CompletionProvider} from "../CompletionProvider"
+import {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "../CompletionContext"
-import {funNodesTypes, parentOfType} from "../../psi/utils"
-import {Fun} from "../../psi/Decls"
-import {OptionTy, PrimitiveTy} from "../../types/BaseTy"
-import {TypeInferer} from "../../TypeInferer"
+import {CompletionContext} from "@server/completion/CompletionContext"
+import {funNodesTypes, parentOfType} from "@server/psi/utils"
+import {Fun} from "@server/psi/Decls"
+import {OptionTy, PrimitiveTy} from "@server/types/BaseTy"
+import {TypeInferer} from "@server/TypeInferer"
 
 export class ReturnCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
