@@ -763,6 +763,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const res = Reference.resolve(call.nameNode())
             if (res === null) return null
+            if (!(res instanceof Fun)) return null
 
             const parametersNode = res.node.childForFieldName("parameters")
             if (!parametersNode) return null
@@ -801,7 +802,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 currentIndex = i
             }
 
-            if (callNode.type === "method_call_expression") {
+            if (callNode.type === "method_call_expression" && res.withSelf()) {
                 // skip self
                 currentIndex++
             }
