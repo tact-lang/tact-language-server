@@ -8,17 +8,14 @@ import {
     TransportKind,
 } from "vscode-languageclient/node"
 import * as path from "path"
-import {consoleError, consoleWarn, createClientLog} from "./client-log"
+import {consoleError, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
     GetDocumentationAtPositionRequest,
     GetTypeAtPositionParams,
     GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
-    NotificationFromServer,
-    RequestFromServer,
 } from "@shared/shared-msgtypes"
-import {TextEncoder} from "util"
 import {Location, Position} from "vscode-languageclient"
 import {ClientOptions} from "@shared/config-scheme"
 
@@ -80,51 +77,6 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     client = new LanguageClient("tact-server", "Tact Language Server", serverOptions, clientOptions)
 
     await client.start()
-
-    client.onRequest(RequestFromServer.fileReadContents, async (raw: string) => {
-        const uri = vscode.Uri.parse(raw)
-
-        if (uri.scheme === "vscode-notebook-cell") {
-            // we are dealing with a notebook
-            try {
-                const doc = await vscode.workspace.openTextDocument(uri)
-                return new TextEncoder().encode(doc.getText())
-            } catch (err) {
-                consoleWarn(err)
-                return {type: "not-found"}
-            }
-        }
-
-        if (vscode.workspace.fs.isWritableFileSystem(uri.scheme) === undefined) {
-            // undefined means we don't know anything about these uris
-            return {type: "not-found"}
-        }
-
-        let data: Uint8Array
-        try {
-            const stat = await vscode.workspace.fs.stat(uri)
-            if (stat.size > 1024 ** 2) {
-                consoleWarn(
-                    `IGNORING "${uri.toString()}" because it is too large (${stat.size}bytes)`,
-                )
-                data = Buffer.from(new Uint8Array())
-            } else {
-                data = await vscode.workspace.fs.readFile(uri)
-            }
-            return data
-        } catch (err) {
-            if (err instanceof vscode.FileSystemError) {
-                return {type: "not-found"}
-            }
-            // graceful
-            consoleWarn(err)
-            return {type: "not-found"}
-        }
-    })
-
-    client.onNotification(NotificationFromServer.showErrorMessage, (errTxt: string) => {
-        void vscode.window.showErrorMessage(errTxt)
-    })
 
     vscode.commands.registerCommand("tact.showParent", async (uri: string, position: Position) => {
         await showReferencesImpl(client, uri, position)
