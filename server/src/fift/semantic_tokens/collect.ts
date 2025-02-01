@@ -1,6 +1,6 @@
 import {SemanticTokens, SemanticTokensBuilder} from "vscode-languageserver"
 import {File} from "@server/psi/File"
-import {RecursiveVisitor} from "@server/visitor"
+import {RecursiveVisitor} from "@server/psi/visitor"
 import {SemanticTokenTypes} from "vscode-languageserver-protocol"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"

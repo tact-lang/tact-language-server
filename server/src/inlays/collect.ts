@@ -1,5 +1,5 @@
 import {InlayHint, InlayHintKind} from "vscode-languageserver-types"
-import {RecursiveVisitor} from "@server/visitor"
+import {RecursiveVisitor} from "@server/psi/visitor"
 import {File} from "@server/psi/File"
 import {TypeInferer} from "@server/TypeInferer"
 import {Reference} from "@server/psi/Reference"

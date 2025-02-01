@@ -1,5 +1,5 @@
 import {FoldingRange, FoldingRangeKind} from "vscode-languageserver-types"
-import {RecursiveVisitor} from "@server/visitor"
+import {RecursiveVisitor} from "@server/psi/visitor"
 import {File} from "@server/psi/File"
 import {Point} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"

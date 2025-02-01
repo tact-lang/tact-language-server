@@ -1,6 +1,6 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
 
-import {RecursiveVisitor} from "@server/visitor"
+import {RecursiveVisitor} from "@server/psi/visitor"
 import {NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
 import {File} from "./File"

@@ -1,4 +1,4 @@
-import {RecursiveVisitor} from "@server/visitor"
+import {RecursiveVisitor} from "@server/psi/visitor"
 import {File} from "@server/psi/File"
 import {Reference} from "@server/psi/Reference"
 import {Node as SyntaxNode} from "web-tree-sitter"

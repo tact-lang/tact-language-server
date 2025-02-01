@@ -1,6 +1,6 @@
 import * as lsp from "vscode-languageserver"
 import {File} from "@server/psi/File"
-import {RecursiveVisitor} from "@server/visitor"
+import {RecursiveVisitor} from "@server/psi/visitor"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {isNamedFunNode, parentOfType} from "@server/psi/utils"
 import {Fun, StorageMembersOwner, Struct, Trait} from "@server/psi/Decls"
