@@ -80,6 +80,22 @@ export function collect(
             return true
         }
 
+        if (type === "catch_clause") {
+            const name = n.childForFieldName("name")
+            if (!name) return true
+            const exprTy = new Expression(name, file).type()
+            if (!exprTy) return true
+
+            result.push({
+                kind: InlayHintKind.Type,
+                label: `: ${exprTy.qualifiedName()}`,
+                position: {
+                    line: name.endPosition.row,
+                    character: name.endPosition.column,
+                },
+            })
+        }
+
         if (
             (type === "static_call_expression" || type === "method_call_expression") &&
             hints.parameters

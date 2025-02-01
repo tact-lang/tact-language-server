@@ -98,6 +98,10 @@ export class TypeInferer {
                 }
             }
 
+            if (parent.type === "catch_clause") {
+                return this.primitiveType("Int")
+            }
+
             if (isTypeOwnerNode(resolved.node)) {
                 const typeNode = resolved.node.childForFieldName("type")!
                 return this.inferTypeMaybeOption(typeNode, resolved)
