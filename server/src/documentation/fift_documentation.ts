@@ -1,4 +1,4 @@
-import {SyntaxNode} from "web-tree-sitter"
+import {Node as SyntaxNode} from "web-tree-sitter"
 import {FiftReference} from "@server/psi/FiftReference"
 import {generateAsmDoc} from "./asm_documentation"
 import {File} from "@server/psi/File"

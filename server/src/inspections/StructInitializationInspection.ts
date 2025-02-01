@@ -2,7 +2,7 @@ import * as lsp from "vscode-languageserver"
 import {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
-import {SyntaxNode} from "web-tree-sitter"
+import {Node as SyntaxNode} from "web-tree-sitter"
 import {index, IndexKey} from "@server/indexes"
 
 export class StructInitializationInspection {
@@ -35,6 +35,7 @@ export class StructInitializationInspection {
 
         const initializedFields = new Set<string>()
         args.children.forEach(child => {
+            if (!child) return
             if (child.type !== "instance_argument") return
             const name = child.childForFieldName("name")
             if (!name) return

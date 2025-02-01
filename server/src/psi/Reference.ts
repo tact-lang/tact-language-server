@@ -1,4 +1,4 @@
-import {SyntaxNode} from "web-tree-sitter"
+import {Node as SyntaxNode} from "web-tree-sitter"
 import {
     BouncedTy,
     ContractTy,
@@ -335,6 +335,7 @@ export class Reference {
         const fields = body.children.slice(1, -1)
 
         for (const field of fields) {
+            if (!field) continue
             if (!proc.execute(new Field(field, resolvedType.file), state)) return false
         }
         return true
@@ -358,6 +359,7 @@ export class Reference {
         const params = children.slice(1, -1)
 
         for (const param of params) {
+            if (!param) continue
             if (!proc.execute(new NamedNode(param, this.element.file), state)) break
         }
 
@@ -383,6 +385,7 @@ export class Reference {
             if (descendant.type === "block_statement" || descendant.type === "function_body") {
                 const statements = descendant.children
                 for (const stmt of statements) {
+                    if (!stmt) continue
                     if (stmt.type === "let_statement") {
                         // let name = expr;
                         //     ^^^^ this
@@ -427,6 +430,7 @@ export class Reference {
                     const params = children.slice(1, -1)
 
                     for (const param of params) {
+                        if (!param) continue
                         if (!proc.execute(new NamedNode(param, file), state)) return false
                     }
                 }

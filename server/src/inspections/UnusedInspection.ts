@@ -2,7 +2,7 @@ import * as lsp from "vscode-languageserver"
 import {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {Referent} from "@server/psi/Referent"
-import {SyntaxNode} from "web-tree-sitter"
+import {Node as SyntaxNode} from "web-tree-sitter"
 import {Logger} from "@server/utils/logger"
 
 export abstract class UnusedInspection {

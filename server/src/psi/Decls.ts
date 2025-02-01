@@ -2,7 +2,7 @@ import {Expression, NamedNode} from "./Node"
 import {Reference} from "./Reference"
 import {index, IndexKey} from "@server/indexes"
 import {parentOfType} from "./utils"
-import {SyntaxNode} from "web-tree-sitter"
+import {Node as SyntaxNode} from "web-tree-sitter"
 import {findInstruction} from "@server/completion/data/types"
 
 export class FieldsOwner extends NamedNode {
@@ -10,8 +10,8 @@ export class FieldsOwner extends NamedNode {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
-            .filter(value => value.type === "field")
-            .map(value => new Field(value, this.file))
+            .filter(value => value !== null && value.type === "field")
+            .map(value => new Field(value!, this.file))
     }
 }
 
@@ -26,24 +26,24 @@ export class StorageMembersOwner extends NamedNode {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
-            .filter(value => value.type === "storage_function")
-            .map(value => new Fun(value, this.file))
+            .filter(value => value !== null && value.type === "storage_function")
+            .map(value => new Fun(value!, this.file))
     }
 
     public ownFields(): Field[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
-            .filter(value => value.type === "storage_variable")
-            .map(value => new Field(value, this.file))
+            .filter(value => value !== null && value.type === "storage_variable")
+            .map(value => new Field(value!, this.file))
     }
 
     public ownConstants(): Constant[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
-            .filter(value => value.type === "storage_constant")
-            .map(value => new Constant(value, this.file))
+            .filter(value => value !== null && value.type === "storage_constant")
+            .map(value => new Constant(value!, this.file))
     }
 
     public methods(): Fun[] {
@@ -74,8 +74,8 @@ export class StorageMembersOwner extends NamedNode {
         }
 
         const inheritTraits = traitList.children
-            .filter(value => value.type === "type_identifier")
-            .map(value => new NamedNode(value, this.file))
+            .filter(value => value !== null && value?.type === "type_identifier")
+            .map(value => new NamedNode(value!, this.file))
             .map(node => Reference.resolve(node))
             .filter(node => node !== null)
             .map(node => (node instanceof Trait ? node : new Trait(node.node, node.file)))
@@ -108,8 +108,8 @@ export class Fun extends NamedNode {
         if (!parametersNode) return []
 
         return parametersNode.children
-            .filter(value => value.type === "parameter")
-            .map(value => new NamedNode(value, this.file))
+            .filter(value => value !== null && value?.type === "parameter")
+            .map(value => new NamedNode(value!, this.file))
     }
 
     public withSelf(): boolean {
@@ -184,6 +184,8 @@ export class Fun extends NamedNode {
         let res = 0
 
         for (const child of body.children) {
+            if (!child) continue
+
             if (child.type !== "tvm_ordinary_word") continue
             const name = child.text
             const instr = findInstruction(name)

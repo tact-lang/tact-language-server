@@ -51,6 +51,8 @@ export class FileIndex {
         const index = new FileIndex()
 
         for (const node of file.rootNode.children) {
+            if (!node) continue
+
             if (isNamedFunNode(node)) {
                 index.elements[IndexKey.Funs].push(new Fun(node, file))
             }

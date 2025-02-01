@@ -1,4 +1,4 @@
-import type {SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 
 import {RecursiveVisitor} from "@server/visitor"
 import {NamedNode, Node} from "./Node"

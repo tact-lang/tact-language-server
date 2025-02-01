@@ -3,7 +3,7 @@ import {DocumentStore, getOffsetFromPosition} from "./document-store"
 import {createTactParser, initParser} from "./parser"
 import {asLspRange, asParserPoint} from "@server/utils/position"
 import {TypeInferer} from "./TypeInferer"
-import {SyntaxNode} from "web-tree-sitter"
+import {Node as SyntaxNode} from "web-tree-sitter"
 import {LocalSearchScope, Referent} from "@server/psi/Referent"
 import {index, IndexKey} from "./indexes"
 import {CallLike, Expression, NamedNode, Node} from "@server/psi/Node"
@@ -317,6 +317,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const file = await findFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
+            if (!hoverNode) return null
 
             const parent = hoverNode.parent
             if (parent?.type === "tvm_ordinary_word") {
@@ -423,6 +424,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const file = await findFile(uri)
             const hoverNode = nodeAtPosition(params, file)
+            if (!hoverNode) return []
 
             if (hoverNode.type === "string" && hoverNode.parent?.type === "import") {
                 return resolveImport(uri, hoverNode)
@@ -463,7 +465,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const uri = params.textDocument.uri
             const file = await findFile(uri)
             const hoverNode = nodeAtPosition(params, file)
-
+            if (!hoverNode) return []
             if (
                 hoverNode.type !== "identifier" &&
                 hoverNode.type !== "self" &&
@@ -535,10 +537,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             // become the autocompletion list. See `Reference` class documentation.
             const newContent = `${start}DummyIdentifier${end}`
             const tree = parser.parse(newContent)
+            if (!tree) return []
 
             const cursorPosition = asParserPoint(params.position)
             const cursorNode = tree.rootNode.descendantForPosition(cursorPosition)
-            if (cursorNode.type !== "identifier" && cursorNode.type !== "type_identifier") {
+            if (
+                cursorNode === null ||
+                (cursorNode.type !== "identifier" && cursorNode.type !== "type_identifier")
+            ) {
                 return []
             }
 
@@ -601,6 +607,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const file = await findFile(uri)
 
             const elementNode = nodeAtPosition(params, file)
+            if (!elementNode) return []
             if (
                 elementNode.type !== "identifier" &&
                 elementNode.type !== "self" &&
@@ -629,6 +636,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         const file = await findFile(uri)
 
         const renameNode = nodeAtPosition(params, file)
+        if (!renameNode) return null
+
         const result = new Referent(renameNode, file).findReferences(true, false, false)
         if (result.length === 0) return null
 
@@ -649,6 +658,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const file = await findFile(uri)
 
             const renameNode = nodeAtPosition(params, file)
+            if (!renameNode) return null
             if (renameNode.type !== "identifier" && renameNode.type !== "type_identifier") {
                 return null
             }
@@ -666,6 +676,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         async (params: lsp.DocumentHighlightParams): Promise<lsp.DocumentHighlight[] | null> => {
             const file = await findFile(params.textDocument.uri)
             const highlightNode = nodeAtPosition(params, file)
+            if (!highlightNode) return null
             if (
                 highlightNode.type !== "identifier" &&
                 highlightNode.type !== "self" &&
@@ -717,6 +728,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const file = await findFile(uri)
             const referenceNode = nodeAtPosition(params, file)
+            if (!referenceNode) return null
+
             if (referenceNode.type !== "identifier" && referenceNode.type !== "type_identifier") {
                 return []
             }
@@ -737,6 +750,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const file = await findFile(params.textDocument.uri)
 
             const hoverNode = nodeAtPosition(params, file)
+            if (!hoverNode) return null
+
             const callNode = parentOfType(
                 hoverNode,
                 "static_call_expression",
@@ -752,7 +767,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const parametersNode = res.node.childForFieldName("parameters")
             if (!parametersNode) return null
 
-            const parameters = parametersNode.children.filter(value => value.type == "parameter")
+            const parameters = parametersNode.children
+                .filter(value => value?.type === "parameter")
+                .filter(value => value !== null)
 
             // The algorithm below uses the positions of commas and parentheses to findTo find the active parameter, it is enough to find the last comma, which has a position in the line less than the cursor position. In order not to complicate the algorithm, we consider the opening bracket as a kind of comma for the zero element. If the cursor position is greater than the position of any comma, then we consider that this is the last element. the active parameter.
             //
@@ -879,6 +896,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         ): Promise<GetDocumentationAtPositionResponse | null> => {
             const file = await findFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
+            if (!hoverNode) return null
 
             const res = Reference.resolve(NamedNode.create(hoverNode, file))
             if (res === null) {

@@ -1,4 +1,4 @@
-import {SyntaxNode} from "web-tree-sitter"
+import {Node as SyntaxNode} from "web-tree-sitter"
 import {File} from "./File"
 import {Ty} from "@server/types/BaseTy"
 import {TypeInferer} from "@server/TypeInferer"
@@ -99,6 +99,6 @@ export class CallLike extends NamedNode {
     public rawArguments(): SyntaxNode[] {
         const node = this.node.childForFieldName("arguments")
         if (!node) return []
-        return node.children
+        return node.children.filter(it => it !== null)
     }
 }

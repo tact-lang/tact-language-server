@@ -1,6 +1,6 @@
 import {NamedNode} from "./Node"
 import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "./Decls"
-import {SyntaxNode, Tree} from "web-tree-sitter"
+import {Node as SyntaxNode, Tree} from "web-tree-sitter"
 
 export class File {
     public constructor(
@@ -61,7 +61,7 @@ export class File {
         const types = Array.isArray(nodeType) ? nodeType : [nodeType]
 
         return tree.rootNode.children
-            .filter(node => types.includes(node.type))
+            .filter(node => node !== null && types.includes(node.type))
             .map(node => new constructor(node, this))
     }
 }

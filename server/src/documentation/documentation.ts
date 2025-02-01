@@ -1,7 +1,7 @@
 import {NamedNode} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
 import {Constant, Contract, Fun, Trait} from "@server/psi/Decls"
-import {SyntaxNode} from "web-tree-sitter"
+import {Node as SyntaxNode} from "web-tree-sitter"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`

@@ -64,7 +64,7 @@ export async function findFile(uri: string, content?: string | undefined) {
     const realContent = content ?? readFileSync(URI.parse(uri).path).toString()
     const parser = createTactParser()
     const tree = parser.parse(realContent)
-    const file = new File(uri, tree, realContent)
+    const file = new File(uri, tree!, realContent)
     PARSED_FILES_CACHE.set(uri, file)
     return file
 }
@@ -78,7 +78,7 @@ export function findFiftFile(uri: string, content?: string): File {
     const realContent = content ?? readFileSync(URI.parse(uri).path).toString()
     const parser = createFiftParser()
     const tree = parser.parse(realContent)
-    const file = new File(uri, tree, realContent)
+    const file = new File(uri, tree!, realContent)
     FIFT_PARSED_FILES_CACHE.set(uri, file)
     return file
 }

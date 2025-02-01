@@ -1,4 +1,4 @@
-import {SyntaxNode} from "web-tree-sitter"
+import {Node as SyntaxNode} from "web-tree-sitter"
 import {File} from "./File"
 import {RecursiveVisitor} from "@server/visitor"
 
