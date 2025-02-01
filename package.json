@@ -154,7 +154,15 @@
                     "description": "Show method ID hints for contract functions"
                 }
             }
-        }
+        },
+        "jsonValidation": [
+            {
+                "fileMatch": [
+                    "tact.config.json"
+                ],
+                "url": "https://raw.githubusercontent.com/tact-lang/tact/refs/heads/main/src/config/configSchema.json"
+            }
+        ]
     },
     "dependencies": {
         "glob": "^11.0.1",
