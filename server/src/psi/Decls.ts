@@ -72,6 +72,12 @@ export class StorageMembersOwner extends NamedNode {
         return [...own, ...inherited]
     }
 
+    public constants(): Constant[] {
+        const own = this.ownConstants()
+        const inherited = this.inheritTraits().flatMap(trait => trait.constants())
+        return [...own, ...inherited]
+    }
+
     public inheritTraits(): Trait[] {
         if (this.name() === "BaseTrait") {
             return []

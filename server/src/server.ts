@@ -68,6 +68,7 @@ import {collectFift as collectFiftInlays} from "./inlays/fift_collect"
 import {FiftReferent} from "@server/psi/FiftReferent"
 import {findFiftFile} from "./index-root"
 import {generateFiftDocFor} from "./documentation/fift_documentation"
+import {UnusedContractMembersInspection} from "./inspections/UnusedContractMembersInspection"
 
 /**
  * Whenever LS is initialized.
@@ -232,17 +233,17 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
         const diagnostics: lsp.Diagnostic[] = []
 
-        const unusedParamInspection = new UnusedParameterInspection()
-        diagnostics.push(...unusedParamInspection.inspect(file))
+        const inspections = [
+            new UnusedParameterInspection(),
+            new EmptyBlockInspection(),
+            new UnusedVariableInspection(),
+            new StructInitializationInspection(),
+            new UnusedContractMembersInspection(),
+        ]
 
-        const emptyBlockInspection = new EmptyBlockInspection()
-        diagnostics.push(...emptyBlockInspection.inspect(file))
-
-        const structInitInspection = new StructInitializationInspection()
-        diagnostics.push(...structInitInspection.inspect(file))
-
-        const unusedVariableInspection = new UnusedVariableInspection()
-        diagnostics.push(...unusedVariableInspection.inspect(file))
+        for (const inspection of inspections) {
+            diagnostics.push(...inspection.inspect(file))
+        }
 
         // const compilerInspection = new CompilerInspection()
         // diagnostics.push(...await compilerInspection.inspect(file))

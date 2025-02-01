@@ -24,11 +24,16 @@ export abstract class UnusedInspection {
             severity?: lsp.DiagnosticSeverity
             code?: string
             rangeNode?: SyntaxNode
+            skipIf?: () => boolean
         },
     ) {
         const references = new Referent(node, file).findReferences()
         if (references.length === 0) {
             const range = asLspRange(options.rangeNode || node)
+
+            if (options.skipIf && options.skipIf()) {
+                return
+            }
 
             diagnostics.push({
                 severity: options.severity || lsp.DiagnosticSeverity.Hint,
@@ -39,7 +44,7 @@ export abstract class UnusedInspection {
                 tags: [lsp.DiagnosticTag.Unnecessary],
             })
 
-            Logger.getInstance().info(`Found unused ${options.kind.toLowerCase()} '${node.text}'`)
+            console.info(`Found unused ${options.kind.toLowerCase()} '${node.text}'`)
         }
     }
 }

@@ -35,7 +35,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
 
                 result.push(
                     newLens(n, {
-                        title: "go to parent",
+                        title: "Go to parent",
                         command: "tact.showParent",
                         arguments: [
                             found.file.uri,
@@ -67,7 +67,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
 
                 result.push(
                     newLens(n, {
-                        title: "go to parent",
+                        title: "Go to parent",
                         command: "tact.showParent",
                         arguments: [
                             found.file.uri,
