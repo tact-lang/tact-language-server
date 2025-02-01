@@ -1635,6 +1635,22 @@
     }
   },
   {
+    "type": "name_attribute",
+    "named": true,
+    "fields": {
+      "func_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "func_identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "native_function",
     "named": true,
     "fields": {
@@ -1648,22 +1664,22 @@
           }
         ]
       },
-      "func_name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "func_identifier",
-            "named": true
-          }
-        ]
-      },
       "name": {
         "multiple": false,
         "required": true,
         "types": [
           {
             "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "name_attribute": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "name_attribute",
             "named": true
           }
         ]

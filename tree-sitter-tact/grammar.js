@@ -166,10 +166,7 @@ module.exports = grammar({
 
     native_function: ($) =>
       seq(
-        "@name",
-        "(",
-        field("func_name", $.func_identifier),
-        ")",
+        field("name_attribute", optional($.name_attribute)),
         field("attributes", optional($.function_attributes)),
         "native",
         field("name", $.identifier),
@@ -177,6 +174,9 @@ module.exports = grammar({
         optional(seq(":", field("result", $._type))),
         ";",
       ),
+
+    name_attribute: ($) =>
+      seq("@name", "(", field("func_name", $.func_identifier), ")"),
 
     /* Asm functions */
 

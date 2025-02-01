@@ -1,0 +1,31 @@
+========================================================================
+Contract documentation
+========================================================================
+/// Some cool contract
+contract <caret>Foo {
+    name: String;
+    value: Int;
+}
+------------------------------------------------------------------------
+```
+contract Foo
+```
+Some cool contract
+
+
+========================================================================
+Contract with inheritance documentation
+========================================================================
+trait Other {}
+
+/// Some cool contract
+contract <caret>Foo with Other {
+    name: String;
+    value: Int;
+}
+------------------------------------------------------------------------
+```
+contract Foo with Other
+```
+Some cool contract
+

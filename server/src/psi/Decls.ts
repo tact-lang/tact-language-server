@@ -182,6 +182,12 @@ export class Fun extends NamedNode {
         return body.firstChild
     }
 
+    public nameAttribute(): SyntaxNode | null {
+        const attr = this.node.childForFieldName("name_attribute")
+        if (!attr) return null
+        return attr
+    }
+
     public computeGasConsumption(): GasConsumption {
         const body = this.node.childForFieldName("body")
         if (!body) {

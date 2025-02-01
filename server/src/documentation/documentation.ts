@@ -14,16 +14,24 @@ const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
 export function generateDocFor(node: NamedNode): string | null {
     const astNode = node.node
     switch (astNode.type) {
+        case "native_function": {
+            const func = new Fun(astNode, node.file)
+            const doc = extractCommentsDoc(node)
+            const nameAttr = func.nameAttribute()
+            const nameAttrText = nameAttr ? `${nameAttr.text}\n` : ""
+
+            return defaultResult(
+                `${nameAttrText}${func.modifiers()}native ${node.name()}${func.signatureText()}`,
+                doc,
+            )
+        }
         case "global_function":
-        case "native_function":
         case "storage_function": {
             const func = new Fun(astNode, node.file)
             const doc = extractCommentsDoc(node)
 
-            const kind = astNode.type === "native_function" ? "native" : "fun"
-
             return defaultResult(
-                `${func.modifiers()}${kind} ${node.name()}${func.signatureText()}`,
+                `${func.modifiers()}fun ${node.name()}${func.signatureText()}`,
                 doc,
             )
         }
