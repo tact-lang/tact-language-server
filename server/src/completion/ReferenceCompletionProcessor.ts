@@ -31,6 +31,18 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             return true
         }
 
+        // const includes = this.ctx.element.file.includesFile(node.file.path)
+        //
+        // const lastImport = this.ctx.element.file.rootNode.children
+        //     .filter(it => it?.type === "import")
+        //     .at(-1)
+        //
+        // const diff = FileDiff.forFile(this.ctx.element.file.uri)
+        //     .appendAsNextLine(lastImport!.endPosition.row, `import "${node.file.uri}";`)
+        //     .toTextEdits()
+        //
+        // const finalDiff = !includes ? diff : []
+
         if (node instanceof Fun) {
             if (this.ctx.isType) {
                 // don't add functions for type completion
@@ -60,6 +72,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 insertText: insertText,
                 insertTextFormat: InsertTextFormat.Snippet,
                 sortText: `1${name}`,
+                // additionalTextEdits: finalDiff,
             })
         } else if (node instanceof Struct || node instanceof Message) {
             if (this.ctx.inTraitList) return true

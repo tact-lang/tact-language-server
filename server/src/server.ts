@@ -70,6 +70,8 @@ import {findFiftFile} from "./index-root"
 import {generateFiftDocFor} from "./documentation/fift_documentation"
 import {UnusedContractMembersInspection} from "./inspections/UnusedContractMembersInspection"
 import {generateKeywordDoc} from "@server/documentation/keywords_documentation"
+import {UnusedImportInspection} from "./inspections/UnusedImportInspection"
+import {ImportResolver} from "@server/psi/ImportResolver"
 
 /**
  * Whenever LS is initialized.
@@ -232,16 +234,16 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         const file = await findFile(uri, event.document.getText(), true)
         index.addFile(uri, file, false)
 
-        const diagnostics: lsp.Diagnostic[] = []
-
         const inspections = [
             new UnusedParameterInspection(),
             new EmptyBlockInspection(),
             new UnusedVariableInspection(),
             new StructInitializationInspection(),
             new UnusedContractMembersInspection(),
+            new UnusedImportInspection(),
         ]
 
+        const diagnostics: lsp.Diagnostic[] = []
         for (const inspection of inspections) {
             diagnostics.push(...inspection.inspect(file))
         }
@@ -372,50 +374,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    function resolveImport(uri: string, hoverNode: SyntaxNode) {
-        let currentDir = path.dirname(uri.slice(7))
-        if (currentDir.endsWith("sources")) {
-            currentDir = path.dirname(currentDir)
-        }
-
-        let importPath = hoverNode.text.slice(1, -1)
-        if (importPath.startsWith("@stdlib")) {
-            importPath = "./stdlib/std/" + importPath.substring("@stdlib".length + 1)
-        }
-
-        const resolved = importPath.startsWith("./") ? currentDir + importPath.slice(1) : importPath
-        let targetPath = resolved + ".tact"
-
-        if (!existsSync(targetPath)) {
-            targetPath = targetPath.replace("/std/", "/libs/")
-        }
-
-        if (!existsSync(targetPath)) {
-            return []
-        }
-
-        const targetUri = "file://" + targetPath
-
-        const startOfFile = {
-            start: {
-                line: 0,
-                character: 0,
-            },
-            end: {
-                line: 0,
-                character: 0,
-            },
-        }
-        return [
-            {
-                targetUri: targetUri,
-                targetRange: startOfFile,
-                targetSelectionRange: startOfFile,
-                originSelectionRange: asLspRange(hoverNode),
-            } as lsp.LocationLink,
-        ]
-    }
-
     connection.onRequest(
         lsp.DefinitionRequest.type,
         async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
@@ -442,7 +400,22 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             if (!hoverNode) return []
 
             if (hoverNode.type === "string" && hoverNode.parent?.type === "import") {
-                return resolveImport(uri, hoverNode)
+                const importedFile = ImportResolver.resolveNode(file, hoverNode)
+                if (!importedFile) return []
+
+                const startOfFile = {
+                    start: {line: 0, character: 0},
+                    end: {line: 0, character: 0},
+                }
+
+                return [
+                    {
+                        targetUri: importedFile.uri,
+                        targetRange: startOfFile,
+                        targetSelectionRange: startOfFile,
+                        originSelectionRange: asLspRange(hoverNode),
+                    } as lsp.LocationLink,
+                ]
             }
 
             if (

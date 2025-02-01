@@ -9,6 +9,11 @@ export class File {
         public readonly content: string,
     ) {}
 
+    public includesFile(_path: string): boolean {
+        // TODO
+        return false
+    }
+
     public get fromStdlib(): boolean {
         return this.uri.includes("stdlib")
     }
@@ -23,6 +28,23 @@ export class File {
 
     public get path(): string {
         return this.uri.slice(7)
+    }
+
+    public getDecls(): NamedNode[] {
+        return this.getNodesByType(
+            [
+                "global_function",
+                "asm_function",
+                "native_function",
+                "contract",
+                "struct",
+                "trait",
+                "message",
+                "primitive",
+                "global_constant",
+            ],
+            NamedNode,
+        )
     }
 
     public getFuns(): Fun[] {
