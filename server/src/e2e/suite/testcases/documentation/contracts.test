@@ -29,3 +29,19 @@ contract Foo with Other
 ```
 Some cool contract
 
+
+========================================================================
+Contract get function
+========================================================================
+contract Foo {
+    /// Some cool getter
+    get fun <caret>foo() {}
+}
+------------------------------------------------------------------------
+```
+get fun foo()
+```
+Method ID: `0x103fc`
+
+Some cool getter
+

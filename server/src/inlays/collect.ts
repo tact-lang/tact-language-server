@@ -15,6 +15,7 @@ export function collect(
         types: boolean
         parameters: boolean
         exitCodeFormat: "decimal" | "hex"
+        showMethodId: boolean
     },
 ): InlayHint[] | null {
     if (!hints.types && !hints.parameters) return []
@@ -187,6 +188,27 @@ export function collect(
                 position: {
                     line: openBrace.endPosition.row,
                     character: openBrace.endPosition.column,
+                },
+            })
+            return true
+        }
+
+        if (type === "storage_function") {
+            if (!hints.showMethodId) return true
+
+            const func = new Fun(n, file)
+            const modifiers = n.childForFieldName("attributes")
+            if (!modifiers) return true
+
+            const actualId = func.computeMethodId()
+            const actualIdHex = actualId.toString(16)
+
+            result.push({
+                kind: InlayHintKind.Type,
+                label: `(0x${actualIdHex})`,
+                position: {
+                    line: modifiers.endPosition.row,
+                    character: modifiers.endPosition.column,
                 },
             })
             return true

@@ -25,14 +25,25 @@ export function generateDocFor(node: NamedNode): string | null {
                 doc,
             )
         }
-        case "global_function":
-        case "storage_function": {
+        case "global_function": {
             const func = new Fun(astNode, node.file)
             const doc = extractCommentsDoc(node)
 
             return defaultResult(
                 `${func.modifiers()}fun ${node.name()}${func.signatureText()}`,
                 doc,
+            )
+        }
+        case "storage_function": {
+            const func = new Fun(astNode, node.file)
+            const doc = extractCommentsDoc(node)
+
+            const actualId = func.computeMethodId()
+            const actualIdPresentation = `Method ID: \`0x${actualId.toString(16)}\``
+
+            return defaultResult(
+                `${func.modifiers()}fun ${node.name()}${func.signatureText()}`,
+                actualIdPresentation + "\n\n" + doc,
             )
         }
         case "asm_function": {

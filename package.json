@@ -147,6 +147,11 @@
                         "Show exit codes in decimal format (e.g. 1234)",
                         "Show exit codes in hexadecimal format (e.g. 0x4D2)"
                     ]
+                },
+                "tact.hints.showMethodId": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show method ID hints for contract functions"
                 }
             }
         }

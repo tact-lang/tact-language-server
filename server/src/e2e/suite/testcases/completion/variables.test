@@ -186,7 +186,7 @@ fun test() {
 }
 ------------------------------------------------------------------------
 2  test()
-5  error: unknown
+5  error: Int
 5  value: Int
 13 false
 13 null

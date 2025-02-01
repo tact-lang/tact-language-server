@@ -188,6 +188,10 @@ export class Fun extends NamedNode {
         return attr
     }
 
+    public computeMethodId(): number {
+        return (crc16(Buffer.from(this.name())) & 0xffff) | 0x10000
+    }
+
     public computeGasConsumption(): GasConsumption {
         const body = this.node.childForFieldName("body")
         if (!body) {
@@ -284,4 +288,22 @@ export class Constant extends NamedNode {
         if (!attributes) return ""
         return attributes.text + " "
     }
+}
+
+function crc16(buffer: Buffer) {
+    let crc = 0xffff
+    let odd
+
+    for (let i = 0; i < buffer.length; i++) {
+        crc = crc ^ buffer[i]
+        for (let j = 0; j < 8; j++) {
+            odd = crc & 0x0001
+            crc = crc >> 1
+            if (odd) {
+                crc = crc ^ 0xa001
+            }
+        }
+    }
+
+    return crc
 }

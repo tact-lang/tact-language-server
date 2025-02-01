@@ -8,6 +8,7 @@ export interface TactSettings {
         types: boolean
         parameters: boolean
         exitCodeFormat: "decimal" | "hex"
+        showMethodId: boolean
     }
     codeLens: {
         enabled: boolean
@@ -22,6 +23,7 @@ const defaultSettings: TactSettings = {
         types: true,
         parameters: true,
         exitCodeFormat: "decimal",
+        showMethodId: true,
     },
     codeLens: {
         enabled: true,
@@ -40,6 +42,7 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             parameters: vsSettings.hints?.parameters ?? defaultSettings.hints.parameters,
             exitCodeFormat:
                 vsSettings.hints?.exitCodeFormat ?? defaultSettings.hints.exitCodeFormat,
+            showMethodId: vsSettings.hints?.showMethodId ?? defaultSettings.hints.showMethodId,
         },
         codeLens: {
             enabled: vsSettings.codeLens?.enabled ?? defaultSettings.codeLens.enabled,
