@@ -77,7 +77,6 @@ extends fun move(self: Point, x: Int, y: Int) {
 13 null
 13 return;
 13 true
-2  move(self: Point, x: Int, y: Int)
 21 Point{}
 14 foreach
 14 if
@@ -108,7 +107,6 @@ extends fun scale(self: Point, factor: Int) {
 13 null
 13 return;
 13 true
-2  scale(self: Point, factor: Int)
 21 Point{}
 14 foreach
 14 if

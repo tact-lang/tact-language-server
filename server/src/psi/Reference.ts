@@ -369,8 +369,21 @@ export class Reference {
     }
 
     private processAllEntities(proc: ScopeProcessor, state: ResolveState): boolean {
+        if (state.get("completion")) {
+            const intermediateProc = new (class implements ScopeProcessor {
+                execute(node: Node, state: ResolveState): boolean {
+                    if (!(node instanceof Fun)) return true
+                    if (node.withSelf()) return true // don't add methods to unqualified completion
+                    return proc.execute(node, state)
+                }
+            })()
+
+            if (!index.processElementsByKey(IndexKey.Funs, intermediateProc, state)) return false
+        } else {
+            if (!index.processElementsByKey(IndexKey.Funs, proc, state)) return false
+        }
+
         if (!index.processElementsByKey(IndexKey.Primitives, proc, state)) return false
-        if (!index.processElementsByKey(IndexKey.Funs, proc, state)) return false
         if (!index.processElementsByKey(IndexKey.Structs, proc, state)) return false
         if (!index.processElementsByKey(IndexKey.Messages, proc, state)) return false
         if (!index.processElementsByKey(IndexKey.Traits, proc, state)) return false

@@ -126,3 +126,39 @@ fun test() {
 14 try-catch
 14 until
 14 while
+
+========================================================================
+No extends function in unqualified completion
+========================================================================
+primitive Int;
+
+extends fun increment(self: Int): Int {
+    return self + 1;
+}
+
+extends fun double(self: Int): Int {
+    return self * 2;
+}
+
+fun foo() {}
+
+fun test() {
+    <caret>
+}
+------------------------------------------------------------------------
+13 false
+13 null
+13 return;
+13 true
+2  foo()
+2  test()
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
