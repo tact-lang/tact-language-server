@@ -30,6 +30,7 @@
         "test": "yarn jest",
         "build": "webpack",
         "package": "npx vsce package --no-yarn",
+        "lint": "eslint --cache .",
         "fmt": "prettier --write --cache .",
         "fmt:check": "prettier --check --cache .",
         "grammar:wasm": "yarn grammar:tact:wasm && yarn grammar:fift:wasm",

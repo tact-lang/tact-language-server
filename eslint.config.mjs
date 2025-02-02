@@ -18,6 +18,7 @@ export default tseslint.config(
     {
         ignores: [
             "**/*.js",
+            ".github/*",
             ".yarn/*",
             "dist/*",
             "docs/*",
