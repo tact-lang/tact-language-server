@@ -504,6 +504,9 @@ export class Reference {
         if (node.type === "contract") {
             return new Contract(node, file)
         }
+        if (node.type === "storage_function") {
+            return new Fun(node, file)
+        }
         return new NamedNode(node, file)
     }
 }

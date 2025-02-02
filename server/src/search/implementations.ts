@@ -34,6 +34,17 @@ class ImplementationProcessor implements ScopeProcessor {
     }
 }
 
+export function implementationsFun(fun: Fun): Fun[] {
+    const owner = fun.owner()
+    if (!owner) return []
+    if (owner.node.type !== "trait") return []
+
+    const traitImplementations = implementations(owner)
+    return traitImplementations.flatMap(trait =>
+        trait.ownMethods().filter(m => m.name() === fun.name()),
+    )
+}
+
 export function superMethod(method: Fun): Fun | null {
     const owner = method.owner()
     if (!owner) return null

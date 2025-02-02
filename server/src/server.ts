@@ -636,6 +636,13 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 }))
             }
 
+            if (res instanceof Fun) {
+                return search.implementationsFun(res).map(impl => ({
+                    uri: impl.file.uri,
+                    range: asLspRange(impl.nameIdentifier()!),
+                }))
+            }
+
             return []
         },
     )

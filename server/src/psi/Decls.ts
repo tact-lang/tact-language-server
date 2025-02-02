@@ -155,9 +155,15 @@ export class Fun extends NamedNode {
     }
 
     public isOverride(): boolean {
-        const attributes = this.node.childForFieldName("attributes")
-        if (!attributes) return false
-        return attributes.text.includes("override")
+        return this.modifiers().includes("override")
+    }
+
+    public isAbstract(): boolean {
+        return this.modifiers().includes("abstract")
+    }
+
+    public isVirtual(): boolean {
+        return this.modifiers().includes("virtual")
     }
 
     public owner(): StorageMembersOwner | null {
