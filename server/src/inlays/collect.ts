@@ -144,10 +144,21 @@ export function collect(
             for (let i = 0; i < min(params.length - shift, args.length); i++) {
                 const param = params[i + shift]
                 const arg = args[i]
+                const paramName = param.name()
+
+                if (arg.text === paramName || arg.text.endsWith(`.${paramName}`)) {
+                    // no need to add hint for `takeFoo(foo)` or `takeFoo(val.foo)`
+                    continue
+                }
+
+                if (arg.children[0]?.type === "instance_expression") {
+                    // no need to add hint for `takeFoo(Foo{})`
+                    continue
+                }
 
                 result.push({
                     kind: InlayHintKind.Parameter,
-                    label: `${param.name()}:`,
+                    label: `${paramName}:`,
                     position: {
                         line: arg.startPosition.row,
                         character: arg.startPosition.column,
