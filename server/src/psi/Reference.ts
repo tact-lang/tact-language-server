@@ -315,9 +315,9 @@ export class Reference {
         }
 
         const value = parent.childForFieldName("value")!
-        if (!value) {
+        if (!value && name?.nextSibling?.text !== ":") {
             // `Foo { name }`
-            //            ^ no value
+            //            ^ no value and `:`
             return true
         }
 

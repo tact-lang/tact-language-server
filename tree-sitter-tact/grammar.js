@@ -730,7 +730,7 @@ module.exports = grammar({
     instance_argument: ($) =>
       seq(
         field("name", $.identifier),
-        optional(seq(":", field("value", $._expression))),
+        optional(seq(":", optional(field("value", $._expression)))),
       ),
 
     initOf: ($) =>
