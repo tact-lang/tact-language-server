@@ -19,6 +19,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Fun parameter completion
@@ -37,6 +47,16 @@ fun test(amount: Int, to: Address) {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Extends function parameter completion
@@ -57,6 +77,16 @@ extends fun move(self: Point, x: Int, y: Int) {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Extends function with local variables
@@ -78,6 +108,16 @@ extends fun scale(self: Point, factor: Int) {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Nested scope completion
@@ -100,6 +140,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Multiple scopes completion
@@ -125,6 +175,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Loop variable completion
@@ -147,6 +207,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Try-catch variable completion in try
@@ -170,6 +240,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Try-catch variable completion in catch
@@ -192,6 +272,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Variable shadowing
@@ -212,6 +302,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Fun parameter and local variable
@@ -230,6 +330,16 @@ fun test(param: Int) {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Variable not accessible before declaration // TODO
@@ -247,6 +357,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Variable accessible after declaration
@@ -264,6 +384,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Multiple variables declaration order // TODO
@@ -286,6 +416,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Multiple variables after declarations
@@ -309,3 +449,13 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while

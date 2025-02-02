@@ -10,6 +10,16 @@ fun test() {
 13 null
 13 return;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Return inside bool function
@@ -25,8 +35,18 @@ fun test(): Bool {
 13 null
 13 return <expr>;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
 14 return false;
 14 return true;
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Return inside int function
@@ -42,7 +62,17 @@ fun test(): Int {
 13 null
 13 return <expr>;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
 14 return 0;
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Return inside string function
@@ -58,7 +88,17 @@ fun test(): String {
 13 null
 13 return <expr>;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
 14 return "";
+14 try
+14 try-catch
+14 until
+14 while
 
 ========================================================================
 Return inside option function
@@ -74,4 +114,14 @@ fun test(): String? {
 13 null
 13 return <expr>;
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
 14 return null;
+14 try
+14 try-catch
+14 until
+14 while

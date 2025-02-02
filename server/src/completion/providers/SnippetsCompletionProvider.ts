@@ -4,7 +4,14 @@ import {CompletionContext} from "@server/completion/CompletionContext"
 
 export class SnippetsCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
-        return !ctx.isExpression && !ctx.topLevel
+        return (
+            !ctx.isExpression &&
+            !ctx.topLevel &&
+            !ctx.afterDot &&
+            !ctx.topLevelInTraitOrContract &&
+            !ctx.topLevelInStructOrMessage &&
+            !ctx.inTlbSerialization
+        )
     }
 
     addCompletion(_ctx: CompletionContext, elements: CompletionItem[]): void {

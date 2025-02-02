@@ -33,3 +33,13 @@ contract Foo {
 13 return;
 13 self
 13 true
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
