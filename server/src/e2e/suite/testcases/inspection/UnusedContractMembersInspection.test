@@ -1,0 +1,154 @@
+========================================================================
+Unused contract method
+========================================================================
+contract Wallet {
+    fun getVersion(): Int {
+        return 1;
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:18 Method 'getVersion' is never used (tact)
+
+========================================================================
+Unused contract get method
+========================================================================
+contract Wallet {
+    get fun getVersion(): Int {
+        return 1;
+    }
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Unused contract method with inheritance
+========================================================================
+trait Foo {
+    abstract fun getVersion(): Int;
+}
+
+contract Wallet with Foo {
+    fun getVersion(): Int {
+        return 1;
+    }
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Used contract method
+========================================================================
+contract Wallet {
+    fun getVersion(): Int {
+        return 1;
+    }
+
+    get fun version(): Int {
+        return self.getVersion();
+    }
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Unused contract fields
+========================================================================
+contract Wallet {
+    balance: Int;
+    owner: Address;
+
+    fun getVersion(): Int {
+        return 1;
+    }
+}
+------------------------------------------------------------------------
+3 1:4 to 1:11 Field 'balance' is never used (tact)
+3 2:4 to 2:9 Field 'owner' is never used (tact)
+3 4:8 to 4:18 Method 'getVersion' is never used (tact)
+
+========================================================================
+Unused contract fields with inherited field
+========================================================================
+trait Foo {
+    owner: Address;
+}
+
+contract Wallet with Foo {
+    balance: Int;
+    owner: Address;
+
+    fun getVersion(): Int {
+        return 1;
+    }
+}
+------------------------------------------------------------------------
+3 5:4 to 5:11 Field 'balance' is never used (tact)
+3 8:8 to 8:18 Method 'getVersion' is never used (tact)
+
+========================================================================
+Used contract fields
+========================================================================
+contract Wallet {
+    balance: Int;
+    owner: Address;
+
+    fun getBalance(): Int {
+        return self.balance;
+    }
+
+    fun getOwner(): Address {
+        return self.owner;
+    }
+}
+------------------------------------------------------------------------
+3 4:8 to 4:18 Method 'getBalance' is never used (tact)
+3 8:8 to 8:16 Method 'getOwner' is never used (tact)
+
+========================================================================
+Unused contract constants
+========================================================================
+contract Wallet {
+    const FOO: Int = 10;
+    const BAR: Int = 20;
+
+    fun getVersion(): Int {
+        return 1;
+    }
+}
+------------------------------------------------------------------------
+3 1:10 to 1:13 Constant 'FOO' is never used (tact)
+3 2:10 to 2:13 Constant 'BAR' is never used (tact)
+3 4:8 to 4:18 Method 'getVersion' is never used (tact)
+
+========================================================================
+Unused contract constants with inherited constant
+========================================================================
+trait Foo {
+    const FOO: Int = 10;
+}
+
+contract Wallet with Foo {
+    const FOO: Int = 10;
+    const BAR: Int = 20;
+
+    fun getVersion(): Int {
+        return 1;
+    }
+}
+------------------------------------------------------------------------
+3 6:10 to 6:13 Constant 'BAR' is never used (tact)
+3 8:8 to 8:18 Method 'getVersion' is never used (tact)
+
+========================================================================
+Used contract constants
+========================================================================
+contract Wallet {
+    const FOO: Int = 10;
+    const BAR: Int = 20;
+
+    fun getVersion(): Int {
+        return self.FOO + self.BAR;
+    }
+}
+------------------------------------------------------------------------
+3 4:8 to 4:18 Method 'getVersion' is never used (tact)

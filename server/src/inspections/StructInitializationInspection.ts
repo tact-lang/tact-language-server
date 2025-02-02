@@ -53,7 +53,7 @@ export class StructInitializationInspection {
         const message =
             missingFields.length === 1
                 ? `Field '${missingFields[0]}' is required but not initialized`
-                : `Fields ${missingFields.map(f => `'${f}'`).join(", ")} is required but not initialized`
+                : `Fields ${missingFields.map(f => `'${f}'`).join(", ")} are required but not initialized`
 
         if (missingFields.length > 0) {
             diagnostics.push({

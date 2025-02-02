@@ -113,6 +113,10 @@ export class Fun extends NamedNode {
         return this.node.type !== "native_function" && this.node.type !== "asm_function"
     }
 
+    public get isGetMethod(): boolean {
+        return this.modifiers().includes("get")
+    }
+
     public returnType(): Expression | null {
         const result = this.node.childForFieldName("result")
         if (!result) return null

@@ -1,4 +1,4 @@
-import {Constant, Contract, Field, Trait} from "@server/psi/Decls"
+import {Constant, Contract, Field, Fun, Trait} from "@server/psi/Decls"
 import {index, IndexKey} from "@server/indexes"
 import {ResolveState, ScopeProcessor} from "@server/psi/Reference"
 import {Node} from "@server/psi/Node"
@@ -32,6 +32,21 @@ class ImplementationProcessor implements ScopeProcessor {
 
         return true
     }
+}
+
+export function superMethod(method: Fun): Fun | null {
+    const owner = method.owner()
+    if (!owner) return null
+
+    const inheritTraits = owner.inheritTraits()
+    if (inheritTraits.length === 0) return null
+
+    const superTraitWithFun = inheritTraits.find(t =>
+        t.methods().find(it => it.name() === method.name()),
+    )
+    if (!superTraitWithFun) return null
+
+    return superTraitWithFun.methods().find(it => it.name() === method.name()) ?? null
 }
 
 export function superField(field: Field): Field | null {
