@@ -73,6 +73,7 @@ import {UnusedImportInspection} from "./inspections/UnusedImportInspection"
 import {ImportResolver} from "@server/psi/ImportResolver"
 import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsCompletionProvider"
 import {CompletionResult} from "@server/completion/WeightedCompletionItem"
+import {DocumentUri, TextEdit} from "vscode-languageserver-types"
 
 /**
  * Whenever LS is initialized.
@@ -647,14 +648,25 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         const result = new Referent(renameNode, file).findReferences(true, false, false)
         if (result.length === 0) return null
 
-        return {
-            changes: {
-                [uri]: result.map(a => ({
-                    range: asLspRange(a.node),
-                    newText: params.newName,
-                })),
-            },
-        }
+        const changes: {
+            [uri: DocumentUri]: TextEdit[]
+        } = {}
+
+        result.forEach(node => {
+            const uri = node.file.uri
+            const element = {
+                range: asLspRange(node.node),
+                newText: params.newName,
+            }
+
+            if (changes[uri]) {
+                changes[uri].push(element)
+            } else {
+                changes[uri] = [element]
+            }
+        })
+
+        return {changes}
     })
 
     connection.onRequest(
@@ -696,9 +708,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             return result.map(value => {
                 let kind: lsp.DocumentHighlightKind = lsp.DocumentHighlightKind.Read
-                const parent = value.node.parent!
-                if (parent.type === "assignment_statement") {
-                    if (parent.childForFieldName("left")!.equals(value.node)) {
+                const parent = value.node.parent
+                if (parent?.type === "assignment_statement") {
+                    if (parent.childForFieldName("left")?.equals(value.node)) {
                         // left = 10
                         // ^^^^
                         kind = lsp.DocumentHighlightKind.Write

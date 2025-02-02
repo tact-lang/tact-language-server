@@ -93,7 +93,7 @@ export class Referent {
         if (!useScope) return []
 
         const result: Node[] = []
-        if (includeDefinition) {
+        if (includeDefinition && (!sameFileOnly || resolved.file.uri === this.file.uri)) {
             result.push(resolved.nameNode()!)
         }
 
