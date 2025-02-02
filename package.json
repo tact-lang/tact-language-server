@@ -67,8 +67,8 @@
                     ".fif"
                 ],
                 "icon": {
-                    "light": "./ton-icon.svg",
-                    "dark": "./ton-icon.svg"
+                    "light": "./icons/ton-icon.svg",
+                    "dark": "./icons/ton-icon.svg"
                 },
                 "configuration": "./fift-language-configuration.json"
             }
