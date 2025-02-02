@@ -283,7 +283,7 @@ export class Fun extends NamedNode {
     }
 }
 
-export type GasConsumption = {
+export interface GasConsumption {
     value: number
     unknown: boolean
     exact: boolean
