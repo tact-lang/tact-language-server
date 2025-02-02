@@ -33,3 +33,6 @@ jobs:
 
       - name: Run prettier
         run: yarn run fmt:check
+
+      - name: Run eslint
+        run: yarn run lint
