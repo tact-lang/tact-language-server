@@ -160,14 +160,15 @@
 
                     <div class="feature">
                         <div class="feature-content">
-                            <h3>Powerful Refactoring</h3>
+                            <h3>Real-time Code Analysis</h3>
                             <p>
-                                Automated renaming, function extraction, and other refactoring
-                                tools.
+                                While you write, LS runs a set of checks and gives instant feedback
+                                if any errors are found, allowing you to quickly fix the code and
+                                continue development.
                             </p>
                         </div>
                         <div class="feature-image">
-                            <img src="./public/default-image.png" alt="Refactoring" />
+                            <img src="./public/inspection.png" alt="Code Analysis" />
                             <div class="image-nav">
                                 <span>1 / 3</span>
                                 <div class="image-nav-buttons">
@@ -189,7 +190,7 @@
                             </p>
                         </div>
                         <div class="feature-image">
-                            <img src="./public/default-image.png" alt="Signature Help" />
+                            <img src="./public/signature-help.png" alt="Signature Help" />
                             <div class="image-nav">
                                 <span>1 / 1</span>
                                 <div class="image-nav-buttons">
@@ -416,7 +417,8 @@
                     "./public/default-image.png",
                     "./public/default-image.png",
                 ],
-                signature: ["./public/default-image.png"],
+                codeAnalysis: ["./public/inspection.png"],
+                signature: ["./public/signature-help.png"],
                 folding: ["./public/foldings.png"],
                 semantic: ["./public/semantic-tokens.png"],
                 codelens: ["./public/default-image.png"],
@@ -465,7 +467,6 @@
                 })
 
                 updateNavigation()
-                observer.observe(feature)
             })
 
             document.querySelectorAll(".faq-question").forEach(question => {
