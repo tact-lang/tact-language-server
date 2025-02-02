@@ -72,6 +72,7 @@ import {UnusedContractMembersInspection} from "./inspections/UnusedContractMembe
 import {generateKeywordDoc} from "@server/documentation/keywords_documentation"
 import {UnusedImportInspection} from "./inspections/UnusedImportInspection"
 import {ImportResolver} from "@server/psi/ImportResolver"
+import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -559,6 +560,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const result: lsp.CompletionItem[] = []
             const providers: CompletionProvider[] = [
+                new SnippetsCompletionProvider(),
                 new KeywordsCompletionProvider(),
                 new MapTypeCompletionProvider(),
                 new ContractDeclCompletionProvider(),

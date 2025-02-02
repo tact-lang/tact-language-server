@@ -45,7 +45,7 @@ export class CompletionContext {
         const parent = element.node.parent
         if (!parent) return
 
-        if (parent.type !== "expression_statement") {
+        if (parent.type !== "expression_statement" && parent.type !== "field_access_expression") {
             this.isExpression = true
         }
 

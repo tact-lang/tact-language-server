@@ -85,12 +85,7 @@
                 "path": "./syntaxes/fift.tmLanguage.json"
             }
         ],
-        "snippets": [
-            {
-                "language": "tact",
-                "path": "./snippets/snippets.json"
-            }
-        ],
+        "snippets": [],
         "commands": [
             {
                 "command": "tact.showParent",
