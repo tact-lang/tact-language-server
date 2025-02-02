@@ -67,7 +67,7 @@ fun toCell(self: AnyStruct): Cell {}
 
 fun emptyMap(): map<K, V> {}
 extends mutates fun set(self: map<K, V>, key: K, val: V) {}
-extends fun get(self: map<K, V>): V? {}
+extends fun get(self: map<K, V>, key: K): V? {}
 extends mutates fun replace(self: map<K, V>, key: K, val: V): Bool {}
 extends mutates fun replaceGet(self: map<K, V>, key: K, val: V): V? {}
 extends mutates fun del(self: map<K, V>, key: K): Bool {}
