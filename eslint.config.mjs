@@ -1,10 +1,10 @@
 // @ts-check
 
-import path from "path"
+import path from "node:path"
 import tseslint from "typescript-eslint"
-import {fileURLToPath} from "url"
+import url from "node:url"
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
 export default tseslint.config(
     // register plugins
@@ -28,6 +28,7 @@ export default tseslint.config(
         ],
     },
 
+    tseslint.configs.stylistic,
     tseslint.configs.strictTypeChecked,
 
     {
