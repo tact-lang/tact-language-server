@@ -62,20 +62,48 @@ fun test(name: String): String
 ========================================================================
 Asm function documentation
 ========================================================================
-asm fun <caret>test() {}
-asm(self other) fun <caret>test() {}
+asm fun <caret>test() { ONE TWO THREE }
+asm(self other) fun <caret>test() { b{00} PUSHSLICE }
 ------------------------------------------------------------------------
 ```
-asm fun test()
+asm fun test() { ONE TWO THREE }
 ```
-Gas: `0`
+Gas: `~36`
 
 
 
 ```
-asm(self other) fun test()
+asm(self other) fun test() { b{00} PUSHSLICE }
 ```
-Gas: `0`
+Gas: `~22`
+
+
+
+
+========================================================================
+Asm function documentation with one line body
+========================================================================
+asm fun <caret>test() { ONE }
+------------------------------------------------------------------------
+```
+asm fun test() { ONE }
+```
+Gas: `18`
+
+
+
+
+========================================================================
+Asm function documentation with multiline body
+========================================================================
+asm fun <caret>test() {
+    ONE
+}
+------------------------------------------------------------------------
+```
+asm fun test() 
+```
+Gas: `18`
 
 
 
@@ -137,7 +165,7 @@ Function documentation with complex /// doc comment
 asm fun <caret>getOriginalFwdFee(fwdFee: Int, isMasterchain: Bool): Int { GETORIGINALFWDFEE }
 ------------------------------------------------------------------------
 ```
-asm fun getOriginalFwdFee(fwdFee: Int, isMasterchain: Bool): Int
+asm fun getOriginalFwdFee(fwdFee: Int, isMasterchain: Bool): Int { GETORIGINALFWDFEE }
 ```
 
 

@@ -50,13 +50,14 @@ export function generateDocFor(node: NamedNode): string | null {
             const func = new Fun(astNode, node.file)
             const doc = extractCommentsDoc(node)
 
+            const bodyPresentation = func.hasOneLineBody ? func.bodyPresentation : ""
             const gas = func.computeGasConsumption()
 
             const presentation = gas.exact ? gas.value.toString() : `~${gas.value}`
             const gasPresentation = gas.unknown ? "" : `Gas: \`${presentation}\``
 
             return defaultResult(
-                `${func.modifiers()}fun ${node.name()}${func.signatureText()}`,
+                `${func.modifiers()}fun ${node.name()}${func.signatureText()} ${bodyPresentation}`,
                 gasPresentation + "\n\n" + doc,
             )
         }

@@ -113,6 +113,23 @@ export class Fun extends NamedNode {
         return this.node.type !== "native_function" && this.node.type !== "asm_function"
     }
 
+    public get bodyPresentation(): string {
+        const body = this.node.childForFieldName("body")
+        if (!body) return ""
+        return body.text
+    }
+
+    public get hasOneLineBody(): boolean {
+        const body = this.node.childForFieldName("body")
+        if (!body) return false
+
+        const firstChild = body.firstChild
+        const lastChild = body.lastChild
+        if (!firstChild || !lastChild) return false
+
+        return firstChild.startPosition.row === lastChild.startPosition.row
+    }
+
     public get isGetMethod(): boolean {
         return this.modifiers().includes("get")
     }
