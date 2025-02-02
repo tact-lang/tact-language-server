@@ -31,18 +31,24 @@ export class IndexRoot {
 
     async index() {
         const rootPath = this.root.slice(7)
+
+        const ignore =
+            this.kind !== IndexRootKind.Stdlib
+                ? [
+                      "**/node_modules/**",
+                      "**/test/e2e-emulated/**",
+                      "**/__testdata/**",
+                      "**/test/**",
+                      "**/test-failed/**",
+                      "**/types/stmts-failed/**",
+                      "**/types/stmts/**",
+                      "**/tact-lang/compiler/**",
+                  ]
+                : []
+
         const files = await glob("**/*.tact", {
             cwd: rootPath,
-            ignore: [
-                "node_modules/**",
-                "*/test/e2e-emulated/**",
-                "**/__testdata/**",
-                "**/test/**",
-                "**/test-failed/**",
-                "**/types/stmts-failed/**",
-                "**/types/stmts/**",
-                "**/tact-lang/compiler/**",
-            ],
+            ignore: ignore,
         })
         if (files.length === 0) {
             console.warn(`No file to index in ${this.root}`)

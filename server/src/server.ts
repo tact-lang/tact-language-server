@@ -118,6 +118,10 @@ async function initialize() {
             searchDirs.find(searchDir => {
                 return existsSync(path.join(rootDir, searchDir))
             }) ?? null
+
+        if (stdlibPath) {
+            stdlibPath = path.join(rootDir, stdlibPath)
+        }
     }
 
     if (!stdlibPath) {
@@ -128,7 +132,7 @@ async function initialize() {
 
     if (stdlibPath) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
-        const stdlibRoot = new IndexRoot(stdlibPath, IndexRootKind.Stdlib)
+        const stdlibRoot = new IndexRoot(`file://${stdlibPath}`, IndexRootKind.Stdlib)
         await stdlibRoot.index()
     }
 
