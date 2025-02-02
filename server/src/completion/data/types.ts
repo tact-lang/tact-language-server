@@ -10,10 +10,10 @@ export interface AsmInstruction {
         description: string
         gas: string
         fift: string
-        fift_examples: Array<{
+        fift_examples: {
             fift: string
             description: string
-        }>
+        }[]
     }
     since_version: number
 }
