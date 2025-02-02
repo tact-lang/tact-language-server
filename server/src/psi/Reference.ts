@@ -19,7 +19,7 @@ import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "@server/cache"
 
 export class ResolveState {
-    private values: Map<string, string> = new Map()
+    private values = new Map<string, string>()
 
     public get(key: string): string | null {
         return this.values.get(key) ?? null

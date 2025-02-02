@@ -14,7 +14,7 @@ import {StructTy} from "@server/types/BaseTy"
 export class ReferenceCompletionProcessor implements ScopeProcessor {
     constructor(private ctx: CompletionContext) {}
 
-    public result: Map<string, CompletionItem> = new Map()
+    public result = new Map<string, CompletionItem>()
 
     private allowedInContext(node: Node): boolean {
         if (node instanceof Contract) return false // filter contracts for now
