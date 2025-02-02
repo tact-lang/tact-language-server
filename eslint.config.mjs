@@ -1,5 +1,3 @@
-// @ts-check
-
 import path from "node:path"
 import tseslint from "typescript-eslint"
 import url from "node:url"
@@ -18,6 +16,7 @@ export default tseslint.config(
     {
         ignores: [
             "**/*.js",
+            "eslint.config.mjs",
             ".github/*",
             ".yarn/*",
             ".vscode-test/*",
