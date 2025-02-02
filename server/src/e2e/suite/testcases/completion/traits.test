@@ -165,10 +165,10 @@ trait Child with Parent {
 13 false
 13 null
 13 return <expr>;
-13 self
 13 true
 2  self.bar(): Int
 2  self.foo(): Int
+13 self
 14 return 0;
 14 foreach
 14 if

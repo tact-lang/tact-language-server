@@ -1,6 +1,9 @@
-import {Node} from "@server/psi/Node"
+import {Expression, Node} from "@server/psi/Node"
 import * as lsp from "vscode-languageserver/node"
 import {parentOfType} from "@server/psi/utils"
+import {MapTy, NullTy, OptionTy, Ty} from "@server/types/BaseTy"
+import {TypeInferer} from "@server/TypeInferer"
+import {TactSettings} from "@server/utils/settings"
 
 export class CompletionContext {
     element: Node
@@ -24,15 +27,21 @@ export class CompletionContext {
     inParameter: boolean = false
     isMessageContext: boolean = false
 
+    contextTy: Ty | null = null
+
+    settings: TactSettings
+
     constructor(
         content: string,
         element: Node,
         position: lsp.Position,
         triggerKind: lsp.CompletionTriggerKind,
+        settings: TactSettings,
     ) {
         this.element = element
         this.position = position
         this.triggerKind = triggerKind
+        this.settings = settings
 
         const lines = content.split(/\n/g)
         if (lines[position.line] && lines[position.line][position.character - 1]) {
@@ -74,6 +83,24 @@ export class CompletionContext {
                         this.inMultilineStructInit = true
                     }
                 }
+            }
+
+            if (nameNode !== null) {
+                this.contextTy = TypeInferer.inferType(new Expression(nameNode, this.element.file))
+            }
+        }
+
+        if (parent.type === "assignment_statement") {
+            const left = parent.childForFieldName("left")
+            if (left) {
+                this.contextTy = TypeInferer.inferType(new Expression(left, this.element.file))
+            }
+        }
+
+        if (parent.type === "let_statement") {
+            const type = parent.childForFieldName("type")
+            if (type) {
+                this.contextTy = TypeInferer.inferType(new Expression(type, this.element.file))
             }
         }
 
@@ -135,6 +162,38 @@ export class CompletionContext {
         const traitOrContractOwner = parentOfType(element.node, "contract", "trait")
         this.insideTraitOrContract = traitOrContractOwner !== null
         this.insideTrait = parentOfType(element.node, "trait") !== null
+    }
+
+    public matchContextTy(typeCb: () => Ty | null | undefined): boolean {
+        if (!this.contextTy) return true
+        if (!this.settings.completion.typeAware) return true
+
+        const type = typeCb()
+        if (!type) return false
+
+        if (this.contextTy instanceof OptionTy && type instanceof OptionTy) {
+            return this.contextTy.innerTy.name() === type.innerTy.name()
+        }
+
+        if (this.contextTy instanceof MapTy && type instanceof MapTy) {
+            return true
+        }
+
+        if (this.contextTy instanceof OptionTy && type instanceof NullTy) {
+            return true
+        }
+
+        if (type instanceof OptionTy) {
+            // Int and Int?
+            return type.innerTy.name() === this.contextTy.name()
+        }
+
+        if (this.contextTy instanceof OptionTy) {
+            // Int? and Int
+            return this.contextTy.innerTy.name() === type.name()
+        }
+
+        return this.contextTy.name() === type.name()
     }
 
     public expression(): boolean {

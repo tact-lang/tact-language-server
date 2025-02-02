@@ -15,6 +15,11 @@ export enum CompletionWeight {
     LOWEST = 500,
 }
 
+export function contextWeight(weight: CompletionWeight, match: boolean): CompletionWeight {
+    if (match) return weight
+    return weight + 500
+}
+
 export type WeightedCompletionItem = CompletionItem & {
     weight?: CompletionWeight
 }

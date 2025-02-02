@@ -13,6 +13,9 @@ export interface TactSettings {
     codeLens: {
         enabled: boolean
     }
+    completion: {
+        typeAware: boolean
+    }
 }
 
 const defaultSettings: TactSettings = {
@@ -27,6 +30,9 @@ const defaultSettings: TactSettings = {
     },
     codeLens: {
         enabled: true,
+    },
+    completion: {
+        typeAware: true,
     },
 }
 
@@ -46,6 +52,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
         },
         codeLens: {
             enabled: vsSettings.codeLens?.enabled ?? defaultSettings.codeLens.enabled,
+        },
+        completion: {
+            typeAware: vsSettings.completion?.typeAware ?? defaultSettings.completion.typeAware,
         },
     }
 }

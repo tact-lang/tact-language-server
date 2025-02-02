@@ -12,7 +12,7 @@ export class SelfCompletionProvider implements CompletionProvider {
         result.add({
             label: "self",
             kind: CompletionItemKind.Keyword,
-            weight: CompletionWeight.KEYWORD,
+            weight: CompletionWeight.LOWEST,
         })
     }
 }

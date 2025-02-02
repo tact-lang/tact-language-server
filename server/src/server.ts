@@ -556,6 +556,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 element,
                 params.position,
                 params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked,
+                await getDocumentSettings(uri),
             )
 
             const result = new CompletionResult()

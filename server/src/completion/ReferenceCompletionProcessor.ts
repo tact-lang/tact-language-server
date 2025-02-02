@@ -4,7 +4,12 @@ import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from 
 import {CompletionItem, InsertTextFormat, CompletionItemKind} from "vscode-languageserver-types"
 import {TypeInferer} from "@server/TypeInferer"
 import {CompletionContext} from "./CompletionContext"
-import {CompletionWeight, WeightedCompletionItem} from "@server/completion/WeightedCompletionItem"
+import {
+    CompletionWeight,
+    contextWeight,
+    WeightedCompletionItem,
+} from "@server/completion/WeightedCompletionItem"
+import {StructTy} from "@server/types/BaseTy"
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {
     constructor(private ctx: CompletionContext) {}
@@ -89,7 +94,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 documentation: `fn ${name}${signature}`,
                 insertText: insertText,
                 insertTextFormat: InsertTextFormat.Snippet,
-                weight: CompletionWeight.FUNCTION,
+                weight: contextWeight(
+                    CompletionWeight.FUNCTION,
+                    this.ctx.matchContextTy(() => node.returnType()?.type()),
+                ),
                 // additionalTextEdits: finalDiff,
             })
         } else if (node instanceof Struct || node instanceof Message) {
@@ -105,7 +113,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 kind: CompletionItemKind.Struct,
                 insertText: `${name}${bracesSnippet}$0`,
                 insertTextFormat: InsertTextFormat.Snippet,
-                weight: CompletionWeight.STRUCT,
+                weight: contextWeight(
+                    CompletionWeight.STRUCT,
+                    this.ctx.matchContextTy(() => new StructTy(node.name(), node)),
+                ),
             })
         } else if (node instanceof Trait) {
             this.addItem({
@@ -141,7 +152,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 },
                 insertText: thisPrefix + name,
                 insertTextFormat: InsertTextFormat.Snippet,
-                weight: CompletionWeight.CONSTANT,
+                weight: contextWeight(
+                    CompletionWeight.CONSTANT,
+                    this.ctx.matchContextTy(() => typeNode?.type()),
+                ),
             })
         } else if (node instanceof Field) {
             const owner = node.dataOwner()?.name() ?? ""
@@ -165,7 +179,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 },
                 insertText: thisPrefix + name + suffix,
                 insertTextFormat: InsertTextFormat.Snippet,
-                weight: CompletionWeight.FIELD,
+                weight: contextWeight(
+                    CompletionWeight.FIELD,
+                    this.ctx.matchContextTy(() => node.typeNode()?.type()),
+                ),
             })
         } else if (node.node.type === "identifier") {
             const parent = node.node.parent
@@ -186,7 +203,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                     },
                     insertText: name,
                     insertTextFormat: InsertTextFormat.Snippet,
-                    weight: CompletionWeight.VARIABLE,
+                    weight: contextWeight(
+                        CompletionWeight.VARIABLE,
+                        this.ctx.matchContextTy(() => type),
+                    ),
                 })
             }
         } else if (node.node.type === "parameter") {
@@ -203,7 +223,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 },
                 insertText: name,
                 insertTextFormat: InsertTextFormat.Snippet,
-                weight: CompletionWeight.PARAM,
+                weight: contextWeight(
+                    CompletionWeight.PARAM,
+                    this.ctx.matchContextTy(() => type),
+                ),
             })
         } else {
             this.addItem({

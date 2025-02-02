@@ -148,6 +148,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Show method ID hints for contract functions"
+                },
+                "tact.completion.typeAware": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Sort completion items by relevance to the current context type"
                 }
             }
         },
