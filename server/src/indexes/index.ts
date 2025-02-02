@@ -45,6 +45,9 @@ export class FileIndex {
         [IndexKey.Constants]: [],
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    public constructor() {}
+
     public static create(file: File): FileIndex {
         const index = new FileIndex()
 
@@ -77,8 +80,8 @@ export class FileIndex {
         return index
     }
 
-    public processElementsByKey(
-        key: IndexKey,
+    public processElementsByKey<K extends IndexKey>(
+        key: K,
         processor: ScopeProcessor,
         state: ResolveState,
     ): boolean {
@@ -162,8 +165,8 @@ export class GlobalIndex {
         console.info(`found changes in ${uri}`)
     }
 
-    public processElementsByKey(
-        key: IndexKey,
+    public processElementsByKey<K extends IndexKey>(
+        key: K,
         processor: ScopeProcessor,
         state: ResolveState,
     ): boolean {
@@ -177,7 +180,7 @@ export class GlobalIndex {
         for (const value of this.files.values()) {
             const result = value.elementByName(key, name)
             if (result) {
-                return result
+                return result as IndexKeyToType[K]
             }
         }
         return null

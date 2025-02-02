@@ -10,11 +10,13 @@ import {measureTime} from "@server/psi/utils"
 
 export const PARSED_FILES_CACHE = new LRUMap<string, File>({
     size: 100,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     dispose: _entries => {},
 })
 
 export const FIFT_PARSED_FILES_CACHE = new LRUMap<string, File>({
     size: 100,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     dispose: _entries => {},
 })
 

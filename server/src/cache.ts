@@ -12,6 +12,7 @@ export class Cache<TKey, TValue> {
     constructor(config: CacheConfig) {
         this.data = new LRUMap({
             size: config.size,
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             dispose: _entries => {},
         })
     }
