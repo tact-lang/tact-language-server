@@ -7,6 +7,7 @@ export function crc32(str: string, crc = 0xffffffff) {
     if (crc32_table === undefined) {
         calcTable()
     }
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < bytes.length; ++i) crc = crc32_table![(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8)
     return (crc ^ -1) >>> 0
 }
