@@ -1,10 +1,10 @@
 import {CompletionProvider} from "@server/completion/CompletionProvider"
-import {CompletionItem} from "vscode-languageserver-types"
 import {CompletionContext} from "@server/completion/CompletionContext"
 import {Reference, ResolveState, ScopeProcessor} from "@server/psi/Reference"
 import {ReferenceCompletionProcessor} from "@server/completion/ReferenceCompletionProcessor"
 import {NamedNode, Node} from "@server/psi/Node"
 import {FieldsOwner} from "@server/psi/Decls"
+import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 
 enum FieldsKind {
     ONLY_FIELDS = "ONLY_FIELDS",
@@ -24,7 +24,7 @@ export class ReferenceCompletionProvider implements CompletionProvider {
         )
     }
 
-    addCompletion(ctx: CompletionContext, elements: CompletionItem[]): void {
+    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const state = new ResolveState()
         const processor = new ReferenceCompletionProcessor(ctx)
 
@@ -35,7 +35,7 @@ export class ReferenceCompletionProvider implements CompletionProvider {
             this.ref.processResolveVariants(processor, state.withValue("completion", "true"))
         }
 
-        elements.push(...processor.result.values())
+        result.add(...processor.result.values())
     }
 
     processFields(

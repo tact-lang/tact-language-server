@@ -1,15 +1,16 @@
 import {CompletionProvider} from "@server/completion/CompletionProvider"
-import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
+import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import {CompletionContext} from "@server/completion/CompletionContext"
 import {parentOfType} from "@server/psi/utils"
 import {StorageMembersOwner} from "@server/psi/Decls"
+import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class OverrideCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
         return ctx.topLevelInTraitOrContract
     }
 
-    addCompletion(ctx: CompletionContext, elements: CompletionItem[]): void {
+    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const ownerNode = parentOfType(ctx.element.node, "trait", "contract")
         if (!ownerNode) return
 
@@ -30,7 +31,7 @@ export class OverrideCompletionProvider implements CompletionProvider {
             const methodOwner = method.owner()
             if (methodOwner === null) continue
 
-            elements.push({
+            result.add({
                 label: `override`,
                 kind: CompletionItemKind.Function,
                 labelDetails: {
@@ -38,6 +39,7 @@ export class OverrideCompletionProvider implements CompletionProvider {
                 },
                 insertText: `override fun ${method.name()}${method.signatureText()} {$0}`,
                 insertTextFormat: InsertTextFormat.Snippet,
+                weight: CompletionWeight.KEYWORD,
             })
 
             added.add(method.name())

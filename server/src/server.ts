@@ -3,7 +3,6 @@ import {DocumentStore, getOffsetFromPosition} from "./document-store"
 import {createTactParser, initParser} from "./parser"
 import {asLspRange, asParserPoint} from "@server/utils/position"
 import {TypeInferer} from "./TypeInferer"
-import {Node as SyntaxNode} from "web-tree-sitter"
 import {LocalSearchScope, Referent} from "@server/psi/Referent"
 import {index, IndexKey} from "./indexes"
 import {CallLike, Expression, NamedNode, Node} from "@server/psi/Node"
@@ -73,6 +72,7 @@ import {generateKeywordDoc} from "@server/documentation/keywords_documentation"
 import {UnusedImportInspection} from "./inspections/UnusedImportInspection"
 import {ImportResolver} from "@server/psi/ImportResolver"
 import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsCompletionProvider"
+import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 
 /**
  * Whenever LS is initialized.
@@ -558,7 +558,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked,
             )
 
-            const result: lsp.CompletionItem[] = []
+            const result = new CompletionResult()
             const providers: CompletionProvider[] = [
                 new SnippetsCompletionProvider(),
                 new KeywordsCompletionProvider(),
@@ -581,7 +581,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 provider.addCompletion(ctx, result)
             })
 
-            return result
+            return result.sorted()
         },
     )
 

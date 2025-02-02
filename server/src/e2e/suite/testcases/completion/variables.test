@@ -13,7 +13,6 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-2  test()
 5  myAddress  Address
 5  myInt  Int
 5  myString  String
@@ -21,6 +20,7 @@ fun test() {
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -42,13 +42,13 @@ fun test(amount: Int, to: Address) {
     <caret>
 }
 ------------------------------------------------------------------------
-2  test(amount: Int, to: Address)
 5  amount  Int
 5  to  Address
 13 false
 13 null
 13 return;
 13 true
+2  test(amount: Int, to: Address)
 14 foreach
 14 if
 14 ife
@@ -70,8 +70,6 @@ extends fun move(self: Point, x: Int, y: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-2  move(self: Point, x: Int, y: Int)
-21 Point{}
 5  self  Point
 5  x  Int
 5  y  Int
@@ -79,6 +77,8 @@ extends fun move(self: Point, x: Int, y: Int) {
 13 null
 13 return;
 13 true
+2  move(self: Point, x: Int, y: Int)
+21 Point{}
 14 foreach
 14 if
 14 ife
@@ -101,15 +101,15 @@ extends fun scale(self: Point, factor: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-2  scale(self: Point, factor: Int)
-21 Point{}
+5  temp  Int
 5  factor  Int
 5  self  Point
-5  temp  Int
 13 false
 13 null
 13 return;
 13 true
+2  scale(self: Point, factor: Int)
+21 Point{}
 14 foreach
 14 if
 14 ife
@@ -135,13 +135,13 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-2  test()
 5  inner  Int
 5  outer  Int
 13 false
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -169,7 +169,6 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-2  test()
 5  a  Int
 5  b  Int
 5  c  Int
@@ -177,6 +176,7 @@ fun test() {
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -201,7 +201,6 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-2  test()
 5  items  map<Int, Int>
 5  key  Int
 5  value  Int
@@ -209,6 +208,7 @@ fun test() {
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -235,13 +235,13 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-2  test()
 5  result  Int
 5  value  Int
 13 false
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -267,13 +267,13 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-2  test()
 5  error  Int
 5  value  Int
 13 false
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -298,12 +298,12 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-2  test()
 5  value  Int
 13 false
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -325,13 +325,13 @@ fun test(param: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-2  test(param: Int)
 5  local  Int
 5  param  Int
 13 false
 13 null
 13 return;
 13 true
+2  test(param: Int)
 14 foreach
 14 if
 14 ife
@@ -353,12 +353,12 @@ fun test() {
     let variable: Int = 1;
 }
 ------------------------------------------------------------------------
-2  test()
 5  variable  Int
 13 false
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -380,12 +380,12 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-2  test()
 5  variable  Int
 13 false
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -411,13 +411,13 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-2  test()
 5  first  Int
 5  second  Int
 13 false
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -443,7 +443,6 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-2  test()
 5  first  Int
 5  second  Int
 5  third  Int
@@ -451,6 +450,7 @@ fun test() {
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife

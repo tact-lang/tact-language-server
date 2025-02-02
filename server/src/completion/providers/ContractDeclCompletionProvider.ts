@@ -1,14 +1,15 @@
 import {CompletionProvider} from "@server/completion/CompletionProvider"
-import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
+import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import {CompletionContext} from "@server/completion/CompletionContext"
+import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 
 export class ContractDeclCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
         return ctx.topLevel
     }
 
-    addCompletion(_ctx: CompletionContext, elements: CompletionItem[]): void {
-        elements.push({
+    addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
+        result.add({
             label: `contract`,
             labelDetails: {
                 detail: " Name {}",
@@ -18,7 +19,7 @@ export class ContractDeclCompletionProvider implements CompletionProvider {
             insertTextFormat: InsertTextFormat.Snippet,
         })
 
-        elements.push({
+        result.add({
             label: `contract`,
             labelDetails: {
                 detail: " Name with Trait {}",

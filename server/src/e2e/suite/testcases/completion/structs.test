@@ -11,12 +11,12 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-2  test()
-21 Foo{}
 13 false
 13 null
 13 return;
 13 true
+2  test()
+21 Foo{}
 14 foreach
 14 if
 14 ife
@@ -41,12 +41,12 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-2  test()
-21 Foo{}
 13 false
 13 null
 13 return;
 13 true
+2  test()
+21 Foo{}
 14 foreach
 14 if
 14 ife

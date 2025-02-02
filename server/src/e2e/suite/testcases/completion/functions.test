@@ -15,13 +15,13 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-2  add(a: Int, b: Int): Int
-2  multiply(x: Int, y: Int): Int
-2  test()
 13 false
 13 null
 13 return;
 13 true
+2  add(a: Int, b: Int): Int
+2  multiply(x: Int, y: Int): Int
+2  test()
 14 foreach
 14 if
 14 ife
@@ -46,12 +46,12 @@ fun test() {
     let result = <caret>
 }
 ------------------------------------------------------------------------
-2  add(a: Int, b: Int): Int
-2  test()
 5  result  unknown
 13 false
 13 null
 13 true
+2  add(a: Int, b: Int): Int
+2  test()
 
 ========================================================================
 Extends function completion
@@ -87,12 +87,12 @@ fun test() {
     let x = add(<caret>)
 }
 ------------------------------------------------------------------------
-2  add(a: Int, b: Int): Int
-2  test()
 5  x  Int
 13 false
 13 null
 13 true
+2  add(a: Int, b: Int): Int
+2  test()
 
 ========================================================================
 Native function completion
@@ -109,13 +109,13 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-2  add(a: Int, b: Int): Int
-2  multiply(x: Int, y: Int): Int
-2  test()
 13 false
 13 null
 13 return;
 13 true
+2  add(a: Int, b: Int): Int
+2  multiply(x: Int, y: Int): Int
+2  test()
 14 foreach
 14 if
 14 ife

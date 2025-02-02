@@ -7,12 +7,12 @@ trait Foo {
     }
 }
 ------------------------------------------------------------------------
-2  self.foo()
 13 false
 13 null
 13 return;
 13 self
 13 true
+2  self.foo()
 14 foreach
 14 if
 14 ife
@@ -33,12 +33,12 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-2  self.foo()
 13 false
 13 null
 13 return;
 13 self
 13 true
+2  self.foo()
 14 foreach
 14 if
 14 ife
@@ -57,11 +57,11 @@ fun foo() {
     <caret>
 }
 ------------------------------------------------------------------------
-2  foo()
 13 false
 13 null
 13 return;
 13 true
+2  foo()
 14 foreach
 14 if
 14 ife

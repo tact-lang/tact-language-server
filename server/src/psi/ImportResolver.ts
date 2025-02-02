@@ -1,5 +1,4 @@
 import {Node as SyntaxNode} from "web-tree-sitter"
-import {URI} from "vscode-uri"
 import * as path from "path"
 import {PARSED_FILES_CACHE} from "@server/index-root"
 import {File} from "./File"

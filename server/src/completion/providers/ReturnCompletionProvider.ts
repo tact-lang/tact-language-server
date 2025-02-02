@@ -1,28 +1,30 @@
 import {CompletionProvider} from "@server/completion/CompletionProvider"
-import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
+import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import {CompletionContext} from "@server/completion/CompletionContext"
 import {funNodesTypes, parentOfType} from "@server/psi/utils"
 import {Fun} from "@server/psi/Decls"
 import {OptionTy, PrimitiveTy} from "@server/types/BaseTy"
 import {TypeInferer} from "@server/TypeInferer"
+import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class ReturnCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
         return ctx.isStatement
     }
 
-    addCompletion(ctx: CompletionContext, elements: CompletionItem[]): void {
+    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const outerFunctionNode = parentOfType(ctx.element.node, ...funNodesTypes())
         if (!outerFunctionNode) return
         const outerFunction = new Fun(outerFunctionNode, ctx.element.file)
 
         const returnTypeExpr = outerFunction.returnType()
         if (!returnTypeExpr) {
-            elements.push({
+            result.add({
                 label: "return;",
                 kind: CompletionItemKind.Keyword,
                 insertText: "return;",
                 insertTextFormat: InsertTextFormat.Snippet,
+                weight: CompletionWeight.KEYWORD,
             })
             return
         }
@@ -30,43 +32,49 @@ export class ReturnCompletionProvider implements CompletionProvider {
         const returnType = TypeInferer.inferType(returnTypeExpr)
         if (!returnType) return
 
-        elements.push({
+        result.add({
             label: "return <expr>;",
             kind: CompletionItemKind.Keyword,
             insertText: "return $0;",
             insertTextFormat: InsertTextFormat.Snippet,
+            weight: CompletionWeight.KEYWORD,
         })
 
         if (returnType instanceof PrimitiveTy && returnType.name() === "Bool") {
-            elements.push({
+            result.add({
                 label: "return true;",
                 kind: CompletionItemKind.Snippet,
+                weight: CompletionWeight.KEYWORD,
             })
 
-            elements.push({
+            result.add({
                 label: "return false;",
                 kind: CompletionItemKind.Snippet,
+                weight: CompletionWeight.KEYWORD,
             })
         }
 
         if (returnType instanceof PrimitiveTy && returnType.name() === "Int") {
-            elements.push({
+            result.add({
                 label: "return 0;",
                 kind: CompletionItemKind.Snippet,
+                weight: CompletionWeight.KEYWORD,
             })
         }
 
         if (returnType instanceof PrimitiveTy && returnType.name() === "String") {
-            elements.push({
+            result.add({
                 label: 'return "";',
                 kind: CompletionItemKind.Snippet,
+                weight: CompletionWeight.KEYWORD,
             })
         }
 
         if (returnType instanceof OptionTy) {
-            elements.push({
+            result.add({
                 label: "return null;",
                 kind: CompletionItemKind.Snippet,
+                weight: CompletionWeight.KEYWORD,
             })
         }
     }

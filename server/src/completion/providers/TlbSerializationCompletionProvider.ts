@@ -1,6 +1,7 @@
 import {CompletionProvider} from "@server/completion/CompletionProvider"
-import {CompletionItem, CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
+import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import {CompletionContext} from "@server/completion/CompletionContext"
+import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class TlbSerializationCompletionProvider implements CompletionProvider {
     // see https://docs.tact-lang.org/book/integers/#common-serialization-types
@@ -27,13 +28,14 @@ export class TlbSerializationCompletionProvider implements CompletionProvider {
         return ctx.inTlbSerialization
     }
 
-    addCompletion(_ctx: CompletionContext, elements: CompletionItem[]): void {
+    addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
         for (const type of this.types) {
-            elements.push({
+            result.add({
                 label: type,
                 kind: CompletionItemKind.Keyword,
                 insertTextFormat: InsertTextFormat.Snippet,
                 insertText: type.includes("{X}") ? type.replace("{X}", "$1") : type,
+                weight: CompletionWeight.CONTEXT_ELEMENT,
             })
         }
     }

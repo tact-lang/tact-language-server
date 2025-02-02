@@ -25,14 +25,14 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-2  self.foo()
-20 self.BAR:  = 100
-20 self.FOO:  = 100
 13 false
 13 null
 13 return;
 13 self
 13 true
+2  self.foo()
+20 self.BAR:  = 100
+20 self.FOO:  = 100
 14 foreach
 14 if
 14 ife

@@ -10,13 +10,13 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-2  test()
-20 BAR: Int = 100
-20 FOO: Int = 100
 13 false
 13 null
 13 return;
 13 true
+2  test()
+20 BAR: Int = 100
+20 FOO: Int = 100
 14 foreach
 14 if
 14 ife

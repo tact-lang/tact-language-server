@@ -28,8 +28,8 @@ fun test() {
     Foo{ <caret> };
 }
 ------------------------------------------------------------------------
-9  age : <value>  of Foo
 5  age  Int
+9  age : <value>  of Foo
 
 ========================================================================
 First field in struct init with parameter
@@ -44,8 +44,8 @@ fun test(age: Int, some: Int) {
     Foo{ <caret> };
 }
 ------------------------------------------------------------------------
-9  age : <value>  of Foo
 5  age  Int
+9  age : <value>  of Foo
 
 ========================================================================
 Second field in struct init
@@ -113,8 +113,8 @@ fun test() {
     Foo{ age: <caret> };
 }
 ------------------------------------------------------------------------
-2  test()
-21 Foo{}
 13 false
 13 null
 13 true
+2  test()
+21 Foo{}

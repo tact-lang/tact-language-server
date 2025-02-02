@@ -5,11 +5,11 @@ fun test() {
     ret<caret>
 }
 ------------------------------------------------------------------------
-2  test()
 13 false
 13 null
 13 return;
 13 true
+2  test()
 14 foreach
 14 if
 14 ife
@@ -30,19 +30,19 @@ fun test(): Bool {
     ret<caret>
 }
 ------------------------------------------------------------------------
-2  test(): Bool
 13 false
 13 null
 13 return <expr>;
 13 true
+2  test(): Bool
+14 return false;
+14 return true;
 14 foreach
 14 if
 14 ife
 14 let
 14 lett
 14 repeat
-14 return false;
-14 return true;
 14 try
 14 try-catch
 14 until
@@ -57,18 +57,18 @@ fun test(): Int {
     ret<caret>
 }
 ------------------------------------------------------------------------
-2  test(): Int
 13 false
 13 null
 13 return <expr>;
 13 true
+2  test(): Int
+14 return 0;
 14 foreach
 14 if
 14 ife
 14 let
 14 lett
 14 repeat
-14 return 0;
 14 try
 14 try-catch
 14 until
@@ -83,18 +83,18 @@ fun test(): String {
     ret<caret>
 }
 ------------------------------------------------------------------------
-2  test(): String
 13 false
 13 null
 13 return <expr>;
 13 true
+2  test(): String
+14 return "";
 14 foreach
 14 if
 14 ife
 14 let
 14 lett
 14 repeat
-14 return "";
 14 try
 14 try-catch
 14 until
@@ -109,18 +109,18 @@ fun test(): String? {
     ret<caret>
 }
 ------------------------------------------------------------------------
-2  test(): String
 13 false
 13 null
 13 return <expr>;
 13 true
+2  test(): String
+14 return null;
 14 foreach
 14 if
 14 ife
 14 let
 14 lett
 14 repeat
-14 return null;
 14 try
 14 try-catch
 14 until

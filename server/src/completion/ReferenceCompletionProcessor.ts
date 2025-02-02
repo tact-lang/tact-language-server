@@ -4,6 +4,7 @@ import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from 
 import {CompletionItem, InsertTextFormat, CompletionItemKind} from "vscode-languageserver-types"
 import {TypeInferer} from "@server/TypeInferer"
 import {CompletionContext} from "./CompletionContext"
+import {CompletionWeight, WeightedCompletionItem} from "@server/completion/WeightedCompletionItem"
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {
     constructor(private ctx: CompletionContext) {}
@@ -88,7 +89,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 documentation: `fn ${name}${signature}`,
                 insertText: insertText,
                 insertTextFormat: InsertTextFormat.Snippet,
-                sortText: `1${name}`,
+                weight: CompletionWeight.FUNCTION,
                 // additionalTextEdits: finalDiff,
             })
         } else if (node instanceof Struct || node instanceof Message) {
@@ -104,17 +105,15 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 kind: CompletionItemKind.Struct,
                 insertText: `${name}${bracesSnippet}$0`,
                 insertTextFormat: InsertTextFormat.Snippet,
-                sortText: `2${name}`,
+                weight: CompletionWeight.STRUCT,
             })
         } else if (node instanceof Trait) {
-            const importance = this.ctx.inTraitList ? "0" : "3"
-
             this.addItem({
                 label: name,
                 kind: CompletionItemKind.TypeParameter,
                 insertText: `${name}$0`,
                 insertTextFormat: InsertTextFormat.Snippet,
-                sortText: `${importance}${name}`,
+                weight: CompletionWeight.TRAIT,
             })
         } else if (node instanceof Contract) {
             // don't add contract in completion for now
@@ -125,7 +124,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 kind: CompletionItemKind.Property,
                 insertText: name,
                 insertTextFormat: InsertTextFormat.Snippet,
-                sortText: `0${name}`,
+                weight: CompletionWeight.PRIMITIVE,
             })
         } else if (node instanceof Constant) {
             // don't add `self.` prefix for global constants
@@ -142,7 +141,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 },
                 insertText: thisPrefix + name,
                 insertTextFormat: InsertTextFormat.Snippet,
-                sortText: `3${name}`,
+                weight: CompletionWeight.CONSTANT,
             })
         } else if (node instanceof Field) {
             const owner = node.dataOwner()?.name() ?? ""
@@ -166,7 +165,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 },
                 insertText: thisPrefix + name + suffix,
                 insertTextFormat: InsertTextFormat.Snippet,
-                sortText: `2${name}`,
+                weight: CompletionWeight.FIELD,
             })
         } else if (node.node.type === "identifier") {
             const parent = node.node.parent
@@ -187,7 +186,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                     },
                     insertText: name,
                     insertTextFormat: InsertTextFormat.Snippet,
-                    sortText: `3${name}`,
+                    weight: CompletionWeight.VARIABLE,
                 })
             }
         } else if (node.node.type === "parameter") {
@@ -204,19 +203,19 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 },
                 insertText: name,
                 insertTextFormat: InsertTextFormat.Snippet,
-                sortText: `3${name}`,
+                weight: CompletionWeight.PARAM,
             })
         } else {
             this.addItem({
                 label: name,
-                sortText: `${name}-1`,
+                weight: CompletionWeight.LOWEST,
             })
         }
 
         return true
     }
 
-    public addItem(node: CompletionItem) {
+    public addItem(node: WeightedCompletionItem) {
         if (node.label === "") return
         const prev = this.result.get(node.label)
         if (prev && prev.kind === node.kind) return

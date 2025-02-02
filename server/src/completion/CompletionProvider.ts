@@ -1,7 +1,7 @@
 import {CompletionContext} from "./CompletionContext"
-import {CompletionItem} from "vscode-languageserver-types"
+import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 
 export interface CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean
-    addCompletion(ctx: CompletionContext, elements: CompletionItem[]): void
+    addCompletion(ctx: CompletionContext, result: CompletionResult): void
 }
