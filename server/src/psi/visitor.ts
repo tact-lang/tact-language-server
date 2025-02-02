@@ -1,7 +1,7 @@
 import {Node as SyntaxNode, TreeCursor} from "web-tree-sitter"
 
 class TreeWalker {
-    private alreadyVisitedChildren: boolean = false
+    private alreadyVisitedChildren = false
 
     constructor(private cursor: TreeCursor) {}
 

@@ -82,9 +82,9 @@ export class Referent {
      * @param sameFileOnly if true, only references from the same files listed
      */
     public findReferences(
-        includeDefinition: boolean = false,
-        includeSelf: boolean = true,
-        sameFileOnly: boolean = false,
+        includeDefinition = false,
+        includeSelf = true,
+        sameFileOnly = false,
     ): Node[] {
         const resolved = this.resolved
         if (!resolved) return []

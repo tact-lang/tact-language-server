@@ -15,7 +15,7 @@ export class FiftReferent {
         this.resolved = FiftReference.resolve(node, file)
     }
 
-    public findReferences(includeDefinition: boolean = false): Node[] {
+    public findReferences(includeDefinition = false): Node[] {
         if (!this.resolved) return []
 
         const result: Node[] = []

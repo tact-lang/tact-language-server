@@ -241,6 +241,6 @@ function extractCommentsDoc(node: NamedNode): string {
     return result.trimEnd()
 }
 
-function defaultResult(signature: string, documentation: string = "") {
+function defaultResult(signature: string, documentation = "") {
     return DOC_TMPL.replace("{signature}", signature).replace("{documentation}", documentation)
 }
