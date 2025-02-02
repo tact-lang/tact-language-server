@@ -28,14 +28,14 @@ export abstract class UnusedInspection {
     ) {
         const references = new Referent(node, file).findReferences()
         if (references.length === 0) {
-            const range = asLspRange(options.rangeNode || node)
+            const range = asLspRange(options.rangeNode ?? node)
 
             if (options.skipIf && options.skipIf()) {
                 return
             }
 
             diagnostics.push({
-                severity: options.severity || lsp.DiagnosticSeverity.Hint,
+                severity: options.severity ?? lsp.DiagnosticSeverity.Hint,
                 range,
                 message: `${options.kind} '${node.text}' is never used`,
                 source: "tact",

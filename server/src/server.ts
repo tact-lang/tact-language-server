@@ -74,6 +74,7 @@ import {ImportResolver} from "@server/psi/ImportResolver"
 import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsCompletionProvider"
 import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 import {DocumentUri, TextEdit} from "vscode-languageserver-types"
+import {MissedFieldInContractInspection} from "@server/inspections/MissedFieldInContractInspection"
 
 /**
  * Whenever LS is initialized.
@@ -258,6 +259,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             new StructInitializationInspection(),
             new UnusedContractMembersInspection(),
             new UnusedImportInspection(),
+            new MissedFieldInContractInspection(),
         ]
 
         const diagnostics: lsp.Diagnostic[] = []
