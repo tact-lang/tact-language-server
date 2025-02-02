@@ -10,6 +10,38 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
     public result: Map<string, CompletionItem> = new Map()
 
+    private allowedInContext(node: Node): boolean {
+        if (node instanceof Contract) return false // filter contracts for now
+        if (node instanceof NamedNode && node.name() === "BaseTrait") return false
+
+        if (this.ctx.isType) {
+            if (this.ctx.isMessageContext) {
+                // in `receive(msg: <caret>)` allow only messages
+                return node instanceof Message
+            }
+
+            // for types, we want to complete only types
+            return (
+                node instanceof Trait ||
+                node instanceof Struct ||
+                node instanceof Message ||
+                node instanceof Primitive
+            )
+        }
+
+        if (this.ctx.inTraitList) {
+            // for trait list allow only traits
+            return node instanceof Trait
+        }
+
+        // for non types context things like traits and primitives are prohibited
+        if (node instanceof Trait || node instanceof Primitive) return false
+        // but since structs and messages can be created like `Foo{}` we allow them
+        if (node instanceof Struct || node instanceof Message) return true
+
+        return true
+    }
+
     public execute(node: Node, state: ResolveState): boolean {
         if (!(node instanceof NamedNode)) return true
 
@@ -17,18 +49,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         const name = node.name()
         if (name.endsWith("DummyIdentifier") || name === "AnyStruct") return true
 
-        if (
-            this.ctx.inNameOfFieldInit &&
-            node.node.type !== "identifier" &&
-            node.node.type !== "parameter" &&
-            !(node instanceof Field)
-        ) {
-            // For
-            // Foo { n<caret> }
-            // complete only local variables, parameters and fields
-            // but for
-            // Foo { name: <caret> }
-            // complete everything
+        if (!this.allowedInContext(node)) {
             return true
         }
 
@@ -45,11 +66,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         // const finalDiff = !includes ? diff : []
 
         if (node instanceof Fun) {
-            if (this.ctx.isType) {
-                // don't add functions for type completion
-                return true
-            }
-
             // don't add `self.` prefix for global functions
             const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
 
@@ -76,8 +92,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 // additionalTextEdits: finalDiff,
             })
         } else if (node instanceof Struct || node instanceof Message) {
-            if (this.ctx.inTraitList) return true
-
             // we don't want to add `{}` for type completion
             const bracesSnippet = this.ctx.isType ? "" : "{$1}"
             const braces = this.ctx.isType ? "" : "{}"
@@ -93,7 +107,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 sortText: `2${name}`,
             })
         } else if (node instanceof Trait) {
-            if (name === "BaseTrait") return true
             const importance = this.ctx.inTraitList ? "0" : "3"
 
             this.addItem({
@@ -107,11 +120,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             // don't add contract in completion for now
             return true
         } else if (node instanceof Primitive) {
-            if (!this.ctx.isType || this.ctx.inTraitList) {
-                // don't add primitive types for non-type or trait completion
-                return true
-            }
-
             this.addItem({
                 label: name,
                 kind: CompletionItemKind.Property,
@@ -120,11 +128,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 sortText: `0${name}`,
             })
         } else if (node instanceof Constant) {
-            if (this.ctx.isType) {
-                // don't add constants for type completion
-                return true
-            }
-
             // don't add `self.` prefix for global constants
             const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
 
@@ -142,11 +145,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 sortText: `3${name}`,
             })
         } else if (node instanceof Field) {
-            if (this.ctx.isType) {
-                // don't add fields for type completion
-                return true
-            }
-
             const owner = node.dataOwner()?.name() ?? ""
 
             // don't add `self.` for completion of field in init
@@ -171,11 +169,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 sortText: `2${name}`,
             })
         } else if (node.node.type === "identifier") {
-            if (this.ctx.isType) {
-                // don't add variables for type completion
-                return true
-            }
-
             const parent = node.node.parent
             if (!parent) return true
 
@@ -198,11 +191,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 })
             }
         } else if (node.node.type === "parameter") {
-            if (this.ctx.isType) {
-                // don't add parameters for type completion
-                return true
-            }
-
             const parent = node.node.parent
             if (!parent) return true
 

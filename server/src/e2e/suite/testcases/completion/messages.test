@@ -1,0 +1,33 @@
+========================================================================
+Completion in receive function
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    receive(msg: <caret>) {}
+}
+------------------------------------------------------------------------
+21 Bar
+
+========================================================================
+Completion in bounced function
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    bounced(msg: bounced<<caret>>) {}
+}
+------------------------------------------------------------------------
+21 Bar

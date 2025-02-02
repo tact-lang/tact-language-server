@@ -49,7 +49,7 @@ export function superField(field: Field): Field | null {
     return superTraitWithField.fields().find(it => it.name() === field.name()) ?? null
 }
 
-export function superConstant(constant: Constant): Field | null {
+export function superConstant(constant: Constant): Constant | null {
     const owner = constant.owner()
     if (!owner) return null
 

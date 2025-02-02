@@ -269,7 +269,7 @@ export class Field extends NamedNode {
     }
 
     public dataOwner(): FieldsOwner | null {
-        const ownerNode = parentOfType(this.node, "struct", "message")
+        const ownerNode = parentOfType(this.node, "struct", "message", "trait", "contract")
         if (!ownerNode) return null
 
         return new FieldsOwner(ownerNode, this.file)

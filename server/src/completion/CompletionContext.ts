@@ -22,6 +22,7 @@ export class CompletionContext {
     inMultilineStructInit: boolean = false
     inTraitList: boolean = false
     inParameter: boolean = false
+    isMessageContext: boolean = false
 
     constructor(
         content: string,
@@ -78,6 +79,17 @@ export class CompletionContext {
 
         if (element.node.type === "type_identifier") {
             this.isType = true
+        }
+
+        if (parent.type === "bounced_type") {
+            this.isMessageContext = true
+        }
+
+        if (parent.type === "parameter") {
+            const grand = parent.parent
+            if (grand?.type === "receive_function") {
+                this.isMessageContext = true
+            }
         }
 
         if (parent.type === "tlb_serialization") {

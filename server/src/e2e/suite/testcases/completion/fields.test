@@ -55,8 +55,8 @@ fun test(c: Counter) {
     c.<caret>
 }
 ------------------------------------------------------------------------
-9  owner: Address  of 
-9  val: Int  of 
+9  owner: Address  of Counter
+9  val: Int  of Counter
 
 ========================================================================
 Map fields completion

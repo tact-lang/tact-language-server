@@ -163,8 +163,7 @@ trait Child with Parent {
 ------------------------------------------------------------------------
 2  self.bar(): Int
 2  self.foo(): Int
-9  self.field: Int  of 
-24 Child
+9  self.field: Int  of Child
 13 false
 13 null
 13 return <expr>;
