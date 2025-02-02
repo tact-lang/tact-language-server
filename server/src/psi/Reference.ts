@@ -282,18 +282,13 @@ export class Reference {
             return true
         }
 
-        // first we need to check block since we have such case
-        // ```
-        // let name = "";
-        // Foo { name };
-        // ````
-        if (!this.processBlock(proc, state)) return false
-
         if (parent.type === "instance_argument") {
             // `Foo { name: "" }`
             //        ^^^^^^^^ this
             if (!this.resolveInstanceInitField(parent, proc, state)) return false
         }
+
+        if (!this.processBlock(proc, state)) return false
 
         if (parent.type === "asm_arrangement_args") {
             // `asm(cell self) extends fun storeRef(self: Builder, cell: Cell): Builder`
@@ -316,6 +311,13 @@ export class Reference {
         if (!name.equals(this.element.node)) {
             // `Foo { name: "" }`
             //        ^^^^ this should be our identifier to resolve
+            return true
+        }
+
+        const value = parent.childForFieldName("value")!
+        if (!value) {
+            // `Foo { name }`
+            //            ^ no value
             return true
         }
 
@@ -376,7 +378,7 @@ export class Reference {
         return index.processElementsByKey(IndexKey.Contracts, proc, state)
     }
 
-    private processBlock(proc: ScopeProcessor, state: ResolveState) {
+    public processBlock(proc: ScopeProcessor, state: ResolveState) {
         const file = this.element.file
         let descendant: SyntaxNode | null = this.element.node
 

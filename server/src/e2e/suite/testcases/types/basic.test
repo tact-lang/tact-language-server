@@ -70,17 +70,17 @@ fun foo() {
 ok
 
 ========================================================================
-Map types // TODO
+Map types
 ========================================================================
 primitive Int;
 primitive String;
 
 fun foo() {
-    let m: Map<Int, String> = emptyMap();
+    let m: map<Int, String> = emptyMap();
     //! ^ map<Int, String>
 }
 ------------------------------------------------------------------------
-type inference error at line 5:8: expected map<Int, String>, got String
+ok
 
 ========================================================================
 Multiple expressions

@@ -267,6 +267,13 @@ export class Field extends NamedNode {
 
         return new StorageMembersOwner(ownerNode, this.file)
     }
+
+    public dataOwner(): FieldsOwner | null {
+        const ownerNode = parentOfType(this.node, "struct", "message")
+        if (!ownerNode) return null
+
+        return new FieldsOwner(ownerNode, this.file)
+    }
 }
 
 export class Constant extends NamedNode {

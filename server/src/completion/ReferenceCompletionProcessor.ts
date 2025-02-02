@@ -20,6 +20,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         if (
             this.ctx.inNameOfFieldInit &&
             node.node.type !== "identifier" &&
+            node.node.type !== "parameter" &&
             !(node instanceof Field)
         ) {
             // For
@@ -146,6 +147,8 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 return true
             }
 
+            const owner = node.dataOwner()?.name() ?? ""
+
             // don't add `self.` for completion of field in init
             const thisPrefix = this.ctx.inNameOfFieldInit ? "" : prefix
             const comma = this.ctx.inMultilineStructInit ? "," : ""
@@ -153,11 +156,15 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
             const typeNode = node.typeNode()
             const valueType = typeNode?.type()?.qualifiedName() ?? ""
+            const details = this.ctx.inNameOfFieldInit ? `: <value>` : ": " + valueType
+            const labelSuffix = this.ctx.inNameOfFieldInit ? ` ` : "" // needed to distinguish from variable
+
             this.addItem({
-                label: thisPrefix + name,
+                label: thisPrefix + name + labelSuffix,
                 kind: CompletionItemKind.Property,
                 labelDetails: {
-                    detail: ": " + valueType,
+                    detail: details,
+                    description: `of ${owner}`,
                 },
                 insertText: thisPrefix + name + suffix,
                 insertTextFormat: InsertTextFormat.Snippet,
@@ -183,7 +190,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                     label: name,
                     kind: CompletionItemKind.Variable,
                     labelDetails: {
-                        detail: ": " + (type?.qualifiedName() ?? "unknown"),
+                        description: type?.qualifiedName() ?? "unknown",
                     },
                     insertText: name,
                     insertTextFormat: InsertTextFormat.Snippet,
@@ -205,7 +212,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 label: name,
                 kind: CompletionItemKind.Variable,
                 labelDetails: {
-                    detail: ": " + (type?.qualifiedName() ?? "unknown"),
+                    description: type?.qualifiedName() ?? "unknown",
                 },
                 insertText: name,
                 insertTextFormat: InsertTextFormat.Snippet,
@@ -222,7 +229,9 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
     }
 
     public addItem(node: CompletionItem) {
-        if (this.result.has(node.label) || node.label === "") return
+        if (node.label === "") return
+        const prev = this.result.get(node.label)
+        if (prev && prev.kind === node.kind) return
         this.result.set(node.label, node)
     }
 }

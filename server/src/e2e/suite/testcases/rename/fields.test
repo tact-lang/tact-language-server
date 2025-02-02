@@ -19,7 +19,7 @@ struct Foo {
 
 fun foo() {
     let value = 10;
-    let f = Foo { value: "" };
+    let f = Foo { name: "" };
     dump(f.name);
 }
 
@@ -38,14 +38,14 @@ fun foo() {
 }
 ------------------------------------------------------------------------
 struct Foo {
-    value: String;
+    name: String;
 }
 
 fun foo() {
-    let name = 10;
+    let value = 10;
     let f = Foo { name: "" };
 //!               ^ name
-    dump(f.value);
+    dump(f.name);
 }
 
 ========================================================================
@@ -69,7 +69,7 @@ message Foo {
 
 fun foo() {
     let value = 10;
-    let f = Foo { value: "" };
+    let f = Foo { name: "" };
     dump(f.name);
 }
 
@@ -88,12 +88,12 @@ fun foo() {
 }
 ------------------------------------------------------------------------
 message Foo {
-    value: String;
+    name: String;
 }
 
 fun foo() {
-    let name = 10;
+    let value = 10;
     let f = Foo { name: "" };
 //!               ^ name
-    dump(f.value);
+    dump(f.name);
 }

@@ -4,7 +4,7 @@ import {CompletionContext} from "@server/completion/CompletionContext"
 
 export class KeywordsCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
-        return ctx.expression()
+        return ctx.expression() && !ctx.inNameOfFieldInit
     }
 
     addCompletion(_ctx: CompletionContext, elements: CompletionItem[]): void {

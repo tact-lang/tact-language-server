@@ -56,8 +56,12 @@ suite("Completion Test Suite", () => {
                         const label = typeof item.label === "object" ? item.label.label : item.label
                         const details =
                             (typeof item.label === "object" ? item.label.detail : item.detail) ?? ""
+                        const description =
+                            typeof item.label === "object" && item.label.description
+                                ? `  ${item.label.description}`
+                                : ""
 
-                        return `${item.kind?.toString()?.padEnd(2)} ${label}${details}`
+                        return `${item.kind?.toString()?.padEnd(2)} ${label}${details}${description}`
                     })
                     const expected = testCase.expected
                         .split("\n")

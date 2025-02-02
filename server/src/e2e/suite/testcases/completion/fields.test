@@ -13,8 +13,8 @@ fun test(msg: Transfer) {
     msg.<caret>
 }
 ------------------------------------------------------------------------
-9  amount: Int
-9  to: Address
+9  amount: Int  of Transfer
+9  to: Address  of Transfer
 
 ========================================================================
 Struct fields completion
@@ -31,9 +31,9 @@ fun test(p: Point) {
     p.<caret>
 }
 ------------------------------------------------------------------------
-9  x: Int
-9  y: Int
-9  z: Int?
+9  x: Int  of Point
+9  y: Int  of Point
+9  z: Int?  of Point
 
 ========================================================================
 Contract fields completion
@@ -55,8 +55,8 @@ fun test(c: Counter) {
     c.<caret>
 }
 ------------------------------------------------------------------------
-9  owner: Address
-9  val: Int
+9  owner: Address  of 
+9  val: Int  of 
 
 ========================================================================
 Map fields completion
@@ -73,8 +73,8 @@ fun test(s: Storage) {
     s.<caret>
 }
 ------------------------------------------------------------------------
-9  allowances: map<Address, Int>
-9  balances: map<Address, Int>
+9  allowances: map<Address, Int>  of Storage
+9  balances: map<Address, Int>  of Storage
 
 ========================================================================
 Optional fields completion
@@ -92,9 +92,9 @@ fun test(u: User?) {
     u.<caret>
 }
 ------------------------------------------------------------------------
-9  address: Address?
-9  age: Int?
-9  name: 
+9  address: Address?  of User
+9  age: Int?  of User
+9  name:   of User
 
 ========================================================================
 Nested fields completion
@@ -114,7 +114,7 @@ fun test(o: Outer) {
     o.inner.<caret>
 }
 ------------------------------------------------------------------------
-9  value: Int
+9  value: Int  of Inner
 
 ========================================================================
 Message with TLB fields completion
@@ -134,11 +134,11 @@ fun test(msg: TokenTransfer) {
     msg.<caret>
 }
 ------------------------------------------------------------------------
-9  amount: Int
-9  from: Address
-9  queryId: Int
-9  responseDestination: Address?
-9  to: Address
+9  amount: Int  of TokenTransfer
+9  from: Address  of TokenTransfer
+9  queryId: Int  of TokenTransfer
+9  responseDestination: Address?  of TokenTransfer
+9  to: Address  of TokenTransfer
 
 ========================================================================
 Field of bounced<struct>
@@ -159,9 +159,9 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-9  address: Address?
-9  age: Int?
-9  name: String
+9  address: Address?  of User
+9  age: Int?  of User
+9  name: String  of User
 
 ========================================================================
 Field of option struct without unwrapping
@@ -180,9 +180,9 @@ fun foo(f: User?) {
     f.<caret>
 }
 ------------------------------------------------------------------------
-9  address: Address?
-9  age: Int?
-9  name: String
+9  address: Address?  of User
+9  age: Int?  of User
+9  name: String  of User
 
 ========================================================================
 Field of option struct with unwrapping
@@ -201,6 +201,6 @@ fun foo(f: User?) {
     f!!.<caret>
 }
 ------------------------------------------------------------------------
-9  address: Address?
-9  age: Int?
-9  name: String
+9  address: Address?  of User
+9  age: Int?  of User
+9  name: String  of User
