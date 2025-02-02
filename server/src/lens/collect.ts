@@ -79,26 +79,28 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
             if (fun.isVirtual()) {
                 const impls = search.implementationsFun(fun)
 
-                result.push(
-                    newLens(n, {
-                        title: `${impls.length} override` + (impls.length > 1 ? "s" : ""),
-                        command: "tact.showReferences",
-                        arguments: [
-                            file.uri,
-                            {
-                                line: n.startPosition.row,
-                                character: n.startPosition.column,
-                            } as lsp.Position,
-                            impls.map(r => {
-                                const nameNode = r.nameNode()
-                                return {
-                                    uri: r.file.uri,
-                                    range: asLspRange(nameNode?.node!),
-                                } as lsp.Location
-                            }),
-                        ],
-                    }),
-                )
+                if (impls.length !== 0) {
+                    result.push(
+                        newLens(n, {
+                            title: `${impls.length} override` + (impls.length > 1 ? "s" : ""),
+                            command: "tact.showReferences",
+                            arguments: [
+                                file.uri,
+                                {
+                                    line: n.startPosition.row,
+                                    character: n.startPosition.column,
+                                } as lsp.Position,
+                                impls.map(r => {
+                                    const nameNode = r.nameNode()
+                                    return {
+                                        uri: r.file.uri,
+                                        range: asLspRange(nameNode?.node!),
+                                    } as lsp.Location
+                                }),
+                            ],
+                        }),
+                    )
+                }
             }
         }
 
