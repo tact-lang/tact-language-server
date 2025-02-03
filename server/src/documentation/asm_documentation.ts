@@ -39,7 +39,7 @@ export function generateAsmDoc(word: string): string | null {
             `- Alias of: \`${operandsStr} ${alias.alias_of}\`\n`,
             alias.doc_stack ? `- Stack: \`${alias.doc_stack}\`\n` : "",
             "",
-            alias.description || "",
+            alias.description ?? "",
             "",
             alias.doc_fift ? `Fift: ${alias.doc_fift}` : "",
         ]

@@ -77,7 +77,7 @@ export abstract class BaseTestSuite {
         const fileUpdates: Map<string, TestUpdate[]> = new Map()
 
         for (const update of this.updates) {
-            const updates = fileUpdates.get(update.filePath) || []
+            const updates = fileUpdates.get(update.filePath) ?? []
             updates.push(update)
             fileUpdates.set(update.filePath, updates)
         }

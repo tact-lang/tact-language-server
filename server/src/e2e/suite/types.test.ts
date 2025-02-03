@@ -79,7 +79,7 @@ suite("Type Inference Test Suite", () => {
                 for (const pos of positions) {
                     const params = new vscode.Position(pos.line, pos.character)
                     const type = await this.getType(params)
-                    const actual = type || "unknown"
+                    const actual = type ?? "unknown"
 
                     if (actual !== pos.expectedType) {
                         errors.push(

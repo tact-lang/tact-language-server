@@ -20,7 +20,7 @@ export class CompilerInspection {
                     },
                     end: {
                         line: error.line,
-                        character: error.character + (error.length || 1),
+                        character: error.character + (error.length ?? 1),
                     },
                 },
                 message: error.message,
