@@ -18,7 +18,7 @@ export class MissedFieldInContractInspection extends UnusedInspection {
         const fieldsToImplement = inheritedTraits.flatMap(it => it.ownFields())
         const contractFields = contract.ownFields()
 
-        const contractFieldsMapping = new Map<string, Field>()
+        const contractFieldsMapping: Map<string, Field> = new Map()
         contractFields.forEach(field => {
             contractFieldsMapping.set(field.name(), field)
         })

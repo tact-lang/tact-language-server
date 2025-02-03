@@ -18,7 +18,7 @@ export class TraitOrContractFieldsCompletionProvider implements CompletionProvid
 
         const inheritFields = owner.inheritTraits().flatMap(trait => trait.fields())
 
-        const added = new Set<string>()
+        const added: Set<string> = new Set()
 
         // add already defined fields to avoid duplicates
         for (const ownField of owner.ownFields()) {

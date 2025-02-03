@@ -36,7 +36,7 @@ const defaultSettings: TactSettings = {
     },
 }
 
-const documentSettings = new Map<string, TactSettings>()
+const documentSettings: Map<string, TactSettings> = new Map()
 
 function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
     return {

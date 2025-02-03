@@ -45,6 +45,7 @@ export default tseslint.config(
                 "error",
                 {parameter: true, memberVariableDeclaration: true},
             ],
+            "@typescript-eslint/consistent-generic-constructors": ["error", "type-annotation"],
         },
     },
 

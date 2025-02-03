@@ -74,7 +74,7 @@ export abstract class BaseTestSuite {
     }
 
     suiteTeardown() {
-        const fileUpdates = new Map<string, TestUpdate[]>()
+        const fileUpdates: Map<string, TestUpdate[]> = new Map()
 
         for (const update of this.updates) {
             const updates = fileUpdates.get(update.filePath) || []
