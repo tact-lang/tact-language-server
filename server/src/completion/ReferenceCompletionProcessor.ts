@@ -75,7 +75,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             // don't add `self.` prefix for global functions
             const thisPrefix = prefix !== "" && node.owner() === null ? "" : (prefix ?? "")
 
-            const signature = node.signatureText()
+            const signature = node.signaturePresentation()
             const hasNoParams =
                 node.parameters().length == 0 || (node.withSelf() && node.parameters().length == 1)
 

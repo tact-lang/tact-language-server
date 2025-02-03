@@ -899,15 +899,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const file = findFile(params.textDocument.uri)
             const cursorPosition = asParserPoint(params.position)
 
-            let node = file.rootNode.descendantForPosition(cursorPosition)
+            const node = file.rootNode.descendantForPosition(cursorPosition)
             if (!node) {
                 return {type: null}
             }
-            if (node.parent?.type === "method_call_expression") {
-                node = node.parent
-            }
 
-            const type = TypeInferer.inferType(new Expression(node, file))
+            const adjustedNode = node.parent?.type === "method_call_expression" ? node.parent : node
+
+            const type = TypeInferer.inferType(new Expression(adjustedNode, file))
             return {
                 type: type ? type.qualifiedName() : null,
             }
@@ -978,20 +977,24 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const result: lsp.DocumentSymbol[] = []
 
-            function createSymbol(element: NamedNode): lsp.DocumentSymbol {
-                let detail = ""
-
+            function symbolDetail(element: NamedNode | Fun | Field | Constant) {
                 if (element instanceof Fun) {
-                    detail = element.signatureText()
-                } else if (element instanceof Field) {
+                    return element.signaturePresentation()
+                }
+                if (element instanceof Field) {
                     const type = element.typeNode()?.node.text ?? "unknown"
-                    detail = `: ${type}`
-                } else if (element instanceof Constant) {
+                    return `: ${type}`
+                }
+                if (element instanceof Constant) {
                     const type = element.typeNode()?.node.text ?? "unknown"
                     const value = element.value()?.node.text ?? "unknown"
-                    detail = `: ${type} = ${value}`
+                    return `: ${type} = ${value}`
                 }
+                return ""
+            }
 
+            function createSymbol(element: NamedNode): lsp.DocumentSymbol {
+                const detail = symbolDetail(element)
                 const kind = symbolKind(element)
                 const children = symbolChildren(element)
 

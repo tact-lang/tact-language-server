@@ -1,6 +1,6 @@
-import {NamedNode} from "@server/psi/Node"
+import {Expression, NamedNode} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
-import {Constant, Contract, Fun, Message, Struct, Trait} from "@server/psi/Decls"
+import {Constant, Contract, Field, Fun, Message, Struct, Trait} from "@server/psi/Decls"
 import {Node as SyntaxNode} from "web-tree-sitter"
 
 const CODE_FENCE = "```"
@@ -21,7 +21,7 @@ export function generateDocFor(node: NamedNode): string | null {
             const nameAttrText = nameAttr ? `${nameAttr.text}\n` : ""
 
             return defaultResult(
-                `${nameAttrText}${func.modifiers()}native ${node.name()}${func.signatureText()}`,
+                `${nameAttrText}${func.modifiers()}native ${node.name()}${func.signaturePresentation()}`,
                 doc,
             )
         }
@@ -30,7 +30,7 @@ export function generateDocFor(node: NamedNode): string | null {
             const doc = extractCommentsDoc(node)
 
             return defaultResult(
-                `${func.modifiers()}fun ${node.name()}${func.signatureText()}`,
+                `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}`,
                 doc,
             )
         }
@@ -42,7 +42,7 @@ export function generateDocFor(node: NamedNode): string | null {
             const actualIdPresentation = `Method ID: \`0x${actualId.toString(16)}\``
 
             return defaultResult(
-                `${func.modifiers()}fun ${node.name()}${func.signatureText()}`,
+                `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}`,
                 actualIdPresentation + "\n\n" + doc,
             )
         }
@@ -57,7 +57,7 @@ export function generateDocFor(node: NamedNode): string | null {
             const gasPresentation = gas.unknown ? "" : `Gas: \`${presentation}\``
 
             return defaultResult(
-                `${func.modifiers()}fun ${node.name()}${func.signatureText()}${bodyPresentation}`,
+                `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}${bodyPresentation}`,
                 gasPresentation + "\n\n" + doc,
             )
         }
@@ -120,20 +120,14 @@ export function generateDocFor(node: NamedNode): string | null {
         case "storage_variable":
         case "field": {
             const doc = extractCommentsDoc(node)
+            const field = new Field(node.node, node.file)
 
-            const name = astNode.childForFieldName("name")
+            const name = field.nameNode()
             if (!name) return null
 
-            const field = new NamedNode(name, node.file)
-            const type = TypeInferer.inferType(field)?.qualifiedName() ?? "unknown"
+            const type = TypeInferer.inferType(name)?.qualifiedName() ?? "unknown"
 
-            const defaultValueNode = astNode.childForFieldName("value")
-            let defaultValue = defaultValueNode?.text ?? ""
-            if (defaultValue != "") {
-                defaultValue = ` = ${defaultValue}`
-            }
-
-            return defaultResult(`${node.name()}: ${type}${defaultValue}`, doc)
+            return defaultResult(`${node.name()}: ${type}${field.defaultValuePresentation()}`, doc)
         }
         case "identifier": {
             const parent = astNode.parent

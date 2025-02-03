@@ -170,15 +170,12 @@ export class Fun extends NamedNode {
         return first.name() === "self"
     }
 
-    public signatureText(): string {
+    public signaturePresentation(): string {
         const parametersNode = this.node.childForFieldName("parameters")
         if (!parametersNode) return ""
 
-        let result = this.node.childForFieldName("result")
-        if (result?.text === ":") {
-            result = result.nextSibling
-        }
-        return parametersNode.text + (result ? `: ${result.text}` : "")
+        const result = this.returnType()
+        return parametersNode.text + (result ? `: ${result.node.text}` : "")
     }
 
     public isOverride(): boolean {
@@ -296,6 +293,12 @@ export class Field extends NamedNode {
         const value = this.node.childForFieldName("type")
         if (!value) return null
         return new Expression(value, this.file)
+    }
+
+    public defaultValuePresentation(): string {
+        const defaultValueNode = this.node.childForFieldName("value")
+        if (!defaultValueNode) return ""
+        return ` = ${defaultValueNode.text}`
     }
 
     public owner(): StorageMembersOwner | null {

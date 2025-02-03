@@ -35,9 +35,9 @@ export class OverrideCompletionProvider implements CompletionProvider {
                 label: `override`,
                 kind: CompletionItemKind.Function,
                 labelDetails: {
-                    detail: ` fun ${method.name()}${method.signatureText()} {} of ${methodOwner.name()}`,
+                    detail: ` fun ${method.name()}${method.signaturePresentation()} {} of ${methodOwner.name()}`,
                 },
-                insertText: `override fun ${method.name()}${method.signatureText()} {$0}`,
+                insertText: `override fun ${method.name()}${method.signaturePresentation()} {$0}`,
                 insertTextFormat: InsertTextFormat.Snippet,
                 weight: CompletionWeight.KEYWORD,
             })
