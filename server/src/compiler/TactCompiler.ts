@@ -19,7 +19,7 @@ export class TactCompiler {
             const line = lines[i]
 
             // Error: sources/jetton_wallet.tact:21:9: Function "forward" expects 4 arguments, got 0
-            const match = line.match(/Error: (.*):(\d+):(\d+): (.*)/)
+            const match = /Error: (.*):(\d+):(\d+): (.*)/.exec(line)
             if (match) {
                 const error: CompilerError = {
                     file: match[1],
