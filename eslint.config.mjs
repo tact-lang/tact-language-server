@@ -41,7 +41,10 @@ export default tseslint.config(
         rules: {
             "@typescript-eslint/no-empty-function": ["error", {allow: ["arrowFunctions"]}],
             "@typescript-eslint/no-inferrable-types": "off",
-            "@typescript-eslint/typedef": ["error", {parameter: true}],
+            "@typescript-eslint/typedef": [
+                "error",
+                {parameter: true, memberVariableDeclaration: true},
+            ],
         },
     },
 

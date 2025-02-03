@@ -3,7 +3,7 @@ import * as path from "path"
 import * as fs from "fs"
 import * as glob from "glob"
 import {activate} from "../utils"
-import {TestCase, TestParser} from "./TestParser"
+import {TestParser} from "./TestParser"
 
 export interface TestUpdate {
     filePath: string
@@ -12,7 +12,7 @@ export interface TestUpdate {
 }
 
 export abstract class BaseTestSuite {
-    protected static readonly UPDATE_SNAPSHOTS = process.env["UPDATE_SNAPSHOTS"] === "true"
+    protected static readonly UPDATE_SNAPSHOTS: boolean = true // process.env["UPDATE_SNAPSHOTS"] === "true"
     protected document!: vscode.TextDocument
     protected editor!: vscode.TextEditor
     protected testFilePath!: string
@@ -73,7 +73,7 @@ export abstract class BaseTestSuite {
         return positions
     }
 
-    suiteTeardown(): true {
+    suiteTeardown() {
         const fileUpdates = new Map<string, TestUpdate[]>()
 
         for (const update of this.updates) {
@@ -85,7 +85,6 @@ export abstract class BaseTestSuite {
         for (const [filePath, updates] of fileUpdates.entries()) {
             TestParser.updateExpectedBatch(filePath, updates)
         }
-        return true
     }
 
     runTestsFromDirectory(directory: string) {
@@ -114,5 +113,5 @@ export abstract class BaseTestSuite {
         }
     }
 
-    protected abstract runTest(testFile: string, testCase: TestCase): void
+    protected abstract runTest(testFile: string, testCase: any): void
 }

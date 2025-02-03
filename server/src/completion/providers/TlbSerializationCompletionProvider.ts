@@ -5,7 +5,7 @@ import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCom
 
 export class TlbSerializationCompletionProvider implements CompletionProvider {
     // see https://docs.tact-lang.org/book/integers/#common-serialization-types
-    types = [
+    types: string[] = [
         "uint8",
         "uint16",
         "uint32",

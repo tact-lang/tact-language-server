@@ -10,22 +10,22 @@ export class CompletionContext {
     position: lsp.Position
     triggerKind: lsp.CompletionTriggerKind
 
-    isType = false
-    isExpression = false
-    isStatement = false
-    insideTraitOrContract = false
-    insideTrait = false
-    topLevel = false
-    topLevelInTraitOrContract = false
-    topLevelInStructOrMessage = false
-    inTlbSerialization = false
-    afterDot = false
-    beforeSemicolon = false
-    inNameOfFieldInit = false
-    inMultilineStructInit = false
-    inTraitList = false
-    inParameter = false
-    isMessageContext = false
+    isType: boolean = false
+    isExpression: boolean = false
+    isStatement: boolean = false
+    insideTraitOrContract: boolean = false
+    insideTrait: boolean = false
+    topLevel: boolean = false
+    topLevelInTraitOrContract: boolean = false
+    topLevelInStructOrMessage: boolean = false
+    inTlbSerialization: boolean = false
+    afterDot: boolean = false
+    beforeSemicolon: boolean = false
+    inNameOfFieldInit: boolean = false
+    inMultilineStructInit: boolean = false
+    inTraitList: boolean = false
+    inParameter: boolean = false
+    isMessageContext: boolean = false
 
     contextTy: Ty | null = null
 
