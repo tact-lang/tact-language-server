@@ -12,36 +12,47 @@ interface CompilerError {
 
 export class TactCompiler {
     private static parseCompilerOutput(output: string): CompilerError[] {
-        const errors: CompilerError[] = []
-        const lines = output.split("\n")
-
+        const errors: CompilerError[] = [];
+        const lines = output.split("\n");
+        
         for (let i = 0; i < lines.length; i++) {
-            const line = lines[i]
-
-            // Error: sources/jetton_wallet.tact:21:9: Function "forward" expects 4 arguments, got 0
-            const match = /Error: (.*):(\d+):(\d+): (.*)/.exec(line)
-            if (match) {
-                const error: CompilerError = {
-                    file: match[1],
-                    line: parseInt(match[2]) - 1,
-                    character: parseInt(match[3]) - 1,
-                    message: match[4],
+            const line = lines[i];
+            const match = /^Error: ([^:]+):(\d+):(\d+): (.+)$/.exec(line);
+            if (!match) continue;
+        
+            Logger.getInstance().info(`[TactCompiler] Found error line: ${line}`);
+            const [, file, lineNum, char, rawMessage] = match;
+            let fullMessage = `${file}:${lineNum}:${char}: ${rawMessage}\n`;
+            let contextFound = false;
+        
+            for (let j = i + 1; j < lines.length; j++) {
+            const nextLine = lines[j];
+            if (nextLine.startsWith("Error:")) break;
+                if (nextLine.includes("Line") || nextLine.includes("|") || nextLine.includes("^")) {
+                    contextFound = true;
+                    fullMessage += nextLine + "\n";
+                    i = j;
                 }
-
-                while (i < lines.length - 1) {
-                    i++
-                    const nextLine = lines[i]
-                    if (nextLine.includes("^")) {
-                        error.length = nextLine.trim().length
-                        break
-                    }
-                }
-
-                errors.push(error)
             }
+        
+            const error: CompilerError = {
+                file,
+                line: parseInt(lineNum, 10) - 1,
+                character: parseInt(char, 10) - 1,
+                message: contextFound ? fullMessage.trim() : rawMessage,
+            };
+        
+            if (contextFound) {
+                const caretLine = fullMessage.split("\n").find(l => l.includes("^"));
+                if (caretLine) 
+                    error.length = caretLine.trim().length;
+            }
+        
+            errors.push(error);
+            Logger.getInstance().info(`[TactCompiler] Parsed error: ${JSON.stringify(error)}`);
         }
-
-        return errors
+        
+        return errors;
     }
 
     static async compile(_filePath: string): Promise<CompilerError[]> {
