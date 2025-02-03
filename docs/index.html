@@ -14,6 +14,11 @@
     </head>
     <body>
         <header class="site-header">
+            <div class="preload" style="display: none">
+                <img src="./public/editor-big.png" alt="preload" />
+                <img src="./public/helix-big.png" alt="preload" />
+                <img src="./public/neovim-big.png" alt="preload" />
+            </div>
             <div class="container">
                 <a href="#" class="logo">
                     <svg
@@ -75,7 +80,7 @@
                                 <span class="language-server-caption">Language Server</span>
                             </span>
                         </h1>
-                        <a href="https://ton.org/studio" class="studio-link">by Ton Studio</a>
+                        <a href="https://tonstudio.io" class="studio-link">by Ton Studio</a>
                         <p class="hero-description">
                             Advanced development environment for Tact programming language, designed
                             to streamline smart contract development on TON blockchain
@@ -170,7 +175,7 @@
                         <div class="feature-image">
                             <img src="./public/inspection.png" alt="Code Analysis" />
                             <div class="image-nav">
-                                <span>1 / 3</span>
+                                <span>1 / 1</span>
                                 <div class="image-nav-buttons">
                                     <button class="image-nav-button" disabled>←</button>
                                     <button class="image-nav-button">→</button>
@@ -412,11 +417,7 @@
                     "./public/symbol-tree.png",
                 ],
                 documentation: ["./public/documentation.png"],
-                refactoring: [
-                    "./public/default-image.png",
-                    "./public/default-image.png",
-                    "./public/default-image.png",
-                ],
+                inspections: ["./public/inspection.png"],
                 codeAnalysis: ["./public/inspection.png"],
                 signature: ["./public/signature-help.png"],
                 folding: ["./public/foldings.png"],
@@ -434,7 +435,7 @@
                     "completion",
                     "navigation",
                     "documentation",
-                    "refactoring",
+                    "inspections",
                     "signature",
                     "folding",
                     "semantic",
@@ -484,6 +485,28 @@
                         question.querySelector(".toggle").textContent = "−"
                     }
                 })
+            })
+
+            const heroImage = document.querySelector(".hero-image img")
+            const images = [
+                "./public/editor-big.png",
+                "./public/helix-big.png",
+                "./public/neovim-big.png",
+            ]
+            let currentImageIndex = 0
+
+            window.addEventListener("scroll", () => {
+                const scrollPosition = window.scrollY
+                const section = Math.floor(scrollPosition / 30)
+
+                if (section !== currentImageIndex && section < images.length) {
+                    heroImage.classList.add("fade")
+                    setTimeout(() => {
+                        currentImageIndex = section
+                        heroImage.src = images[currentImageIndex]
+                        heroImage.classList.remove("fade")
+                    }, 300)
+                }
             })
         </script>
         <script src="3d.js"></script>
