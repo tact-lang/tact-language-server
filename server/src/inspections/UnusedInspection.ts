@@ -30,8 +30,7 @@ export abstract class UnusedInspection {
         if (references.length === 0) {
             const range = asLspRange(options.rangeNode ?? node)
 
-            const skipIf = options.skipIf
-            if (skipIf === undefined || skipIf()) {
+            if (options.skipIf && options.skipIf()) {
                 return
             }
 

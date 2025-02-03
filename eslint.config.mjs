@@ -39,7 +39,7 @@ export default tseslint.config(
         },
 
         rules: {
-            // override stylistic
+            // override stylisticTypeChecked
             "@typescript-eslint/no-empty-function": ["error", {allow: ["arrowFunctions"]}],
             "@typescript-eslint/no-inferrable-types": "off",
             "@typescript-eslint/typedef": [
@@ -47,6 +47,7 @@ export default tseslint.config(
                 {parameter: true, memberVariableDeclaration: true},
             ],
             "@typescript-eslint/consistent-generic-constructors": ["error", "type-annotation"],
+            "@typescript-eslint/prefer-optional-chain": "off",
 
             // override strictTypeChecked
             "@typescript-eslint/no-unused-vars": "off",
