@@ -73,7 +73,7 @@ export abstract class BaseTestSuite {
         return positions
     }
 
-    suiteTeardown() {
+    suiteTeardown(): true {
         const fileUpdates = new Map<string, TestUpdate[]>()
 
         for (const update of this.updates) {
@@ -85,6 +85,7 @@ export abstract class BaseTestSuite {
         for (const [filePath, updates] of fileUpdates.entries()) {
             TestParser.updateExpectedBatch(filePath, updates)
         }
+        return true
     }
 
     runTestsFromDirectory(directory: string) {

@@ -1,7 +1,7 @@
 import {connection} from "./connection"
 import {DocumentStore, getOffsetFromPosition} from "./document-store"
 import {createTactParser, initParser} from "./parser"
-import {asLspRange, asParserPoint} from "@server/utils/position"
+import {asLspRange, asNullableLspRange, asParserPoint} from "@server/utils/position"
 import {TypeInferer} from "./TypeInferer"
 import {LocalSearchScope, Referent} from "@server/psi/Referent"
 import {index, IndexKey} from "./indexes"
@@ -102,7 +102,7 @@ async function initialize() {
 
     reporter.begin("Tact Language Server", 0)
 
-    const rootUri = workspaceFolders![0].uri
+    const rootUri = workspaceFolders[0].uri
     const rootDir = rootUri.slice(7)
 
     const settings = await getDocumentSettings(rootUri)
@@ -171,7 +171,8 @@ connection.onInitialized(async () => {
 function findConfigFileDir(startPath: string, fileName: string): string | null {
     let currentPath = startPath
 
-    while (true) {
+    // search only at depths up to 20
+    for (let i = 0; i < 20; i++) {
         const potentialPath = path.join(currentPath, fileName)
         if (existsSync(potentialPath)) return currentPath
 
@@ -214,7 +215,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     }
 
     workspaceFolders = params.workspaceFolders ?? []
-    const opts = params.initializationOptions as ClientOptions
+    const opts = params.initializationOptions as ClientOptions | undefined
     const treeSitterUri = opts?.treeSitterWasmUri ?? `${__dirname}/tree-sitter.wasm`
     const tactLangUri = opts?.tactLangWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
     const fiftLangUri = opts?.fiftLangWasmUri ?? `${__dirname}/tree-sitter-fift.wasm`
@@ -230,7 +231,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             await initializeFallback(uri)
         }
 
-        const file = await findFile(uri)
+        const file = findFile(uri)
         index.addFile(uri, file)
     })
 
@@ -249,7 +250,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         }
 
         index.fileChanged(uri)
-        const file = await findFile(uri, event.document.getText(), true)
+        const file = findFile(uri, event.document.getText(), true)
         index.addFile(uri, file, false)
 
         const inspections = [
@@ -273,14 +274,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         await connection.sendDiagnostics({uri, diagnostics})
     })
 
-    connection.onDidChangeWatchedFiles(async params => {
+    connection.onDidChangeWatchedFiles(params => {
         for (const change of params.changes) {
             const uri = change.uri
             if (!uri.endsWith(".tact")) continue
 
             if (change.type === FileChangeType.Created) {
                 console.info(`Find external create of ${uri}`)
-                const file = await findFile(uri)
+                const file = findFile(uri)
                 index.addFile(uri, file)
                 continue
             }
@@ -293,7 +294,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             if (change.type === FileChangeType.Changed) {
                 console.info(`Find external change of ${uri}`)
                 index.fileChanged(uri)
-                const file = await findFile(uri, undefined, true)
+                const file = findFile(uri, undefined, true)
                 index.addFile(uri, file, false)
             }
 
@@ -304,11 +305,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         }
     })
 
-    connection.onDidChangeConfiguration(async _change => {
+    connection.onDidChangeConfiguration(() => {
         clearDocumentSettings()
 
-        await connection.sendRequest(lsp.InlayHintRefreshRequest.type)
-        await connection.sendRequest(lsp.CodeLensRefreshRequest.type)
+        void connection.sendRequest(lsp.InlayHintRefreshRequest.type)
+        void connection.sendRequest(lsp.CodeLensRefreshRequest.type)
     })
 
     function nodeAtPosition(params: lsp.TextDocumentPositionParams, file: File) {
@@ -316,71 +317,15 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         return file.rootNode.descendantForPosition(cursorPosition)
     }
 
-    connection.onRequest(
-        lsp.HoverRequest.type,
-        async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
-            const uri = params.textDocument.uri
+    connection.onRequest(lsp.HoverRequest.type, (params: lsp.HoverParams): lsp.Hover | null => {
+        const uri = params.textDocument.uri
 
-            if (uri.endsWith(".fif")) {
-                const file = findFiftFile(uri)
-                const hoverNode = nodeAtPosition(params, file)
-                if (!hoverNode || hoverNode.type !== "identifier") return null
-
-                const doc = generateFiftDocFor(hoverNode, file)
-                if (doc === null) return null
-
-                return {
-                    range: asLspRange(hoverNode),
-                    contents: {
-                        kind: "markdown",
-                        value: doc,
-                    },
-                }
-            }
-
-            const file = await findFile(params.textDocument.uri)
+        if (uri.endsWith(".fif")) {
+            const file = findFiftFile(uri)
             const hoverNode = nodeAtPosition(params, file)
-            if (!hoverNode) return null
+            if (!hoverNode || hoverNode.type !== "identifier") return null
 
-            if (hoverNode.type === "initOf") {
-                const doc = generateKeywordDoc("initOf")
-                if (doc === null) return null
-
-                return {
-                    range: asLspRange(hoverNode),
-                    contents: {
-                        kind: "markdown",
-                        value: doc,
-                    },
-                }
-            }
-
-            const parent = hoverNode.parent
-            if (parent?.type === "tvm_ordinary_word") {
-                const doc = generateAsmDoc(hoverNode.text)
-                if (doc === null) return null
-
-                return {
-                    range: asLspRange(hoverNode),
-                    contents: {
-                        kind: "markdown",
-                        value: doc,
-                    },
-                }
-            }
-
-            const res = Reference.resolve(NamedNode.create(hoverNode, file))
-            if (res === null) {
-                return {
-                    range: asLspRange(hoverNode),
-                    contents: {
-                        kind: "plaintext",
-                        value: hoverNode.type,
-                    },
-                }
-            }
-
-            const doc = docs.generateDocFor(res)
+            const doc = generateFiftDocFor(hoverNode, file)
             if (doc === null) return null
 
             return {
@@ -390,12 +335,65 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                     value: doc,
                 },
             }
-        },
-    )
+        }
+
+        const file = findFile(params.textDocument.uri)
+        const hoverNode = nodeAtPosition(params, file)
+        if (!hoverNode) return null
+
+        if (hoverNode.type === "initOf") {
+            const doc = generateKeywordDoc("initOf")
+            if (doc === null) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        const parent = hoverNode.parent
+        if (parent?.type === "tvm_ordinary_word") {
+            const doc = generateAsmDoc(hoverNode.text)
+            if (doc === null) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        const res = Reference.resolve(NamedNode.create(hoverNode, file))
+        if (res === null) {
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "plaintext",
+                    value: hoverNode.type,
+                },
+            }
+        }
+
+        const doc = docs.generateDocFor(res)
+        if (doc === null) return null
+
+        return {
+            range: asLspRange(hoverNode),
+            contents: {
+                kind: "markdown",
+                value: doc,
+            },
+        }
+    })
 
     connection.onRequest(
         lsp.DefinitionRequest.type,
-        async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
+        (params: lsp.DefinitionParams): lsp.Location[] | lsp.LocationLink[] => {
             const uri = params.textDocument.uri
 
             if (uri.endsWith(".fif")) {
@@ -414,7 +412,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 ]
             }
 
-            const file = await findFile(uri)
+            const file = findFile(uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return []
 
@@ -466,11 +464,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.TypeDefinitionRequest.type,
-        async (
-            params: lsp.TypeDefinitionParams,
-        ): Promise<lsp.Definition | lsp.DefinitionLink[]> => {
+        (params: lsp.TypeDefinitionParams): lsp.Definition | lsp.DefinitionLink[] => {
             const uri = params.textDocument.uri
-            const file = await findFile(uri)
+            const file = findFile(uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return []
             if (
@@ -507,7 +503,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         lsp.CompletionRequest.type,
         async (params: lsp.CompletionParams): Promise<lsp.CompletionItem[]> => {
             const uri = params.textDocument.uri
-            const file = await findFile(uri)
+            const file = findFile(uri)
             const content = file.content
             const parser = createTactParser()
 
@@ -603,7 +599,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 return collectFiftInlays(file)
             }
 
-            const file = await findFile(uri)
+            const file = findFile(uri)
             const settings = await getDocumentSettings(params.textDocument.uri)
             return measureTime("inlay hints", () => inlays.collect(file, settings.hints))
         },
@@ -611,9 +607,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.ImplementationRequest.type,
-        async (params: lsp.ImplementationParams): Promise<lsp.Definition | lsp.LocationLink[]> => {
+        (params: lsp.ImplementationParams): lsp.Definition | lsp.LocationLink[] => {
             const uri = params.textDocument.uri
-            const file = await findFile(uri)
+            const file = findFile(uri)
 
             const elementNode = nodeAtPosition(params, file)
             if (!elementNode) return []
@@ -632,14 +628,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             if (res instanceof Trait) {
                 return search.implementations(res).map(impl => ({
                     uri: impl.file.uri,
-                    range: asLspRange(impl.nameIdentifier()!),
+                    range: asNullableLspRange(impl.nameIdentifier()),
                 }))
             }
 
             if (res instanceof Fun) {
                 return search.implementationsFun(res).map(impl => ({
                     uri: impl.file.uri,
-                    range: asLspRange(impl.nameIdentifier()!),
+                    range: asNullableLspRange(impl.nameIdentifier()),
                 }))
             }
 
@@ -647,9 +643,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    connection.onRequest(lsp.RenameRequest.type, async (params: lsp.RenameParams) => {
+    connection.onRequest(lsp.RenameRequest.type, (params: lsp.RenameParams) => {
         const uri = params.textDocument.uri
-        const file = await findFile(uri)
+        const file = findFile(uri)
 
         const renameNode = nodeAtPosition(params, file)
         if (!renameNode) return null
@@ -680,9 +676,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.PrepareRenameRequest.type,
-        async (params: lsp.PrepareRenameParams): Promise<PrepareRenameResult | null> => {
+        (params: lsp.PrepareRenameParams): PrepareRenameResult | null => {
             const uri = params.textDocument.uri
-            const file = await findFile(uri)
+            const file = findFile(uri)
 
             const renameNode = nodeAtPosition(params, file)
             if (!renameNode) return null
@@ -700,8 +696,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.DocumentHighlightRequest.type,
-        async (params: lsp.DocumentHighlightParams): Promise<lsp.DocumentHighlight[] | null> => {
-            const file = await findFile(params.textDocument.uri)
+        (params: lsp.DocumentHighlightParams): lsp.DocumentHighlight[] | null => {
+            const file = findFile(params.textDocument.uri)
             const highlightNode = nodeAtPosition(params, file)
             if (!highlightNode) return null
             if (
@@ -736,7 +732,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.ReferencesRequest.type,
-        async (params: lsp.ReferenceParams): Promise<lsp.Location[] | null> => {
+        (params: lsp.ReferenceParams): lsp.Location[] | null => {
             const uri = params.textDocument.uri
 
             if (uri.endsWith(".fif")) {
@@ -753,7 +749,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 }))
             }
 
-            const file = await findFile(uri)
+            const file = findFile(uri)
             const referenceNode = nodeAtPosition(params, file)
             if (!referenceNode) return null
 
@@ -773,8 +769,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.SignatureHelpRequest.type,
-        async (params: lsp.SignatureHelpParams): Promise<lsp.SignatureHelp | null> => {
-            const file = await findFile(params.textDocument.uri)
+        (params: lsp.SignatureHelpParams): lsp.SignatureHelp | null => {
+            const file = findFile(params.textDocument.uri)
 
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
@@ -853,28 +849,28 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.FoldingRangeRequest.type,
-        async (params: lsp.FoldingRangeParams): Promise<lsp.FoldingRange[]> => {
+        (params: lsp.FoldingRangeParams): lsp.FoldingRange[] => {
             const uri = params.textDocument.uri
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
                 return collectFift(file)
             }
 
-            const file = await findFile(uri)
+            const file = findFile(uri)
             return measureTime("folding range", () => foldings.collect(file))
         },
     )
 
     connection.onRequest(
         lsp.SemanticTokensRequest.type,
-        async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
+        (params: lsp.SemanticTokensParams): lsp.SemanticTokens | null => {
             const uri = params.textDocument.uri
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
                 return collectFiftSemanticTokens(file)
             }
 
-            const file = await findFile(uri)
+            const file = findFile(uri)
             return measureTime("semantic tokens", () => semantic.collect(file))
         },
     )
@@ -883,7 +879,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         lsp.CodeLensRequest.type,
         async (params: lsp.CodeLensParams): Promise<lsp.CodeLens[]> => {
             const uri = params.textDocument.uri
-            const file = await findFile(uri)
+            const file = findFile(uri)
             const settings = await getDocumentSettings(uri)
             return lens.collect(file, settings.codeLens.enabled)
         },
@@ -891,19 +887,15 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         GetTypeAtPositionRequest,
-        async (params: GetTypeAtPositionParams): Promise<GetTypeAtPositionResponse> => {
-            const file = await findFile(params.textDocument.uri)
-            if (!file) {
-                return {type: null}
-            }
-
+        (params: GetTypeAtPositionParams): GetTypeAtPositionResponse => {
+            const file = findFile(params.textDocument.uri)
             const cursorPosition = asParserPoint(params.position)
 
             let node = file.rootNode.descendantForPosition(cursorPosition)
             if (!node) {
                 return {type: null}
             }
-            if (node?.parent?.type === "method_call_expression") {
+            if (node.parent?.type === "method_call_expression") {
                 node = node.parent
             }
             if (!node) {
@@ -919,10 +911,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         GetDocumentationAtPositionRequest,
-        async (
-            params: GetTypeAtPositionParams,
-        ): Promise<GetDocumentationAtPositionResponse | null> => {
-            const file = await findFile(params.textDocument.uri)
+        (params: GetTypeAtPositionParams): GetDocumentationAtPositionResponse | null => {
+            const file = findFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
 
@@ -977,9 +967,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.DocumentSymbolRequest.type,
-        async (params: lsp.DocumentSymbolParams): Promise<lsp.DocumentSymbol[]> => {
+        (params: lsp.DocumentSymbolParams): lsp.DocumentSymbol[] => {
             const uri = params.textDocument.uri
-            const file = await findFile(uri)
+            const file = findFile(uri)
 
             const result: lsp.DocumentSymbol[] = []
 
@@ -989,11 +979,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 if (element instanceof Fun) {
                     detail = element.signatureText()
                 } else if (element instanceof Field) {
-                    const type = element.typeNode()?.node?.text ?? "unknown"
+                    const type = element.typeNode()?.node.text ?? "unknown"
                     detail = `: ${type}`
                 } else if (element instanceof Constant) {
-                    const type = element.typeNode()?.node?.text ?? "unknown"
-                    const value = element.value()?.node?.text ?? "unknown"
+                    const type = element.typeNode()?.node.text ?? "unknown"
+                    const value = element.value()?.node.text ?? "unknown"
                     detail = `: ${type} = ${value}`
                 }
 
@@ -1003,9 +993,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 return {
                     name: element.name(),
                     kind: kind,
-                    range: asLspRange(element.nameIdentifier()!),
+                    range: asNullableLspRange(element.nameIdentifier()),
                     detail: detail,
-                    selectionRange: asLspRange(element.nameIdentifier()!),
+                    selectionRange: asNullableLspRange(element.nameIdentifier()),
                     children: children,
                 }
             }
@@ -1050,13 +1040,15 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.WorkspaceSymbolRequest.type,
-        async (_params: lsp.WorkspaceSymbolParams): Promise<lsp.WorkspaceSymbol[]> => {
+        (_params: lsp.WorkspaceSymbolParams): lsp.WorkspaceSymbol[] => {
             const result: lsp.WorkspaceSymbol[] = []
 
             const state = new ResolveState()
             const proc = new (class implements ScopeProcessor {
                 execute(node: Node, _state: ResolveState): boolean {
                     if (!(node instanceof NamedNode)) return true
+                    const nameIdentifier = node.nameIdentifier()
+                    if (!nameIdentifier) return true
 
                     result.push({
                         name: node.name(),
@@ -1064,7 +1056,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                         kind: symbolKind(node),
                         location: {
                             uri: node.file.uri,
-                            range: asLspRange(node.nameIdentifier()!),
+                            range: asLspRange(nameIdentifier),
                         },
                     })
                     return true
@@ -1083,10 +1075,10 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    connection.onExecuteCommand(async params => {
+    connection.onExecuteCommand(params => {
         if (params.command !== "tact/executeGetScopeProvider") return
 
-        const commandParams = params.arguments?.[0] as lsp.TextDocumentPositionParams
+        const commandParams = params.arguments?.[0] as lsp.TextDocumentPositionParams | undefined
         if (!commandParams) return "Invalid parameters"
 
         const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)

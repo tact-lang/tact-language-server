@@ -1,7 +1,7 @@
 import {Parser, Language} from "web-tree-sitter"
 
-export let tactLanguage: Language
-export let fiftLanguage: Language
+export let tactLanguage: Language | null = null
+export let fiftLanguage: Language | null = null
 
 export const initParser = async (
     treeSitterUri: string,

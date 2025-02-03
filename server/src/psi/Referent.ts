@@ -94,7 +94,10 @@ export class Referent {
 
         const result: Node[] = []
         if (includeDefinition && (!sameFileOnly || resolved.file.uri === this.file.uri)) {
-            result.push(resolved.nameNode()!)
+            const nameNode = resolved.nameNode()
+            if (nameNode) {
+                result.push(nameNode)
+            }
         }
 
         this.searchInScope(useScope, sameFileOnly, includeSelf, result)
@@ -145,7 +148,7 @@ export class Referent {
             }
             // fast path, identifier name doesn't equal to definition name
             // self can refer to enclosing trait or contract
-            if (node.text !== resolved?.name() && node.text !== "self") return true
+            if (node.text !== resolved.name() && node.text !== "self") return true
             if (node.text === "self" && !includeSelf) return true
 
             const parent = node.parent
@@ -184,7 +187,7 @@ export class Referent {
 
             if (
                 res.node.type === resolved.node.type &&
-                (identifier.text === resolved?.name() || identifier.text === "self")
+                (identifier.text === resolved.name() || identifier.text === "self")
             ) {
                 // found new reference
                 result.push(new Node(node, file))
@@ -221,8 +224,8 @@ export class Referent {
         }
 
         if (node.type === "parameter") {
-            const grand = node.parent!.parent!
-            if (grand.type === "asm_function") {
+            const grand = node.parent?.parent
+            if (grand?.type === "asm_function") {
                 // search in function body and potentially asm arrangement
                 return this.localSearchScope(grand)
             }
@@ -232,7 +235,7 @@ export class Referent {
                 return this.localSearchScope(parent)
             }
 
-            if (isFunNode(grand)) {
+            if (grand && isFunNode(grand)) {
                 // search in function body
                 return this.localSearchScope(grand.lastChild)
             }

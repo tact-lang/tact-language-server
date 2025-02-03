@@ -25,7 +25,6 @@ export class UnusedParameterInspection extends UnusedInspection {
     private inspectFunction(fun: Fun, diagnostics: lsp.Diagnostic[]) {
         if (!fun.hasBody()) return
         const parameters = fun.parameters()
-        if (!parameters) return
 
         parameters.forEach(param => {
             const nameIdent = param.nameIdentifier()

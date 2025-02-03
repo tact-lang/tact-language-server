@@ -27,11 +27,14 @@ export class EmptyBlockInspection {
         RecursiveVisitor.visit(file.rootNode, node => {
             if (blockTypes.has(node.type)) {
                 const body = node.children.find(child => child?.type === "block_statement")
+                // only { and }
                 if (body && body.children.length <= 2) {
-                    // only { and }
+                    const openBrace = body.firstChild
+                    if (!openBrace) return
+
                     diagnostics.push({
                         severity: lsp.DiagnosticSeverity.Warning,
-                        range: asLspRange(body.firstChild!),
+                        range: asLspRange(openBrace),
                         message: "Empty code block",
                         source: "tact",
                         code: "empty-block",

@@ -108,7 +108,8 @@ export class Reference {
             // ^^^ our element
             //
             // so process whole `foo: Int` node
-            const parent = this.element.node.parent!
+            const parent = this.element.node.parent
+            if (!parent) return true
             return proc.execute(this.declarationAstToNode(parent, this.element.file), state)
         }
         if (this.element.node.type === "parameter") {
@@ -267,7 +268,10 @@ export class Reference {
         const ownerNode = parentOfType(this.element.node, "contract_body", "trait_body")
         if (ownerNode !== null && state.get("completion")) {
             const constructor = ownerNode.type === "contract_body" ? Contract : Trait
-            const owner = new constructor(ownerNode.parent!, this.element.file)
+            const parent = ownerNode.parent
+            if (!parent) return true
+
+            const owner = new constructor(parent, this.element.file)
             const typeConstructor = ownerNode.type === "contract_body" ? ContractTy : TraitTy
             const ownerTy = new typeConstructor(owner.name(), owner)
             const expr = new Expression(this.element.node, this.element.file)
@@ -276,13 +280,13 @@ export class Reference {
             if (!this.processType(expr, ownerTy, proc, newState)) return false
         }
 
-        const parent = this.element.node.parent!
-        if (parent.type === "tvm_ordinary_word") {
+        const parent = this.element.node.parent
+        if (parent?.type === "tvm_ordinary_word") {
             // don't try to resolve TVM assembly
             return true
         }
 
-        if (parent.type === "instance_argument") {
+        if (parent?.type === "instance_argument") {
             // `Foo { name: "" }`
             //        ^^^^^^^^ this
             if (!this.resolveInstanceInitField(parent, proc, state)) return false
@@ -290,7 +294,7 @@ export class Reference {
 
         if (!this.processBlock(proc, state)) return false
 
-        if (parent.type === "asm_arrangement_args") {
+        if (parent?.type === "asm_arrangement_args") {
             // `asm(cell self) extends fun storeRef(self: Builder, cell: Cell): Builder`
             //           ^^^^ this
             return this.resolveAsmArrangementArgs(parent, proc, state)
@@ -307,15 +311,17 @@ export class Reference {
         // resolving `Foo { name: "" }`
         //                  ^^^^ this
 
-        const name = parent.childForFieldName("name")!
+        const name = parent.childForFieldName("name")
+        if (!name) return true
+
         if (!name.equals(this.element.node)) {
             // `Foo { name: "" }`
             //        ^^^^ this should be our identifier to resolve
             return true
         }
 
-        const value = parent.childForFieldName("value")!
-        if (!value && name?.nextSibling?.text !== ":") {
+        const value = parent.childForFieldName("value")
+        if (!value && name.nextSibling?.text !== ":") {
             // `Foo { name }`
             //            ^ no value and `:`
             return true
@@ -323,11 +329,13 @@ export class Reference {
 
         // `Foo { name: "" }`
         //  ^^^^^^^^^^^^^^^^ this
-        const instanceExpr = parent.parent!.parent!
+        const instanceExpr = parent.parent?.parent
+        if (!instanceExpr) return true
 
         // `Foo { name: "" }`
         //  ^^^ this
-        const typeExpr = instanceExpr.childForFieldName("name")!
+        const typeExpr = instanceExpr.childForFieldName("name")
+        if (!typeExpr) return true
 
         const resolvedType = Reference.resolve(new NamedNode(typeExpr, this.element.file))
         if (resolvedType === null) return true
@@ -478,14 +486,18 @@ export class Reference {
             const name = parent.childForFieldName("name")
             if (name === null) return null
             if (!name.equals(node.node)) return null
-            return new Expression(parent.child(0)!, node.file)
+            const qualifier = parent.child(0)
+            if (!qualifier) return null
+            return new Expression(qualifier, node.file)
         }
 
         if (parent.type === "method_call_expression") {
             const name = parent.childForFieldName("name")
             if (name === null) return null
             if (!name.equals(node.node)) return null
-            return new Expression(parent.child(0)!, node.file)
+            const qualifier = parent.child(0)
+            if (!qualifier) return null
+            return new Expression(qualifier, node.file)
         }
 
         return null

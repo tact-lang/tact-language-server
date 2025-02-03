@@ -73,7 +73,8 @@ export class TypeInferer {
                 if (typeHint !== null) {
                     return this.inferTypeMaybeOption(typeHint, resolved)
                 }
-                const value = parent.childForFieldName("value")!
+                const value = parent.childForFieldName("value")
+                if (!value) return null
                 return this.inferType(new Expression(value, resolved.file))
             }
 
@@ -103,7 +104,8 @@ export class TypeInferer {
             }
 
             if (isTypeOwnerNode(resolved.node)) {
-                const typeNode = resolved.node.childForFieldName("type")!
+                const typeNode = resolved.node.childForFieldName("type")
+                if (!typeNode) return null
                 return this.inferTypeMaybeOption(typeNode, resolved)
             }
 
@@ -169,17 +171,20 @@ export class TypeInferer {
             if (resolved === null) return null
 
             if (resolved.node.type === "field") {
-                const typeNode = resolved.node.childForFieldName("type")!
+                const typeNode = resolved.node.childForFieldName("type")
+                if (!typeNode) return null
                 return this.inferTypeMaybeOption(typeNode, resolved)
             }
 
             if (resolved.node.type === "storage_variable") {
-                const typeNode = resolved.node.childForFieldName("type")!
+                const typeNode = resolved.node.childForFieldName("type")
+                if (!typeNode) return null
                 return this.inferTypeMaybeOption(typeNode, resolved)
             }
 
             if (resolved.node.type === "storage_constant") {
-                const typeNode = resolved.node.childForFieldName("type")!
+                const typeNode = resolved.node.childForFieldName("type")
+                if (!typeNode) return null
                 return this.inferTypeMaybeOption(typeNode, resolved)
             }
 

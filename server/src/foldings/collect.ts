@@ -27,8 +27,10 @@ export function collect(file: File): FoldingRange[] {
             n.type === "contract_body" ||
             n.type === "trait_body"
         ) {
-            const openBrace = n.firstChild!
-            const closeBrace = n.lastChild!
+            const openBrace = n.firstChild
+            const closeBrace = n.lastChild
+            if (!openBrace || !closeBrace) return true
+
             result.push(genericFolding(openBrace.endPosition, closeBrace.startPosition))
         }
 

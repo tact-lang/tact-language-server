@@ -6,7 +6,7 @@ import {isNamedFunNode, parentOfType} from "@server/psi/utils"
 import {Fun, StorageMembersOwner, Struct, Trait} from "@server/psi/Decls"
 import {NamedNode} from "@server/psi/Node"
 import {Referent} from "@server/psi/Referent"
-import {asLspRange} from "@server/utils/position"
+import {asLspRange, asNullableLspRange} from "@server/utils/position"
 import * as search from "@server/search/implementations"
 
 export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
@@ -68,7 +68,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
                                 const nameNode = r.nameNode()
                                 return {
                                     uri: r.file.uri,
-                                    range: asLspRange(nameNode?.node!),
+                                    range: asNullableLspRange(nameNode?.node),
                                 } as lsp.Location
                             }),
                         ],
@@ -94,7 +94,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
                                     const nameNode = r.nameNode()
                                     return {
                                         uri: r.file.uri,
-                                        range: asLspRange(nameNode?.node!),
+                                        range: asNullableLspRange(nameNode?.node),
                                     } as lsp.Location
                                 }),
                             ],
@@ -154,7 +154,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
                             const nameNode = r.nameNode()
                             return {
                                 uri: r.file.uri,
-                                range: asLspRange(nameNode?.node!),
+                                range: asNullableLspRange(nameNode?.node),
                             } as lsp.Location
                         }),
                     ],

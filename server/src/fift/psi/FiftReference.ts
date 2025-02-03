@@ -14,7 +14,7 @@ export class FiftReference {
     public resolve(): SyntaxNode | null {
         if (
             this.node.type !== "identifier" &&
-            !(this.node.parent?.type === "proc_call" && this.node.parent?.firstChild === this.node)
+            !(this.node.parent?.type === "proc_call" && this.node.parent.firstChild === this.node)
         ) {
             return null
         }

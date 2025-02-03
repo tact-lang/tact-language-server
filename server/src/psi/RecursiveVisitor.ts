@@ -4,6 +4,8 @@ export class RecursiveVisitor {
     static visit(node: SyntaxNode | null, visitor: (node: SyntaxNode) => void) {
         if (!node) return
         visitor(node)
-        node.children.forEach(child => this.visit(child, visitor))
+        node.children.forEach(child => {
+            this.visit(child, visitor)
+        })
     }
 }

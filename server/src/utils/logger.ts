@@ -21,13 +21,22 @@ export class Logger {
 
     static initialize(connection: Connection, logPath?: string): Logger {
         if (!Logger.instance) {
-            Logger.instance = new Logger(connection, logPath)
+            const instance = new Logger(connection, logPath)
 
-            // Override console methods
-            console.log = (...args) => Logger.instance!.log(...args)
-            console.info = (...args) => Logger.instance!.info(...args)
-            console.warn = (...args) => Logger.instance!.warn(...args)
-            console.error = (...args) => Logger.instance!.error(...args)
+            console.log = (...args) => {
+                instance.log(...args)
+            }
+            console.info = (...args) => {
+                instance.info(...args)
+            }
+            console.warn = (...args) => {
+                instance.warn(...args)
+            }
+            console.error = (...args) => {
+                instance.error(...args)
+            }
+
+            Logger.instance = instance
         }
         return Logger.instance
     }
@@ -42,7 +51,7 @@ export class Logger {
     private formatDate(date: Date): string {
         const pad = (n: number) => n.toString().padStart(2, "0")
 
-        const year = date.getFullYear()
+        const year = date.getFullYear().toString()
         const month = pad(date.getMonth() + 1)
         const day = pad(date.getDate())
         const hours = pad(date.getHours())
@@ -52,8 +61,11 @@ export class Logger {
         return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`
     }
 
-    private formatMessage(args: any[]): string {
-        return args.map(arg => (typeof arg === "object" ? JSON.stringify(arg) : arg)).join(" ")
+    private formatMessage(args: unknown[]): string {
+        return args
+            .filter(arg => arg !== undefined)
+            .map(arg => (typeof arg === "object" ? JSON.stringify(arg) : arg.toString()))
+            .join(" ")
     }
 
     private writeToFile(message: string) {
@@ -62,25 +74,25 @@ export class Logger {
         }
     }
 
-    log(...args: any[]) {
+    log(...args: unknown[]) {
         const message = this.formatMessage(args)
         this.connection.console.log(message)
         this.writeToFile(`[LOG] [${this.formatDate(new Date())}] ${message}`)
     }
 
-    info(...args: any[]) {
+    info(...args: unknown[]) {
         const message = this.formatMessage(args)
         this.connection.console.info(message)
         this.writeToFile(`[INFO] [${this.formatDate(new Date())}] ${message}`)
     }
 
-    warn(...args: any[]) {
+    warn(...args: unknown[]) {
         const message = this.formatMessage(args)
         this.connection.console.warn(message)
         this.writeToFile(`[WARN] [${this.formatDate(new Date())}] ${message}`)
     }
 
-    error(...args: any[]) {
+    error(...args: unknown[]) {
         const message = this.formatMessage(args)
         this.connection.console.error(message)
         this.writeToFile(`[ERROR] [${this.formatDate(new Date())}] ${message}`)

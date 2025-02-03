@@ -36,7 +36,7 @@ export function collectFift(file: File): SemanticTokens {
         if (
             node.type === "identifier" &&
             node.parent?.type === "proc_call" &&
-            node.parent?.firstChild?.equals(node)
+            node.parent.firstChild?.equals(node)
         ) {
             const def = FiftReference.resolve(node, file)
             if (def) {

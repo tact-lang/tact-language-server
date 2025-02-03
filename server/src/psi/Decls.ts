@@ -10,8 +10,9 @@ export class FieldsOwner extends NamedNode {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
-            .filter(value => value !== null && value.type === "field")
-            .map(value => new Field(value!, this.file))
+            .filter(value => value?.type === "field")
+            .filter(value => value !== null)
+            .map(value => new Field(value, this.file))
     }
 }
 
@@ -23,7 +24,7 @@ export class Message extends FieldsOwner {
     public value(): string {
         const value = this.node.childForFieldName("value")
         if (!value) return ""
-        return value?.text ?? ""
+        return value.text
     }
 }
 
@@ -40,24 +41,27 @@ export class StorageMembersOwner extends NamedNode {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
-            .filter(value => value !== null && value.type === "storage_function")
-            .map(value => new Fun(value!, this.file))
+            .filter(value => value?.type === "storage_function")
+            .filter(value => value !== null)
+            .map(value => new Fun(value, this.file))
     }
 
     public ownFields(): Field[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
-            .filter(value => value !== null && value.type === "storage_variable")
-            .map(value => new Field(value!, this.file))
+            .filter(value => value?.type === "storage_variable")
+            .filter(value => value !== null)
+            .map(value => new Field(value, this.file))
     }
 
     public ownConstants(): Constant[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
         return body.children
-            .filter(value => value !== null && value.type === "storage_constant")
-            .map(value => new Constant(value!, this.file))
+            .filter(value => value?.type === "storage_constant")
+            .filter(value => value !== null)
+            .map(value => new Constant(value, this.file))
     }
 
     public methods(): Fun[] {
@@ -94,8 +98,9 @@ export class StorageMembersOwner extends NamedNode {
         }
 
         const inheritTraits = traitList.children
-            .filter(value => value !== null && value?.type === "type_identifier")
-            .map(value => new NamedNode(value!, this.file))
+            .filter(value => value?.type === "type_identifier")
+            .filter(value => value !== null)
+            .map(value => new NamedNode(value, this.file))
             .map(node => Reference.resolve(node))
             .filter(node => node !== null)
             .map(node => (node instanceof Trait ? node : new Trait(node.node, node.file)))
@@ -139,7 +144,10 @@ export class Fun extends NamedNode {
         if (!result) return null
         if (result.text === ":") {
             // some weird bug
-            return new Expression(result.nextSibling!, this.file)
+            const actualTypeNode = result.nextSibling
+            if (!actualTypeNode) return null
+
+            return new Expression(actualTypeNode, this.file)
         }
         return new Expression(result, this.file)
     }
@@ -149,8 +157,9 @@ export class Fun extends NamedNode {
         if (!parametersNode) return []
 
         return parametersNode.children
-            .filter(value => value !== null && value?.type === "parameter")
-            .map(value => new NamedNode(value!, this.file))
+            .filter(value => value?.type === "parameter")
+            .filter(value => value !== null)
+            .map(value => new NamedNode(value, this.file))
     }
 
     public withSelf(): boolean {
@@ -166,7 +175,7 @@ export class Fun extends NamedNode {
 
         let result = this.node.childForFieldName("result")
         if (result?.text === ":") {
-            result = result?.nextSibling
+            result = result.nextSibling
         }
         return parametersNode.text + (result ? `: ${result.text}` : "")
     }
@@ -191,7 +200,7 @@ export class Fun extends NamedNode {
     }
 
     public modifiers(): string {
-        let parts: string[] = []
+        const parts: string[] = []
         const asm = this.node.children[0]
         if (asm && asm.text === "asm") {
             const asmArrangement = this.node.childForFieldName("arrangement")

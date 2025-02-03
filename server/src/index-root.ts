@@ -56,17 +56,17 @@ export class IndexRoot {
         for (const filePath of files) {
             console.info("Indexing:", filePath)
             const uri = this.root + "/" + filePath
-            const file = await findFile(uri)
+            const file = findFile(uri)
             index.addFile(uri, file, false)
         }
     }
 }
 
-export async function findFile(
+export function findFile(
     uri: string,
     content?: string | undefined,
     changed: boolean = false,
-): Promise<File> {
+): File {
     const cached = PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined && !changed) {
         return cached

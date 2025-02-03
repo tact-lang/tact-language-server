@@ -29,8 +29,10 @@ export function collectFift(file: File): FoldingRange[] {
             n.type === "repeat_statement" ||
             n.type === "until_statement"
         ) {
-            const openBrace = n.firstChild!
-            const closeBrace = n.lastChild!
+            const openBrace = n.firstChild
+            const closeBrace = n.lastChild
+            if (!openBrace || !closeBrace) return true
+
             result.push(genericFolding(openBrace.endPosition, closeBrace.startPosition))
         }
 

@@ -31,37 +31,43 @@ export function collect(file: File): SemanticTokens {
         }
 
         if (type === "global_constant") {
-            const name = n.childForFieldName("name")!
+            const name = n.childForFieldName("name")
+            if (!name) return true
             pushToken(name, lsp.SemanticTokenTypes.property)
             return true
         }
 
         if (type === "storage_function") {
-            const name = n.childForFieldName("name")!
+            const name = n.childForFieldName("name")
+            if (!name) return true
             pushToken(name, lsp.SemanticTokenTypes.function)
             return true
         }
 
         if (type === "parameter") {
-            const name = n.childForFieldName("name")!
+            const name = n.childForFieldName("name")
+            if (!name) return true
             pushToken(name, lsp.SemanticTokenTypes.parameter)
             return true
         }
 
         if (type === "let_statement") {
-            const name = n.childForFieldName("name")!
+            const name = n.childForFieldName("name")
+            if (!name) return true
             pushToken(name, lsp.SemanticTokenTypes.variable)
             return true
         }
 
         if (type === "field" || type === "storage_variable") {
-            const name = n.childForFieldName("name")!
+            const name = n.childForFieldName("name")
+            if (!name) return true
             pushToken(name, lsp.SemanticTokenTypes.property)
             return true
         }
 
         if (type === "constant" || type === "storage_constant") {
-            const name = n.childForFieldName("name")!
+            const name = n.childForFieldName("name")
+            if (!name) return true
             pushToken(name, lsp.SemanticTokenTypes.enumMember)
             return true
         }
@@ -87,7 +93,7 @@ export function collect(file: File): SemanticTokens {
                 pushToken(n, lsp.SemanticTokenTypes.enumMember)
             } else if (isNamedFunNode(resolved.node)) {
                 pushToken(n, lsp.SemanticTokenTypes.function)
-            } else if (resolved.node.parent!.type === "let_statement") {
+            } else if (resolved.node.parent?.type === "let_statement") {
                 pushToken(n, lsp.SemanticTokenTypes.variable)
             }
         }

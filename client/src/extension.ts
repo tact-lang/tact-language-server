@@ -19,7 +19,7 @@ import {
 import {Location, Position} from "vscode-languageclient"
 import {ClientOptions} from "@shared/config-scheme"
 
-let client: LanguageClient
+let client: LanguageClient | null = null
 
 export function activate(context: vscode.ExtensionContext) {
     startServer(context).catch(consoleError)
@@ -79,6 +79,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     await client.start()
 
     vscode.commands.registerCommand("tact.showParent", async (uri: string, position: Position) => {
+        if (!client) return
         await showReferencesImpl(client, uri, position)
     })
 
@@ -165,5 +166,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         ),
     )
 
-    return new vscode.Disposable(() => disposables.forEach(d => void d.dispose()))
+    return new vscode.Disposable(() => {
+        disposables.forEach(d => void d.dispose())
+    })
 }

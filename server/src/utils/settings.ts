@@ -62,10 +62,10 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
 export async function getDocumentSettings(resource: string): Promise<TactSettings> {
     let vsCodeSettings = documentSettings.get(resource)
     if (!vsCodeSettings) {
-        vsCodeSettings = await connection.workspace.getConfiguration({
+        vsCodeSettings = (await connection.workspace.getConfiguration({
             scopeUri: resource,
             section: "tact",
-        })
+        })) as TactSettings | undefined
         if (vsCodeSettings) {
             documentSettings.set(resource, vsCodeSettings)
         }

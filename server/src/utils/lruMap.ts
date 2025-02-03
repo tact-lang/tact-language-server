@@ -14,8 +14,10 @@ export class LRUMap<K, V> extends Map<K, V> {
             return undefined
         }
         const result = super.get(key)
+        if (result === undefined) return undefined
+
         this.delete(key)
-        this.set(key, result!)
+        this.set(key, result)
         return result
     }
 
@@ -27,7 +29,7 @@ export class LRUMap<K, V> extends Map<K, V> {
                 return
             }
             const result = Array.from(this.entries()).slice(0, slack)
-            for (let [key] of result) {
+            for (const [key] of result) {
                 this.delete(key)
             }
             this._options.dispose(result)

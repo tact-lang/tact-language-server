@@ -119,7 +119,7 @@ export function collect(
                 const message = args.at(-1)
                 if (message) {
                     const content = message.text.slice(1, -1)
-                    const buff = createHash("sha256").update(content).digest() as Buffer
+                    const buff = createHash("sha256").update(content).digest()
                     const code = (buff.readUInt32BE(0) % 63000) + 1000
 
                     const codeStr =
