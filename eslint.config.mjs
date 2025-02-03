@@ -20,6 +20,7 @@ export default tseslint.config(
             "**/*.js",
             ".github/*",
             ".yarn/*",
+            ".vscode-test/*",
             "dist/*",
             "docs/*",
             "tree-sitter-fift/",
@@ -27,12 +28,20 @@ export default tseslint.config(
         ],
     },
 
+    tseslint.configs.recommended,
+
     {
         languageOptions: {
             parserOptions: {
                 projectService: true,
                 tsconfigRootDir: __dirname,
             },
+        },
+    },
+
+    {
+        rules: {
+            "@typescript-eslint/no-unused-vars": "off",
         },
     },
 )

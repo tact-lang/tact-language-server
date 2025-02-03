@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import * as assert from "assert"
 import {BaseTestSuite} from "./BaseTestSuite"
+import {TestCase} from "./TestParser"
 
 export const GetTypeAtPositionRequest = "tact/getTypeAtPosition"
 
@@ -67,7 +68,7 @@ suite("Type Inference Test Suite", () => {
             return response?.type ?? undefined
         }
 
-        protected async runTest(testFile: string, testCase: any) {
+        protected async runTest(testFile: string, testCase: TestCase) {
             test(`Types: ${testCase.name}`, async () => {
                 const positions = this.findTypePositions(testCase.input)
 

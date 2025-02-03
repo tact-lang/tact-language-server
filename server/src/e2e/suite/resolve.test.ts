@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import * as assert from "assert"
 import {BaseTestSuite} from "./BaseTestSuite"
+import {TestCase} from "./TestParser"
 
 suite("Resolve Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
@@ -62,7 +63,7 @@ suite("Resolve Test Suite", () => {
                 .join("\n")
         }
 
-        protected runTest(testFile: string, testCase: any) {
+        protected runTest(testFile: string, testCase: TestCase) {
             test(`Resolve: ${testCase.name}`, async () => {
                 const caretIndexes = this.findCaretPositions(testCase.input)
                 const positions = caretIndexes.map(index =>

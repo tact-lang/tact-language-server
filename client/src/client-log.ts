@@ -19,7 +19,7 @@ export function createClientLog(): vscode.OutputChannel {
     return consoleLogChannel
 }
 
-function anyItemToString(item: any): string {
+function anyItemToString(item: unknown): string {
     if (item === null) {
         return "null"
     }
@@ -34,7 +34,7 @@ function anyItemToString(item: any): string {
     }
     if (typeof item === "object") {
         let str = "{"
-        for (let key in item) {
+        for (const key in item) {
             str += `${str.length === 1 ? "" : ","}\n  ${key}: ${anyItemToString(item[key])}`
         }
         return str.length === 1 ? "{}" : str + "\n}"
@@ -42,14 +42,14 @@ function anyItemToString(item: any): string {
     return item.toString()
 }
 
-export function consoleLog(...items: any) {
+export function consoleLog(...items: unknown[]) {
     consoleLogChannel.appendLine("[client] " + items.map(anyItemToString).join(" "))
 }
 
-export function consoleWarn(...items: any) {
+export function consoleWarn(...items: unknown[]) {
     consoleLogChannel.appendLine("[client] [WARN] " + items.map(anyItemToString).join(" "))
 }
 
-export function consoleError(...items: any) {
+export function consoleError(...items: unknown[]) {
     consoleLogChannel.appendLine("[client] [ERROR] " + items.map(anyItemToString).join(" "))
 }

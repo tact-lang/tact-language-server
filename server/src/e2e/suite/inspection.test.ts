@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import * as assert from "assert"
 import {BaseTestSuite} from "./BaseTestSuite"
+import {TestCase} from "./TestParser"
 
 suite("Inspection Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
@@ -27,7 +28,7 @@ suite("Inspection Test Suite", () => {
                 .join("\n")
         }
 
-        protected async runTest(testFile: string, testCase: any) {
+        protected async runTest(testFile: string, testCase: TestCase) {
             test(`Inspection: ${testCase.name}`, async () => {
                 await this.replaceDocumentText(testCase.input)
 

@@ -17,7 +17,7 @@ export class DocumentStore extends TextDocuments<TextDocument> {
         super({
             create: TextDocument.create,
             update: (doc, changes, version) => {
-                let event: TextDocumentChange2 = {document: doc, changes: []}
+                const event: TextDocumentChange2 = {document: doc, changes: []}
 
                 for (const change of changes) {
                     if (!lsp.TextDocumentContentChangeEvent.isIncremental(change)) {

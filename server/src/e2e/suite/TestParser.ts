@@ -1,6 +1,6 @@
 import * as fs from "node:fs"
 
-interface TestCase {
+export interface TestCase {
     name: string
     properties: Record<string, string>
     input: string

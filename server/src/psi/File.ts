@@ -9,11 +9,6 @@ export class File {
         public readonly content: string,
     ) {}
 
-    public includesFile(_path: string): boolean {
-        // TODO
-        return false
-    }
-
     public get fromStdlib(): boolean {
         return this.uri.includes("stdlib")
     }
@@ -77,13 +72,14 @@ export class File {
 
     private getNodesByType<T extends NamedNode>(
         nodeType: string | string[],
-        constructor: new (node: any, file: File) => T,
+        constructor: new (node: SyntaxNode, file: File) => T,
     ): T[] {
         const tree = this.tree
         const types = Array.isArray(nodeType) ? nodeType : [nodeType]
 
         return tree.rootNode.children
             .filter(node => node !== null && types.includes(node.type))
+            .filter(node => node !== null)
             .map(node => new constructor(node, this))
     }
 }

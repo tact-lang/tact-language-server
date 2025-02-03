@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import * as assert from "assert"
 import {BaseTestSuite} from "./BaseTestSuite"
+import {TestCase} from "./TestParser"
 
 interface RenamePosition {
     line: number
@@ -45,7 +46,7 @@ suite("Rename Test Suite", () => {
             }
         }
 
-        protected async runTest(testFile: string, testCase: any) {
+        protected async runTest(testFile: string, testCase: TestCase) {
             test(`Rename: ${testCase.name}`, async () => {
                 const positions = this.findRenamePositions(testCase.input)
 

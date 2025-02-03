@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import * as assert from "assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import {TextDocumentPositionParams} from "vscode-languageserver"
+import {TestCase} from "./TestParser"
 
 suite("References Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
@@ -63,7 +64,7 @@ suite("References Test Suite", () => {
                 .join("\n\n")
         }
 
-        protected runTest(testFile: string, testCase: any) {
+        protected runTest(testFile: string, testCase: TestCase) {
             test(`References: ${testCase.name}`, async () => {
                 const caretIndexes = this.findCaretPositions(testCase.input)
                 const positions = caretIndexes.map(index =>

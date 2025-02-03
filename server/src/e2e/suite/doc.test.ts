@@ -3,6 +3,7 @@ import * as assert from "assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import * as lsp from "vscode-languageserver"
 import {GetTypeAtPositionParams} from "./types.test"
+import {TestCase} from "./TestParser"
 
 suite("Documentation Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
@@ -40,7 +41,7 @@ suite("Documentation Test Suite", () => {
             return (hover.contents as lsp.MarkupContent).value
         }
 
-        protected runTest(testFile: string, testCase: any) {
+        protected runTest(testFile: string, testCase: TestCase) {
             test(`Documentation: ${testCase.name}`, async () => {
                 const hovers = await this.getHovers(testCase.input)
                 const actual = hovers.map(hover => this.formatDocumentation(hover)).join("\n")

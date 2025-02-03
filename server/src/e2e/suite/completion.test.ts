@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import * as assert from "assert"
 import {BaseTestSuite} from "./BaseTestSuite"
+import {TestCase} from "./TestParser"
 
 suite("Completion Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
@@ -28,7 +29,7 @@ suite("Completion Test Suite", () => {
             )
         }
 
-        protected runTest(testFile: string, testCase: any) {
+        protected runTest(testFile: string, testCase: TestCase) {
             test(`Completion: ${testCase.name}`, async () => {
                 const completions = await this.getCompletions(testCase.input, ".")
 
