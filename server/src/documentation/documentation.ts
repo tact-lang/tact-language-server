@@ -121,7 +121,9 @@ export function generateDocFor(node: NamedNode): string | null {
         case "field": {
             const doc = extractCommentsDoc(node)
 
-            const name = astNode.childForFieldName("name")!
+            const name = astNode.childForFieldName("name")
+            if (!name) return null
+
             const field = new NamedNode(name, node.file)
             const type = TypeInferer.inferType(field)?.qualifiedName() ?? "unknown"
 

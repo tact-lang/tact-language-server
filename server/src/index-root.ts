@@ -76,7 +76,11 @@ export function findFile(uri: string, content?: string, changed: boolean = false
 
     const parser = createTactParser()
     const tree = measureTime(`reparse file ${uri}`, () => parser.parse(realContent))
-    const file = new File(uri, tree!, realContent)
+    if (!tree) {
+        throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
+    }
+
+    const file = new File(uri, tree, realContent)
     PARSED_FILES_CACHE.set(uri, file)
     return file
 }
@@ -95,7 +99,11 @@ export function findFiftFile(uri: string, content?: string): File {
 
     const parser = createFiftParser()
     const tree = parser.parse(realContent)
-    const file = new File(uri, tree!, realContent)
+    if (!tree) {
+        throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
+    }
+
+    const file = new File(uri, tree, realContent)
     FIFT_PARSED_FILES_CACHE.set(uri, file)
     return file
 }

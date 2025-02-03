@@ -40,9 +40,9 @@ export class TestParser {
                     break
 
                 case ParserState.ReadingProperties:
-                    if (line.startsWith("@")) {
+                    if (line.startsWith("@") && currentTest.properties) {
                         const [key, value] = line.substring(1).split(" ")
-                        currentTest.properties![key] = value
+                        currentTest.properties[key] = value
                     } else {
                         currentTest.name = line
                         state = ParserState.ReadingName
