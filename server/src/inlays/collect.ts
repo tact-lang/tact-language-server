@@ -117,7 +117,7 @@ export function collect(
             // require(true, "message" exit code: 999)
             if (call.name() === "require") {
                 const message = args.at(-1)
-                if (message) {
+                if (message && args.length > 1) {
                     const content = message.text.slice(1, -1)
                     const buff = createHash("sha256").update(content).digest()
                     const code = (buff.readUInt32BE(0) % 63000) + 1000
