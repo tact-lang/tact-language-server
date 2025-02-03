@@ -12,7 +12,7 @@ export interface TestUpdate {
 }
 
 export abstract class BaseTestSuite {
-    protected static readonly UPDATE_SNAPSHOTS: boolean = true // process.env["UPDATE_SNAPSHOTS"] === "true"
+    protected static readonly UPDATE_SNAPSHOTS: boolean = process.env["UPDATE_SNAPSHOTS"] === "true"
     protected document!: vscode.TextDocument
     protected editor!: vscode.TextEditor
     protected testFilePath!: string
@@ -85,6 +85,8 @@ export abstract class BaseTestSuite {
         for (const [filePath, updates] of fileUpdates.entries()) {
             TestParser.updateExpectedBatch(filePath, updates)
         }
+
+        return true
     }
 
     runTestsFromDirectory(directory: string) {
