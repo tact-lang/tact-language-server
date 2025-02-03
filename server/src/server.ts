@@ -58,7 +58,7 @@ import {
 import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
 import {AsmInstructionCompletionProvider} from "./completion/providers/AsmInstructionCompletionProvider"
 import {generateAsmDoc} from "./documentation/asm_documentation"
-import {clearDocumentSettings, getDocumentSettings} from "@server/utils/settings"
+import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/utils/settings"
 import {ContractDeclCompletionProvider} from "./completion/providers/ContractDeclCompletionProvider"
 import {collectFift} from "./fift/foldings/collect"
 import {collectFift as collectFiftSemanticTokens} from "./fift/semantic_tokens/collect"
@@ -92,6 +92,35 @@ let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
  */
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
+function findStdlib(settings: TactSettings, rootDir: string): string | null {
+    if (settings.stdlib.path !== null && settings.stdlib.path.length > 0) {
+        return settings.stdlib.path
+    }
+
+    const searchDirs = [
+        "node_modules/@tact-lang/compiler/src/stdlib/stdlib",
+        "node_modules/@tact-lang/compiler/src/stdlib",
+        "node_modules/@tact-lang/compiler/stdlib",
+        "stdlib",
+    ]
+
+    const localFolder =
+        searchDirs.find(searchDir => {
+            return existsSync(path.join(rootDir, searchDir))
+        }) ?? null
+
+    if (!localFolder) {
+        console.error(
+            "Standard library not found! Did you run `npm/yarn install`? Try to define path in the settings",
+        )
+        return null
+    }
+
+    const stdlibPath = path.join(rootDir, localFolder)
+    console.info(`Using Standard library from ${stdlibPath}`)
+    return stdlibPath
+}
+
 async function initialize() {
     if (!workspaceFolders || workspaceFolders.length === 0 || initialized) {
         // use fallback later, see `initializeFallback`
@@ -106,32 +135,8 @@ async function initialize() {
     const rootDir = rootUri.slice(7)
 
     const settings = await getDocumentSettings(rootUri)
-    let stdlibPath = settings.stdlib.path
 
-    if (!stdlibPath) {
-        const searchDirs = [
-            "node_modules/@tact-lang/compiler/src/stdlib/stdlib",
-            "node_modules/@tact-lang/compiler/src/stdlib",
-            "node_modules/@tact-lang/compiler/stdlib",
-            "stdlib",
-        ]
-
-        stdlibPath =
-            searchDirs.find(searchDir => {
-                return existsSync(path.join(rootDir, searchDir))
-            }) ?? null
-
-        if (stdlibPath) {
-            stdlibPath = path.join(rootDir, stdlibPath)
-        }
-    }
-
-    if (!stdlibPath) {
-        console.info("stdlib not found")
-    } else {
-        console.info(`using stdlib from ${stdlibPath}`)
-    }
-
+    const stdlibPath = findStdlib(settings, rootDir)
     if (stdlibPath) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
         const stdlibRoot = new IndexRoot(`file://${stdlibPath}`, IndexRootKind.Stdlib)
