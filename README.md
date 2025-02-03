@@ -1,4 +1,8 @@
-![](https://repository-images.githubusercontent.com/909472615/e506e618-b03f-47ba-8bf9-0e1175692c80)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/public/cover-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="./docs/public/cover-light.png">
+  <img alt="Tact language server cover" src="./docs/public/cover-light.png">
+</picture>
 
 # Tact Language Server
 
