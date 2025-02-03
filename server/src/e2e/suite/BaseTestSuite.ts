@@ -3,7 +3,7 @@ import * as path from "path"
 import * as fs from "fs"
 import * as glob from "glob"
 import {activate} from "../utils"
-import {TestParser} from "./TestParser"
+import {TestCase, TestParser} from "./TestParser"
 
 export interface TestUpdate {
     filePath: string
@@ -113,5 +113,5 @@ export abstract class BaseTestSuite {
         }
     }
 
-    protected abstract runTest(testFile: string, testCase: any): void
+    protected abstract runTest(testFile: string, testCase: TestCase): void
 }

@@ -1,7 +1,7 @@
 import {LRUMap} from "@server/utils/lruMap"
 import {File} from "@server/psi/File"
 import {glob} from "glob"
-import {readFileSync} from "fs"
+import * as fs from "fs"
 import {URI} from "vscode-uri"
 import {createTactParser} from "./parser"
 import {index} from "./indexes"
@@ -56,26 +56,31 @@ export class IndexRoot {
         for (const filePath of files) {
             console.info("Indexing:", filePath)
             const uri = this.root + "/" + filePath
-            const file = await findFile(uri)
+            const file = findFile(uri)
             index.addFile(uri, file, false)
         }
     }
 }
 
-export async function findFile(
-    uri: string,
-    content?: string | undefined,
-    changed: boolean = false,
-) {
+export function findFile(uri: string, content?: string, changed: boolean = false): File {
     const cached = PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined && !changed) {
         return cached
     }
 
-    const realContent = content ?? readFileSync(URI.parse(uri).path).toString()
+    let realContent = content ?? safeFileRead(URI.parse(uri).path)
+    if (!realContent) {
+        console.error(`cannot read ${uri} file`)
+        realContent = ""
+    }
+
     const parser = createTactParser()
     const tree = measureTime(`reparse file ${uri}`, () => parser.parse(realContent))
-    const file = new File(uri, tree!, realContent)
+    if (!tree) {
+        throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
+    }
+
+    const file = new File(uri, tree, realContent)
     PARSED_FILES_CACHE.set(uri, file)
     return file
 }
@@ -86,10 +91,27 @@ export function findFiftFile(uri: string, content?: string): File {
         return cached
     }
 
-    const realContent = content ?? readFileSync(URI.parse(uri).path).toString()
+    let realContent = content ?? safeFileRead(URI.parse(uri).path)
+    if (!realContent) {
+        console.error(`cannot read ${uri} file`)
+        realContent = ""
+    }
+
     const parser = createFiftParser()
     const tree = parser.parse(realContent)
-    const file = new File(uri, tree!, realContent)
+    if (!tree) {
+        throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
+    }
+
+    const file = new File(uri, tree, realContent)
     FIFT_PARSED_FILES_CACHE.set(uri, file)
     return file
+}
+
+function safeFileRead(path: string): string | null {
+    try {
+        return fs.readFileSync(path).toString()
+    } catch (_) {
+        return null
+    }
 }
