@@ -12,7 +12,6 @@ trait Foo
 ```
 Some cool trait
 
-
 ========================================================================
 Trait with inheritance documentation
 ========================================================================
@@ -28,4 +27,3 @@ trait <caret>Foo with Other {
 trait Foo with Other
 ```
 Some cool trait
-

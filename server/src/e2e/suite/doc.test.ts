@@ -38,13 +38,16 @@ suite("Documentation Test Suite", () => {
 
         formatDocumentation(hover?: lsp.Hover): string {
             if (!hover) return "no documentation"
-            return (hover.contents as lsp.MarkupContent).value
+            return (hover.contents as lsp.MarkupContent).value.trimEnd()
         }
 
         protected runTest(testFile: string, testCase: TestCase) {
             test(`Documentation: ${testCase.name}`, async () => {
                 const hovers = await this.getHovers(testCase.input)
-                const actual = hovers.map(hover => this.formatDocumentation(hover)).join("\n")
+                const actual = hovers
+                    .map(hover => this.formatDocumentation(hover))
+                    .join("\n")
+                    .trimEnd()
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({
@@ -53,7 +56,7 @@ suite("Documentation Test Suite", () => {
                         actual,
                     })
                 } else {
-                    assert.strictEqual(actual, testCase.expected)
+                    assert.strictEqual(actual, testCase.expected.trimEnd())
                 }
             })
         }

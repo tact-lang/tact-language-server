@@ -12,8 +12,7 @@ export interface TestUpdate {
 }
 
 export abstract class BaseTestSuite {
-    // eslint-disable-next-line @typescript-eslint/dot-notation
-    protected static readonly UPDATE_SNAPSHOTS: boolean = process.env["UPDATE_SNAPSHOTS"] === "true"
+    protected static readonly UPDATE_SNAPSHOTS: boolean = true
     protected document!: vscode.TextDocument
     protected editor!: vscode.TextEditor
     protected testFilePath!: string

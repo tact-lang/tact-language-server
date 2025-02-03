@@ -12,7 +12,6 @@ contract Foo
 ```
 Some cool contract
 
-
 ========================================================================
 Contract with inheritance documentation
 ========================================================================
@@ -29,7 +28,6 @@ contract Foo with Other
 ```
 Some cool contract
 
-
 ========================================================================
 Contract get function
 ========================================================================
@@ -44,4 +42,3 @@ get fun foo()
 Method ID: `0x103fc`
 
 Some cool getter
-
