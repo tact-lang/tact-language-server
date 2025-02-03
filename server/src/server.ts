@@ -715,22 +715,26 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const result = new Referent(highlightNode, file).findReferences(true, true, true)
             if (result.length === 0) return null
 
-            return result.map(value => {
-                let kind: lsp.DocumentHighlightKind = lsp.DocumentHighlightKind.Read
+            const usageKind = (value: Node) => {
                 const parent = value.node.parent
-                if (parent?.type === "assignment_statement") {
+                if (
+                    parent?.type === "assignment_statement" ||
+                    parent?.type === "augmented_assignment_statement"
+                ) {
                     if (parent.childForFieldName("left")?.equals(value.node)) {
                         // left = 10
                         // ^^^^
-                        kind = lsp.DocumentHighlightKind.Write
+                        return lsp.DocumentHighlightKind.Write
                     }
                 }
 
-                return {
-                    range: asLspRange(value.node),
-                    kind: kind,
-                }
-            })
+                return lsp.DocumentHighlightKind.Read
+            }
+
+            return result.map(value => ({
+                range: asLspRange(value.node),
+                kind: usageKind(value),
+            }))
         },
     )
 
