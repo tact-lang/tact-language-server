@@ -62,7 +62,11 @@ export class IndexRoot {
     }
 }
 
-export async function findFile(uri: string, content?: string | undefined, changed = false) {
+export async function findFile(
+    uri: string,
+    content?: string | undefined,
+    changed: boolean = false,
+) {
     const cached = PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined && !changed) {
         return cached

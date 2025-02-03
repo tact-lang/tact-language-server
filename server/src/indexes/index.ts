@@ -132,7 +132,7 @@ export class FileIndex {
 export class GlobalIndex {
     private readonly files = new Map<string, FileIndex>()
 
-    public addFile(uri: string, file: File, clearCache = true) {
+    public addFile(uri: string, file: File, clearCache: boolean = true) {
         if (this.files.has(uri)) {
             return
         }
