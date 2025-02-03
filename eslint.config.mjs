@@ -27,7 +27,7 @@ export default tseslint.config(
         ],
     },
 
-    tseslint.configs.stylistic,
+    tseslint.configs.stylisticTypeChecked,
     tseslint.configs.strictTypeChecked,
 
     {
