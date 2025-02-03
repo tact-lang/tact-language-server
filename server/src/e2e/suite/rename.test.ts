@@ -15,8 +15,7 @@ suite("Rename Test Suite", () => {
             const positions: RenamePosition[] = []
             const lines = input.split("\n")
 
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i]
+            lines.forEach((line, i) => {
                 if (line.includes("//!")) {
                     const caretPosition = line.indexOf("^")
 
@@ -29,7 +28,7 @@ suite("Rename Test Suite", () => {
                         renameTo,
                     })
                 }
-            }
+            })
             return positions
         }
 

@@ -56,6 +56,9 @@ export default tseslint.config(
             "@typescript-eslint/no-misused-promises": "off",
             "@typescript-eslint/no-extraneous-class": "off",
             "@typescript-eslint/restrict-template-expressions": "off",
+
+            "@typescript-eslint/prefer-readonly": "error",
+            "@typescript-eslint/switch-exhaustiveness-check": "error",
         },
     },
 )

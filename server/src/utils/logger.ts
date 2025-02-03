@@ -7,7 +7,7 @@ export class Logger {
     private static instance: Logger | null = null
 
     private constructor(
-        private connection: Connection,
+        private readonly connection: Connection,
         logPath?: string,
     ) {
         if (logPath) {

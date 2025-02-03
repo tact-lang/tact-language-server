@@ -43,16 +43,7 @@ export class UnusedImportInspection {
         })
 
         for (const [importPath, {node, names}] of imports) {
-            let isUsed = false
-
-            for (const name of names) {
-                if (file.content.includes(name)) {
-                    isUsed = true
-                    break
-                }
-            }
-
-            if (!isUsed) {
+            if (!this.usedInFile(names, file)) {
                 diagnostics.push({
                     severity: lsp.DiagnosticSeverity.Hint,
                     range: asLspRange(node),
@@ -65,5 +56,14 @@ export class UnusedImportInspection {
         }
 
         return diagnostics
+    }
+
+    private usedInFile(names: Set<string>, file: File): boolean {
+        for (const name of names) {
+            if (file.content.includes(name)) {
+                return true
+            }
+        }
+        return false
     }
 }

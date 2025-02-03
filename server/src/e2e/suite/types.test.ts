@@ -31,8 +31,7 @@ suite("Type Inference Test Suite", () => {
             const positions: TypePosition[] = []
             const lines = input.split("\n")
 
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i]
+            lines.forEach((line, i) => {
                 if (line.includes("//!")) {
                     const caretPosition = line.indexOf("^")
 
@@ -45,7 +44,7 @@ suite("Type Inference Test Suite", () => {
                         expectedType,
                     })
                 }
-            }
+            })
             return positions
         }
 

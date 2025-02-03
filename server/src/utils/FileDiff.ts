@@ -9,9 +9,9 @@ interface Edit {
  * Utility class for building workspace edits
  */
 export class FileDiff {
-    private edits: Edit[] = []
+    private readonly edits: Edit[] = []
 
-    private constructor(private uri: string) {}
+    private constructor(private readonly uri: string) {}
 
     /**
      * Create a new diff for a file

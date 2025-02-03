@@ -12,7 +12,7 @@ enum FieldsKind {
 }
 
 export class ReferenceCompletionProvider implements CompletionProvider {
-    constructor(private ref: Reference) {}
+    constructor(private readonly ref: Reference) {}
 
     isAvailable(ctx: CompletionContext): boolean {
         return (

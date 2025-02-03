@@ -64,7 +64,7 @@ export abstract class BaseTestSuite {
     protected findCaretPositions(text: string): number[] {
         const positions: number[] = []
         const regex = /<caret>/g
-        let match
+        let match: RegExpExecArray | null = null
 
         while ((match = regex.exec(text)) !== null) {
             positions.push(match.index)

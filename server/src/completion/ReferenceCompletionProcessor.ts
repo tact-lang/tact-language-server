@@ -12,7 +12,7 @@ import {
 import {StructTy} from "@server/types/BaseTy"
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {
-    constructor(private ctx: CompletionContext) {}
+    constructor(private readonly ctx: CompletionContext) {}
 
     public result: Map<string, CompletionItem> = new Map()
 

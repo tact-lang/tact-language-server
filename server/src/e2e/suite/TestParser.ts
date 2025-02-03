@@ -28,8 +28,8 @@ export class TestParser {
         let currentTest: Partial<TestCase> = {}
         let currentContent = ""
 
-        for (let line of lines) {
-            line = line.trimEnd()
+        for (const l of lines) {
+            const line = l.trimEnd()
 
             switch (state) {
                 case ParserState.WaitingForTestStart:

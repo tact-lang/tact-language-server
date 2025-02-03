@@ -7,7 +7,7 @@ export interface CacheConfig {
 }
 
 export class Cache<TKey, TValue> {
-    private data: LRUMap<TKey, TValue>
+    private readonly data: LRUMap<TKey, TValue>
 
     constructor(config: CacheConfig) {
         this.data = new LRUMap({
