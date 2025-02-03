@@ -43,13 +43,13 @@ function anyItemToString(item: unknown): string {
 }
 
 export function consoleLog(...items: unknown[]) {
-    consoleLogChannel.appendLine("[client] " + items.map(anyItemToString).join(" "))
+    consoleLogChannel?.appendLine("[client] " + items.map(anyItemToString).join(" "))
 }
 
 export function consoleWarn(...items: unknown[]) {
-    consoleLogChannel.appendLine("[client] [WARN] " + items.map(anyItemToString).join(" "))
+    consoleLogChannel?.appendLine("[client] [WARN] " + items.map(anyItemToString).join(" "))
 }
 
 export function consoleError(...items: unknown[]) {
-    consoleLogChannel.appendLine("[client] [ERROR] " + items.map(anyItemToString).join(" "))
+    consoleLogChannel?.appendLine("[client] [ERROR] " + items.map(anyItemToString).join(" "))
 }
