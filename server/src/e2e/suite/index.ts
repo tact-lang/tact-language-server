@@ -27,9 +27,9 @@ export function run(): Promise<void> {
                         }
                     })
                 } catch (err) {
-                    reject(err)
+                    reject(err instanceof Error ? err : new Error(String(err)))
                 }
             })
-            .catch(err => reject(err))
+            .catch(err => reject(err instanceof Error ? err : new Error(String(err))))
     })
 }

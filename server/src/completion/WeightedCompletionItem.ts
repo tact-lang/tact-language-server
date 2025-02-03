@@ -43,7 +43,7 @@ export class CompletionResult {
         let lastWeight = sorted[0].weight ?? 0
 
         sorted.forEach(item => {
-            if (lastWeight !== item.weight) {
+            if (lastWeight !== (item.weight as number)) {
                 groupIndex++
                 lastWeight = item.weight as number
             }

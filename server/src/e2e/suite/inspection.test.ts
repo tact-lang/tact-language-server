@@ -28,7 +28,7 @@ suite("Inspection Test Suite", () => {
                 .join("\n")
         }
 
-        protected async runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase) {
             test(`Inspection: ${testCase.name}`, async () => {
                 await this.replaceDocumentText(testCase.input)
 

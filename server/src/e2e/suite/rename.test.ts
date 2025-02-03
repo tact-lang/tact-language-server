@@ -46,7 +46,7 @@ suite("Rename Test Suite", () => {
             }
         }
 
-        protected async runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase) {
             test(`Rename: ${testCase.name}`, async () => {
                 const positions = this.findRenamePositions(testCase.input)
 

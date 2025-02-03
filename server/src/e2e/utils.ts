@@ -18,8 +18,6 @@ export async function activate(): Promise<void> {
 
     const languages = await vscode.languages.getLanguages()
     if (!languages.includes("tact")) {
-        const packageJson = ext.packageJSON
-        console.log("Extension contributes:", packageJson.contributes)
         throw new Error("Tact language not registered. Check package.json configuration.")
     }
 

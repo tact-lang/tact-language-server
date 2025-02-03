@@ -33,50 +33,27 @@ suite("Completion Test Suite", () => {
             test(`Completion: ${testCase.name}`, async () => {
                 const completions = await this.getCompletions(testCase.input, ".")
 
-                if (testCase.properties["json"] === "true") {
-                    const expected = JSON.parse(testCase.expected)
-                    const actual = {
-                        items: completions.items.map(item => ({
-                            label: item.label,
-                            kind: vscode.CompletionItemKind[item.kind!],
-                            detail: item.detail,
-                        })),
-                    }
+                const items = completions.items.map(item => {
+                    const label = typeof item.label === "object" ? item.label.label : item.label
+                    const details =
+                        (typeof item.label === "object" ? item.label.detail : item.detail) ?? ""
+                    const description =
+                        typeof item.label === "object" && item.label.description
+                            ? `  ${item.label.description}`
+                            : ""
 
-                    if (BaseTestSuite.UPDATE_SNAPSHOTS) {
-                        this.updates.push({
-                            filePath: testFile,
-                            testName: testCase.name,
-                            actual: JSON.stringify(actual, null, 4),
-                        })
-                    } else {
-                        assert.deepStrictEqual(actual, expected)
-                    }
-                } else {
-                    const items = completions.items.map(item => {
-                        const label = typeof item.label === "object" ? item.label.label : item.label
-                        const details =
-                            (typeof item.label === "object" ? item.label.detail : item.detail) ?? ""
-                        const description =
-                            typeof item.label === "object" && item.label.description
-                                ? `  ${item.label.description}`
-                                : ""
+                    return `${item.kind?.toString()?.padEnd(2)} ${label}${details}${description}`
+                })
+                const expected = testCase.expected.split("\n").filter((line: string) => line !== "")
 
-                        return `${item.kind?.toString()?.padEnd(2)} ${label}${details}${description}`
+                if (BaseTestSuite.UPDATE_SNAPSHOTS) {
+                    this.updates.push({
+                        filePath: testFile,
+                        testName: testCase.name,
+                        actual: items.join("\n"),
                     })
-                    const expected = testCase.expected
-                        .split("\n")
-                        .filter((line: string) => line !== "")
-
-                    if (BaseTestSuite.UPDATE_SNAPSHOTS) {
-                        this.updates.push({
-                            filePath: testFile,
-                            testName: testCase.name,
-                            actual: items.join("\n"),
-                        })
-                    } else {
-                        assert.deepStrictEqual(items.sort(), expected.sort())
-                    }
+                } else {
+                    assert.deepStrictEqual(items.sort(), expected.sort())
                 }
             })
         }

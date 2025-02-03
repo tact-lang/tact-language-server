@@ -26,12 +26,10 @@ suite("References Test Suite", () => {
         }
 
         async getReferencesAt(position: vscode.Position): Promise<vscode.Location[]> {
-            return (
-                vscode.commands.executeCommand<vscode.Location[]>(
-                    "vscode.executeReferenceProvider",
-                    this.document.uri,
-                    position,
-                ) || []
+            return vscode.commands.executeCommand<vscode.Location[]>(
+                "vscode.executeReferenceProvider",
+                this.document.uri,
+                position,
             )
         }
 

@@ -28,7 +28,7 @@ export default tseslint.config(
         ],
     },
 
-    tseslint.configs.recommended,
+    tseslint.configs.recommendedTypeChecked,
 
     {
         languageOptions: {
@@ -42,6 +42,9 @@ export default tseslint.config(
     {
         rules: {
             "@typescript-eslint/no-unused-vars": "off",
+            "@typescript-eslint/no-base-to-string": "off",
+            "@typescript-eslint/unbound-method": "off",
+            "@typescript-eslint/no-misused-promises": "off",
         },
     },
 )

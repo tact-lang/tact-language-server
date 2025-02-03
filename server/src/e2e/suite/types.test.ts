@@ -68,7 +68,7 @@ suite("Type Inference Test Suite", () => {
             return response?.type ?? undefined
         }
 
-        protected async runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase) {
             test(`Types: ${testCase.name}`, async () => {
                 const positions = this.findTypePositions(testCase.input)
 
