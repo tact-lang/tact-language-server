@@ -45,9 +45,6 @@ export class FileIndex {
         [IndexKey.Constants]: [],
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    public constructor() {}
-
     public static create(file: File): FileIndex {
         const index = new FileIndex()
 

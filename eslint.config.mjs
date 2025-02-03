@@ -37,6 +37,10 @@ export default tseslint.config(
                 tsconfigRootDir: __dirname,
             },
         },
+
+        rules: {
+            "@typescript-eslint/no-empty-function": ["error", {allow: ["arrowFunctions"]}],
+        },
     },
 
     {
