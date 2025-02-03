@@ -29,6 +29,7 @@ export class DocumentStore extends TextDocuments<TextDocument> {
                         range: change.range,
                         rangeOffset,
                         rangeLength:
+                            // eslint-disable-next-line @typescript-eslint/no-deprecated
                             change.rangeLength ?? doc.offsetAt(change.range.end) - rangeOffset,
                     })
                 }

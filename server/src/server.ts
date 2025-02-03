@@ -653,9 +653,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         const result = new Referent(renameNode, file).findReferences(true, false, false)
         if (result.length === 0) return null
 
-        const changes: {
-            [uri: DocumentUri]: TextEdit[]
-        } = {}
+        const changes: Record<DocumentUri, TextEdit[]> = {}
 
         result.forEach(node => {
             const uri = node.file.uri
@@ -664,6 +662,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 newText: params.newName,
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (changes[uri]) {
                 changes[uri].push(element)
             } else {
@@ -897,9 +896,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             }
             if (node.parent?.type === "method_call_expression") {
                 node = node.parent
-            }
-            if (!node) {
-                return {type: null}
             }
 
             const type = TypeInferer.inferType(new Expression(node, file))

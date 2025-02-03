@@ -34,7 +34,7 @@ export function generateAsmDoc(word: string): string | null {
         const operandsStr = formatOperands(alias.operands)
         return [
             "```",
-            `${alias.mnemonic}`,
+            alias.mnemonic,
             "```",
             `- Alias of: \`${operandsStr} ${alias.alias_of}\`\n`,
             alias.doc_stack ? `- Stack: \`${alias.doc_stack}\`\n` : "",

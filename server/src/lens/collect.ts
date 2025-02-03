@@ -180,6 +180,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
 }
 
 function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (file.fromStdlib || !file.fromStdlib) {
         // disabled for now
         return

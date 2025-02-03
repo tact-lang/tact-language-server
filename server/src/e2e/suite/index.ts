@@ -30,6 +30,8 @@ export function run(): Promise<void> {
                     reject(err instanceof Error ? err : new Error(String(err)))
                 }
             })
-            .catch(err => reject(err instanceof Error ? err : new Error(String(err))))
+            .catch((err: unknown) => {
+                reject(err instanceof Error ? err : new Error(String(err)))
+            })
     })
 }

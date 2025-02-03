@@ -73,7 +73,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
         if (node instanceof Fun) {
             // don't add `self.` prefix for global functions
-            const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
+            const thisPrefix = prefix !== "" && node.owner() === null ? "" : (prefix ?? "")
 
             const signature = node.signatureText()
             const hasNoParams =
@@ -139,7 +139,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             })
         } else if (node instanceof Constant) {
             // don't add `self.` prefix for global constants
-            const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
+            const thisPrefix = prefix !== "" && node.owner() === null ? "" : (prefix ?? "")
 
             const typeNode = node.typeNode()
             const value = node.value()
@@ -148,7 +148,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 label: thisPrefix + name,
                 kind: CompletionItemKind.Constant,
                 labelDetails: {
-                    detail: ": " + valueType + " = " + (value?.node?.text ?? "unknown"),
+                    detail: ": " + valueType + " = " + (value?.node.text ?? "unknown"),
                 },
                 insertText: thisPrefix + name,
                 insertTextFormat: InsertTextFormat.Snippet,
@@ -161,7 +161,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             const owner = node.dataOwner()?.name() ?? ""
 
             // don't add `self.` for completion of field in init
-            const thisPrefix = this.ctx.inNameOfFieldInit ? "" : prefix
+            const thisPrefix = this.ctx.inNameOfFieldInit ? "" : (prefix ?? "")
             const comma = this.ctx.inMultilineStructInit ? "," : ""
             const suffix = this.ctx.inNameOfFieldInit ? `: $1${comma}$0` : ""
 

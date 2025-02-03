@@ -34,7 +34,7 @@ suite("Rename Test Suite", () => {
         }
 
         async renameTo(position: vscode.Position, newName: string) {
-            const result = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+            const result = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
                 "vscode.executeDocumentRenameProvider",
                 this.document.uri,
                 position,

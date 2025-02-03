@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 
-let consoleLogChannel: vscode.OutputChannel
+let consoleLogChannel: vscode.OutputChannel | null = null
 
 /*
   Using `console.log()` and similar on a client-side is wrong (you just don't see its output).

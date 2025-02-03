@@ -12,7 +12,7 @@ export interface TestUpdate {
 }
 
 export abstract class BaseTestSuite {
-    protected static readonly UPDATE_SNAPSHOTS = true // process.env["UPDATE_SNAPSHOTS"] === "true"
+    protected static readonly UPDATE_SNAPSHOTS = process.env["UPDATE_SNAPSHOTS"] === "true"
     protected document!: vscode.TextDocument
     protected editor!: vscode.TextEditor
     protected testFilePath!: string

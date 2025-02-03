@@ -50,13 +50,13 @@ export class ReferenceCompletionProvider implements CompletionProvider {
 
         // Foo { value: 10 }
         //       ^^^^^ this
-        const name = parent?.childForFieldName("name")
+        const name = parent.childForFieldName("name")
         if (!name) return FieldsKind.ALL
         if (!name.equals(ctx.element.node)) return FieldsKind.ALL
 
         // Foo { value: 10 }
         // ^^^^^^^^^^^^^^^^^ this
-        const grand = parent?.parent?.parent
+        const grand = parent.parent?.parent
         if (grand?.type !== "instance_expression") return FieldsKind.ALL
 
         // Foo { value: 10 }
@@ -83,7 +83,7 @@ export class ReferenceCompletionProvider implements CompletionProvider {
 
         const alreadyInitialized = new Set<string>()
         initializedFields.forEach(it => {
-            const name = it?.childForFieldName("name")
+            const name = it.childForFieldName("name")
             if (!name) return
             const fieldName = name.text
             alreadyInitialized.add(fieldName)

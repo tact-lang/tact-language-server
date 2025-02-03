@@ -28,7 +28,7 @@ export default tseslint.config(
         ],
     },
 
-    tseslint.configs.strict,
+    tseslint.configs.strictTypeChecked,
 
     {
         languageOptions: {
@@ -46,6 +46,7 @@ export default tseslint.config(
             "@typescript-eslint/unbound-method": "off",
             "@typescript-eslint/no-misused-promises": "off",
             "@typescript-eslint/no-extraneous-class": "off",
+            "@typescript-eslint/restrict-template-expressions": "off",
         },
     },
 )

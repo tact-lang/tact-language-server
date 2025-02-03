@@ -65,7 +65,7 @@ suite("Type Inference Test Suite", () => {
                 params,
             )
 
-            return response?.type ?? undefined
+            return response.type ?? undefined
         }
 
         protected runTest(testFile: string, testCase: TestCase) {

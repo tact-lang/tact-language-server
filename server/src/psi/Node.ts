@@ -76,7 +76,7 @@ export class VarDeclaration extends NamedNode {
 
     public hasTypeHint(): boolean {
         const node = this.node.childForFieldName("type")
-        return node !== undefined && node !== null
+        return node !== null
     }
 
     public value(): Expression | null {

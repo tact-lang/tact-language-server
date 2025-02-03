@@ -42,7 +42,7 @@ suite("Completion Test Suite", () => {
                             ? `  ${item.label.description}`
                             : ""
 
-                    return `${item.kind?.toString()?.padEnd(2)} ${label}${details}${description}`
+                    return `${item.kind?.toString().padEnd(2)} ${label}${details}${description}`
                 })
                 const expected = testCase.expected.split("\n").filter((line: string) => line !== "")
 
