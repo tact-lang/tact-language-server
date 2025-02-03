@@ -35,6 +35,8 @@ function anyItemToString(item: unknown): string {
     if (typeof item === "object") {
         let str = "{"
         for (const key in item) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             str += `${str.length === 1 ? "" : ","}\n  ${key}: ${anyItemToString(item[key])}`
         }
         return str.length === 1 ? "{}" : str + "\n}"
