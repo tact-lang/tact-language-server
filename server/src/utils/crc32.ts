@@ -2,7 +2,7 @@ const POLYNOMIAL = -306674912
 
 let crc32_table: Int32Array | undefined = undefined
 
-export function crc32(str: string, crc = 0xffffffff) {
+export function crc32(str: string, crc: number = 0xffffffff) {
     const bytes = Buffer.from(str)
     if (crc32_table === undefined) {
         calcTable()
