@@ -44,7 +44,7 @@ export class CompletionContext {
         this.settings = settings
 
         const lines = content.split(/\n/g)
-        if (lines[position.line] && lines[position.line][position.character - 1]) {
+        if (lines[position.line]?.[position.character - 1]) {
             const symbolAfter = lines[position.line][position.character - 1]
             this.afterDot = symbolAfter === "."
         }
