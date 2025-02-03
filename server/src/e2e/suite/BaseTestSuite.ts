@@ -12,7 +12,8 @@ export interface TestUpdate {
 }
 
 export abstract class BaseTestSuite {
-    protected static readonly UPDATE_SNAPSHOTS = process.env["UPDATE_SNAPSHOTS"] === "true"
+    // eslint-disable-next-line @typescript-eslint/dot-notation
+    protected static readonly UPDATE_SNAPSHOTS: boolean = process.env["UPDATE_SNAPSHOTS"] === "true"
     protected document!: vscode.TextDocument
     protected editor!: vscode.TextEditor
     protected testFilePath!: string
@@ -73,11 +74,11 @@ export abstract class BaseTestSuite {
         return positions
     }
 
-    suiteTeardown(): true {
-        const fileUpdates = new Map<string, TestUpdate[]>()
+    suiteTeardown() {
+        const fileUpdates: Map<string, TestUpdate[]> = new Map()
 
         for (const update of this.updates) {
-            const updates = fileUpdates.get(update.filePath) || []
+            const updates = fileUpdates.get(update.filePath) ?? []
             updates.push(update)
             fileUpdates.set(update.filePath, updates)
         }
@@ -85,6 +86,7 @@ export abstract class BaseTestSuite {
         for (const [filePath, updates] of fileUpdates.entries()) {
             TestParser.updateExpectedBatch(filePath, updates)
         }
+
         return true
     }
 

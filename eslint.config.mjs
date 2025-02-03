@@ -1,10 +1,8 @@
-// @ts-check
-
-import path from "path"
+import path from "node:path"
 import tseslint from "typescript-eslint"
-import {fileURLToPath} from "url"
+import url from "node:url"
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
 export default tseslint.config(
     // register plugins
@@ -18,6 +16,7 @@ export default tseslint.config(
     {
         ignores: [
             "**/*.js",
+            "eslint.config.mjs",
             ".github/*",
             ".yarn/*",
             ".vscode-test/*",
@@ -28,6 +27,7 @@ export default tseslint.config(
         ],
     },
 
+    tseslint.configs.stylisticTypeChecked,
     tseslint.configs.strictTypeChecked,
 
     {
@@ -37,10 +37,19 @@ export default tseslint.config(
                 tsconfigRootDir: __dirname,
             },
         },
-    },
 
-    {
         rules: {
+            // override stylisticTypeChecked
+            "@typescript-eslint/no-empty-function": ["error", {allow: ["arrowFunctions"]}],
+            "@typescript-eslint/no-inferrable-types": "off",
+            "@typescript-eslint/typedef": [
+                "error",
+                {parameter: true, memberVariableDeclaration: true},
+            ],
+            "@typescript-eslint/consistent-generic-constructors": ["error", "type-annotation"],
+            "@typescript-eslint/prefer-optional-chain": "off",
+
+            // override strictTypeChecked
             "@typescript-eslint/no-unused-vars": "off",
             "@typescript-eslint/no-base-to-string": "off",
             "@typescript-eslint/unbound-method": "off",

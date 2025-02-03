@@ -33,7 +33,7 @@ export class StructInitializationInspection {
         const fields = structDef.fields()
         const requiredFields = fields.filter(f => f.defaultValue() === null).map(f => f.name())
 
-        const initializedFields = new Set<string>()
+        const initializedFields: Set<string> = new Set()
         args.children.forEach(child => {
             if (!child) return
             if (child.type !== "instance_argument") return

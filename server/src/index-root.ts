@@ -8,12 +8,12 @@ import {index} from "./indexes"
 import {createFiftParser} from "./parser"
 import {measureTime} from "@server/psi/utils"
 
-export const PARSED_FILES_CACHE = new LRUMap<string, File>({
+export const PARSED_FILES_CACHE: LRUMap<string, File> = new LRUMap({
     size: 100,
     dispose: _entries => {},
 })
 
-export const FIFT_PARSED_FILES_CACHE = new LRUMap<string, File>({
+export const FIFT_PARSED_FILES_CACHE: LRUMap<string, File> = new LRUMap({
     size: 100,
     dispose: _entries => {},
 })

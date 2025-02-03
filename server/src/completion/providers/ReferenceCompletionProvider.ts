@@ -76,12 +76,12 @@ export class ReferenceCompletionProvider implements CompletionProvider {
             .filter(it => it?.type === "instance_argument")
             .filter(it => it !== null)
 
-        const fieldNames = new Set<string>()
+        const fieldNames: Set<string> = new Set()
         fields.forEach(field => {
             fieldNames.add(field.name())
         })
 
-        const alreadyInitialized = new Set<string>()
+        const alreadyInitialized: Set<string> = new Set()
         initializedFields.forEach(it => {
             const name = it.childForFieldName("name")
             if (!name) return

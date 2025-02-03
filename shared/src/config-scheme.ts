@@ -7,7 +7,7 @@ export interface TactPluginConfigScheme {}
 // package.json, configuration properties default values
 export const defaultConfig: TactPluginConfigScheme = {}
 
-export type ClientOptions = {
+export interface ClientOptions {
     treeSitterWasmUri: string
     tactLangWasmUri: string
     fiftLangWasmUri: string

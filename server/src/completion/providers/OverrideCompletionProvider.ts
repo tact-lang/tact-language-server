@@ -18,7 +18,7 @@ export class OverrideCompletionProvider implements CompletionProvider {
 
         const inheritMethods = owner.inheritTraits().flatMap(trait => trait.methods())
 
-        const added = new Set<string>()
+        const added: Set<string> = new Set()
 
         // add already defined methods to avoid duplicates
         for (const ownMethod of owner.ownMethods()) {

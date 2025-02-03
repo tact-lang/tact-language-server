@@ -9,13 +9,13 @@ export class UnusedImportInspection {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 
-        const imports = new Map<
+        const imports: Map<
             string,
             {
                 node: SyntaxNode
                 names: Set<string>
             }
-        >()
+        > = new Map()
 
         const importNodes = file.rootNode.children
             .filter(it => it?.type === "import")
@@ -31,7 +31,7 @@ export class UnusedImportInspection {
 
             const decls = importedFile.getDecls()
 
-            const names = new Set<string>()
+            const names: Set<string> = new Set()
             decls.forEach(d => {
                 names.add(d.name())
             })
