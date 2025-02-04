@@ -99,7 +99,7 @@ export abstract class BaseTestSuite {
             directory,
             "*.test",
         )
-        const testFiles = glob.sync(testCasesPath)
+        const testFiles = glob.sync(testCasesPath, {windowsPathsNoEscape: true})
 
         if (testFiles.length === 0) {
             throw new Error(`No test files found in ${path.dirname(testCasesPath)}`)
