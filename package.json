@@ -21,7 +21,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/i582/language-server"
+        "url": "https://github.com/tact-lang/tact-language-server"
     },
     "author": "TON Studio",
     "publisher": "ton-studio",
@@ -31,7 +31,7 @@
         "build": "webpack",
         "package": "npx vsce package --no-yarn",
         "lint": "eslint --cache .",
-        "fmt": "prettier --write --cache .",
+        "fmt": "prettier --write -l --cache .",
         "fmt:check": "prettier --check --cache .",
         "grammar:wasm": "yarn grammar:tact:wasm && yarn grammar:fift:wasm",
         "grammar:tact:wasm": "cd tree-sitter-tact && tree-sitter generate && tree-sitter build --wasm",

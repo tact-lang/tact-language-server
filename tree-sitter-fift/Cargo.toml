@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 keywords = ["incremental", "parsing", "tree-sitter", "fift"]
 categories = ["parser-implementations", "parsing", "text-editors"]
-repository = "https://github.com/i582/language-server"
+repository = "https://github.com/tact-lang/tact-language-server"
 edition = "2021"
 autoexamples = false
 

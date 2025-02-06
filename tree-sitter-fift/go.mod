@@ -1,4 +1,4 @@
-module github.com/i582/language-server
+module github.com/tact-lang/tact-language-server
 
 go 1.22
 
