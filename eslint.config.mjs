@@ -1,6 +1,7 @@
 import path from "node:path"
 import tseslint from "typescript-eslint"
 import url from "node:url"
+import unusedImports from "eslint-plugin-unused-imports"
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
@@ -9,6 +10,7 @@ export default tseslint.config(
     {
         plugins: {
             ["@typescript-eslint"]: tseslint.plugin,
+            ["@unused-imports"]: unusedImports,
         },
     },
 
@@ -59,6 +61,8 @@ export default tseslint.config(
 
             "@typescript-eslint/prefer-readonly": "error",
             "@typescript-eslint/switch-exhaustiveness-check": "error",
+
+            "@unused-imports/no-unused-imports": "error",
         },
     },
 )
