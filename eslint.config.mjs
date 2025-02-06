@@ -63,6 +63,7 @@ export default tseslint.config(
             "@typescript-eslint/switch-exhaustiveness-check": "error",
 
             "@unused-imports/no-unused-imports": "error",
+            "no-duplicate-imports": "error",
         },
     },
 )

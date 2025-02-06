@@ -50,6 +50,7 @@ import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
 import {CACHE} from "./cache"
 import {
     findFile,
+    findFiftFile,
     IndexRoot,
     IndexRootKind,
     PARSED_FILES_CACHE,
@@ -65,7 +66,6 @@ import {collectFift as collectFiftSemanticTokens} from "./fift/semantic_tokens/c
 import {FiftReference} from "@server/fift/psi/FiftReference"
 import {collectFift as collectFiftInlays} from "./fift/inlays/collect"
 import {FiftReferent} from "@server/fift/psi/FiftReferent"
-import {findFiftFile} from "./index-root"
 import {generateFiftDocFor} from "./fift/documentation/documentation"
 import {UnusedContractMembersInspection} from "./inspections/UnusedContractMembersInspection"
 import {generateKeywordDoc} from "@server/documentation/keywords_documentation"
