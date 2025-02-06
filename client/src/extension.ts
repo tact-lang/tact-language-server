@@ -32,6 +32,59 @@ export function deactivate(): Thenable<void> | undefined {
     return client.stop()
 }
 
+async function startServer(context: vscode.ExtensionContext): Promise<vscode.Disposable> {
+    const disposables: vscode.Disposable[] = []
+
+    const clientOptions: LanguageClientOptions = {
+        outputChannel: createClientLog(),
+        revealOutputChannelOn: RevealOutputChannelOn.Never,
+        documentSelector: [
+            {scheme: "file", language: "tact"},
+            {scheme: "file", language: "fift"},
+        ],
+        synchronize: {
+            configurationSection: "tact",
+            fileEvents: vscode.workspace.createFileSystemWatcher("**/*.tact"),
+        },
+        initializationOptions: {
+            clientConfig: getClientConfiguration(),
+            treeSitterWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter.wasm")
+                .fsPath,
+            tactLangWasmUri: vscode_uri.joinPath(
+                context.extensionUri,
+                "./dist/tree-sitter-tact.wasm",
+            ).fsPath,
+            fiftLangWasmUri: vscode_uri.joinPath(
+                context.extensionUri,
+                "./dist/tree-sitter-fift.wasm",
+            ).fsPath,
+        } as ClientOptions,
+    }
+
+    const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
+
+    const serverOptions: ServerOptions = {
+        run: {
+            module: serverModule,
+            transport: TransportKind.ipc,
+        },
+        debug: {
+            module: serverModule,
+            transport: TransportKind.ipc,
+            options: {execArgv: ["--nolazy", "--inspect=6009"]}, // same port as in .vscode/launch.json
+        },
+    }
+    client = new LanguageClient("tact-server", "Tact Language Server", serverOptions, clientOptions)
+
+    await client.start()
+
+    registerCommands(disposables)
+
+    return new vscode.Disposable(() => {
+        disposables.forEach(d => void d.dispose())
+    })
+}
+
 async function showReferencesImpl(
     client: LanguageClient | undefined,
     uri: string,
@@ -127,57 +180,4 @@ function registerCommands(disposables: vscode.Disposable[]) {
             },
         ),
     )
-}
-
-async function startServer(context: vscode.ExtensionContext): Promise<vscode.Disposable> {
-    const disposables: vscode.Disposable[] = []
-
-    const clientOptions: LanguageClientOptions = {
-        outputChannel: createClientLog(),
-        revealOutputChannelOn: RevealOutputChannelOn.Never,
-        documentSelector: [
-            {scheme: "file", language: "tact"},
-            {scheme: "file", language: "fift"},
-        ],
-        synchronize: {
-            configurationSection: "tact",
-            fileEvents: vscode.workspace.createFileSystemWatcher("**/*.tact"),
-        },
-        initializationOptions: {
-            clientConfig: getClientConfiguration(),
-            treeSitterWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter.wasm")
-                .fsPath,
-            tactLangWasmUri: vscode_uri.joinPath(
-                context.extensionUri,
-                "./dist/tree-sitter-tact.wasm",
-            ).fsPath,
-            fiftLangWasmUri: vscode_uri.joinPath(
-                context.extensionUri,
-                "./dist/tree-sitter-fift.wasm",
-            ).fsPath,
-        } as ClientOptions,
-    }
-
-    const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
-
-    const serverOptions: ServerOptions = {
-        run: {
-            module: serverModule,
-            transport: TransportKind.ipc,
-        },
-        debug: {
-            module: serverModule,
-            transport: TransportKind.ipc,
-            options: {execArgv: ["--nolazy", "--inspect=6009"]}, // same port as in .vscode/launch.json
-        },
-    }
-    client = new LanguageClient("tact-server", "Tact Language Server", serverOptions, clientOptions)
-
-    await client.start()
-
-    registerCommands(disposables)
-
-    return new vscode.Disposable(() => {
-        disposables.forEach(d => void d.dispose())
-    })
 }
