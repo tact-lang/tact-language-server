@@ -75,6 +75,7 @@ import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsC
 import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 import {DocumentUri, TextEdit} from "vscode-languageserver-types"
 import {MissedFieldInContractInspection} from "@server/inspections/MissedFieldInContractInspection"
+import {MistiInspection} from "@server/inspections/MistInspection"
 
 /**
  * Whenever LS is initialized.
@@ -274,6 +275,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         }
 
         // const compilerInspection = new CompilerInspection()
+        // diagnostics.push(...await compilerInspection.inspect(file))
+
+        // const compilerInspection = new MistiInspection()
         // diagnostics.push(...await compilerInspection.inspect(file))
 
         await connection.sendDiagnostics({uri, diagnostics})
