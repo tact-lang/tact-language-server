@@ -705,7 +705,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const res = Reference.resolve(element)
             if (res === null) return null
 
-            if (res.file.fromStdlib) {
+            if (res.file.fromStdlib || res.file.fromStubs) {
                 showErrorMessage(`Can not rename element from Standard Library`)
                 return null
             }
