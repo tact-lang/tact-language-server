@@ -1,5 +1,5 @@
 {
-    "name": "tact-vscode",
+    "name": "vscode-tact",
     "displayName": "Tact Language",
     "description": "Support for Tact Language in VS Code",
     "keywords": [

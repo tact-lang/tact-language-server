@@ -5984,47 +5984,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tact-vscode@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "tact-vscode@workspace:."
-  dependencies:
-    "@types/jest": "npm:^29.5.12"
-    "@types/mocha": "npm:^10.0.6"
-    "@types/node": "npm:^22.2.0"
-    "@types/vscode": "npm:^1.63.0"
-    "@vscode/test-cli": "npm:^0.0.10"
-    "@vscode/test-electron": "npm:^2.4.1"
-    c8: "npm:^10.1.3"
-    copy-webpack-plugin: "npm:^12.0.2"
-    eslint: "npm:^9.19.0"
-    glob: "npm:^11.0.1"
-    husky: "npm:^9.1.7"
-    jest: "npm:^29.7.0"
-    mocha: "npm:^10.3.0"
-    prettier: "npm:3.4.2"
-    tree-sitter-cli: "npm:^0.25.0"
-    ts-jest: "npm:^29.2.4"
-    ts-loader: "npm:^9.5.1"
-    ts-node: "npm:^10.9.2"
-    tsconfig-paths-webpack-plugin: "npm:^4.2.0"
-    typescript: "npm:^5.7.0"
-    typescript-eslint: "npm:^8.22.0"
-    vsce: "npm:2.15.0"
-    vscode-languageclient: "npm:^8.0.2"
-    vscode-languageserver: "npm:^8.0.2"
-    vscode-languageserver-textdocument: "npm:^1.0.7"
-    vscode-uri: "npm:^3.0.7"
-    web-tree-sitter: "npm:^0.25.0"
-    webpack: "npm:^5.92.1"
-    webpack-cli: "npm:^5.1.4"
-  peerDependencies:
-    tree-sitter: ^0.21.1
-  peerDependenciesMeta:
-    tree-sitter:
-      optional: true
-  languageName: unknown
-  linkType: soft
-
 "tapable@npm:^2.1.1, tapable@npm:^2.2.0, tapable@npm:^2.2.1":
   version: 2.2.1
   resolution: "tapable@npm:2.2.1"
@@ -6558,6 +6517,47 @@ __metadata:
   checksum: 10c0/1c05a491bbb4fb5266b3cc7d0be3b267aea2ff0c8aece2d8fb35e0a1b86ccc9aee252d08becec97d292fd3e1cc099cf350d720fb6c1a19f64fd1ac360f6248ae
   languageName: node
   linkType: hard
+
+"vscode-tact@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "vscode-tact@workspace:."
+  dependencies:
+    "@types/jest": "npm:^29.5.12"
+    "@types/mocha": "npm:^10.0.6"
+    "@types/node": "npm:^22.2.0"
+    "@types/vscode": "npm:^1.63.0"
+    "@vscode/test-cli": "npm:^0.0.10"
+    "@vscode/test-electron": "npm:^2.4.1"
+    c8: "npm:^10.1.3"
+    copy-webpack-plugin: "npm:^12.0.2"
+    eslint: "npm:^9.19.0"
+    glob: "npm:^11.0.1"
+    husky: "npm:^9.1.7"
+    jest: "npm:^29.7.0"
+    mocha: "npm:^10.3.0"
+    prettier: "npm:3.4.2"
+    tree-sitter-cli: "npm:^0.25.0"
+    ts-jest: "npm:^29.2.4"
+    ts-loader: "npm:^9.5.1"
+    ts-node: "npm:^10.9.2"
+    tsconfig-paths-webpack-plugin: "npm:^4.2.0"
+    typescript: "npm:^5.7.0"
+    typescript-eslint: "npm:^8.22.0"
+    vsce: "npm:2.15.0"
+    vscode-languageclient: "npm:^8.0.2"
+    vscode-languageserver: "npm:^8.0.2"
+    vscode-languageserver-textdocument: "npm:^1.0.7"
+    vscode-uri: "npm:^3.0.7"
+    web-tree-sitter: "npm:^0.25.0"
+    webpack: "npm:^5.92.1"
+    webpack-cli: "npm:^5.1.4"
+  peerDependencies:
+    tree-sitter: ^0.21.1
+  peerDependenciesMeta:
+    tree-sitter:
+      optional: true
+  languageName: unknown
+  linkType: soft
 
 "vscode-uri@npm:^3.0.7":
   version: 3.0.8

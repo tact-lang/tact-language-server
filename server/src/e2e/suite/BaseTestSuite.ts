@@ -120,10 +120,10 @@ export abstract class BaseTestSuite {
 async function activate(): Promise<void> {
     console.log("Activating extension...")
 
-    const ext = vscode.extensions.getExtension("tonstudio.tact-vscode")
+    const ext = vscode.extensions.getExtension("tonstudio.vscode-tact")
     if (!ext) {
         throw new Error(
-            "Extension not found. Make sure the extension is installed and the ID is correct (tonstudio.tact-vscode)",
+            "Extension not found. Make sure the extension is installed and the ID is correct (tonstudio.vscode-tact)",
         )
     }
 
