@@ -167,7 +167,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
             const typeNode = node.typeNode()
             const valueType = typeNode?.type()?.qualifiedName() ?? ""
-            const details = this.ctx.inNameOfFieldInit ? `: <value>` : ": " + valueType
+            const details = this.ctx.inNameOfFieldInit ? `: ${valueType} ` : ": " + valueType
             const labelSuffix = this.ctx.inNameOfFieldInit ? ` ` : "" // needed to distinguish from variable
 
             this.addItem({
