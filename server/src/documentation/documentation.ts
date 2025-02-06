@@ -39,11 +39,13 @@ export function generateDocFor(node: NamedNode): string | null {
             const doc = extractCommentsDoc(node)
 
             const actualId = func.computeMethodId()
-            const actualIdPresentation = `Method ID: \`0x${actualId.toString(16)}\``
+            const actualIdPresentation = `Method ID: \`0x${actualId.toString(16)}\`\n\n`
+
+            const idPresentation = func.isGetMethod ? actualIdPresentation : ""
 
             return defaultResult(
                 `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}`,
-                actualIdPresentation + "\n\n" + doc,
+                idPresentation + doc,
             )
         }
         case "asm_function": {
