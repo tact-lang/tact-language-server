@@ -5,7 +5,10 @@ let consoleLogChannel: vscode.OutputChannel | null = null
 export function createClientLog(): vscode.OutputChannel {
     if (!consoleLogChannel) {
         consoleLogChannel = vscode.window.createOutputChannel("Tact")
-        consoleLogChannel.show(true)
+
+        if (process.env["TACT_LS_DEV"] === "true") {
+            consoleLogChannel.show(true)
+        }
     }
     return consoleLogChannel
 }
