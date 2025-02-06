@@ -2,9 +2,8 @@ import {File} from "@server/psi/File"
 import {glob} from "glob"
 import * as fs from "fs"
 import {URI} from "vscode-uri"
-import {createTactParser} from "./parser"
+import {createTactParser, createFiftParser} from "./parser"
 import {index} from "./indexes"
-import {createFiftParser} from "./parser"
 import {measureTime} from "@server/psi/utils"
 
 export const PARSED_FILES_CACHE: Map<string, File> = new Map()
