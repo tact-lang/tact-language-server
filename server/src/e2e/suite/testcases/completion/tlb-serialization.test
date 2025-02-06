@@ -1,7 +1,9 @@
 ========================================================================
-Message fields completion
+TL-B serialization types completion
 ========================================================================
-struct Transfer {
+primitive Int;
+
+message Transfer {
     amount: Int as <caret>;
 }
 ------------------------------------------------------------------------
@@ -21,3 +23,52 @@ struct Transfer {
 13 uint64
 13 uint8
 13 uint{X}
+
+========================================================================
+TL-B serialization types for non Int completion
+========================================================================
+primitive Address;
+
+struct Transfer {
+    owner: Address as <caret>;
+}
+------------------------------------------------------------------------
+0  Address
+0  as
+0  owner
+0  primitive
+0  struct
+0  Transfer
+
+========================================================================
+TL-B serialization types for Slice completion
+========================================================================
+primitive Slice;
+
+struct Transfer {
+    value: Slice as <caret>;
+}
+------------------------------------------------------------------------
+13 remaining
+
+========================================================================
+TL-B serialization types for Cell completion
+========================================================================
+primitive Cell;
+
+struct Transfer {
+    value: Cell as <caret>;
+}
+------------------------------------------------------------------------
+13 remaining
+
+========================================================================
+TL-B serialization types for Builder completion
+========================================================================
+primitive Builder;
+
+struct Transfer {
+    value: Builder as <caret>;
+}
+------------------------------------------------------------------------
+13 remaining

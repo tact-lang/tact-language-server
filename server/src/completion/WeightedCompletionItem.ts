@@ -35,7 +35,7 @@ export class CompletionResult {
         if (this.elements.length === 0) return []
 
         const sorted = this.elements.sort((a, b) => {
-            if (!a.weight || !b.weight) return 0
+            if (a.weight === undefined || b.weight === undefined) return 0
             return a.weight - b.weight
         })
 

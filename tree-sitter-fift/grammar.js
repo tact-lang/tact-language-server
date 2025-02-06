@@ -21,9 +21,8 @@ module.exports = grammar({
 
         declaration: $ =>
             choice(
-                seq(field("name", $.identifier), "DECLPROC"),
+                seq("DECLPROC", field("name", $.identifier)),
                 seq(/\d+/, "DECLMETHOD", field("name", $.identifier)),
-                seq(field("name", $.identifier), "DECLGLOBVAR"),
             ),
 
         global_var: $ => seq("DECLGLOBVAR", field("name", $.identifier)),

@@ -68,8 +68,8 @@ The language server supports the following settings:
             exitCodeFormat: "decimal",
         },
         codeLens: {
-            enabled: true,
             // Enable/disable all code lens
+            enabled: true,
         },
     },
 }

@@ -101,16 +101,16 @@
                     "type": "SEQ",
                     "members": [
                         {
+                            "type": "STRING",
+                            "value": "DECLPROC"
+                        },
+                        {
                             "type": "FIELD",
                             "name": "name",
                             "content": {
                                 "type": "SYMBOL",
                                 "name": "identifier"
                             }
-                        },
-                        {
-                            "type": "STRING",
-                            "value": "DECLPROC"
                         }
                     ]
                 },
@@ -132,23 +132,6 @@
                                 "type": "SYMBOL",
                                 "name": "identifier"
                             }
-                        }
-                    ]
-                },
-                {
-                    "type": "SEQ",
-                    "members": [
-                        {
-                            "type": "FIELD",
-                            "name": "name",
-                            "content": {
-                                "type": "SYMBOL",
-                                "name": "identifier"
-                            }
-                        },
-                        {
-                            "type": "STRING",
-                            "value": "DECLGLOBVAR"
                         }
                     ]
                 }

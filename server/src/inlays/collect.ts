@@ -189,7 +189,7 @@ export function collect(
             if (!openBrace) return true
 
             const gas = func.computeGasConsumption()
-            if (gas.unknown || gas.singleInstr) return true
+            if (gas.unknown || gas.singleInstr || gas.value === 0) return true
 
             const presentation = gas.exact ? `${gas.value} gas` : `~${gas.value} gas`
 

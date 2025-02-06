@@ -13,6 +13,10 @@ export class File {
         return this.uri.includes("stdlib")
     }
 
+    public get fromStubs(): boolean {
+        return this.uri.endsWith("stubs.tact")
+    }
+
     public get rootNode(): SyntaxNode {
         return this.tree.rootNode
     }

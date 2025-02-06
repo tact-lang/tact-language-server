@@ -279,6 +279,13 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         await connection.sendDiagnostics({uri, diagnostics})
     })
 
+    const showErrorMessage = (msg: string) => {
+        void connection.sendNotification(lsp.ShowMessageNotification.type, {
+            type: lsp.MessageType.Error,
+            message: msg,
+        })
+    }
+
     connection.onDidChangeWatchedFiles(params => {
         for (const change of params.changes) {
             const uri = change.uri
@@ -691,6 +698,15 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const renameNode = nodeAtPosition(params, file)
             if (!renameNode) return null
             if (renameNode.type !== "identifier" && renameNode.type !== "type_identifier") {
+                return null
+            }
+
+            const element = NamedNode.create(renameNode, file)
+            const res = Reference.resolve(element)
+            if (res === null) return null
+
+            if (res.file.fromStdlib || res.file.fromStubs) {
+                showErrorMessage(`Can not rename element from Standard Library`)
                 return null
             }
 
