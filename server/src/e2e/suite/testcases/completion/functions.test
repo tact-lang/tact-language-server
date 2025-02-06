@@ -46,7 +46,7 @@ fun test() {
     let result = <caret>
 }
 ------------------------------------------------------------------------
-5  result  unknown
+5  result   unknown
 13 false
 13 null
 13 true
@@ -87,7 +87,7 @@ fun test() {
     let x = add(<caret>)
 }
 ------------------------------------------------------------------------
-5  x  Int
+5  x   Int
 13 false
 13 null
 13 true
