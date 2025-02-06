@@ -2,6 +2,7 @@ import {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import {CompletionContext} from "@server/completion/CompletionContext"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
+import {Field} from "@server/psi/Decls"
 
 export class TlbSerializationCompletionProvider implements CompletionProvider {
     // see https://docs.tact-lang.org/book/integers/#common-serialization-types
@@ -28,15 +29,35 @@ export class TlbSerializationCompletionProvider implements CompletionProvider {
         return ctx.inTlbSerialization
     }
 
-    addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
-        for (const type of this.types) {
+    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
+        const fieldNode = ctx.element.node.parent?.parent
+        if (fieldNode?.type !== "field") return
+
+        const field = new Field(fieldNode, ctx.element.file)
+        const type = field.typeNode()?.type()
+        if (!type) return
+
+        const typeName = type.name()
+        if (typeName === "Cell" || typeName === "Slice" || typeName === "Builder") {
             result.add({
-                label: type,
+                label: "remaining",
                 kind: CompletionItemKind.Keyword,
-                insertTextFormat: InsertTextFormat.Snippet,
-                insertText: type.includes("{X}") ? type.replace("{X}", "$1") : type,
+                insertText: "remaining",
                 weight: CompletionWeight.CONTEXT_ELEMENT,
             })
+            return
+        }
+
+        if (typeName === "Int") {
+            for (const type of this.types) {
+                result.add({
+                    label: type,
+                    kind: CompletionItemKind.Keyword,
+                    insertTextFormat: InsertTextFormat.Snippet,
+                    insertText: type.includes("{X}") ? type.replace("{X}", "$1") : type,
+                    weight: CompletionWeight.CONTEXT_ELEMENT,
+                })
+            }
         }
     }
 }
