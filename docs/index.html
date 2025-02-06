@@ -499,7 +499,7 @@
                 const scrollPosition = window.scrollY
                 const section = Math.floor(scrollPosition / 30)
 
-                if (section !== currentImageIndex && section < images.length) {
+                if (section !== currentImageIndex && section < images.length && section > 0) {
                     heroImage.classList.add("fade")
                     setTimeout(() => {
                         currentImageIndex = section
