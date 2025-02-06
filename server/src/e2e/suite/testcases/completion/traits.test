@@ -81,13 +81,13 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+9  name: String; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
 13 inline fun name() {}
-9  name: String; of Parent
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 
@@ -109,14 +109,14 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-13 abstract fun name();
 9  age: Int; of Grand
+9  name: String; of Parent
+13 abstract fun name();
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
 13 inline fun name() {}
-9  name: String; of Parent
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 
@@ -136,8 +136,8 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-13 abstract fun name();
 9  age: Int; of Parent
+13 abstract fun name();
 13 bounced(msg: <type>) {}
 13 fun name() {}
 13 get fun name() {}

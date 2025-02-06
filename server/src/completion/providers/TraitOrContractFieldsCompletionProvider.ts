@@ -41,7 +41,7 @@ export class TraitOrContractFieldsCompletionProvider implements CompletionProvid
                 },
                 insertText: `${field.name()}: ${type};$0`,
                 insertTextFormat: InsertTextFormat.Snippet,
-                weight: CompletionWeight.KEYWORD,
+                weight: CompletionWeight.CONTEXT_ELEMENT,
             })
 
             added.add(field.name())
