@@ -210,10 +210,10 @@ export class Reference {
             if (methodRef) {
                 if (!this.processNamedEls(proc, state, qualifierType.methods())) return false
                 if (!this.processNamedEls(proc, state, qualifierType.ownFields())) return false
-                if (!this.processNamedEls(proc, state, qualifierType.ownConstants())) return false
+                if (!this.processNamedEls(proc, state, qualifierType.constants())) return false
             } else {
                 if (!this.processNamedEls(proc, state, qualifierType.ownFields())) return false
-                if (!this.processNamedEls(proc, state, qualifierType.ownConstants())) return false
+                if (!this.processNamedEls(proc, state, qualifierType.constants())) return false
                 if (!this.processNamedEls(proc, state, qualifierType.methods())) return false
             }
         }
