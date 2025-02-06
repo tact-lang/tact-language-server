@@ -1,4 +1,3 @@
-import {LRUMap} from "@server/utils/lruMap"
 import {File} from "@server/psi/File"
 import {glob} from "glob"
 import * as fs from "fs"
@@ -8,15 +7,9 @@ import {index} from "./indexes"
 import {createFiftParser} from "./parser"
 import {measureTime} from "@server/psi/utils"
 
-export const PARSED_FILES_CACHE: LRUMap<string, File> = new LRUMap({
-    size: 100,
-    dispose: _entries => {},
-})
+export const PARSED_FILES_CACHE: Map<string, File> = new Map()
 
-export const FIFT_PARSED_FILES_CACHE: LRUMap<string, File> = new LRUMap({
-    size: 100,
-    dispose: _entries => {},
-})
+export const FIFT_PARSED_FILES_CACHE: Map<string, File> = new Map()
 
 export enum IndexRootKind {
     Stdlib = "stdlib",
