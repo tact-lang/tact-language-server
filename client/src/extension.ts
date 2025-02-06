@@ -32,6 +32,103 @@ export function deactivate(): Thenable<void> | undefined {
     return client.stop()
 }
 
+async function showReferencesImpl(
+    client: LanguageClient | undefined,
+    uri: string,
+    position: Position,
+) {
+    if (!client) return
+    await vscode.commands.executeCommand(
+        "editor.action.showReferences",
+        vscode.Uri.parse(uri),
+        client.protocol2CodeConverter.asPosition(position),
+        [],
+    )
+}
+
+function registerCommands(disposables: vscode.Disposable[]) {
+    disposables.push(
+        vscode.commands.registerCommand(
+            "tact.showParent",
+            async (uri: string, position: Position) => {
+                if (!client) return
+                await showReferencesImpl(client, uri, position)
+            },
+        ),
+    )
+
+    disposables.push(
+        vscode.commands.registerCommand(
+            "tact.showReferences",
+            async (uri: string, position: Position, locations: Location[]) => {
+                if (!client) return
+                await vscode.commands.executeCommand(
+                    "editor.action.showReferences",
+                    vscode.Uri.parse(uri),
+                    client.protocol2CodeConverter.asPosition(position),
+                    locations.map(client.protocol2CodeConverter.asLocation),
+                )
+            },
+        ),
+    )
+
+    disposables.push(
+        vscode.commands.registerCommand(
+            GetTypeAtPositionRequest,
+            async (params: GetTypeAtPositionParams | undefined) => {
+                if (!client) {
+                    return null
+                }
+
+                const isFromEditor = !params
+                if (!params) {
+                    const editor = vscode.window.activeTextEditor
+                    if (!editor) {
+                        return null
+                    }
+
+                    params = {
+                        textDocument: {
+                            uri: editor.document.uri.toString(),
+                        },
+                        position: {
+                            line: editor.selection.active.line,
+                            character: editor.selection.active.character,
+                        },
+                    }
+                }
+
+                const result = await client.sendRequest<GetTypeAtPositionResponse>(
+                    GetTypeAtPositionRequest,
+                    params,
+                )
+
+                if (isFromEditor && result.type) {
+                    void vscode.window.showInformationMessage(`Type: ${result.type}`)
+                }
+
+                return result
+            },
+        ),
+    )
+
+    disposables.push(
+        vscode.commands.registerCommand(
+            GetDocumentationAtPositionRequest,
+            async (params: GetTypeAtPositionParams | undefined) => {
+                if (!client || !params) {
+                    return null
+                }
+
+                return await client.sendRequest<GetTypeAtPositionResponse>(
+                    GetDocumentationAtPositionRequest,
+                    params,
+                )
+            },
+        ),
+    )
+}
+
 async function startServer(context: vscode.ExtensionContext): Promise<vscode.Disposable> {
     const disposables: vscode.Disposable[] = []
 
@@ -78,93 +175,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
 
     await client.start()
 
-    vscode.commands.registerCommand("tact.showParent", async (uri: string, position: Position) => {
-        if (!client) return
-        await showReferencesImpl(client, uri, position)
-    })
-
-    async function showReferencesImpl(
-        client: LanguageClient | undefined,
-        uri: string,
-        position: Position,
-    ) {
-        if (!client) return
-        await vscode.commands.executeCommand(
-            "editor.action.showReferences",
-            vscode.Uri.parse(uri),
-            client.protocol2CodeConverter.asPosition(position),
-            [],
-        )
-    }
-
-    vscode.commands.registerCommand(
-        "tact.showReferences",
-        async (uri: string, position: Position, locations: Location[]) => {
-            if (!client) return
-            await vscode.commands.executeCommand(
-                "editor.action.showReferences",
-                vscode.Uri.parse(uri),
-                client.protocol2CodeConverter.asPosition(position),
-                locations.map(client.protocol2CodeConverter.asLocation),
-            )
-        },
-    )
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(
-            GetTypeAtPositionRequest,
-            async (params: GetTypeAtPositionParams | undefined) => {
-                if (!client) {
-                    return null
-                }
-
-                const isFromEditor = !params
-                if (!params) {
-                    const editor = vscode.window.activeTextEditor
-                    if (!editor) {
-                        return null
-                    }
-
-                    params = {
-                        textDocument: {
-                            uri: editor.document.uri.toString(),
-                        },
-                        position: {
-                            line: editor.selection.active.line,
-                            character: editor.selection.active.character,
-                        },
-                    }
-                }
-
-                const result = await client.sendRequest<GetTypeAtPositionResponse>(
-                    GetTypeAtPositionRequest,
-                    params,
-                )
-
-                if (isFromEditor && result.type) {
-                    void vscode.window.showInformationMessage(`Type: ${result.type}`)
-                }
-
-                return result
-            },
-        ),
-    )
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(
-            GetDocumentationAtPositionRequest,
-            async (params: GetTypeAtPositionParams | undefined) => {
-                if (!client || !params) {
-                    return null
-                }
-
-                return await client.sendRequest<GetTypeAtPositionResponse>(
-                    GetDocumentationAtPositionRequest,
-                    params,
-                )
-            },
-        ),
-    )
+    registerCommands(disposables)
 
     return new vscode.Disposable(() => {
         disposables.forEach(d => void d.dispose())

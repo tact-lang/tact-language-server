@@ -24,7 +24,7 @@
         "url": "https://github.com/tact-lang/tact-language-server"
     },
     "author": "TON Studio",
-    "publisher": "ton-studio",
+    "publisher": "tonstudio",
     "license": "MIT",
     "scripts": {
         "test": "yarn jest",
