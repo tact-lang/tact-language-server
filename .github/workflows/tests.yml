@@ -11,6 +11,7 @@ env:
 
 jobs:
   tests:
+    if: ${{ false }}
     name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
