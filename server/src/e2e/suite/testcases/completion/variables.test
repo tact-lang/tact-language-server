@@ -13,9 +13,9 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-5  myAddress  Address
-5  myInt  Int
-5  myString  String
+5  myAddress   Address
+5  myInt   Int
+5  myString   String
 13 false
 13 null
 13 return;
@@ -42,8 +42,8 @@ fun test(amount: Int, to: Address) {
     <caret>
 }
 ------------------------------------------------------------------------
-5  amount  Int
-5  to  Address
+5  amount   Int
+5  to   Address
 13 false
 13 null
 13 return;
@@ -70,9 +70,9 @@ extends fun move(self: Point, x: Int, y: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-5  self  Point
-5  x  Int
-5  y  Int
+5  self   Point
+5  x   Int
+5  y   Int
 13 false
 13 null
 13 return;
@@ -100,9 +100,9 @@ extends fun scale(self: Point, factor: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-5  temp  Int
-5  factor  Int
-5  self  Point
+5  temp   Int
+5  factor   Int
+5  self   Point
 13 false
 13 null
 13 return;
@@ -133,8 +133,8 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  inner  Int
-5  outer  Int
+5  inner   Int
+5  outer   Int
 13 false
 13 null
 13 return;
@@ -167,9 +167,9 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  a  Int
-5  b  Int
-5  c  Int
+5  a   Int
+5  b   Int
+5  c   Int
 13 false
 13 null
 13 return;
@@ -199,9 +199,9 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  items  map<Int, Int>
-5  key  Int
-5  value  Int
+5  items   map<Int, Int>
+5  key   Int
+5  value   Int
 13 false
 13 null
 13 return;
@@ -233,8 +233,8 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  result  Int
-5  value  Int
+5  result   Int
+5  value   Int
 13 false
 13 null
 13 return;
@@ -265,8 +265,8 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  error  Int
-5  value  Int
+5  error   Int
+5  value   Int
 13 false
 13 null
 13 return;
@@ -296,7 +296,7 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  value  Int
+5  value   Int
 13 false
 13 null
 13 return;
@@ -323,8 +323,8 @@ fun test(param: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-5  local  Int
-5  param  Int
+5  local   Int
+5  param   Int
 13 false
 13 null
 13 return;
@@ -351,7 +351,7 @@ fun test() {
     let variable: Int = 1;
 }
 ------------------------------------------------------------------------
-5  variable  Int
+5  variable   Int
 13 false
 13 null
 13 return;
@@ -378,7 +378,7 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-5  variable  Int
+5  variable   Int
 13 false
 13 null
 13 return;
@@ -409,8 +409,8 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  first  Int
-5  second  Int
+5  first   Int
+5  second   Int
 13 false
 13 null
 13 return;
@@ -441,9 +441,9 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  first  Int
-5  second  Int
-5  third  Int
+5  first   Int
+5  second   Int
+5  third   Int
 13 false
 13 null
 13 return;

@@ -12,7 +12,7 @@ fun test() {
     value = <caret>
 }
 ------------------------------------------------------------------------
-5  value  Bool
+5  value   Bool
 13 false
 13 true
 2  bar(): Bool
@@ -62,12 +62,12 @@ fun test() {
     value = <caret>
 }
 ------------------------------------------------------------------------
-5  someValue  Int
-5  value  Int?
+5  someValue   Int
+5  value   Int?
 13 null
 2  bar(): Int
 2  foo(): Int
-5  someBool  Bool
+5  someBool   Bool
 13 false
 13 true
 2  test()
@@ -89,12 +89,12 @@ fun test() {
     let value: Int? = <caret>;
 }
 ------------------------------------------------------------------------
-5  someValue  Int
-5  value  Int?
+5  someValue   Int
+5  value   Int?
 13 null
 2  bar(): Int
 2  foo(): Int
-5  someBool  Bool
+5  someBool   Bool
 13 false
 13 true
 2  test()
@@ -116,9 +116,9 @@ fun test() {
     let value = <caret>;
 }
 ------------------------------------------------------------------------
-5  someBool  Bool
-5  someValue  Int
-5  value  unknown
+5  someBool   Bool
+5  someValue   Int
+5  value   unknown
 13 false
 13 null
 13 true
@@ -146,13 +146,13 @@ fun test() {
     let value: MyStruct = <caret>;
 }
 ------------------------------------------------------------------------
-5  someStruct  MyStruct
-5  value  MyStruct
+5  someStruct   MyStruct
+5  value   MyStruct
 2  bar(): MyStruct
 2  foo(): MyStruct
 21 MyStruct{}
-5  someBool  Bool
-5  someValue  Int
+5  someBool   Bool
+5  someValue   Int
 13 false
 13 null
 13 true

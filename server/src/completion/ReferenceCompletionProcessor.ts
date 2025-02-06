@@ -175,7 +175,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 kind: CompletionItemKind.Property,
                 labelDetails: {
                     detail: details,
-                    description: `of ${owner}`,
+                    description: ` of ${owner}`,
                 },
                 insertText: thisPrefix + name + suffix,
                 insertTextFormat: InsertTextFormat.Snippet,
@@ -194,12 +194,13 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 parent.type === "catch_clause"
             ) {
                 const type = TypeInferer.inferType(node)
+                const typeName = type?.qualifiedName() ?? "unknown"
 
                 this.addItem({
                     label: name,
                     kind: CompletionItemKind.Variable,
                     labelDetails: {
-                        description: type?.qualifiedName() ?? "unknown",
+                        description: ` ${typeName}`,
                     },
                     insertText: name,
                     insertTextFormat: InsertTextFormat.Snippet,
@@ -214,12 +215,13 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             if (!parent) return true
 
             const type = TypeInferer.inferType(node)
+            const typeName = type?.qualifiedName() ?? "unknown"
 
             this.addItem({
                 label: name,
                 kind: CompletionItemKind.Variable,
                 labelDetails: {
-                    description: type?.qualifiedName() ?? "unknown",
+                    description: ` ${typeName}`,
                 },
                 insertText: name,
                 insertTextFormat: InsertTextFormat.Snippet,
