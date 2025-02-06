@@ -2,7 +2,7 @@
     "name": "tree-sitter-fift",
     "version": "0.1.0",
     "description": "A tree-sitter grammar for the Fift assembly programming language",
-    "repository": "https://github.com/i582/language-server",
+    "repository": "https://github.com/tact-lang/tact-language-server",
     "license": "MIT",
     "author": {
         "name": "Petr Makhnef",

@@ -2,7 +2,6 @@ import * as vscode from "vscode"
 import * as path from "path"
 import * as fs from "fs"
 import * as glob from "glob"
-import {activate} from "../utils"
 import {TestCase, TestParser} from "./TestParser"
 
 export interface TestUpdate {
@@ -99,7 +98,7 @@ export abstract class BaseTestSuite {
             directory,
             "*.test",
         )
-        const testFiles = glob.sync(testCasesPath)
+        const testFiles = glob.sync(testCasesPath, {windowsPathsNoEscape: true})
 
         if (testFiles.length === 0) {
             throw new Error(`No test files found in ${path.dirname(testCasesPath)}`)
@@ -116,4 +115,32 @@ export abstract class BaseTestSuite {
     }
 
     protected abstract runTest(testFile: string, testCase: TestCase): void
+}
+
+async function activate(): Promise<void> {
+    console.log("Activating extension...")
+
+    const ext = vscode.extensions.getExtension("tonstudio.tact-vscode")
+    if (!ext) {
+        throw new Error(
+            "Extension not found. Make sure the extension is installed and the ID is correct (tonstudio.tact-vscode)",
+        )
+    }
+
+    console.log("Extension found, activating...")
+    await ext.activate()
+
+    console.log("Waiting for language server initialization...")
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    const languages = await vscode.languages.getLanguages()
+    if (!languages.includes("tact")) {
+        throw new Error("Tact language not registered. Check package.json configuration.")
+    }
+
+    if (!ext.isActive) {
+        throw new Error("Extension failed to activate")
+    }
+
+    console.log("Extension activated successfully")
 }

@@ -78,39 +78,54 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
 
     await client.start()
 
-    vscode.commands.registerCommand("tact.showParent", async (uri: string, position: Position) => {
-        if (!client) return
-        await showReferencesImpl(client, uri, position)
+    registerCommands(disposables)
+
+    return new vscode.Disposable(() => {
+        disposables.forEach(d => void d.dispose())
     })
+}
 
-    async function showReferencesImpl(
-        client: LanguageClient | undefined,
-        uri: string,
-        position: Position,
-    ) {
-        if (!client) return
-        await vscode.commands.executeCommand(
-            "editor.action.showReferences",
-            vscode.Uri.parse(uri),
-            client.protocol2CodeConverter.asPosition(position),
-            [],
-        )
-    }
+async function showReferencesImpl(
+    client: LanguageClient | undefined,
+    uri: string,
+    position: Position,
+) {
+    if (!client) return
+    await vscode.commands.executeCommand(
+        "editor.action.showReferences",
+        vscode.Uri.parse(uri),
+        client.protocol2CodeConverter.asPosition(position),
+        [],
+    )
+}
 
-    vscode.commands.registerCommand(
-        "tact.showReferences",
-        async (uri: string, position: Position, locations: Location[]) => {
-            if (!client) return
-            await vscode.commands.executeCommand(
-                "editor.action.showReferences",
-                vscode.Uri.parse(uri),
-                client.protocol2CodeConverter.asPosition(position),
-                locations.map(client.protocol2CodeConverter.asLocation),
-            )
-        },
+function registerCommands(disposables: vscode.Disposable[]) {
+    disposables.push(
+        vscode.commands.registerCommand(
+            "tact.showParent",
+            async (uri: string, position: Position) => {
+                if (!client) return
+                await showReferencesImpl(client, uri, position)
+            },
+        ),
     )
 
-    context.subscriptions.push(
+    disposables.push(
+        vscode.commands.registerCommand(
+            "tact.showReferences",
+            async (uri: string, position: Position, locations: Location[]) => {
+                if (!client) return
+                await vscode.commands.executeCommand(
+                    "editor.action.showReferences",
+                    vscode.Uri.parse(uri),
+                    client.protocol2CodeConverter.asPosition(position),
+                    locations.map(client.protocol2CodeConverter.asLocation),
+                )
+            },
+        ),
+    )
+
+    disposables.push(
         vscode.commands.registerCommand(
             GetTypeAtPositionRequest,
             async (params: GetTypeAtPositionParams | undefined) => {
@@ -150,7 +165,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         ),
     )
 
-    context.subscriptions.push(
+    disposables.push(
         vscode.commands.registerCommand(
             GetDocumentationAtPositionRequest,
             async (params: GetTypeAtPositionParams | undefined) => {
@@ -165,8 +180,4 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
             },
         ),
     )
-
-    return new vscode.Disposable(() => {
-        disposables.forEach(d => void d.dispose())
-    })
 }

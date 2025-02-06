@@ -3,8 +3,6 @@ import * as assert from "assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import {TestCase} from "./TestParser"
 
-export const GetTypeAtPositionRequest = "tact/getTypeAtPosition"
-
 export interface GetTypeAtPositionParams {
     textDocument: {
         uri: string
@@ -60,7 +58,7 @@ suite("Type Inference Test Suite", () => {
             }
 
             const response = await vscode.commands.executeCommand<GetTypeAtPositionResponse>(
-                GetTypeAtPositionRequest,
+                "tact/getTypeAtPosition",
                 params,
             )
 

@@ -182,10 +182,6 @@ export class GlobalIndex {
         }
         return null
     }
-
-    public stats() {
-        console.info("global index files:", this.files.size)
-    }
 }
 
 export const index = new GlobalIndex()

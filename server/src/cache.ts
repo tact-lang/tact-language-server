@@ -1,19 +1,11 @@
-import {LRUMap} from "@server/utils/lruMap"
 import {Ty} from "./types/BaseTy"
 import {NamedNode} from "@server/psi/Node"
 
-export interface CacheConfig {
-    size: number
-}
-
 export class Cache<TKey, TValue> {
-    private readonly data: LRUMap<TKey, TValue>
+    private readonly data: Map<TKey, TValue>
 
-    constructor(config: CacheConfig) {
-        this.data = new LRUMap({
-            size: config.size,
-            dispose: _entries => {},
-        })
+    constructor() {
+        this.data = new Map()
     }
 
     public cached(key: TKey, cb: () => TValue): TValue {
@@ -41,8 +33,8 @@ export class CacheManager {
     public readonly resolveCache: Cache<number, NamedNode | null>
 
     constructor() {
-        this.typeCache = new Cache({size: 10000})
-        this.resolveCache = new Cache({size: 10000})
+        this.typeCache = new Cache()
+        this.resolveCache = new Cache()
     }
 
     public clear(): void {

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 project(tree-sitter-fift
         VERSION "0.1.0"
         DESCRIPTION "A tree-sitter grammar for the Fift assembly programming language"
-        HOMEPAGE_URL "https://github.com/i582/language-server"
+        HOMEPAGE_URL "https://github.com/tact-lang/tact-language-server"
         LANGUAGES C)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)

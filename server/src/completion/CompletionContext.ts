@@ -125,6 +125,10 @@ export class CompletionContext {
             this.isStatement = false
         }
 
+        if (parent.type === "trait_list") {
+            this.inTraitList = true
+        }
+
         if (parent.type === "ERROR" && parent.parent?.type === "parameter_list") {
             this.inParameter = true
         }

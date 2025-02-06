@@ -26,6 +26,11 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 return node instanceof Message
             }
 
+            if (this.ctx.inTraitList) {
+                // for trait list allow only traits
+                return node instanceof Trait
+            }
+
             // for types, we want to complete only types
             return (
                 node instanceof Trait ||
@@ -33,11 +38,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 node instanceof Message ||
                 node instanceof Primitive
             )
-        }
-
-        if (this.ctx.inTraitList) {
-            // for trait list allow only traits
-            return node instanceof Trait
         }
 
         // for non types context things like traits and primitives are prohibited
@@ -167,7 +167,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
             const typeNode = node.typeNode()
             const valueType = typeNode?.type()?.qualifiedName() ?? ""
-            const details = this.ctx.inNameOfFieldInit ? `: <value>` : ": " + valueType
+            const details = this.ctx.inNameOfFieldInit ? `: ${valueType} ` : ": " + valueType
             const labelSuffix = this.ctx.inNameOfFieldInit ? ` ` : "" // needed to distinguish from variable
 
             this.addItem({
