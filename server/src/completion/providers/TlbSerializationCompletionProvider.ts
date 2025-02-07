@@ -31,7 +31,7 @@ export class TlbSerializationCompletionProvider implements CompletionProvider {
 
     addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const fieldNode = ctx.element.node.parent?.parent
-        if (fieldNode?.type !== "field") return
+        if (fieldNode?.type !== "field" && fieldNode?.type !== "storage_variable") return
 
         const field = new Field(fieldNode, ctx.element.file)
         const type = field.typeNode()?.type()

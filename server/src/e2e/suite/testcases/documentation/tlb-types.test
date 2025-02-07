@@ -1,0 +1,137 @@
+========================================================================
+uint8 as TL-B type
+========================================================================
+primitive Int;
+
+struct Test {
+    a: Int as <caret>uint8;
+}
+------------------------------------------------------------------------
+
+**uint8** — 8-bit unsigned integer
+
+- **Range**: 0 to 255 (2^8 - 1)
+- **Size**: 8 bits = 1 byte
+- **TL-B**: uint8
+
+========================================================================
+int8 as TL-B type
+========================================================================
+primitive Int;
+
+struct Test {
+    a: Int as <caret>int8;
+}
+------------------------------------------------------------------------
+
+**int8** — 8-bit signed integer
+
+- **Range**: -128 to 127 (-2^7 to 2^7 - 1)
+- **Size**: 8 bits = 1 byte
+- **TL-B**: int8
+
+========================================================================
+varint16 as TL-B type
+========================================================================
+primitive Int;
+
+struct Test {
+    a: Int as <caret>varint16;
+}
+------------------------------------------------------------------------
+
+**varint16** — variable-length signed integer
+
+- **Range**: -2^119 to 2^119 - 1
+- **Size**: 4 to 124 bits
+- **TL-B**: varint16
+
+========================================================================
+varint32 as TL-B type
+========================================================================
+primitive Int;
+
+struct Test {
+    a: Int as <caret>varint32;
+}
+------------------------------------------------------------------------
+
+**varint32** — variable-length signed integer
+
+- **Range**: -2^247 to 2^247 - 1
+- **Size**: 5 to 253 bits
+- **TL-B**: varint32
+
+========================================================================
+coins as TL-B type
+========================================================================
+primitive Int;
+
+struct Test {
+    a: Int as <caret>coins;
+}
+------------------------------------------------------------------------
+
+**coins** — variable-length unsigned integer
+
+- **Range**: 0 to 2^120 - 1
+- **Size**: 4 to 124 bits
+- **TL-B**: varuint16
+
+An alias to `VarUInteger16`, commonly used for storing `nanoToncoin` amounts. Takes variable bit length depending on the optimal number of bytes needed.
+
+========================================================================
+int234 as TL-B type
+========================================================================
+primitive Int;
+
+struct Test {
+    a: Int as <caret>int234;
+}
+------------------------------------------------------------------------
+
+**int234** — 234-bit signed integer
+
+- **Range**: -2^233 to 2^233 - 1
+- **Size**: 234 bits
+- **TL-B**: int234
+
+Arbitrary bit-width signed integer type (available since Tact 1.5)
+
+========================================================================
+uint1 as TL-B type
+========================================================================
+primitive Int;
+
+struct Test {
+    a: Int as <caret>uint1;
+}
+------------------------------------------------------------------------
+
+**uint1** — 1-bit unsigned integer
+
+- **Range**: 0 to 2^1 - 1
+- **Size**: 1 bits
+- **TL-B**: uint1
+
+Arbitrary bit-width unsigned integer type (available since Tact 1.5)
+
+========================================================================
+remaining as TL-B modifier
+========================================================================
+primitive Int;
+
+struct Test {
+    a: Cell as <caret>remaining;
+}
+------------------------------------------------------------------------
+
+**remaining** — direct serialization modifier
+
+- **Applies to**: Cell, Builder, and Slice types
+- **Effect**: Stores/loads data directly in the current cell instead of as a reference
+- **Usage**: `value: Type as remaining`
+
+Affects how values are serialized into cells. Instead of using references (default), stores data directly in the current cell.
+
+Learn more in documentation: https://docs.tact-lang.org/book/cells/#serialization-remaining
