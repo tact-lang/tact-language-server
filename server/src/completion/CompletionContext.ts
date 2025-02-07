@@ -104,6 +104,13 @@ export class CompletionContext {
             }
         }
 
+        if (parent.type === "storage_variable" || parent.type === "field") {
+            const type = parent.childForFieldName("type")
+            if (type) {
+                this.contextTy = TypeInferer.inferType(new Expression(type, this.element.file))
+            }
+        }
+
         if (element.node.type === "type_identifier") {
             this.isType = true
         }
