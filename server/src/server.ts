@@ -380,6 +380,14 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             }
         }
 
+        if (
+            hoverNode.type !== "identifier" &&
+            hoverNode.type !== "type_identifier" &&
+            hoverNode.type !== "self"
+        ) {
+            return null
+        }
+
         const res = Reference.resolve(NamedNode.create(hoverNode, file))
         if (res === null) {
             if (process.env["TACT_LS_DEV"] !== "true") {
