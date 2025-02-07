@@ -209,10 +209,10 @@ export class Reference {
             // for `foo.bar` first check for fields since there is no function pointers
             if (methodRef) {
                 if (!this.processNamedEls(proc, state, qualifierType.methods())) return false
-                if (!this.processNamedEls(proc, state, qualifierType.ownFields())) return false
+                if (!this.processNamedEls(proc, state, qualifierType.fields())) return false
                 if (!this.processNamedEls(proc, state, qualifierType.constants())) return false
             } else {
-                if (!this.processNamedEls(proc, state, qualifierType.ownFields())) return false
+                if (!this.processNamedEls(proc, state, qualifierType.fields())) return false
                 if (!this.processNamedEls(proc, state, qualifierType.constants())) return false
                 if (!this.processNamedEls(proc, state, qualifierType.methods())) return false
             }
@@ -408,12 +408,12 @@ export class Reference {
             if (descendant.type === "block_statement" || descendant.type === "function_body") {
                 const statements = descendant.children
                 for (const stmt of statements) {
-                    if (!stmt) continue
+                    if (!stmt) break
                     if (stmt.type === "let_statement") {
                         // let name = expr;
                         //     ^^^^ this
                         const name = stmt.childForFieldName("name")
-                        if (name === null) continue
+                        if (name === null) break
                         if (!proc.execute(new NamedNode(name, file), state)) return false
                     }
                 }
@@ -423,19 +423,28 @@ export class Reference {
                 // foreach (key, value in expr)
                 //          ^^^ this
                 const key = descendant.childForFieldName("key")
-                if (key === null) continue
+                if (key === null) {
+                    descendant = descendant.parent
+                    continue
+                }
                 if (!proc.execute(new NamedNode(key, file), state)) return false
 
                 // foreach (key, value in expr)
                 //               ^^^^^ this
                 const value = descendant.childForFieldName("value")
-                if (value === null) continue
+                if (value === null) {
+                    descendant = descendant.parent
+                    continue
+                }
                 if (!proc.execute(new NamedNode(value, file), state)) return false
             }
 
             if (descendant.type === "catch_clause") {
                 const name = descendant.childForFieldName("name")
-                if (name === null) continue
+                if (name === null) {
+                    descendant = descendant.parent
+                    continue
+                }
                 if (!proc.execute(new NamedNode(name, file), state)) return false
             }
 
@@ -444,12 +453,12 @@ export class Reference {
                 const rawParameters = descendant.childForFieldName("parameters")
                 if (rawParameters === null) {
                     const parameter = descendant.childForFieldName("parameter")
-                    if (parameter === null) continue
+                    if (parameter === null) break
 
                     if (!proc.execute(new NamedNode(parameter, file), state)) return false
                 } else {
                     const children = rawParameters.children
-                    if (children.length < 2) continue
+                    if (children.length < 2) break
                     const params = children.slice(1, -1)
 
                     for (const param of params) {
