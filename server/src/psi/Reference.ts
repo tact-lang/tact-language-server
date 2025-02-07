@@ -157,6 +157,7 @@ export class Reference {
             parent.type === "field" ||
             parent.type === "parameter" ||
             parent.type === "storage_variable" ||
+            parent.type === "let_statement" ||
             parent.type === "trait" ||
             parent.type === "struct" ||
             parent.type === "message" ||
@@ -422,12 +423,17 @@ export class Reference {
         const file = this.element.file
         let descendant: SyntaxNode | null = this.element.node
 
+        let startStatement: SyntaxNode | null = null
+
         while (descendant) {
             // walk all variables inside block
             if (descendant.type === "block_statement" || descendant.type === "function_body") {
                 const statements = descendant.children
                 for (const stmt of statements) {
                     if (!stmt) break
+
+                    // reached the starting statement, look no further
+                    if (startStatement && stmt.equals(startStatement)) break
                     if (stmt.type === "let_statement") {
                         // let name = expr;
                         //     ^^^^ this
@@ -485,6 +491,10 @@ export class Reference {
                         if (!proc.execute(new NamedNode(param, file), state)) return false
                     }
                 }
+            }
+
+            if (descendant.type === "let_statement" || descendant.type === "expression_statement") {
+                startStatement = descendant
             }
 
             descendant = descendant.parent
@@ -547,6 +557,12 @@ export class Reference {
         if (node.type === "storage_function") {
             return new Fun(node, file)
         }
+        if (node.type === "let_statement") {
+            const name = node.childForFieldName("name")
+            if (!name) return new NamedNode(node, file)
+            return new NamedNode(name, file)
+        }
+
         return new NamedNode(node, file)
     }
 
