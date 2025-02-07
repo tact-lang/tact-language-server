@@ -263,8 +263,13 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
     public addItem(node: WeightedCompletionItem) {
         if (node.label === "") return
-        const prev = this.result.get(node.label)
+        const lookup = this.lookupString(node)
+        const prev = this.result.get(lookup)
         if (prev && prev.kind === node.kind) return
-        this.result.set(node.label, node)
+        this.result.set(lookup, node)
+    }
+
+    private lookupString(item: WeightedCompletionItem): string {
+        return (item.kind ?? 1).toString() + item.label
     }
 }

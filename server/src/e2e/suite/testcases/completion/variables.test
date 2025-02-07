@@ -486,3 +486,35 @@ fun test() {
 14 try-catch
 14 until
 14 while
+
+========================================================================
+Variable and function with the same name
+========================================================================
+primitive Int;
+
+fun first() {}
+
+fun test() {
+    let first = 1;
+    <caret>
+}
+------------------------------------------------------------------------
+5  first   Int
+13 false
+13 initOf Contract(params)   StateInit
+13 null
+13 return;
+13 true
+2  first()
+2  test()
+14 do
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
