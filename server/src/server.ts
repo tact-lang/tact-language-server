@@ -75,6 +75,7 @@ import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsC
 import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 import {DocumentUri, TextEdit} from "vscode-languageserver-types"
 import {MissedFieldInContractInspection} from "@server/inspections/MissedFieldInContractInspection"
+import {Node as SyntaxNode} from "web-tree-sitter"
 
 /**
  * Whenever LS is initialized.
@@ -837,6 +838,69 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
+    const findSignatureHelpTarget = (
+        hoverNode: SyntaxNode,
+        file: File,
+    ): {
+        rawArguments: SyntaxNode[]
+        parametersInfo: lsp.ParameterInformation[]
+        presentation: string
+        isMethod: boolean
+    } | null => {
+        const findParametersNode = (element: NamedNode): SyntaxNode | null => {
+            if (element instanceof Contract) {
+                return element.initFunction()?.node.childForFieldName("parameters") ?? null
+            }
+
+            return element.node.childForFieldName("parameters")
+        }
+
+        const callNode = parentOfType(
+            hoverNode,
+            "static_call_expression",
+            "method_call_expression",
+            "initOf",
+        )
+        if (!callNode) return null
+
+        const call = new CallLike(callNode, file)
+
+        const res = Reference.resolve(call.nameNode())
+        if (res === null) return null
+
+        const parametersNode = findParametersNode(res)
+        if (!parametersNode) return null
+
+        const parameters = parametersNode.children
+            .filter(value => value?.type === "parameter")
+            .filter(value => value !== null)
+
+        const rawArguments = call.rawArguments()
+
+        const parametersInfo: lsp.ParameterInformation[] = parameters.map(value => ({
+            label: value.text,
+        }))
+        const parametersString = parametersInfo.map(el => el.label).join(", ")
+
+        if (callNode.type === "initOf") {
+            return {
+                rawArguments,
+                parametersInfo,
+                presentation: `init(${parametersString})`,
+                isMethod: false,
+            }
+        }
+
+        if (!(res instanceof Fun)) return null
+
+        return {
+            rawArguments,
+            parametersInfo,
+            presentation: `fun ${call.name()}(${parametersString})`,
+            isMethod: callNode.type === "method_call_expression" && res.withSelf(),
+        }
+    }
+
     connection.onRequest(
         lsp.SignatureHelpRequest.type,
         (params: lsp.SignatureHelpParams): lsp.SignatureHelp | null => {
@@ -845,25 +909,10 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
 
-            const callNode = parentOfType(
-                hoverNode,
-                "static_call_expression",
-                "method_call_expression",
-            )
-            if (!callNode) return null
+            const res = findSignatureHelpTarget(hoverNode, file)
+            if (!res) return null
 
-            const call = new CallLike(callNode, file)
-
-            const res = Reference.resolve(call.nameNode())
-            if (res === null) return null
-            if (!(res instanceof Fun)) return null
-
-            const parametersNode = res.node.childForFieldName("parameters")
-            if (!parametersNode) return null
-
-            const parameters = parametersNode.children
-                .filter(value => value?.type === "parameter")
-                .filter(value => value !== null)
+            const {parametersInfo, rawArguments, isMethod, presentation} = res
 
             // The algorithm below uses the positions of commas and parentheses to findTo find the active parameter, it is enough to find the last comma, which has a position in the line less than the cursor position. In order not to complicate the algorithm, we consider the opening bracket as a kind of comma for the zero element. If the cursor position is greater than the position of any comma, then we consider that this is the last element. the active parameter.
             //
@@ -881,7 +930,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             //
             // TODO: support multiline calls and functions with self
 
-            const rawArguments = call.rawArguments()
             const argsCommas = rawArguments.filter(
                 value => value.text === "," || value.text === "(",
             )
@@ -895,20 +943,15 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 currentIndex = i
             }
 
-            if (callNode.type === "method_call_expression" && res.withSelf()) {
+            if (isMethod) {
                 // skip self
                 currentIndex++
             }
 
-            const parametersInfo: lsp.ParameterInformation[] = parameters.map(value => ({
-                label: value.text,
-            }))
-            const parametersString = parametersInfo.map(el => el.label).join(", ")
-
             return {
                 signatures: [
                     {
-                        label: `fun ${call.name()}(${parametersString})`,
+                        label: presentation,
                         parameters: parametersInfo,
                         activeParameter: currentIndex,
                     },
