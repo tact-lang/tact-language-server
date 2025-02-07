@@ -17,6 +17,7 @@ import {File} from "./File"
 import {Contract, Field, Fun, Message, Struct, Trait} from "./Decls"
 import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "@server/cache"
+import {TypeInferer} from "@server/TypeInferer"
 
 export class ResolveState {
     private values: Map<string, string> = new Map()
@@ -86,6 +87,11 @@ export class Reference {
                     return false
                 }
 
+                if (node.node.type === "init" && state.get("search-name") === "init") {
+                    result.push(node)
+                    return false
+                }
+
                 if (!(node instanceof NamedNode) || !(element instanceof NamedNode)) {
                     return true
                 }
@@ -134,6 +140,12 @@ export class Reference {
         // foo: Int
         // ^^^^^^^^ this
         const parent = identifier.parent
+
+        // init()
+        // ^^^^^^ this
+        if (parent?.type === "init_function") {
+            return true
+        }
 
         // foo: Int
         // ^^^ this
@@ -290,6 +302,13 @@ export class Reference {
             // `Foo { name: "" }`
             //        ^^^^^^^^ this
             if (!this.resolveInstanceInitField(parent, proc, state)) return false
+        }
+
+        if (this.element.node.type === "initOf" && this.element.node.text === "initOf") {
+            const resolved = Reference.resolveInitOf(this.element.node, this.element.file)
+            if (resolved) {
+                if (!proc.execute(resolved, state.withValue("search-name", "init"))) return false
+            }
         }
 
         if (!this.processBlock(proc, state)) return false
@@ -529,5 +548,27 @@ export class Reference {
             return new Fun(node, file)
         }
         return new NamedNode(node, file)
+    }
+
+    public static resolveInitOf(node: SyntaxNode, file: File) {
+        const actualNode = node.parent
+        if (!actualNode) return null
+        const name = actualNode.childForFieldName("name")
+        if (!name) return null
+        const type = TypeInferer.inferType(new Node(name, file))
+        if (!type) return null
+        if (!(type instanceof ContractTy)) return null
+        const initFunc = type.initFunction()
+        if (!initFunc) {
+            // if no init function in contract go to contract name
+            if (!type.anchor) return null
+            const nameNode = type.anchor.nameNode()
+            if (!nameNode) return null
+            return new Node(nameNode.node, file)
+        }
+
+        const initIdent = initFunc.initIdentifier()
+        if (!initIdent) return null
+        return new Node(initIdent, file)
     }
 }
