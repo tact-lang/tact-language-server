@@ -48,6 +48,17 @@ export class MemberFunctionCompletionProvider implements CompletionProvider {
                 insertTextFormat: InsertTextFormat.Snippet,
                 weight: CompletionWeight.KEYWORD,
             })
+
+            result.add({
+                label: "virtual fun",
+                labelDetails: {
+                    detail: " name() {}",
+                },
+                kind: CompletionItemKind.Keyword,
+                insertText: "virtual fun $1($2)$3 {$0}",
+                insertTextFormat: InsertTextFormat.Snippet,
+                weight: CompletionWeight.KEYWORD,
+            })
         }
     }
 }
