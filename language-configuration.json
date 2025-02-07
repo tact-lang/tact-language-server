@@ -1,7 +1,6 @@
 {
     "comments": {
-        "lineComment": "//",
-        "blockComment": ["/*", "*/"]
+        "lineComment": "//"
     },
     "wordPattern": "(`[^`]+`)|([a-zA-Z$_][a-zA-Z0-9$_]*)",
     // symbols used as brackets
@@ -23,5 +22,14 @@
         ["[", "]"],
         ["(", ")"],
         ["\"", "\""]
+    ],
+    "onEnterRules": [
+        {
+            "beforeText": "^\\s*///.*$",
+            "action": {
+                "indent": "none",
+                "appendText": "/// "
+            }
+        }
     ]
 }
