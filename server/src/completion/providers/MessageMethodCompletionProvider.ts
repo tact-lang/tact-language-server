@@ -32,6 +32,17 @@ export class MessageMethodCompletionProvider implements CompletionProvider {
         })
 
         result.add({
+            label: "receive",
+            labelDetails: {
+                detail: `() {}`,
+            },
+            kind: CompletionItemKind.Keyword,
+            insertText: "receive() {$0}",
+            insertTextFormat: InsertTextFormat.Snippet,
+            weight: CompletionWeight.KEYWORD,
+        })
+
+        result.add({
             label: "bounced",
             labelDetails: {
                 detail: "(msg: <type>) {}",
