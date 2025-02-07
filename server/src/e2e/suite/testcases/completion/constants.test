@@ -47,6 +47,7 @@ contract Foo {
 13 inline fun name() {}
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
 
 ========================================================================
 Trait constant completion
@@ -66,3 +67,4 @@ trait Foo {
 13 inline fun name() {}
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}

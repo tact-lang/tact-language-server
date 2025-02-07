@@ -19,6 +19,7 @@ trait Child with Parent {
 2  override fun foo(): Int {} of Parent
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
 
 ========================================================================
 Completion of override methods in trait with deep inheritance
@@ -46,6 +47,7 @@ trait Child with Parent {
 2  override fun bar(name: String): Bool {} of Grand
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
 
 ========================================================================
 Completion of override methods in trait with method
@@ -70,6 +72,7 @@ trait Child with Parent {
 2  override fun bar(): Int {} of Parent
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
 
 ========================================================================
 Completion of fields in trait
@@ -94,6 +97,7 @@ trait Child with Parent {
 13 inline fun name() {}
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
 
 ========================================================================
 Completion of fields in trait with deep inheritance
@@ -124,6 +128,7 @@ trait Child with Parent {
 13 inline fun name() {}
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
 
 ========================================================================
 Completion of fields in trait with field
@@ -151,6 +156,7 @@ trait Child with Parent {
 13 inline fun name() {}
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
 
 ========================================================================
 Completion of methods and fields without self
