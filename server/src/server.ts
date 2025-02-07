@@ -78,6 +78,7 @@ import {MissedFieldInContractInspection} from "@server/inspections/MissedFieldIn
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {TraitOrContractConstantsCompletionProvider} from "@server/completion/providers/TraitOrContractConstantsCompletionProvider"
 import {generateTlBTypeDoc} from "@server/documentation/tlb_type_documentation"
+import {BouncedTypeCompletionProvider} from "@server/completion/providers/BouncedTypeCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -622,6 +623,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 new SnippetsCompletionProvider(),
                 new KeywordsCompletionProvider(),
                 new MapTypeCompletionProvider(),
+                new BouncedTypeCompletionProvider(),
                 new ContractDeclCompletionProvider(),
                 new TopLevelFunctionCompletionProvider(),
                 new MemberFunctionCompletionProvider(),
