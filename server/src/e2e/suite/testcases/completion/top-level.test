@@ -11,6 +11,7 @@ fun foo() {}
 13 contract Name with Trait {}
 13 asm fun name() {}
 13 extends fun name(self: <type>) {}
+13 extends mutates name(self: <type>) {}
 13 extends native name(self: <type>);
 13 fun name() {}
 13 native name() {}
@@ -28,6 +29,7 @@ fun foo() {}
 13 contract Name with Trait {}
 13 asm fun name() {}
 13 extends fun name(self: <type>) {}
+13 extends mutates name(self: <type>) {}
 13 extends native name(self: <type>);
 13 fun name() {}
 13 native name() {}

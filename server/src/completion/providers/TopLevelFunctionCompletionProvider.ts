@@ -58,6 +58,17 @@ export class TopLevelFunctionCompletionProvider implements CompletionProvider {
         })
 
         result.add({
+            label: "extends mutates",
+            labelDetails: {
+                detail: " name(self: <type>) {}",
+            },
+            kind: CompletionItemKind.Keyword,
+            insertText: `extends mutates fun ${extendsTemplate}`,
+            insertTextFormat: InsertTextFormat.Snippet,
+            weight: CompletionWeight.KEYWORD,
+        })
+
+        result.add({
             label: "extends native",
             labelDetails: {
                 detail: " name(self: <type>);",
