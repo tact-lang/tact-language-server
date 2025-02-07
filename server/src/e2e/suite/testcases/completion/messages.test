@@ -31,3 +31,27 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 21 Bar
+
+========================================================================
+Completion in bounced function 2
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    bounced(msg: <caret>) {}
+}
+------------------------------------------------------------------------
+13 bounced<Type>
+13 map<K, V>
+9  Address
+9  Int
+9  String
+21 Bar
+21 Foo
+24 Var

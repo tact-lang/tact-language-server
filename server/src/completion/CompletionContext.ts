@@ -26,6 +26,7 @@ export class CompletionContext {
     inTraitList: boolean = false
     inParameter: boolean = false
     isMessageContext: boolean = false
+    isBouncedMessage: boolean = false
     isInitOfName: boolean = false
 
     contextTy: Ty | null = null
@@ -118,6 +119,13 @@ export class CompletionContext {
 
         if (parent.type === "bounced_type") {
             this.isMessageContext = true
+        }
+
+        if (parent.type === "parameter") {
+            const grand = parent.parent
+            if (grand?.type === "bounced_function") {
+                this.isBouncedMessage = true
+            }
         }
 
         if (parent.type === "parameter") {
