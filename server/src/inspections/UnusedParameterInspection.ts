@@ -30,7 +30,7 @@ export class UnusedParameterInspection extends UnusedInspection {
             const nameIdent = param.nameIdentifier()
             if (!nameIdent) return
 
-            this.checkUnused(param.node, fun.file, diagnostics, {
+            this.checkUnused(param.nameIdentifier(), fun.file, diagnostics, {
                 kind: "Parameter",
                 code: "unused-parameter",
                 rangeNode: nameIdent,
