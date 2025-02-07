@@ -3,7 +3,7 @@ import {RecursiveVisitor} from "@server/psi/visitor"
 import {File} from "@server/psi/File"
 import {TypeInferer} from "@server/TypeInferer"
 import {Reference} from "@server/psi/Reference"
-import {Fun} from "@server/psi/Decls"
+import {Field, Fun} from "@server/psi/Decls"
 import {CallLike, Expression, VarDeclaration} from "@server/psi/Node"
 import {MapTy} from "@server/types/BaseTy"
 import {findInstruction} from "@server/completion/data/types"
@@ -47,6 +47,24 @@ export function collect(
                 },
             })
             return true
+        }
+
+        if (type === "field" || type === "storage_variable") {
+            const field = new Field(n, file)
+            const typeNode = field.typeNode()
+            if (!typeNode) return true
+            const type = typeNode.type()
+
+            if (type?.name() === "Int" && field.tlbType() === null) {
+                result.push({
+                    kind: InlayHintKind.Type,
+                    label: ` as int257`,
+                    position: {
+                        line: typeNode.node.endPosition.row,
+                        character: typeNode.node.endPosition.column,
+                    },
+                })
+            }
         }
 
         if (type === "foreach_statement" && hints.types) {
