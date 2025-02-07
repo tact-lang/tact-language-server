@@ -74,3 +74,4 @@ trait Foo {
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 13 receive() {}
+13 virtual fun name() {}
