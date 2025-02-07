@@ -15,7 +15,7 @@ export abstract class UnusedInspection {
     protected abstract checkFile(file: File, diagnostics: lsp.Diagnostic[]): void
 
     protected checkUnused(
-        node: SyntaxNode,
+        node: SyntaxNode | null,
         file: File,
         diagnostics: lsp.Diagnostic[],
         options: {
@@ -26,6 +26,8 @@ export abstract class UnusedInspection {
             skipIf?: () => boolean
         },
     ) {
+        if (!node || node.text === "_") return
+
         const references = new Referent(node, file).findReferences()
         if (references.length === 0) {
             const range = asLspRange(options.rangeNode ?? node)

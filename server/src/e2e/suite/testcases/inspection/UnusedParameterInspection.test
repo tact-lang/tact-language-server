@@ -4,7 +4,15 @@ Unused parameter inspection
 fun foo(param: Int) {
 }
 ------------------------------------------------------------------------
-3 0:8 to 0:13 Parameter 'param: Int' is never used (tact)
+3 0:8 to 0:13 Parameter 'param' is never used (tact)
+
+========================================================================
+Unused _ parameter inspection
+========================================================================
+fun foo(_: Int) {
+}
+------------------------------------------------------------------------
+no issues
 
 ========================================================================
 Used parameter
@@ -34,9 +42,9 @@ Multiple unused parameters
 fun foo(param: Int, other: String, isTrue: Bool) {
 }
 ------------------------------------------------------------------------
-3 0:8 to 0:13 Parameter 'param: Int' is never used (tact)
-3 0:20 to 0:25 Parameter 'other: String' is never used (tact)
-3 0:35 to 0:41 Parameter 'isTrue: Bool' is never used (tact)
+3 0:8 to 0:13 Parameter 'param' is never used (tact)
+3 0:20 to 0:25 Parameter 'other' is never used (tact)
+3 0:35 to 0:41 Parameter 'isTrue' is never used (tact)
 
 ========================================================================
 Unused parameter inspection in abstract function
