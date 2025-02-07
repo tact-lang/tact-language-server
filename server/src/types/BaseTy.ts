@@ -71,6 +71,11 @@ export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends B
         return this.anchor.constants()
     }
 
+    public fields(): NamedNode[] {
+        if (this.anchor === null) return []
+        return this.anchor.fields()
+    }
+
     public methods(): Fun[] {
         if (this.anchor === null) return []
         return this.anchor.methods()
