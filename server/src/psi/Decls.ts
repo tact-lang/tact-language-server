@@ -1,4 +1,4 @@
-import {Expression, NamedNode} from "./Node"
+import {Expression, NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
 import {index, IndexKey} from "@server/indexes"
 import {parentOfType} from "./utils"
@@ -50,6 +50,17 @@ export class StorageMembersOwner extends NamedNode {
             return "trait"
         }
         return "contract"
+    }
+
+    public initFunction(): InitFunction | null {
+        const body = this.node.childForFieldName("body")
+        if (!body) return null
+        const candidates = body.children
+            .filter(value => value?.type === "init_function")
+            .filter(value => value !== null)
+            .map(value => new InitFunction(value, this.file))
+        if (candidates.length === 0) return null
+        return candidates[0]
     }
 
     public ownMethods(): Fun[] {
@@ -127,6 +138,12 @@ export class StorageMembersOwner extends NamedNode {
 export class Trait extends StorageMembersOwner {}
 
 export class Contract extends StorageMembersOwner {}
+
+export class InitFunction extends Node {
+    public initIdentifier(): SyntaxNode | null {
+        return this.node.firstChild
+    }
+}
 
 export class Fun extends NamedNode {
     public hasBody(): boolean {

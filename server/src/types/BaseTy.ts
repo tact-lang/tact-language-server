@@ -8,6 +8,7 @@ import {
     Trait,
     StorageMembersOwner,
     Primitive,
+    InitFunction,
 } from "@server/psi/Decls"
 import {NamedNode} from "@server/psi/Node"
 
@@ -79,6 +80,11 @@ export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends B
     public methods(): Fun[] {
         if (this.anchor === null) return []
         return this.anchor.methods()
+    }
+
+    public initFunction(): InitFunction | null {
+        if (this.anchor === null) return null
+        return this.anchor.initFunction()
     }
 }
 

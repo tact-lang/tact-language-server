@@ -30,7 +30,7 @@ import {KeywordsCompletionProvider} from "./completion/providers/KeywordsComplet
 import {CompletionProvider} from "./completion/CompletionProvider"
 import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvider"
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
-import {BaseTy} from "./types/BaseTy"
+import {BaseTy, ContractTy} from "./types/BaseTy"
 import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
 import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from "@server/psi/Decls"
 import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompletionProvider"
@@ -456,6 +456,40 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                         targetSelectionRange: startOfFile,
                         originSelectionRange: asLspRange(hoverNode),
                     } as lsp.LocationLink,
+                ]
+            }
+
+            // resolve `initOf Foo()`
+            //          ^^^^^^ this
+            // to `init` function of the contract or contract name
+            if (hoverNode.type === "initOf") {
+                const actualNode = hoverNode.parent
+                if (!actualNode) return []
+                const name = actualNode.childForFieldName("name")
+                if (!name) return []
+                const type = TypeInferer.inferType(new Node(name, file))
+                if (!type) return []
+                if (!(type instanceof ContractTy)) return []
+                const initFunc = type.initFunction()
+                if (!initFunc) {
+                    // if no init function in contract go to contract name
+                    if (!type.anchor) return []
+                    const nameNode = type.anchor.nameNode()
+                    if (!nameNode) return []
+
+                    return [
+                        {
+                            uri: nameNode.file.uri,
+                            range: asNullableLspRange(nameNode.node),
+                        },
+                    ]
+                }
+
+                return [
+                    {
+                        uri: initFunc.file.uri,
+                        range: asNullableLspRange(initFunc.initIdentifier()),
+                    },
                 ]
             }
 
