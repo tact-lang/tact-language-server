@@ -204,3 +204,26 @@ fun foo(f: User?) {
 9  address: Address?   of User
 9  age: Int?   of User
 9  name: String   of User
+
+========================================================================
+Field with same name method
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+trait Foo {
+    name: String;
+
+    fun name(): String {
+        return self.name;
+    }
+
+    fun bar() {
+        return self.<caret>;
+    }
+}
+------------------------------------------------------------------------
+9  name: String   of Foo
+2  bar()
+2  name(): String
