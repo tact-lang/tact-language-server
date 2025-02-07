@@ -87,8 +87,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             const needSemicolon = this.ctx.isStatement && !this.ctx.beforeSemicolon
 
             // We want to place cursor in parens only if there are any parameters to write.
-            const insertText =
-                thisPrefix + name + (hasNoParams ? "()" : "($1)") + (needSemicolon ? "$2;$0" : "")
+            // and add brackets only if they are not there yet
+            const parensPart = this.ctx.beforeParen ? "" : hasNoParams ? "()" : "($1)"
+            const semicolonPart = needSemicolon ? "$2;$0" : ""
+            const insertText = thisPrefix + name + parensPart + semicolonPart
 
             this.addItem({
                 label: thisPrefix + name,
