@@ -16,6 +16,7 @@ fun test() {
 13 false
 13 true
 2  bar(): Bool
+13 initOf Contract(params)   StateInit
 13 null
 2  foo(): Int
 2  test()
@@ -40,6 +41,7 @@ fun test() {
 13 false
 13 true
 2  bar(): Bool
+13 initOf Contract(params)   StateInit
 13 null
 2  foo(): Int
 2  test()
@@ -64,6 +66,7 @@ fun test() {
 ------------------------------------------------------------------------
 5  someValue   Int
 5  value   Int?
+13 initOf Contract(params)   StateInit
 13 null
 2  bar(): Int
 2  foo(): Int
@@ -91,6 +94,7 @@ fun test() {
 ------------------------------------------------------------------------
 5  someValue   Int
 5  value   Int?
+13 initOf Contract(params)   StateInit
 13 null
 2  bar(): Int
 2  foo(): Int
@@ -120,6 +124,7 @@ fun test() {
 5  someValue   Int
 5  value   unknown
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 true
 2  bar(): Int
@@ -154,6 +159,7 @@ fun test() {
 5  someBool   Bool
 5  someValue   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 true
 2  test()

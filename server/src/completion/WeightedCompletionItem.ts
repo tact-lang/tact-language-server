@@ -12,6 +12,7 @@ export enum CompletionWeight {
     PRIMITIVE = 105,
     STRUCT = 110,
     TRAIT = 120,
+    CONTRACT = 130,
     LOWEST = 500,
 }
 

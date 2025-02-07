@@ -1,14 +1,8 @@
 ========================================================================
-Struct completion
+initOf completion
 ========================================================================
-primitive Int;
-
-struct Foo {
-    age: Int;
-}
-
 fun test() {
-    <caret>
+    init<caret>
 }
 ------------------------------------------------------------------------
 13 false
@@ -17,7 +11,6 @@ fun test() {
 13 return;
 13 true
 2  test()
-21 Foo{}
 14 foreach
 14 if
 14 ife
@@ -30,32 +23,33 @@ fun test() {
 14 while
 
 ========================================================================
-Message completion
+initOf contract name completion
 ========================================================================
-primitive Int;
+contract Foo {}
+contract Bar {}
 
-message Foo {
-    age: Int;
-}
+trait Some {}
+trait Some2 {}
 
 fun test() {
-    <caret>
+    initOf <caret>
 }
 ------------------------------------------------------------------------
-13 false
-13 initOf Contract(params)   StateInit
-13 null
-13 return;
-13 true
-2  test()
-21 Foo{}
-14 foreach
-14 if
-14 ife
-14 let
-14 lett
-14 repeat
-14 try
-14 try-catch
-14 until
-14 while
+3  Bar()
+3  Foo()
+
+========================================================================
+initOf contract name completion with parens
+========================================================================
+contract Foo {}
+contract Bar {}
+
+trait Some {}
+trait Some2 {}
+
+fun test() {
+    initOf <caret>()
+}
+------------------------------------------------------------------------
+3  Bar()
+3  Foo()

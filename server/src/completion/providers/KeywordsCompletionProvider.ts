@@ -1,5 +1,5 @@
 import {CompletionProvider} from "@server/completion/CompletionProvider"
-import {CompletionItemKind} from "vscode-languageserver-types"
+import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import {CompletionContext} from "@server/completion/CompletionContext"
 import {
     CompletionResult,
@@ -35,6 +35,18 @@ export class KeywordsCompletionProvider implements CompletionProvider {
         result.add({
             label: "null",
             kind: CompletionItemKind.Keyword,
+            weight: contextWeight(CompletionWeight.KEYWORD, expectedNull),
+        })
+
+        result.add({
+            label: "initOf",
+            labelDetails: {
+                detail: " Contract(params)",
+                description: " StateInit",
+            },
+            kind: CompletionItemKind.Keyword,
+            insertText: "initOf $1($2)$0",
+            insertTextFormat: InsertTextFormat.Snippet,
             weight: contextWeight(CompletionWeight.KEYWORD, expectedNull),
         })
     }

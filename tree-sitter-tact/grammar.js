@@ -736,8 +736,8 @@ module.exports = grammar({
     initOf: ($) =>
       seq(
         "initOf",
-        field("name", $.identifier),
-        field("arguments", $.argument_list),
+        field("name", alias($._type_identifier, $.type_identifier)),
+        optional(field("arguments", $.argument_list)),
       ),
 
     /* Types */

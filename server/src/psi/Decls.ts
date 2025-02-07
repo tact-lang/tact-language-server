@@ -140,6 +140,16 @@ export class Trait extends StorageMembersOwner {}
 export class Contract extends StorageMembersOwner {}
 
 export class InitFunction extends Node {
+    public parameters(): NamedNode[] {
+        const parametersNode = this.node.childForFieldName("parameters")
+        if (!parametersNode) return []
+
+        return parametersNode.children
+            .filter(value => value?.type === "parameter")
+            .filter(value => value !== null)
+            .map(value => new NamedNode(value, this.file))
+    }
+
     public initIdentifier(): SyntaxNode | null {
         return this.node.firstChild
     }
