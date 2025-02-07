@@ -145,6 +145,14 @@ export class CompletionContext {
             this.isStatement = false
         }
 
+        if (
+            parent.type === "let_statement" &&
+            parent.childForFieldName("name")?.equals(this.element.node)
+        ) {
+            this.isExpression = false
+            this.isStatement = false
+        }
+
         if (parent.type === "trait_list") {
             this.inTraitList = true
         }

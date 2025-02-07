@@ -6,6 +6,7 @@ import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCom
 export class SnippetsCompletionProvider implements CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean {
         return (
+            ctx.isStatement &&
             !ctx.isExpression &&
             !ctx.topLevel &&
             !ctx.afterDot &&
