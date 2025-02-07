@@ -23,7 +23,7 @@ trait Child with Parent {
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 13 receive() {}
-13 virtual fun name();
+13 virtual fun name() {}
 
 ========================================================================
 Completion of override methods in trait with deep inheritance
@@ -55,7 +55,7 @@ trait Child with Parent {
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 13 receive() {}
-13 virtual fun name();
+13 virtual fun name() {}
 
 ========================================================================
 Completion of override methods in trait with method
@@ -84,7 +84,7 @@ trait Child with Parent {
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 13 receive() {}
-13 virtual fun name();
+13 virtual fun name() {}
 
 ========================================================================
 Completion of fields in trait
@@ -113,7 +113,7 @@ trait Child with Parent {
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 13 receive() {}
-13 virtual fun name();
+13 virtual fun name() {}
 
 ========================================================================
 Completion of fields in trait with deep inheritance
@@ -148,7 +148,7 @@ trait Child with Parent {
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 13 receive() {}
-13 virtual fun name();
+13 virtual fun name() {}
 
 ========================================================================
 Completion of fields in trait with field
@@ -180,7 +180,7 @@ trait Child with Parent {
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 13 receive() {}
-13 virtual fun name();
+13 virtual fun name() {}
 
 ========================================================================
 Completion of methods and fields without self
