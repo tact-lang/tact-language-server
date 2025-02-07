@@ -77,6 +77,7 @@ import {DocumentUri, TextEdit} from "vscode-languageserver-types"
 import {MissedFieldInContractInspection} from "@server/inspections/MissedFieldInContractInspection"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {TraitOrContractConstantsCompletionProvider} from "@server/completion/providers/TraitOrContractConstantsCompletionProvider"
+import {generateTlBTypeDoc} from "@server/documentation/tlb_type_documentation"
 
 /**
  * Whenever LS is initialized.
@@ -371,6 +372,19 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         const parent = hoverNode.parent
         if (parent?.type === "tvm_ordinary_word") {
             const doc = generateAsmDoc(hoverNode.text)
+            if (doc === null) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        if (parent?.type === "tlb_serialization") {
+            const doc = generateTlBTypeDoc(hoverNode.text)
             if (doc === null) return null
 
             return {
@@ -1011,6 +1025,20 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const file = findFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
+
+            const parent = hoverNode.parent
+            if (parent?.type === "tlb_serialization") {
+                const doc = generateTlBTypeDoc(hoverNode.text)
+                if (doc === null) return null
+
+                return {
+                    range: asLspRange(hoverNode),
+                    contents: {
+                        kind: "markdown",
+                        value: doc,
+                    },
+                }
+            }
 
             const res = Reference.resolve(NamedNode.create(hoverNode, file))
             if (res === null) {
