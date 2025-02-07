@@ -7,6 +7,13 @@ import {findInstruction} from "@server/completion/data/types"
 import {crc16} from "@server/utils/crc16"
 
 export class FieldsOwner extends NamedNode {
+    public kind(): string {
+        if (this.node.type === "message") {
+            return "message"
+        }
+        return "struct"
+    }
+
     public fields(): Field[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
@@ -38,6 +45,13 @@ export class Struct extends FieldsOwner {
 export class Primitive extends NamedNode {}
 
 export class StorageMembersOwner extends NamedNode {
+    public kind(): string {
+        if (this.node.type === "trait") {
+            return "trait"
+        }
+        return "contract"
+    }
+
     public ownMethods(): Fun[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
@@ -294,6 +308,14 @@ export class Field extends NamedNode {
         const value = this.node.childForFieldName("type")
         if (!value) return null
         return new Expression(value, this.file)
+    }
+
+    public tlbType(): string | null {
+        const tlb = this.node.childForFieldName("tlb")
+        if (!tlb) return null
+        const type = tlb.childForFieldName("type")
+        if (!type) return "" // return "" here to show that type has incomplete `as`
+        return type.text
     }
 
     public defaultValuePresentation(): string {
