@@ -11,6 +11,7 @@ trait Child with Parent {
 ------------------------------------------------------------------------
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
@@ -36,6 +37,7 @@ trait Child with Parent {
 ------------------------------------------------------------------------
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
@@ -60,6 +62,7 @@ trait Child with Parent {
 ------------------------------------------------------------------------
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
@@ -84,6 +87,7 @@ trait Child with Parent {
 9  name: String; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
@@ -113,6 +117,7 @@ trait Child with Parent {
 9  name: String; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
@@ -139,6 +144,7 @@ trait Child with Parent {
 9  age: Int; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
 13 fun name() {}
 13 get fun name() {}
 13 init() {}

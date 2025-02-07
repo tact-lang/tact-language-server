@@ -76,6 +76,7 @@ import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 import {DocumentUri, TextEdit} from "vscode-languageserver-types"
 import {MissedFieldInContractInspection} from "@server/inspections/MissedFieldInContractInspection"
 import {Node as SyntaxNode} from "web-tree-sitter"
+import {TraitOrContractConstantsCompletionProvider} from "@server/completion/providers/TraitOrContractConstantsCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -614,6 +615,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 new TlbSerializationCompletionProvider(),
                 new OverrideCompletionProvider(),
                 new TraitOrContractFieldsCompletionProvider(),
+                new TraitOrContractConstantsCompletionProvider(),
                 new SelfCompletionProvider(),
                 new ReturnCompletionProvider(),
                 new ReferenceCompletionProvider(ref),
