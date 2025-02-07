@@ -20,6 +20,7 @@ export class CompletionContext {
     topLevelInStructOrMessage: boolean = false
     inTlbSerialization: boolean = false
     afterDot: boolean = false
+    beforeParen: boolean = false
     beforeSemicolon: boolean = false
     inNameOfFieldInit: boolean = false
     inMultilineStructInit: boolean = false
@@ -46,9 +47,12 @@ export class CompletionContext {
         this.settings = settings
 
         const lines = content.split(/\n/g)
-        if (lines[position.line] && lines[position.line][position.character - 1]) {
-            const symbolAfter = lines[position.line][position.character - 1]
+        const currentLine = lines[position.line]
+        if (currentLine && currentLine[position.character - 1]) {
+            const symbolAfter = currentLine[position.character - 1]
             this.afterDot = symbolAfter === "."
+            const symbolAfterDummy = currentLine[position.character + "DummyIdentifier".length]
+            this.beforeParen = symbolAfterDummy === "("
         }
 
         const symbolAfter = element.file.symbolAt(element.node.endIndex)
