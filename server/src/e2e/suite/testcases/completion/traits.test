@@ -171,6 +171,7 @@ trait Child with Parent {
 2  self.foo(): Int
 13 self
 14 return 0;
+14 do
 14 foreach
 14 if
 14 ife

@@ -34,6 +34,7 @@ contract Foo {
 20 self.BAR:  = 100
 20 self.FOO:  = 100
 13 self
+14 do
 14 foreach
 14 if
 14 ife

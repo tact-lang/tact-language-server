@@ -18,6 +18,7 @@ fun test() {
 2  test()
 20 BAR: Int = 100
 20 FOO: Int = 100
+14 do
 14 foreach
 14 if
 14 ife

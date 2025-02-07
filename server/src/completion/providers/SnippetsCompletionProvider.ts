@@ -65,6 +65,14 @@ export class SnippetsCompletionProvider implements CompletionProvider {
         })
 
         result.add({
+            label: "do",
+            kind: CompletionItemKind.Snippet,
+            insertTextFormat: InsertTextFormat.Snippet,
+            insertText: "do {\n\t${0}\n} until (${1:condition});",
+            weight: CompletionWeight.SNIPPET,
+        })
+
+        result.add({
             label: "repeat",
             kind: CompletionItemKind.Snippet,
             insertTextFormat: InsertTextFormat.Snippet,

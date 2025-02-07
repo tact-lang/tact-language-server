@@ -23,6 +23,7 @@ fun test() {
 2  add(a: Int, b: Int): Int
 2  multiply(x: Int, y: Int): Int
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -120,6 +121,7 @@ fun test() {
 2  add(a: Int, b: Int): Int
 2  multiply(x: Int, y: Int): Int
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -157,6 +159,7 @@ fun test() {
 13 true
 2  foo()
 2  test()
+14 do
 14 foreach
 14 if
 14 ife

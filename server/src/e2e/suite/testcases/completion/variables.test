@@ -22,6 +22,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -51,6 +52,7 @@ fun test(amount: Int, to: Address) {
 13 return;
 13 true
 2  test(amount: Int, to: Address)
+14 do
 14 foreach
 14 if
 14 ife
@@ -81,6 +83,7 @@ extends fun move(self: Point, x: Int, y: Int) {
 13 return;
 13 true
 21 Point{}
+14 do
 14 foreach
 14 if
 14 ife
@@ -112,6 +115,7 @@ extends fun scale(self: Point, factor: Int) {
 13 return;
 13 true
 21 Point{}
+14 do
 14 foreach
 14 if
 14 ife
@@ -145,6 +149,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -181,6 +186,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -214,6 +220,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -248,6 +255,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -281,6 +289,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -312,6 +321,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -341,6 +351,7 @@ fun test(param: Int) {
 13 return;
 13 true
 2  test(param: Int)
+14 do
 14 foreach
 14 if
 14 ife
@@ -369,6 +380,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -397,6 +409,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -430,6 +443,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -464,6 +478,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
