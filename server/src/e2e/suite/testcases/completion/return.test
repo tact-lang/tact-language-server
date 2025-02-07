@@ -11,6 +11,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -39,6 +40,7 @@ fun test(): Bool {
 2  test(): Bool
 14 return false;
 14 return true;
+14 do
 14 foreach
 14 if
 14 ife
@@ -66,6 +68,7 @@ fun test(): Int {
 13 true
 2  test(): Int
 14 return 0;
+14 do
 14 foreach
 14 if
 14 ife
@@ -93,6 +96,7 @@ fun test(): String {
 13 true
 2  test(): String
 14 return "";
+14 do
 14 foreach
 14 if
 14 ife
@@ -120,6 +124,7 @@ fun test(): String? {
 13 true
 2  test(): String
 14 return null;
+14 do
 14 foreach
 14 if
 14 ife

@@ -18,6 +18,7 @@ fun test() {
 13 true
 2  test()
 21 Foo{}
+14 do
 14 foreach
 14 if
 14 ife
@@ -49,6 +50,7 @@ fun test() {
 13 true
 2  test()
 21 Foo{}
+14 do
 14 foreach
 14 if
 14 ife

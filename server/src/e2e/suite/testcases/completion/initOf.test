@@ -11,6 +11,7 @@ fun test() {
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
