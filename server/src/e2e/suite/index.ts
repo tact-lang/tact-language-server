@@ -12,7 +12,7 @@ export function run(): Promise<void> {
     const testsRoot = path.resolve(__dirname, ".")
 
     return new Promise((resolve, reject) => {
-        glob("completion.test.js", {
+        glob("*.test.js", {
             cwd: testsRoot,
         })
             .then(files => {

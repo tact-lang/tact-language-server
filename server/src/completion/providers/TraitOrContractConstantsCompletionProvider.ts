@@ -15,7 +15,7 @@ export class TraitOrContractConstantsCompletionProvider implements CompletionPro
                 detail: " Foo: <type> = <value>",
             },
             kind: CompletionItemKind.Keyword,
-            insertText: "const ${1:Name}: ${2:Int} = ${3:0};$0",
+            insertText: "const ${1:Foo}: ${2:Int} = ${3:0};$0",
             insertTextFormat: InsertTextFormat.Snippet,
             weight: CompletionWeight.KEYWORD,
         })
