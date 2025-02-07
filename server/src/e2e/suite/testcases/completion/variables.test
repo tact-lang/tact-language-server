@@ -373,7 +373,6 @@ fun test() {
     let variable: Int = 1;
 }
 ------------------------------------------------------------------------
-5  variable   Int
 13 false
 13 initOf Contract(params)   StateInit
 13 null
@@ -435,8 +434,6 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  first   Int
-5  second   Int
 13 false
 13 initOf Contract(params)   StateInit
 13 null

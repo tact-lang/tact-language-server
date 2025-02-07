@@ -48,7 +48,6 @@ fun test() {
     let result = <caret>
 }
 ------------------------------------------------------------------------
-5  result   unknown
 13 false
 13 initOf Contract(params)   StateInit
 13 null
@@ -78,7 +77,7 @@ fun test() {
 2  increment(self: Int): Int
 
 ========================================================================
-Fun completion in expression // TODO: remove x?
+Fun completion in expression
 ========================================================================
 primitive Int;
 
@@ -90,7 +89,6 @@ fun test() {
     let x = add(<caret>)
 }
 ------------------------------------------------------------------------
-5  x   Int
 13 false
 13 initOf Contract(params)   StateInit
 13 null
