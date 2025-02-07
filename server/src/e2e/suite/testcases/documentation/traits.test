@@ -27,3 +27,17 @@ trait <caret>Foo with Other {
 trait Foo with Other
 ```
 Some cool trait
+
+========================================================================
+Trait field declaration
+========================================================================
+primitive Int;
+
+trait Foo {
+    <caret>field: Int;
+}
+------------------------------------------------------------------------
+```
+trait Foo
+field: Int
+```
