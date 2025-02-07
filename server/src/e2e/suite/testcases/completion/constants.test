@@ -11,6 +11,7 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true

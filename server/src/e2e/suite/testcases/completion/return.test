@@ -6,6 +6,7 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -31,6 +32,7 @@ fun test(): Bool {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return <expr>;
 13 true
@@ -58,6 +60,7 @@ fun test(): Int {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return <expr>;
 13 true
@@ -84,6 +87,7 @@ fun test(): String {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return <expr>;
 13 true
@@ -110,6 +114,7 @@ fun test(): String? {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return <expr>;
 13 true

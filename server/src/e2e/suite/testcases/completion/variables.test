@@ -17,6 +17,7 @@ fun test() {
 5  myInt   Int
 5  myString   String
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -45,6 +46,7 @@ fun test(amount: Int, to: Address) {
 5  amount   Int
 5  to   Address
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -74,6 +76,7 @@ extends fun move(self: Point, x: Int, y: Int) {
 5  x   Int
 5  y   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -104,6 +107,7 @@ extends fun scale(self: Point, factor: Int) {
 5  factor   Int
 5  self   Point
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -136,6 +140,7 @@ fun test() {
 5  inner   Int
 5  outer   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -171,6 +176,7 @@ fun test() {
 5  b   Int
 5  c   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -203,6 +209,7 @@ fun test() {
 5  key   Int
 5  value   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -236,6 +243,7 @@ fun test() {
 5  result   Int
 5  value   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -268,6 +276,7 @@ fun test() {
 5  error   Int
 5  value   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -298,6 +307,7 @@ fun test() {
 ------------------------------------------------------------------------
 5  value   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -326,6 +336,7 @@ fun test(param: Int) {
 5  local   Int
 5  param   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -353,6 +364,7 @@ fun test() {
 ------------------------------------------------------------------------
 5  variable   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -380,6 +392,7 @@ fun test() {
 ------------------------------------------------------------------------
 5  variable   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -412,6 +425,7 @@ fun test() {
 5  first   Int
 5  second   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -445,6 +459,7 @@ fun test() {
 5  second   Int
 5  third   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true

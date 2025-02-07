@@ -17,7 +17,6 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
     public result: Map<string, CompletionItem> = new Map()
 
     private allowedInContext(node: Node): boolean {
-        if (node instanceof Contract) return false // filter contracts for now
         if (node instanceof NamedNode && node.name() === "BaseTrait") return false
 
         if (this.ctx.isType) {
@@ -29,6 +28,11 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             if (this.ctx.inTraitList) {
                 // for trait list allow only traits
                 return node instanceof Trait
+            }
+
+            if (this.ctx.isInitOfName) {
+                // only contracts can be used in `initOf Name()`
+                return node instanceof Contract
             }
 
             // for types, we want to complete only types
@@ -44,6 +48,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         if (node instanceof Trait || node instanceof Primitive) return false
         // but since structs and messages can be created like `Foo{}` we allow them
         if (node instanceof Struct || node instanceof Message) return true
+        if (node instanceof Contract) return false // filter contracts for now
 
         return true
     }
@@ -127,8 +132,24 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 weight: CompletionWeight.TRAIT,
             })
         } else if (node instanceof Contract) {
-            // don't add contract in completion for now
-            return true
+            const suffix = this.ctx.isInitOfName ? "()" : ""
+            const initFunction = node.initFunction()
+            const insertSuffix = this.ctx.isInitOfName
+                ? initFunction !== null && initFunction.parameters().length > 0
+                    ? "($1)"
+                    : "()"
+                : ""
+
+            this.addItem({
+                label: name,
+                labelDetails: {
+                    detail: suffix,
+                },
+                kind: CompletionItemKind.Constructor,
+                insertText: `${name}${insertSuffix}$0`,
+                insertTextFormat: InsertTextFormat.Snippet,
+                weight: CompletionWeight.CONTRACT,
+            })
         } else if (node instanceof Primitive) {
             this.addItem({
                 label: name,

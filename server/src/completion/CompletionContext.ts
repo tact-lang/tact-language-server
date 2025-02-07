@@ -26,6 +26,7 @@ export class CompletionContext {
     inTraitList: boolean = false
     inParameter: boolean = false
     isMessageContext: boolean = false
+    isInitOfName: boolean = false
 
     contextTy: Ty | null = null
 
@@ -136,6 +137,10 @@ export class CompletionContext {
             this.inTraitList = true
         }
 
+        if (parent.type === "initOf" && parent.childForFieldName("name")?.equals(element.node)) {
+            this.isInitOfName = true
+        }
+
         if (parent.type === "ERROR" && parent.parent?.type === "parameter_list") {
             this.inParameter = true
         }
@@ -215,7 +220,8 @@ export class CompletionContext {
             !this.inTlbSerialization &&
             !this.inNameOfFieldInit &&
             !this.inTraitList &&
-            !this.inParameter
+            !this.inParameter &&
+            !this.isInitOfName
         )
     }
 }

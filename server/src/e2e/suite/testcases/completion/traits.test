@@ -163,6 +163,7 @@ trait Child with Parent {
 ------------------------------------------------------------------------
 9  self.field: Int   of Child
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return <expr>;
 13 true

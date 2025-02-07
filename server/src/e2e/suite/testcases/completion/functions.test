@@ -16,6 +16,7 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -48,6 +49,7 @@ fun test() {
 ------------------------------------------------------------------------
 5  result   unknown
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 true
 2  add(a: Int, b: Int): Int
@@ -89,6 +91,7 @@ fun test() {
 ------------------------------------------------------------------------
 5  x   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 true
 2  add(a: Int, b: Int): Int
@@ -110,6 +113,7 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -147,6 +151,7 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
