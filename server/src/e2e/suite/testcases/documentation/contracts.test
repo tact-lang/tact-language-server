@@ -37,6 +37,7 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 ```
+contract Foo
 get fun foo()
 ```
 Method ID: `0x103fc`
@@ -52,6 +53,81 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 ```
+contract Foo
 fun foo()
 ```
 Some cool function
+
+========================================================================
+Contract field declaration
+========================================================================
+primitive Int;
+
+contract Foo {
+    field: Int;
+
+    fun foo() {
+        self.<caret>field;
+    }
+}
+------------------------------------------------------------------------
+```
+contract Foo
+field: Int
+```
+
+========================================================================
+Contract field declaration with default value
+========================================================================
+primitive Int;
+
+contract Foo {
+    field: Int = 0;
+
+    fun foo() {
+        self.<caret>field;
+    }
+}
+------------------------------------------------------------------------
+```
+contract Foo
+field: Int = 0
+```
+
+========================================================================
+Contract constant declaration with default value
+========================================================================
+primitive Int;
+
+contract Foo {
+    const FOO: Int = 0;
+
+    fun foo() {
+        self.<caret>FOO;
+    }
+}
+------------------------------------------------------------------------
+```
+contract Foo
+const FOO: Int = 0
+```
+
+========================================================================
+Contract constant declaration from trait
+========================================================================
+primitive Int;
+
+trait WithFoo {
+    const FOO: Int = 0;
+}
+
+contract Foo with WithFoo {
+    fun foo() {
+        self.<caret>FOO;
+    }
+}
+------------------------------------------------------------------------
+```
+trait WithFoo
+const FOO: Int = 0
+```
