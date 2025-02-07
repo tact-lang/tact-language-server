@@ -10,11 +10,17 @@ fun foo() {}
 13 contract Name {}
 13 contract Name with Trait {}
 13 asm fun name() {}
+13 const Foo: <type> = <value>
 13 extends fun name(self: <type>) {}
 13 extends mutates name(self: <type>) {}
 13 extends native name(self: <type>);
 13 fun name() {}
+13 message Name {}
+13 message(0xID) Name {}
 13 native name() {}
+13 struct Name {}
+13 trait Name {}
+13 trait Name with Other {}
 
 ========================================================================
 Completion on top-level 2
@@ -28,8 +34,14 @@ fun foo() {}
 13 contract Name {}
 13 contract Name with Trait {}
 13 asm fun name() {}
+13 const Foo: <type> = <value>
 13 extends fun name(self: <type>) {}
 13 extends mutates name(self: <type>) {}
 13 extends native name(self: <type>);
 13 fun name() {}
+13 message Name {}
+13 message(0xID) Name {}
 13 native name() {}
+13 struct Name {}
+13 trait Name {}
+13 trait Name with Other {}
