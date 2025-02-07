@@ -1,0 +1,56 @@
+========================================================================
+initOf and contract with init function
+========================================================================
+contract MyFoo {
+    <caret>init(a: Int, b: Int) {}
+
+    fun foo(): StateInit {
+        return initOf MyFoo(10, 20)
+    }
+}
+------------------------------------------------------------------------
+References: [4:15]
+Scope: GlobalSearchScope
+
+========================================================================
+several initOf and contract with init function
+========================================================================
+contract MyFoo {
+    <caret>init(a: Int, b: Int) {}
+
+    fun foo(): StateInit {
+        return initOf MyFoo(10, 20)
+    }
+}
+
+fun foo(): StateInit {
+    return initOf MyFoo(10, 20)
+}
+------------------------------------------------------------------------
+References: [4:15, 9:11]
+Scope: GlobalSearchScope
+
+========================================================================
+initOf and contract with init function with other contracts
+========================================================================
+contract MyFoo {
+    <caret>init(a: Int, b: Int) {}
+
+    fun foo(): StateInit {
+        return initOf MyFoo(10, 20)
+    }
+}
+
+contract MyBar {
+    <caret>init(a: Int, b: Int) {}
+
+    fun bar(): StateInit {
+        return initOf MyBar(10, 20)
+    }
+}
+------------------------------------------------------------------------
+References: [4:15]
+Scope: GlobalSearchScope
+
+References: [12:15]
+Scope: GlobalSearchScope
