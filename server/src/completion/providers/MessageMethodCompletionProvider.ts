@@ -9,37 +9,40 @@ export class MessageMethodCompletionProvider implements CompletionProvider {
     }
 
     addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
-        result.add({
-            label: "receive",
-            labelDetails: {
-                detail: "(msg: <type>) {}",
-            },
-            kind: CompletionItemKind.Keyword,
-            insertText: "receive(msg: $1) {$0}",
-            insertTextFormat: InsertTextFormat.Snippet,
-            weight: CompletionWeight.KEYWORD,
-        })
+        const options = ["receive", "external"]
+        options.forEach(name => {
+            result.add({
+                label: name,
+                labelDetails: {
+                    detail: "(msg: <type>) {}",
+                },
+                kind: CompletionItemKind.Keyword,
+                insertText: `${name}(msg: $1) {$0}`,
+                insertTextFormat: InsertTextFormat.Snippet,
+                weight: CompletionWeight.KEYWORD,
+            })
 
-        result.add({
-            label: "receive",
-            labelDetails: {
-                detail: `("<message>") {}`,
-            },
-            kind: CompletionItemKind.Keyword,
-            insertText: 'receive("$1") {$0}',
-            insertTextFormat: InsertTextFormat.Snippet,
-            weight: CompletionWeight.KEYWORD,
-        })
+            result.add({
+                label: name,
+                labelDetails: {
+                    detail: `("<message>") {}`,
+                },
+                kind: CompletionItemKind.Keyword,
+                insertText: `${name}("$1") {$0}`,
+                insertTextFormat: InsertTextFormat.Snippet,
+                weight: CompletionWeight.KEYWORD,
+            })
 
-        result.add({
-            label: "receive",
-            labelDetails: {
-                detail: `() {}`,
-            },
-            kind: CompletionItemKind.Keyword,
-            insertText: "receive() {$0}",
-            insertTextFormat: InsertTextFormat.Snippet,
-            weight: CompletionWeight.KEYWORD,
+            result.add({
+                label: name,
+                labelDetails: {
+                    detail: `() {}`,
+                },
+                kind: CompletionItemKind.Keyword,
+                insertText: `${name}() {$0}`,
+                insertTextFormat: InsertTextFormat.Snippet,
+                weight: CompletionWeight.KEYWORD,
+            })
         })
 
         result.add({
