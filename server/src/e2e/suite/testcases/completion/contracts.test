@@ -7,6 +7,9 @@ contract Foo {
 ------------------------------------------------------------------------
 13 bounced(msg: <type>) {}
 13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
