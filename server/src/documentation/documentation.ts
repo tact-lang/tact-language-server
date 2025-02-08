@@ -2,6 +2,7 @@ import {NamedNode} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
 import {Constant, Contract, Field, Fun, Message, Struct, Trait} from "@server/psi/Decls"
 import {Node as SyntaxNode} from "web-tree-sitter"
+import {trimPrefix} from "@server/utils/strings"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -216,13 +217,6 @@ export function generateDocFor(node: NamedNode): string | null {
     }
 
     return null
-}
-
-function trimPrefix(text: string, prefix: string): string {
-    if (text.startsWith(prefix)) {
-        return text.slice(prefix.length)
-    }
-    return text
 }
 
 function extractCommentsDoc(node: NamedNode): string {
