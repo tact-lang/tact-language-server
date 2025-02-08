@@ -82,6 +82,8 @@ import {BouncedTypeCompletionProvider} from "@server/completion/providers/Bounce
 import {TopLevelCompletionProvider} from "@server/completion/providers/TopLevelCompletionProvider"
 import {Intention, IntentionArguments, IntentionContext} from "@server/intentions/Intention"
 import {AddExplicitType} from "@server/intentions/AddExplicitType"
+import {AddImport} from "@server/intentions/AddImport"
+import {NotImportedSymbolInspection} from "@server/inspections/NotImportedSymbolInspection"
 
 /**
  * Whenever LS is initialized.
@@ -273,6 +275,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             new UnusedContractMembersInspection(),
             new UnusedImportInspection(),
             new MissedFieldInContractInspection(),
+            new NotImportedSymbolInspection(),
         ]
 
         const diagnostics: lsp.Diagnostic[] = []
@@ -1005,7 +1008,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    const intentions: Intention[] = [new AddExplicitType()]
+    const intentions: Intention[] = [new AddExplicitType(), new AddImport()]
 
     connection.onRequest(
         lsp.ExecuteCommandRequest.type,
