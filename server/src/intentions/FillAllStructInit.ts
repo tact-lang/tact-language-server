@@ -8,7 +8,16 @@ import {parentOfType} from "@server/psi/utils"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {NamedNode} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
-import {FieldsOwnerTy} from "@server/types/BaseTy"
+import {
+    FieldsOwnerTy,
+    MapTy,
+    MessageTy,
+    NullTy,
+    OptionTy,
+    PrimitiveTy,
+    StructTy,
+} from "@server/types/BaseTy"
+import {Field} from "@server/psi/Decls"
 
 export class FillStructInitBase implements Intention {
     id: string = "tact.fill-struct-init-base"
@@ -92,12 +101,15 @@ export class FillStructInitBase implements Intention {
             return this.allFields || field.defaultValue() === null
         })
 
-        // [field, other]
-        const fieldNames = fields.map(field => field.name())
-
-        //       field: 1,
-        //       other: 2,
-        const fieldsPresentation = fieldNames.map(name => `${fieldIndent}${name}: ,`).join("\n")
+        //       field: false,
+        //       other: null,
+        const fieldsPresentation = fields
+            .map(field => {
+                const name = field.name()
+                const value = this.fieldDefaultValue(field)
+                return `${fieldIndent}${name}: ${value},`
+            })
+            .join("\n")
 
         //    let some = Foo{}
         //                  ^^
@@ -115,6 +127,49 @@ export class FillStructInitBase implements Intention {
         )
 
         return diff.toWorkspaceEdit()
+    }
+
+    private fieldDefaultValue(field: Field): string | null {
+        const defaultValue = field.defaultValue()
+        if (defaultValue) return defaultValue.node.text
+
+        const type = field.typeNode()?.type()
+        if (!type) return "null"
+
+        if (type instanceof MapTy) {
+            return "emptyMap()"
+        }
+
+        if (type instanceof OptionTy || type instanceof NullTy) {
+            return "null"
+        }
+
+        if (type instanceof PrimitiveTy) {
+            switch (type.name()) {
+                case "Int":
+                    return "0"
+                case "Bool":
+                    return "false"
+                case "Address":
+                    return "sender()"
+                case "Cell":
+                    return "emptyCell()"
+                case "Builder":
+                    return "beginCell()"
+                case "Slice":
+                    return "emptySlice()"
+                case "String":
+                    return `""`
+                case "StringBuilder":
+                    return `beginString()`
+            }
+        }
+
+        if (type instanceof StructTy || type instanceof MessageTy) {
+            return `${type.name()}{}`
+        }
+
+        return "null"
     }
 }
 
