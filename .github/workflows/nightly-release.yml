@@ -37,6 +37,15 @@ jobs:
       - name: Package Extension
         run: yarn package
 
+      - name: Create Language Server Archive
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          mkdir -p tact-language-server
+          cp -r dist/* tact-language-server/
+          cp package.json tact-language-server/
+          tar -czf tact-language-server-v${VERSION}.tar.gz tact-language-server/
+          zip -r tact-language-server-v${VERSION}.zip tact-language-server/
+
       - name: Update Nightly Release
         run: |
           VERSION=$(node -p "require('./package.json').version")
@@ -44,9 +53,17 @@ jobs:
           gh release delete nightly --yes || true
           gh release create nightly \
             --title "Nightly Build v${VERSION}" \
-            --notes "🌙 This is an automated nightly build from the master branch." \
+            --notes "🌙 This is an automated nightly build from the master branch.
+
+          ## VS Code Extension
+          - Download the .vsix file and install it through VS Code
+
+          ## Other Editors
+          - Download tact-language-server-v${VERSION}.tar.gz (Linux/macOS) or tact-language-server-v${VERSION}.zip (Windows)
+          - Extract it to a convenient location
+          - Configure your editor to use the language server from the extracted folder" \
             --prerelease \
             --target master \
-            *.vsix
+            *.vsix tact-language-server-v${VERSION}.tar.gz tact-language-server-v${VERSION}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
