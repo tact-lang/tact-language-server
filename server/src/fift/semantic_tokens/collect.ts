@@ -1,12 +1,22 @@
-import {SemanticTokens, SemanticTokensBuilder} from "vscode-languageserver"
+import {SemanticTokens} from "vscode-languageserver"
 import {File} from "@server/psi/File"
 import {RecursiveVisitor} from "@server/psi/visitor"
+import {SemanticTokensBuilder} from "vscode-languageserver/lib/common/semanticTokens"
 import {SemanticTokenTypes} from "vscode-languageserver-protocol"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"
 import {FiftReference} from "@server/fift/psi/FiftReference"
 
-export function collectFift(file: File): SemanticTokens {
+export function collectFift(
+    file: File,
+    settings: {
+        enabled: boolean
+    },
+): SemanticTokens | null {
+    if (!settings.enabled) {
+        return null
+    }
+
     const builder = new SemanticTokensBuilder()
 
     function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes) {

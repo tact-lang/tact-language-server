@@ -127,11 +127,6 @@
                     "default": true,
                     "description": "Show parameter name hints in function calls"
                 },
-                "tact.codeLens.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable/disable all code lens"
-                },
                 "tact.hints.exitCodeFormat": {
                     "type": "string",
                     "enum": [
@@ -150,10 +145,94 @@
                     "default": true,
                     "description": "Show method ID hints for contract functions"
                 },
+                "tact.hints.showGasConsumption": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show gas consumption hints for asm functions"
+                },
+                "tact.hints.showAsmInstructionGas": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show gas consumption hints for assembly instructions"
+                },
+                "tact.hints.showExitCodes": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show exit codes in require() call"
+                },
+                "tact.hints.showExplicitTLBIntType": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show explicit TL-B type hints (as int257) for Int fields"
+                },
+                "tact.codeLens.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable/disable all code lens"
+                },
+                "tact.codeLens.showUsages": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show number of usages for traits, structs, messages, constants and functions"
+                },
+                "tact.codeLens.showOverrides": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show number of overrides for virtual functions"
+                },
+                "tact.codeLens.showTraitImplementations": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show number of implementations for traits"
+                },
+                "tact.codeLens.showFunctionImplementations": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show number of implementations for abstract functions"
+                },
+                "tact.codeLens.showParentTraitFields": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show 'Go to parent' lens for fields inherited from traits"
+                },
+                "tact.codeLens.showParentTraitFunctions": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show 'Go to parent' lens for functions inherited from traits"
+                },
                 "tact.completion.typeAware": {
                     "type": "boolean",
                     "default": true,
                     "description": "Sort completion items by relevance to the current context type"
+                },
+                "tact.inspections.disabled": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "tact-compiler-errors",
+                            "unused-parameter",
+                            "empty-block",
+                            "unused-variable",
+                            "struct-initialization",
+                            "unused-contract-members",
+                            "unused-import",
+                            "missed-field-in-contract",
+                            "not-imported-symbol"
+                        ]
+                    },
+                    "default": [],
+                    "description": "List of disabled code inspections. All inspections are enabled by default."
+                },
+                "tact.fift.hints.showGasConsumption": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show gas consumption hints for Fift instructions"
+                },
+                "tact.fift.semanticHighlighting.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable/disable semantic highlighting for Fift files"
                 }
             }
         },

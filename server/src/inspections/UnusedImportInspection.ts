@@ -3,8 +3,11 @@ import {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {ImportResolver} from "@server/psi/ImportResolver"
+import {Inspection, InspectionIds} from "./Inspection"
 
-export class UnusedImportInspection {
+export class UnusedImportInspection implements Inspection {
+    readonly id: "unused-import" = InspectionIds.UNUSED_IMPORT
+
     inspect(file: File): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
