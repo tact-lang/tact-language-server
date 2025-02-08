@@ -33,7 +33,9 @@ In VS Code (or VS Code-like editors):
 
 The extension will automatically activate when you open any `.tact` file.
 
-## Installation
+## Building & Installation
+
+Currently, the only way to run a language server in other editors is to build it manually.
 
 First, clone and build the language server:
 
@@ -52,13 +54,7 @@ yarn build
     yarn package
     ```
 
-2. In VS Code:
-    - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
-    - Type "Install from VSIX"
-    - Select the generated `.vsix` file
-    - Reload VS Code
-
-The extension will automatically activate when you open any `.tact` file.
+2. See steps from "Quick start"
 
 ### Helix
 
