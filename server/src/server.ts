@@ -1361,7 +1361,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             file.getContracts().forEach(n => result.push(createSymbol(n)))
             file.getPrimitives().forEach(n => result.push(createSymbol(n)))
 
-            return result
+            return result.sort((a, b) => a.range.start.line - b.range.start.line)
         },
     )
 
