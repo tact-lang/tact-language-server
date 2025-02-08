@@ -28,9 +28,9 @@ yarn install
 yarn build
 ```
 
-### VS Code
+### VS Code / VSCodium / Cursor / Windsurf
 
-The easiest way to get started with Tact is using VS Code:
+The easiest way to get started with Tact is using VS Code or editors based on it:
 
 1. Run the following command to create the VSIX package:
 
