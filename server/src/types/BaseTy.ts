@@ -9,6 +9,7 @@ import {
     StorageMembersOwner,
     Primitive,
     InitFunction,
+    Field,
 } from "@server/psi/Decls"
 import {NamedNode} from "@server/psi/Node"
 
@@ -37,7 +38,7 @@ export abstract class BaseTy<Anchor extends NamedNode> implements Ty {
 }
 
 export class FieldsOwnerTy<Anchor extends FieldsOwner> extends BaseTy<Anchor> {
-    public fields(): NamedNode[] {
+    public fields(): Field[] {
         if (this.anchor === null) return []
         return this.anchor.fields()
     }
