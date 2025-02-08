@@ -37,7 +37,9 @@ import {
     Contract,
     Field,
     Fun,
+    InitFunction,
     Message,
+    MessageFunction,
     Primitive,
     StorageMembersOwner,
     Struct,
@@ -95,6 +97,7 @@ import {AddExplicitType} from "@server/intentions/AddExplicitType"
 import {AddImport} from "@server/intentions/AddImport"
 import {NotImportedSymbolInspection} from "@server/inspections/NotImportedSymbolInspection"
 import {FillAllStructInit, FillRequiredStructInit} from "@server/intentions/FillAllStructInit"
+import {generateInitDoc, generateReceiverDoc} from "@server/documentation/receivers_documentation"
 
 /**
  * Whenever LS is initialized.
@@ -414,6 +417,42 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         if (parent?.type === "tlb_serialization") {
             const doc = generateTlBTypeDoc(hoverNode.text)
             if (doc === null) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        if (
+            hoverNode.type === "receive" ||
+            hoverNode.type === "external" ||
+            hoverNode.type === "bounced"
+        ) {
+            const parent = hoverNode.parent
+            if (!parent) return null
+            const func = new MessageFunction(parent, file)
+            const doc = generateReceiverDoc(func)
+            if (!doc) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        if (hoverNode.type === "init") {
+            const parent = hoverNode.parent
+            if (!parent) return null
+            const func = new InitFunction(parent, file)
+            const doc = generateInitDoc(func)
+            if (!doc) return null
 
             return {
                 range: asLspRange(hoverNode),

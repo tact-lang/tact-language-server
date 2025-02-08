@@ -178,10 +178,14 @@ export class InitFunction extends Node {
 export class MessageFunction extends Node {
     public nameLike(): string {
         const parametersNode = this.node.childForFieldName("parameter")
-        if (!parametersNode) return "unknown()"
         const kindIdent = this.kindIdentifier()
         if (!kindIdent) return "unknown()"
+        if (!parametersNode) return `${kindIdent.text}()`
         return `${kindIdent.text}(${parametersNode.text})`
+    }
+
+    public parameter(): SyntaxNode | null {
+        return this.node.childForFieldName("parameter")
     }
 
     public kindIdentifier(): SyntaxNode | null {
