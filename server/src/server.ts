@@ -80,6 +80,8 @@ import {TraitOrContractConstantsCompletionProvider} from "@server/completion/pro
 import {generateTlBTypeDoc} from "@server/documentation/tlb_type_documentation"
 import {BouncedTypeCompletionProvider} from "@server/completion/providers/BouncedTypeCompletionProvider"
 import {TopLevelCompletionProvider} from "@server/completion/providers/TopLevelCompletionProvider"
+import {Intention, IntentionArguments, IntentionContext} from "@server/intentions/Intention"
+import {AddExplicitType} from "@server/intentions/AddExplicitType"
 
 /**
  * Whenever LS is initialized.
@@ -1003,6 +1005,100 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
+    const intentions: Intention[] = [new AddExplicitType()]
+
+    connection.onRequest(
+        lsp.ExecuteCommandRequest.type,
+        async (params: lsp.ExecuteCommandParams) => {
+            if (params.command === "tact/executeGetScopeProvider") {
+                const commandParams = params.arguments?.[0] as
+                    | lsp.TextDocumentPositionParams
+                    | undefined
+                if (!commandParams) return "Invalid parameters"
+
+                const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)
+                if (!file) {
+                    return "File not found"
+                }
+
+                const node = nodeAtPosition(commandParams, file)
+                if (!node) {
+                    return "Node not found"
+                }
+
+                const referent = new Referent(node, file)
+                const scope = referent.useScope()
+                if (!scope) return "Scope not found"
+                if (scope instanceof LocalSearchScope) return scope.toString()
+                return "GlobalSearchScope"
+            }
+
+            if (!params.arguments || params.arguments.length === 0) return null
+
+            const intention = intentions.find(intention => intention.id === params.command)
+            if (!intention) return null
+
+            const args = params.arguments[0] as IntentionArguments
+
+            const file = findFile(args.fileUri)
+
+            const ctx: IntentionContext = {
+                file: file,
+                position: args.position,
+            }
+
+            const edits = intention.invoke(ctx)
+            if (!edits) return null
+
+            await connection.sendRequest(lsp.ApplyWorkspaceEditRequest.method, {
+                label: `Intention "${intention.name}"`,
+                edit: edits,
+            } as lsp.ApplyWorkspaceEditParams)
+
+            return null
+        },
+    )
+
+    connection.onRequest(
+        lsp.CodeActionRequest.type,
+        (params: lsp.CodeActionParams): lsp.CodeAction[] | null => {
+            const uri = params.textDocument.uri
+            if (uri.endsWith(".fif")) {
+                return null
+            }
+
+            const file = findFile(uri)
+
+            const ctx: IntentionContext = {
+                file: file,
+                position: params.range.start,
+            }
+
+            const actions: lsp.CodeAction[] = []
+
+            intentions.forEach(intention => {
+                if (!intention.is_available(ctx)) return
+
+                actions.push({
+                    title: intention.name,
+                    kind: lsp.CodeActionKind.QuickFix,
+                    command: {
+                        title: intention.name,
+                        command: intention.id,
+                        arguments: [
+                            {
+                                fileUri: file.uri,
+                                position: params.range.start,
+                            } as IntentionArguments,
+                        ],
+                    },
+                })
+            })
+
+            return actions
+        },
+    )
+
     connection.onRequest(
         GetTypeAtPositionRequest,
         (params: GetTypeAtPositionParams): GetTypeAtPositionResponse => {
@@ -1207,29 +1303,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    connection.onExecuteCommand(params => {
-        if (params.command !== "tact/executeGetScopeProvider") return
-
-        const commandParams = params.arguments?.[0] as lsp.TextDocumentPositionParams | undefined
-        if (!commandParams) return "Invalid parameters"
-
-        const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)
-        if (!file) {
-            return "File not found"
-        }
-
-        const node = nodeAtPosition(commandParams, file)
-        if (!node) {
-            return "Node not found"
-        }
-
-        const referent = new Referent(node, file)
-        const scope = referent.useScope()
-        if (!scope) return "Scope not found"
-        if (scope instanceof LocalSearchScope) return scope.toString()
-        return "GlobalSearchScope"
-    })
-
+    // noinspection JSUnusedLocalSymbols
     const _needed = TypeInferer.inferType
 
     console.info("Tact language server is ready!")
@@ -1237,7 +1311,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     return {
         capabilities: {
             textDocumentSync: lsp.TextDocumentSyncKind.Incremental,
-            // codeActionProvider: true,
             documentSymbolProvider: true,
             workspaceSymbolProvider: true,
             definitionProvider: true,
@@ -1269,8 +1342,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             codeLensProvider: {
                 resolveProvider: false,
             },
+            codeActionProvider: {
+                codeActionKinds: [lsp.CodeActionKind.QuickFix],
+            },
             executeCommandProvider: {
-                commands: ["tact/executeGetScopeProvider"],
+                commands: [...["tact/executeGetScopeProvider"], ...intentions.map(it => it.id)],
             },
         },
     }
