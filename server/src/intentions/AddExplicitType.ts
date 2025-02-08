@@ -1,7 +1,7 @@
 import {Intention, IntentionContext} from "@server/intentions/Intention"
 import {WorkspaceEdit} from "vscode-languageserver"
 import {File} from "@server/psi/File"
-import {asParserPoint} from "@server/utils/position"
+import {asLspPosition, asParserPoint} from "@server/utils/position"
 import {Position} from "vscode-languageclient"
 import {VarDeclaration} from "@server/psi/Node"
 import {FileDiff} from "@server/utils/FileDiff"
@@ -36,7 +36,7 @@ export class AddExplicitType implements Intention {
         if (!inferredType) return null
 
         const diff = FileDiff.forFile(ctx.file.uri)
-        diff.appendTo(name.endPosition.row, name.endPosition.column, `: ${inferredType.name()}`)
+        diff.appendTo(asLspPosition(name.endPosition), `: ${inferredType.name()}`)
 
         return diff.toWorkspaceEdit()
     }

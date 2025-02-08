@@ -84,6 +84,7 @@ import {Intention, IntentionArguments, IntentionContext} from "@server/intention
 import {AddExplicitType} from "@server/intentions/AddExplicitType"
 import {AddImport} from "@server/intentions/AddImport"
 import {NotImportedSymbolInspection} from "@server/inspections/NotImportedSymbolInspection"
+import {FillAllStructInit, FillRequiredStructInit} from "@server/intentions/FillAllStructInit"
 
 /**
  * Whenever LS is initialized.
@@ -1018,7 +1019,12 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    const intentions: Intention[] = [new AddExplicitType(), new AddImport()]
+    const intentions: Intention[] = [
+        new AddExplicitType(),
+        new AddImport(),
+        new FillAllStructInit(),
+        new FillRequiredStructInit(),
+    ]
 
     connection.onRequest(
         lsp.ExecuteCommandRequest.type,

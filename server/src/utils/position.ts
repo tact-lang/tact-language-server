@@ -23,6 +23,10 @@ export function asLspRange(node: Parser.Node): lsp.Range {
     )
 }
 
+export function asLspPosition(pos: Parser.Point): lsp.Position {
+    return lsp.Position.create(pos.row, pos.column)
+}
+
 export function asParserPoint(position: lsp.Position): Parser.Point {
     return {
         column: position.character,

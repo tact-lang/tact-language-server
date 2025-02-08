@@ -1,4 +1,5 @@
 import * as lsp from "vscode-languageserver"
+import {Position} from "vscode-languageclient"
 
 interface Edit {
     range: lsp.Range
@@ -24,14 +25,13 @@ export class FileDiff {
      * Add text at the beginning of a line
      */
     appendToBegin(line: number, text: string): this {
-        return this.appendTo(line, 0, text)
+        return this.appendTo({line, character: 0}, text)
     }
 
     /**
      * Add text at specific position
      */
-    appendTo(line: number, character: number, text: string): this {
-        const pos = {line, character}
+    appendTo(pos: Position, text: string): this {
         this.edits.push({
             range: {start: pos, end: pos},
             newText: text,
