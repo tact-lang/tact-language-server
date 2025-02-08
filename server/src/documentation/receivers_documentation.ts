@@ -27,12 +27,16 @@ export function generateReceiverDoc(func: MessageFunction): string | null {
               ? "https://docs.tact-lang.org/book/bounced/"
               : "https://docs.tact-lang.org/book/external/"
 
+    // receive() {}
+    //        ^^
     const param = func.parameter()
     if (!param) {
         const doc = "Called when an empty message is sent to the contract"
         return defaultResult(name, doc, link)
     }
 
+    // receive("message") {}
+    //         ^^^^^^^^^
     if (param.type === "string") {
         const doc =
             'Called when a text message with a specific comment is sent to the contract (maximum "message" length is 123 bytes)'
@@ -44,21 +48,29 @@ export function generateReceiverDoc(func: MessageFunction): string | null {
     const type = new Expression(typeNode, func.file).type()
     if (!type) return null
 
+    // receive(str: String) {}
+    //              ^^^^^^
     if (type.name() === "String") {
         const doc = "Called when an arbitrary text message is sent to the contract"
         return defaultResult(name, doc, link)
     }
 
+    // receive(msg: ChangeOwner) {}
+    //              ^^^^^^^^^^^
     if (type instanceof MessageTy) {
         const doc = `Called when a binary message of type \`${type.name()}\` is sent to the contract`
         return defaultResult(name, doc, link)
     }
 
+    // bounced(msg: bounced<ChangeOwner>) {}
+    //              ^^^^^^^^^^^^^^^^^^^^
     if (type instanceof BouncedTy) {
         const doc = `Called when a binary message of type \`${type.innerTy.name()}\` is sent to the contract`
         return defaultResult(name, doc, link)
     }
 
+    // external(msg: Slice) {}
+    //               ^^^^^
     if (type.name() === "Slice") {
         const doc = "Called when binary message of unknown type is sent to the contract"
         return defaultResult(name, doc, link)
