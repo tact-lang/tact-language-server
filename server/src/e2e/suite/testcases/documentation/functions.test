@@ -9,17 +9,17 @@ native <caret>test3();
 
 native <caret>test4();
 ------------------------------------------------------------------------
-```
+```tact
 fun test1()
 ```
-```
+```tact
 extends fun test2()
 ```
-```
+```tact
 @name(__foo)
 native test3()
 ```
-```
+```tact
 native test4()
 ```
 
@@ -31,7 +31,7 @@ primitive Int;
 
 fun <caret>test(name: String, age: Int) {}
 ------------------------------------------------------------------------
-```
+```tact
 fun test(name: String, age: Int)
 ```
 
@@ -43,7 +43,7 @@ primitive Int;
 
 fun <caret>test(name: String): String {}
 ------------------------------------------------------------------------
-```
+```tact
 fun test(name: String): String
 ```
 
@@ -53,11 +53,11 @@ Asm function documentation
 asm fun <caret>test() { ONE TWO THREE }
 asm(self other) fun <caret>test() { b{00} PUSHSLICE }
 ------------------------------------------------------------------------
-```
+```tact
 asm fun test() { ONE TWO THREE }
 ```
 Gas: `~36`
-```
+```tact
 asm(self other) fun test() { b{00} PUSHSLICE }
 ```
 Gas: `~22`
@@ -67,7 +67,7 @@ Asm function documentation with one line body
 ========================================================================
 asm fun <caret>test() { ONE }
 ------------------------------------------------------------------------
-```
+```tact
 asm fun test() { ONE }
 ```
 Gas: `18`
@@ -79,7 +79,7 @@ asm fun <caret>test() {
     ONE
 }
 ------------------------------------------------------------------------
-```
+```tact
 asm fun test()
 ```
 Gas: `18`
@@ -92,7 +92,7 @@ fun <caret>test() {
     test();
 }
 ------------------------------------------------------------------------
-```
+```tact
 fun test()
 ```
 This is one line comment
@@ -105,7 +105,7 @@ fun <caret>test() {
     test();
 }
 ------------------------------------------------------------------------
-```
+```tact
 fun test()
 ```
 This is one line comment
@@ -138,7 +138,7 @@ Function documentation with complex /// doc comment
 ///
 asm fun <caret>getOriginalFwdFee(fwdFee: Int, isMasterchain: Bool): Int { GETORIGINALFWDFEE }
 ------------------------------------------------------------------------
-```
+```tact
 asm fun getOriginalFwdFee(fwdFee: Int, isMasterchain: Bool): Int { GETORIGINALFWDFEE }
 ```
 
