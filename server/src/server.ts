@@ -32,7 +32,17 @@ import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvi
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
 import {BaseTy, FieldsOwnerTy} from "./types/BaseTy"
 import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
-import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from "@server/psi/Decls"
+import {
+    Constant,
+    Contract,
+    Field,
+    Fun,
+    Message,
+    Primitive,
+    StorageMembersOwner,
+    Struct,
+    Trait,
+} from "@server/psi/Decls"
 import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompletionProvider"
 import {OverrideCompletionProvider} from "./completion/providers/OverrideCompletionProvider"
 import {TraitOrContractFieldsCompletionProvider} from "./completion/providers/TraitOrContractFieldsCompletionProvider"
@@ -41,7 +51,7 @@ import {MessageMethodCompletionProvider} from "./completion/providers/MessageMet
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
 import {measureTime, parentOfType} from "@server/psi/utils"
-import {FileChangeType, ParameterInformation} from "vscode-languageserver"
+import {FileChangeType, ParameterInformation, SymbolKind} from "vscode-languageserver"
 import {Logger} from "@server/utils/logger"
 import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
 import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection"
@@ -1285,6 +1295,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         if (node instanceof Constant) {
             return lsp.SymbolKind.Constant
         }
+        if (node instanceof Field) {
+            return lsp.SymbolKind.Field
+        }
         return lsp.SymbolKind.Object
     }
 
@@ -1327,8 +1340,21 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 }
             }
 
+            function addMessageFunctions(element: StorageMembersOwner, to: lsp.DocumentSymbol[]) {
+                const messageFunctions = element.messageFunctions()
+                messageFunctions.forEach(messageFunction => {
+                    to.push({
+                        name: messageFunction.nameLike(),
+                        range: asNullableLspRange(messageFunction.node),
+                        selectionRange: asNullableLspRange(messageFunction.kindIdentifier()),
+                        kind: SymbolKind.Method,
+                    })
+                })
+            }
+
             function symbolChildren(element: NamedNode): lsp.DocumentSymbol[] {
                 const children: NamedNode[] = []
+                const additionalChildren: lsp.DocumentSymbol[] = []
 
                 if (element instanceof Struct) {
                     children.push(...element.fields())
@@ -1342,16 +1368,39 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                     children.push(...element.ownConstants())
                     children.push(...element.ownFields())
                     children.push(...element.ownMethods())
+
+                    const initFunction = element.initFunction()
+                    if (initFunction) {
+                        additionalChildren.push({
+                            name: initFunction.nameLike(),
+                            range: asNullableLspRange(initFunction.node),
+                            selectionRange: asNullableLspRange(initFunction.initIdentifier()),
+                            kind: SymbolKind.Constructor,
+                        })
+                    }
+
+                    addMessageFunctions(element, additionalChildren)
                 }
 
                 if (element instanceof Trait) {
                     children.push(...element.ownConstants())
                     children.push(...element.ownFields())
                     children.push(...element.ownMethods())
+
+                    addMessageFunctions(element, additionalChildren)
                 }
 
-                return children.map(el => createSymbol(el))
+                return [...children.map(el => createSymbol(el)), ...additionalChildren]
             }
+
+            file.imports().forEach(imp => {
+                result.push({
+                    name: imp.text,
+                    range: asLspRange(imp),
+                    selectionRange: asLspRange(imp),
+                    kind: SymbolKind.Module,
+                })
+            })
 
             file.getFuns().forEach(n => result.push(createSymbol(n)))
             file.getStructs().forEach(n => result.push(createSymbol(n)))
