@@ -22,22 +22,32 @@ The easiest way to get started with Tact is to use VS Code or editors based on i
    VS Code.
 2. That's it!
 
-Or, download the latest [release](https://github.com/tact-lang/tact-language-server/releases) and install it manually:
+## Installation
 
-In VS Code (or VS Code-like editors):
+### VS Code / VSCodium / Cursor / Windsurf
 
-- Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
-- Type "Install from VSIX"
-- Select the generated `.vsix` file
-- Reload VS Code
+Download and install the extension:
 
-The extension will automatically activate when you open any `.tact` file.
+1. Get the latest `.vsix` file from [releases](https://github.com/tact-lang/tact-language-server/releases)
+2. In VS Code:
+    - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
+    - Type "Install from VSIX"
+    - Select the downloaded `.vsix` file
+    - Reload VS Code
 
-## Building & Installation
+### Other Editors
 
-Currently, the only way to run a language server in other editors is to build it manually.
+Download the pre-built language server:
 
-First, clone and build the language server:
+1. Get the latest archive from [releases](https://github.com/tact-lang/tact-language-server/releases):
+    - `tact-language-server-*.tar.gz` for Linux/macOS
+    - `tact-language-server-*.zip` for Windows
+2. Extract it to a convenient location
+3. Configure your editor to use the language server (see editor-specific instructions below)
+
+### Building from Source
+
+If you want to build the language server yourself:
 
 ```shell
 git clone https://github.com/tact-lang/tact-language-server
@@ -46,15 +56,13 @@ yarn install
 yarn build
 ```
 
-### VS Code / VSCodium / Cursor / Windsurf
+For VS Code extension, additionally run:
 
-1. Run the following command to create the VSIX package:
+```shell
+yarn package
+```
 
-    ```shell
-    yarn package
-    ```
-
-2. See steps from "Quick start"
+## Editor Setup
 
 ### Helix
 
