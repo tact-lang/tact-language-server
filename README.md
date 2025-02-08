@@ -18,8 +18,8 @@ This language server/extension provides support for the [Tact programming langua
 
 The easiest way to get started with Tact is to use VS Code or editors based on it:
 
-1. Install the [Tact language extension](https://marketplace.visualstudio.com/items?itemName=tonstudio.vscode-tact) for VS
-   Code.
+1. Install the [Tact language extension](https://marketplace.visualstudio.com/items?itemName=tonstudio.vscode-tact) for
+   VS Code.
 2. That's it!
 
 Or, download the latest [release](https://github.com/tact-lang/tact-language-server/releases) and install it manually:
