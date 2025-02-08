@@ -30,7 +30,7 @@ import {KeywordsCompletionProvider} from "./completion/providers/KeywordsComplet
 import {CompletionProvider} from "./completion/CompletionProvider"
 import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvider"
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
-import {BaseTy} from "./types/BaseTy"
+import {BaseTy, FieldsOwnerTy} from "./types/BaseTy"
 import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
 import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from "@server/psi/Decls"
 import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompletionProvider"
@@ -41,7 +41,7 @@ import {MessageMethodCompletionProvider} from "./completion/providers/MessageMet
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
 import {measureTime, parentOfType} from "@server/psi/utils"
-import {FileChangeType} from "vscode-languageserver"
+import {FileChangeType, ParameterInformation} from "vscode-languageserver"
 import {Logger} from "@server/utils/logger"
 import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
 import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection"
@@ -866,6 +866,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         parametersInfo: lsp.ParameterInformation[]
         presentation: string
         isMethod: boolean
+        isStructField: boolean
+        structFieldIndex: number
     } | null => {
         const findParametersNode = (element: NamedNode): SyntaxNode | null => {
             if (element instanceof Contract) {
@@ -880,8 +882,63 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             "static_call_expression",
             "method_call_expression",
             "initOf",
+            "instance_expression",
+            "instance_argument",
+            "instance_argument_list",
         )
         if (!callNode) return null
+
+        if (callNode.type === "instance_expression") return null // don't show any signature helps
+
+        if (callNode.type === "instance_argument_list" || callNode.type === "instance_argument") {
+            let name = callNode.childForFieldName("name")
+                ? callNode.childForFieldName("name")
+                : hoverNode.type === "instance_argument"
+                  ? hoverNode.firstChild
+                  : hoverNode.previousNamedSibling
+
+            if (!name) return null
+            if (name.type === "instance_argument") {
+                name = name.firstChild
+            }
+            if (!name) return null
+
+            const type = new Expression(name, file).type()
+            if (!type) return null
+
+            const instanceExpression = parentOfType(callNode, "instance_expression")
+            if (!instanceExpression) return null
+
+            const instanceName = instanceExpression.childForFieldName("name")
+            if (!instanceName) return null
+
+            const instanceType = new Expression(instanceName, file).type()
+            if (!instanceType) return null
+            if (!(instanceType instanceof FieldsOwnerTy)) return null
+
+            const fields = instanceType.fields()
+            const fieldPresentations = fields.map(
+                field => `${field.name()}: ${field.typeNode()?.node.text ?? ""}`,
+            )
+
+            const fieldsInfo = fieldPresentations.map(
+                name =>
+                    ({
+                        label: name,
+                    }) as ParameterInformation,
+            )
+
+            const presentation = instanceType.name() + "{ " + fieldPresentations.join(", ") + " }"
+
+            return {
+                rawArguments: [],
+                parametersInfo: fieldsInfo,
+                presentation: presentation,
+                isMethod: false,
+                isStructField: true,
+                structFieldIndex: fields.findIndex(f => f.name() === name.text),
+            }
+        }
 
         const call = new CallLike(callNode, file)
 
@@ -908,6 +965,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 parametersInfo,
                 presentation: `init(${parametersString})`,
                 isMethod: false,
+                isStructField: false,
+                structFieldIndex: 0,
             }
         }
 
@@ -918,6 +977,8 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             parametersInfo,
             presentation: `fun ${call.name()}(${parametersString})`,
             isMethod: callNode.type === "method_call_expression" && res.withSelf(),
+            isStructField: false,
+            structFieldIndex: 0,
         }
     }
 
@@ -932,7 +993,26 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const res = findSignatureHelpTarget(hoverNode, file)
             if (!res) return null
 
-            const {parametersInfo, rawArguments, isMethod, presentation} = res
+            const {
+                parametersInfo,
+                rawArguments,
+                isMethod,
+                presentation,
+                isStructField,
+                structFieldIndex,
+            } = res
+
+            if (isStructField) {
+                return {
+                    signatures: [
+                        {
+                            label: presentation,
+                            parameters: parametersInfo,
+                            activeParameter: structFieldIndex,
+                        },
+                    ],
+                }
+            }
 
             // The algorithm below uses the positions of commas and parentheses to findTo find the active parameter, it is enough to find the last comma, which has a position in the line less than the cursor position. In order not to complicate the algorithm, we consider the opening bracket as a kind of comma for the zero element. If the cursor position is greater than the position of any comma, then we consider that this is the last element. the active parameter.
             //
