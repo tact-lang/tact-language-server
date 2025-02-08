@@ -148,7 +148,7 @@
                 "tact.hints.showGasConsumption": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Show gas consumption hints for functions"
+                    "description": "Show gas consumption hints for asm functions"
                 },
                 "tact.hints.showAsmInstructionGas": {
                     "type": "boolean",
@@ -158,7 +158,7 @@
                 "tact.hints.showExitCodes": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Show exit codes in require() statements"
+                    "description": "Show exit codes in require() call"
                 },
                 "tact.hints.showExplicitTLBIntType": {
                     "type": "boolean",
