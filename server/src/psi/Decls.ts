@@ -63,6 +63,20 @@ export class StorageMembersOwner extends NamedNode {
         return candidates[0]
     }
 
+    public messageFunctions(): MessageFunction[] {
+        const body = this.node.childForFieldName("body")
+        if (!body) return []
+        return body.children
+            .filter(
+                value =>
+                    value?.type === "receive_function" ||
+                    value?.type === "external_function" ||
+                    value?.type === "bounced_function",
+            )
+            .filter(value => value !== null)
+            .map(value => new MessageFunction(value, this.file))
+    }
+
     public ownMethods(): Fun[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
@@ -140,6 +154,12 @@ export class Trait extends StorageMembersOwner {}
 export class Contract extends StorageMembersOwner {}
 
 export class InitFunction extends Node {
+    public nameLike(): string {
+        const parametersNode = this.node.childForFieldName("parameters")
+        if (!parametersNode) return "init()"
+        return `init${parametersNode.text}`
+    }
+
     public parameters(): NamedNode[] {
         const parametersNode = this.node.childForFieldName("parameters")
         if (!parametersNode) return []
@@ -151,6 +171,20 @@ export class InitFunction extends Node {
     }
 
     public initIdentifier(): SyntaxNode | null {
+        return this.node.firstChild
+    }
+}
+
+export class MessageFunction extends Node {
+    public nameLike(): string {
+        const parametersNode = this.node.childForFieldName("parameter")
+        if (!parametersNode) return "unknown()"
+        const kindIdent = this.kindIdentifier()
+        if (!kindIdent) return "unknown()"
+        return `${kindIdent.text}(${parametersNode.text})`
+    }
+
+    public kindIdentifier(): SyntaxNode | null {
         return this.node.firstChild
     }
 }
