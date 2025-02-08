@@ -11,9 +11,7 @@ export function generateInitDoc(func: InitFunction): string | null {
 If a contract has any persistent state variables without default values specified, it must initialize them in this function.`
 
     const link = "https://docs.tact-lang.org/book/contracts/#init-function"
-    const linkPresentation = `\n\nLearn more in documentation: ${link}`
-
-    return defaultResult(name, doc, linkPresentation)
+    return defaultResult(name, doc, link)
 }
 
 export function generateReceiverDoc(func: MessageFunction): string | null {
@@ -29,18 +27,16 @@ export function generateReceiverDoc(func: MessageFunction): string | null {
               ? "https://docs.tact-lang.org/book/bounced/"
               : "https://docs.tact-lang.org/book/external/"
 
-    const linkPresentation = `\n\nLearn more in documentation: ${link}`
-
     const param = func.parameter()
     if (!param) {
         const doc = "Called when an empty message is sent to the contract"
-        return defaultResult(name, doc, linkPresentation)
+        return defaultResult(name, doc, link)
     }
 
     if (param.type === "string") {
         const doc =
             'Called when a text message with a specific comment is sent to the contract (maximum "message" length is 123 bytes)'
-        return defaultResult(name, doc, linkPresentation)
+        return defaultResult(name, doc, link)
     }
 
     const typeNode = param.childForFieldName("type")
@@ -50,27 +46,33 @@ export function generateReceiverDoc(func: MessageFunction): string | null {
 
     if (type.name() === "String") {
         const doc = "Called when an arbitrary text message is sent to the contract"
-        return defaultResult(name, doc, linkPresentation)
+        return defaultResult(name, doc, link)
     }
 
     if (type instanceof MessageTy) {
         const doc = `Called when a binary message of type \`${type.name()}\` is sent to the contract`
-        return defaultResult(name, doc, linkPresentation)
+        return defaultResult(name, doc, link)
     }
 
     if (type instanceof BouncedTy) {
         const doc = `Called when a binary message of type \`${type.innerTy.name()}\` is sent to the contract`
-        return defaultResult(name, doc, linkPresentation)
+        return defaultResult(name, doc, link)
     }
 
     if (type.name() === "Slice") {
         const doc = "Called when binary message of unknown type is sent to the contract"
-        return defaultResult(name, doc, linkPresentation)
+        return defaultResult(name, doc, link)
     }
 
-    return defaultResult(name, "", linkPresentation)
+    return defaultResult(name, "", link)
 }
 
-function defaultResult(name: string, doc: string, linkPresentation: string) {
-    return `${CODE_FENCE}tact\n${name} {}\n${CODE_FENCE}` + "\n" + doc + linkPresentation
+function defaultResult(name: string, doc: string, link: string) {
+    return (
+        `${CODE_FENCE}tact\n${name} {}\n${CODE_FENCE}` +
+        "\n" +
+        doc +
+        "\n\nLearn more in documentation: " +
+        link
+    )
 }
