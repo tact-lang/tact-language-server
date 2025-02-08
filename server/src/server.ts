@@ -101,6 +101,13 @@ let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
  */
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
+const showErrorMessage = (msg: string) => {
+    void connection.sendNotification(lsp.ShowMessageNotification.type, {
+        type: lsp.MessageType.Error,
+        message: msg,
+    })
+}
+
 function findStdlib(settings: TactSettings, rootDir: string): string | null {
     if (settings.stdlib.path !== null && settings.stdlib.path.length > 0) {
         return settings.stdlib.path
@@ -120,7 +127,12 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
 
     if (!localFolder) {
         console.error(
-            "Standard library not found! Did you run `npm/yarn install`? Try to define path in the settings",
+            "Standard library not found! Searched in:\n",
+            searchDirs.map(dir => path.join(rootDir, dir)).join("\n"),
+        )
+
+        showErrorMessage(
+            "Tact standard library is missing! Try installing dependencies with `yarn/npm install` or specify `tact.stdlib.path` in settings",
         )
         return null
     }
@@ -293,13 +305,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
         await connection.sendDiagnostics({uri, diagnostics})
     })
-
-    const showErrorMessage = (msg: string) => {
-        void connection.sendNotification(lsp.ShowMessageNotification.type, {
-            type: lsp.MessageType.Error,
-            message: msg,
-        })
-    }
 
     connection.onDidChangeWatchedFiles(params => {
         for (const change of params.changes) {
