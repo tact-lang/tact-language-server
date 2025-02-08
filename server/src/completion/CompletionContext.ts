@@ -129,12 +129,16 @@ export class CompletionContext {
             const grand = parent.parent
             if (grand?.type === "bounced_function") {
                 this.isBouncedMessage = true
+                this.isMessageContext = true
             }
         }
 
         if (parent.type === "parameter") {
             const grand = parent.parent
             if (grand?.type === "receive_function") {
+                this.isMessageContext = true
+            }
+            if (grand?.type === "external_function") {
                 this.isMessageContext = true
             }
         }
