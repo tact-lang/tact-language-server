@@ -153,6 +153,11 @@ export class CompletionContext {
             this.isStatement = false
         }
 
+        if (parent.type.endsWith("_function")) {
+            this.isExpression = false
+            this.isStatement = false
+        }
+
         if (parent.type === "trait_list") {
             this.inTraitList = true
         }
