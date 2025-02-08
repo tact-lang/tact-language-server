@@ -278,8 +278,13 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             new NotImportedSymbolInspection(),
         ]
 
+        const settings = await getDocumentSettings(uri)
         const diagnostics: lsp.Diagnostic[] = []
+
         for (const inspection of inspections) {
+            if (settings.inspections.disabled.includes(inspection.id)) {
+                continue
+            }
             diagnostics.push(...inspection.inspect(file))
         }
 
@@ -654,19 +659,18 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    connection.onRequest(
-        lsp.InlayHintRequest.type,
+    connection.languages.inlayHint.on(
         async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
             const uri = params.textDocument.uri
-
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
-                return collectFiftInlays(file)
+                const settings = await getDocumentSettings(uri)
+                return collectFiftInlays(file, settings.fift.hints)
             }
 
             const file = findFile(uri)
-            const settings = await getDocumentSettings(params.textDocument.uri)
-            return measureTime("inlay hints", () => inlays.collect(file, settings.hints))
+            const settings = await getDocumentSettings(uri)
+            return inlays.collect(file, settings.hints)
         },
     )
 
@@ -986,15 +990,16 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.SemanticTokensRequest.type,
-        (params: lsp.SemanticTokensParams): lsp.SemanticTokens | null => {
+        async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
             const uri = params.textDocument.uri
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
-                return collectFiftSemanticTokens(file)
+                const settings = await getDocumentSettings(uri)
+                return collectFiftSemanticTokens(file, settings.fift.semanticHighlighting)
             }
 
             const file = findFile(uri)
-            return measureTime("semantic tokens", () => semantic.collect(file))
+            return semantic.collect(file)
         },
     )
 
@@ -1004,7 +1009,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const uri = params.textDocument.uri
             const file = findFile(uri)
             const settings = await getDocumentSettings(uri)
-            return lens.collect(file, settings.codeLens.enabled)
+            return lens.collect(file, settings.codeLens)
         },
     )
 

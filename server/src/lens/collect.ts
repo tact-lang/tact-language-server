@@ -9,8 +9,19 @@ import {Referent} from "@server/psi/Referent"
 import {asLspRange, asNullableLspRange} from "@server/utils/position"
 import * as search from "@server/search/implementations"
 
-export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
-    if (file.fromStdlib || !enabled) {
+export function collect(
+    file: File,
+    settings: {
+        enabled: boolean
+        showUsages: boolean
+        showOverrides: boolean
+        showTraitImplementations: boolean
+        showFunctionImplementations: boolean
+        showParentTraitFields: boolean
+        showParentTraitFunctions: boolean
+    },
+): lsp.CodeLens[] {
+    if (file.fromStdlib || !settings.enabled) {
         // we don't need to count usages or show anything for stdlib symbols
         return []
     }
@@ -18,7 +29,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
     const result: lsp.CodeLens[] = []
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
-        if (n.type === "storage_variable") {
+        if (n.type === "storage_variable" && settings.showParentTraitFields) {
             const ownerNode = parentOfType(n, "trait", "contract")
             if (!ownerNode) return true
 
@@ -49,7 +60,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
             }
         }
 
-        if (n.type === "storage_function") {
+        if (n.type === "storage_function" && settings.showFunctionImplementations) {
             const fun = new Fun(n, file)
             if (fun.isAbstract()) {
                 const impls = search.implementationsFun(fun)
@@ -75,7 +86,10 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
                     }),
                 )
             }
+        }
 
+        if (n.type === "storage_function" && settings.showOverrides) {
+            const fun = new Fun(n, file)
             if (fun.isVirtual()) {
                 const impls = search.implementationsFun(fun)
 
@@ -104,7 +118,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
             }
         }
 
-        if (n.type === "storage_function") {
+        if (n.type === "storage_function" && settings.showParentTraitFunctions) {
             const fun = new Fun(n, file)
             if (!fun.isOverride()) return true
 
@@ -136,7 +150,7 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
             }
         }
 
-        if (n.type === "trait" && n.text !== "trait") {
+        if (n.type === "trait" && n.text !== "trait" && settings.showTraitImplementations) {
             const trait = new Trait(n, file)
             const impls = search.implementations(trait)
 
@@ -163,12 +177,13 @@ export function collect(file: File, enabled: boolean): lsp.CodeLens[] {
         }
 
         if (
-            n.type === "trait" ||
-            n.type === "struct" ||
-            n.type === "message" ||
-            n.type === "global_constant" ||
-            n.type === "storage_constant" ||
-            isNamedFunNode(n)
+            settings.showUsages &&
+            (n.type === "trait" ||
+                n.type === "struct" ||
+                n.type === "message" ||
+                n.type === "global_constant" ||
+                n.type === "storage_constant" ||
+                isNamedFunNode(n))
         ) {
             usagesLens(n, file, result)
         }

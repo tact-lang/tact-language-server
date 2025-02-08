@@ -2,8 +2,11 @@ import * as lsp from "vscode-languageserver"
 import {File} from "@server/psi/File"
 import {Fun} from "@server/psi/Decls"
 import {UnusedInspection} from "./UnusedInspection"
+import {Inspection, InspectionIds} from "./Inspection"
 
-export class UnusedParameterInspection extends UnusedInspection {
+export class UnusedParameterInspection extends UnusedInspection implements Inspection {
+    readonly id: "unused-parameter" = InspectionIds.UNUSED_PARAMETER
+
     protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
         file.getFuns().forEach(fun => {
             this.inspectFunction(fun, diagnostics)

@@ -16,6 +16,10 @@ export function collect(
         parameters: boolean
         exitCodeFormat: "decimal" | "hex"
         showMethodId: boolean
+        showGasConsumption: boolean
+        showAsmInstructionGas: boolean
+        showExitCodes: boolean
+        showExplicitTLBIntType: boolean
     },
 ): InlayHint[] | null {
     if (!hints.types && !hints.parameters) return []
@@ -55,7 +59,11 @@ export function collect(
             if (!typeNode) return true
             const type = typeNode.type()
 
-            if (type?.name() === "Int" && field.tlbType() === null) {
+            if (
+                type?.name() === "Int" &&
+                field.tlbType() === null &&
+                hints.showExplicitTLBIntType
+            ) {
                 result.push({
                     kind: InlayHintKind.Type,
                     label: ` as int257`,
@@ -117,7 +125,8 @@ export function collect(
 
         if (
             (type === "static_call_expression" || type === "method_call_expression") &&
-            hints.parameters
+            hints.parameters &&
+            hints.showExitCodes
         ) {
             const call = new CallLike(n, file)
             const rawArgs = call.rawArguments()
@@ -186,7 +195,7 @@ export function collect(
             return true
         }
 
-        if (type === "tvm_ordinary_word") {
+        if (type === "tvm_ordinary_word" && hints.showAsmInstructionGas) {
             const instruction = findInstruction(n.text)
             if (instruction) {
                 result.push({
@@ -201,7 +210,7 @@ export function collect(
             return true
         }
 
-        if (type === "asm_function") {
+        if (type === "asm_function" && hints.showGasConsumption) {
             const func = new Fun(n, file)
             const openBrace = func.openBrace()
             if (!openBrace) return true
@@ -222,9 +231,7 @@ export function collect(
             return true
         }
 
-        if (type === "storage_function") {
-            if (!hints.showMethodId) return true
-
+        if (type === "storage_function" && hints.showMethodId) {
             const func = new Fun(n, file)
             if (!func.isGetMethod) return true
 

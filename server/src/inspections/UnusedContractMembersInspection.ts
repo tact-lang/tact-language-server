@@ -3,8 +3,11 @@ import {File} from "@server/psi/File"
 import {Contract} from "@server/psi/Decls"
 import {UnusedInspection} from "./UnusedInspection"
 import {superConstant, superField, superMethod} from "@server/search/implementations"
+import {Inspection, InspectionIds} from "./Inspection"
 
-export class UnusedContractMembersInspection extends UnusedInspection {
+export class UnusedContractMembersInspection extends UnusedInspection implements Inspection {
+    readonly id: "unused-contract-members" = InspectionIds.UNUSED_CONTRACT_MEMBERS
+
     protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
         file.getContracts().forEach(contract => {
             this.inspectContract(contract, diagnostics)

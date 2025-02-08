@@ -9,9 +9,30 @@ export interface TactSettings {
         parameters: boolean
         exitCodeFormat: "decimal" | "hex"
         showMethodId: boolean
+        showGasConsumption: boolean
+        showAsmInstructionGas: boolean
+        showExitCodes: boolean
+        showExplicitTLBIntType: boolean
     }
     codeLens: {
         enabled: boolean
+        showUsages: boolean
+        showOverrides: boolean
+        showTraitImplementations: boolean
+        showFunctionImplementations: boolean
+        showParentTraitFields: boolean
+        showParentTraitFunctions: boolean
+    }
+    inspections: {
+        disabled: string[] // list of disabled inspection ids
+    }
+    fift: {
+        hints: {
+            showGasConsumption: boolean
+        }
+        semanticHighlighting: {
+            enabled: boolean
+        }
     }
     completion: {
         typeAware: boolean
@@ -27,9 +48,30 @@ const defaultSettings: TactSettings = {
         parameters: true,
         exitCodeFormat: "decimal",
         showMethodId: true,
+        showGasConsumption: true,
+        showAsmInstructionGas: true,
+        showExitCodes: true,
+        showExplicitTLBIntType: true,
     },
     codeLens: {
         enabled: true,
+        showUsages: true,
+        showOverrides: true,
+        showTraitImplementations: true,
+        showFunctionImplementations: true,
+        showParentTraitFields: true,
+        showParentTraitFunctions: true,
+    },
+    inspections: {
+        disabled: [], // no disabled inspections by default
+    },
+    fift: {
+        hints: {
+            showGasConsumption: true,
+        },
+        semanticHighlighting: {
+            enabled: true,
+        },
     },
     completion: {
         typeAware: true,
@@ -49,9 +91,48 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             exitCodeFormat:
                 vsSettings.hints?.exitCodeFormat ?? defaultSettings.hints.exitCodeFormat,
             showMethodId: vsSettings.hints?.showMethodId ?? defaultSettings.hints.showMethodId,
+            showGasConsumption:
+                vsSettings.hints?.showGasConsumption ?? defaultSettings.hints.showGasConsumption,
+            showAsmInstructionGas:
+                vsSettings.hints?.showAsmInstructionGas ??
+                defaultSettings.hints.showAsmInstructionGas,
+            showExitCodes: vsSettings.hints?.showExitCodes ?? defaultSettings.hints.showExitCodes,
+            showExplicitTLBIntType:
+                vsSettings.hints?.showExplicitTLBIntType ??
+                defaultSettings.hints.showExplicitTLBIntType,
         },
         codeLens: {
             enabled: vsSettings.codeLens?.enabled ?? defaultSettings.codeLens.enabled,
+            showUsages: vsSettings.codeLens?.showUsages ?? defaultSettings.codeLens.showUsages,
+            showOverrides:
+                vsSettings.codeLens?.showOverrides ?? defaultSettings.codeLens.showOverrides,
+            showTraitImplementations:
+                vsSettings.codeLens?.showTraitImplementations ??
+                defaultSettings.codeLens.showTraitImplementations,
+            showFunctionImplementations:
+                vsSettings.codeLens?.showFunctionImplementations ??
+                defaultSettings.codeLens.showFunctionImplementations,
+            showParentTraitFields:
+                vsSettings.codeLens?.showParentTraitFields ??
+                defaultSettings.codeLens.showParentTraitFields,
+            showParentTraitFunctions:
+                vsSettings.codeLens?.showParentTraitFunctions ??
+                defaultSettings.codeLens.showParentTraitFunctions,
+        },
+        inspections: {
+            disabled: vsSettings.inspections?.disabled ?? defaultSettings.inspections.disabled,
+        },
+        fift: {
+            hints: {
+                showGasConsumption:
+                    vsSettings.fift?.hints?.showGasConsumption ??
+                    defaultSettings.fift.hints.showGasConsumption,
+            },
+            semanticHighlighting: {
+                enabled:
+                    vsSettings.fift?.semanticHighlighting?.enabled ??
+                    defaultSettings.fift.semanticHighlighting.enabled,
+            },
         },
         completion: {
             typeAware: vsSettings.completion?.typeAware ?? defaultSettings.completion.typeAware,
