@@ -323,7 +323,20 @@ export class TypeInferer {
             const alternate = node.node.childForFieldName("alternative")
             if (!consequent || !alternate) return null
 
-            return this.inferType(new Expression(consequent, node.file))
+            const trueType = this.inferType(new Expression(consequent, node.file))
+            const falseType = this.inferType(new Expression(alternate, node.file))
+            if (!falseType) return trueType
+            if (!trueType) return falseType
+
+            if (trueType instanceof NullTy) {
+                return new OptionTy(falseType)
+            }
+
+            if (falseType instanceof NullTy) {
+                return new OptionTy(trueType)
+            }
+
+            return trueType
         }
 
         if (node instanceof NamedNode) {
