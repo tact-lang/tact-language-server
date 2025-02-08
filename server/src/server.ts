@@ -1303,9 +1303,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.DocumentSymbolRequest.type,
-        (params: lsp.DocumentSymbolParams): lsp.DocumentSymbol[] => {
+        async (params: lsp.DocumentSymbolParams): Promise<lsp.DocumentSymbol[]> => {
             const uri = params.textDocument.uri
             const file = findFile(uri)
+
+            const settings = await getDocumentSettings(file.uri)
 
             const result: lsp.DocumentSymbol[] = []
 
@@ -1356,11 +1358,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 const children: NamedNode[] = []
                 const additionalChildren: lsp.DocumentSymbol[] = []
 
-                if (element instanceof Struct) {
+                if (element instanceof Struct && settings.documentSymbols.showStructFields) {
                     children.push(...element.fields())
                 }
 
-                if (element instanceof Message) {
+                if (element instanceof Message && settings.documentSymbols.showMessageFields) {
                     children.push(...element.fields())
                 }
 
