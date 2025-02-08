@@ -61,8 +61,7 @@ export class FillStructInitBase implements Intention {
         const name = instance.childForFieldName("name")
         if (!name) return null
 
-        const nameNode = new NamedNode(name, ctx.file)
-        const type = TypeInferer.inferType(nameNode)
+        const type = TypeInferer.inferType(new NamedNode(name, ctx.file))
         if (!type) return null
         if (!(type instanceof FieldsOwnerTy)) return null
 
