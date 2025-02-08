@@ -7,7 +7,7 @@ contract <caret>Foo {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 contract Foo
 ```
 Some cool contract
@@ -23,7 +23,7 @@ contract <caret>Foo with Other {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 contract Foo with Other
 ```
 Some cool contract
@@ -36,7 +36,7 @@ contract Foo {
     get fun <caret>foo() {}
 }
 ------------------------------------------------------------------------
-```
+```tact
 contract Foo
 get fun foo()
 ```
@@ -52,7 +52,7 @@ contract Foo {
     fun <caret>foo() {}
 }
 ------------------------------------------------------------------------
-```
+```tact
 contract Foo
 fun foo()
 ```
@@ -71,7 +71,7 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-```
+```tact
 contract Foo
 field: Int
 ```
@@ -89,7 +89,7 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-```
+```tact
 contract Foo
 field: Int = 0
 ```
@@ -107,7 +107,7 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-```
+```tact
 contract Foo
 const FOO: Int = 0
 ```
@@ -127,7 +127,7 @@ contract Foo with WithFoo {
     }
 }
 ------------------------------------------------------------------------
-```
+```tact
 trait WithFoo
 const FOO: Int = 0
 ```

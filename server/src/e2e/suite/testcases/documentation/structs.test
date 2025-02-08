@@ -7,7 +7,7 @@ struct <caret>Foo {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 struct Foo {
     name: String;
     value: Int;
@@ -24,7 +24,7 @@ message <caret>Foo {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 message Foo {
     name: String;
     value: Int;
@@ -41,7 +41,7 @@ message(0x178d4519) <caret>Foo {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 message(0x178d4519) Foo {
     name: String;
     value: Int;
@@ -62,7 +62,7 @@ fun foo() {
     let f = Foo { <caret>field: 10 };
 }
 ------------------------------------------------------------------------
-```
+```tact
 struct Foo
 field: Int
 ```
@@ -81,7 +81,7 @@ fun foo() {
     f.<caret>field;
 }
 ------------------------------------------------------------------------
-```
+```tact
 struct Foo
 field: Int
 ```
@@ -100,7 +100,7 @@ fun foo() {
     f.<caret>field;
 }
 ------------------------------------------------------------------------
-```
+```tact
 message Foo
 field: Int
 ```
@@ -119,7 +119,7 @@ fun foo() {
     f.<caret>field;
 }
 ------------------------------------------------------------------------
-```
+```tact
 struct Foo
 field: Int = 0
 ```
@@ -137,7 +137,7 @@ fun foo() {
     let f = Foo { <caret>field: 10 };
 }
 ------------------------------------------------------------------------
-```
+```tact
 struct Foo
 field: Int as uint8
 ```
@@ -155,7 +155,7 @@ fun foo() {
     let f = Foo { <caret>field: 10 };
 }
 ------------------------------------------------------------------------
-```
+```tact
 struct Foo
 field: Slice as remaining
 ```
@@ -173,7 +173,7 @@ fun foo() {
     let f = Foo { <caret>field: 10 };
 }
 ------------------------------------------------------------------------
-```
+```tact
 struct Foo
 field: map<Int as uint8, Int>
 ```

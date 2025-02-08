@@ -5,7 +5,7 @@ import {Node as SyntaxNode} from "web-tree-sitter"
 import {trimPrefix} from "@server/utils/strings"
 
 const CODE_FENCE = "```"
-const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
+const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
 
 /**
  * Returns the documentation for the given symbol in Markdown format, or null
