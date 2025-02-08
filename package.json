@@ -233,6 +233,16 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Enable/disable semantic highlighting for Fift files"
+                },
+                "tact.documentSymbols.showStructFields": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show struct fields in document outline"
+                },
+                "tact.documentSymbols.showMessageFields": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show message fields in document outline"
                 }
             }
         },
