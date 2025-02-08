@@ -181,7 +181,7 @@ export class Reference {
         if (qualifierType instanceof StructTy || qualifierType instanceof MessageTy) {
             const node = index.elementByName(IndexKey.Primitives, "AnyStruct")
             if (node) {
-                const structPrimitiveTy = new PrimitiveTy("AnyStruct", node)
+                const structPrimitiveTy = new PrimitiveTy("AnyStruct", node, null)
                 if (!this.processType(qualifier, structPrimitiveTy, proc, state)) return false
             }
         }

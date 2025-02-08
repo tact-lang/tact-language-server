@@ -47,7 +47,31 @@ export class StructTy extends FieldsOwnerTy<Struct> {}
 
 export class MessageTy extends FieldsOwnerTy<Message> {}
 
-export class PrimitiveTy extends BaseTy<Primitive> {}
+export class PrimitiveTy extends BaseTy<Primitive> {
+    public constructor(
+        name: string,
+        anchor: Primitive | null,
+        public tlb: string | null,
+    ) {
+        super(name, anchor)
+    }
+
+    public override name(): string {
+        if (this.tlb) {
+            return `${this._name} as ${this.tlb}`
+        }
+
+        return this._name
+    }
+
+    public override qualifiedName(): string {
+        if (this.tlb) {
+            return `${this._name} as ${this.tlb}`
+        }
+
+        return this._name
+    }
+}
 
 export class PlaceholderTy extends BaseTy<NamedNode> {}
 

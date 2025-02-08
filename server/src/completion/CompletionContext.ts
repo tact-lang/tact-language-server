@@ -170,6 +170,12 @@ export class CompletionContext {
             this.isInitOfName = true
         }
 
+        if (parent.type === "ERROR" && parent.parent?.type === "map_type") {
+            this.isType = true
+            this.isExpression = false
+            this.isStatement = false
+        }
+
         if (parent.type === "ERROR" && parent.parent?.type === "parameter_list") {
             this.inParameter = true
         }
