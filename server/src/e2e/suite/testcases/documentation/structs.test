@@ -123,3 +123,57 @@ fun foo() {
 struct Foo
 field: Int = 0
 ```
+
+========================================================================
+Field declaration with type with TL-B
+========================================================================
+primitive Int;
+
+struct Foo {
+    field: Int as uint8;
+}
+
+fun foo() {
+    let f = Foo { <caret>field: 10 };
+}
+------------------------------------------------------------------------
+```
+struct Foo
+field: Int as uint8
+```
+
+========================================================================
+Field declaration with type with TL-B 2
+========================================================================
+primitive Slice;
+
+struct Foo {
+    field: Slice as remaining;
+}
+
+fun foo() {
+    let f = Foo { <caret>field: 10 };
+}
+------------------------------------------------------------------------
+```
+struct Foo
+field: Slice as remaining
+```
+
+========================================================================
+Field declaration with type with TL-B 3
+========================================================================
+primitive Int;
+
+struct Foo {
+    field: map<Int as uint8, Int>;
+}
+
+fun foo() {
+    let f = Foo { <caret>field: 10 };
+}
+------------------------------------------------------------------------
+```
+struct Foo
+field: map<Int as uint8, Int>
+```

@@ -9,7 +9,7 @@ import {
 import {NullTy, PrimitiveTy} from "@server/types/BaseTy"
 
 export class KeywordsCompletionProvider implements CompletionProvider {
-    boolTy: PrimitiveTy = new PrimitiveTy("Bool", null)
+    boolTy: PrimitiveTy = new PrimitiveTy("Bool", null, null)
     nullTy: NullTy = new NullTy()
 
     isAvailable(ctx: CompletionContext): boolean {
