@@ -125,12 +125,12 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
         fift: {
             hints: {
                 showGasConsumption:
-                    vsSettings.fift?.hints?.showGasConsumption ??
+                    vsSettings.fift?.hints.showGasConsumption ??
                     defaultSettings.fift.hints.showGasConsumption,
             },
             semanticHighlighting: {
                 enabled:
-                    vsSettings.fift?.semanticHighlighting?.enabled ??
+                    vsSettings.fift?.semanticHighlighting.enabled ??
                     defaultSettings.fift.semanticHighlighting.enabled,
             },
         },
