@@ -6,7 +6,7 @@ import {Position} from "vscode-languageclient"
 import {NamedNode} from "@server/psi/Node"
 import {FileDiff} from "@server/utils/FileDiff"
 import {Reference} from "@server/psi/Reference"
-import {Primitive} from "@server/psi/Decls"
+import {Contract, Primitive} from "@server/psi/Decls"
 
 export class AddImport implements Intention {
     id: string = "tact.add-import"
@@ -18,7 +18,7 @@ export class AddImport implements Intention {
 
         const resolved = Reference.resolve(new NamedNode(node, ctx.file))
         if (!resolved) return null
-        if (resolved instanceof Primitive) return null
+        if (resolved instanceof Primitive || resolved instanceof Contract) return null
 
         return resolved
     }
