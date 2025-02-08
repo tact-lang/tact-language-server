@@ -1,23 +1,41 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./docs/public/cover-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="./docs/public/cover-light.png">
-  <img alt="Tact language server cover" src="./docs/public/cover-light.png">
-</picture>
-
 # Tact Language Server
+
+This language server/extension provides support for the [Tact programming language](https://tact-lang.org).
 
 ## Features
 
-- Syntax highlighting
+- Semantic syntax highlighting
 - Code completion
-- Go to definition
-- Find references
-- Hover information
-- Diagnostics
-- Code formatting
-- Inlay hints
+- Go to definition, implementation, type definition
+- Find all references, workspace symbol search, symbol renaming
+- Types and documentation on hover
+- Inlay hints for types and parameter names
+- On-the-fly inspections with quick fixes
+- Signature help inside calls, `initOf` and struct initialization
+- Lenses with implementation/reference counts
 
-## Installation
+## Quick start
+
+The easiest way to get started with Tact is to use VS Code or editors based on it:
+
+1. Install the [Tact language extension](https://marketplace.visualstudio.com/items?itemName=tonstudio.vscode-tact) for
+   VS Code.
+2. That's it!
+
+Or, download the latest [release](https://github.com/tact-lang/tact-language-server/releases) and install it manually:
+
+In VS Code (or VS Code-like editors):
+
+- Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
+- Type "Install from VSIX"
+- Select the generated `.vsix` file
+- Reload VS Code
+
+The extension will automatically activate when you open any `.tact` file.
+
+## Building & Installation
+
+Currently, the only way to run a language server in other editors is to build it manually.
 
 First, clone and build the language server:
 
@@ -30,50 +48,13 @@ yarn build
 
 ### VS Code / VSCodium / Cursor / Windsurf
 
-The easiest way to get started with Tact is using VS Code or editors based on it:
-
 1. Run the following command to create the VSIX package:
 
     ```shell
     yarn package
     ```
 
-2. In VS Code:
-    - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
-    - Type "Install from VSIX"
-    - Select the generated `.vsix` file
-    - Reload VS Code
-
-The extension will automatically activate when you open any `.tact` file.
-
-#### Configuration
-
-The language server supports the following settings:
-
-```json5
-{
-    tact: {
-        stdlib: {
-            // Path to Tact standard library. If empty, will try to find in node_modules
-            path: "",
-        },
-        hints: {
-            // Show type hints for variables and expressions
-            types: true,
-            // Show parameter name hints in function calls
-            parameters: true,
-            // Show method ID hints for contract functions
-            showMethodId: true,
-            // Format of exit codes in require(): "decimal" or "hex"
-            exitCodeFormat: "decimal",
-        },
-        codeLens: {
-            // Enable/disable all code lens
-            enabled: true,
-        },
-    },
-}
-```
+2. See steps from "Quick start"
 
 ### Helix
 
