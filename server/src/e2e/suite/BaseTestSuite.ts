@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import * as path from "path"
-import * as fs from "fs"
+import * as path from "node:path"
+import * as fs from "node:fs"
 import * as glob from "glob"
 import {TestCase, TestParser} from "./TestParser"
 
@@ -36,13 +36,13 @@ export abstract class BaseTestSuite {
         await vscode.commands.executeCommand("workbench.action.closeActiveEditor")
         try {
             await fs.promises.unlink(this.testFilePath)
-        } catch (e) {
-            console.warn("Failed to delete test file:", e)
+        } catch (error) {
+            console.warn("Failed to delete test file:", error)
         }
     }
 
     protected calculatePosition(text: string, caretIndex: number): vscode.Position {
-        const textBeforeCaret = text.substring(0, caretIndex)
+        const textBeforeCaret = text.slice(0, caretIndex)
         const lines = textBeforeCaret.split("\n")
         const line = lines.length - 1
         const character = lines[line].length

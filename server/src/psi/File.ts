@@ -1,4 +1,4 @@
-import * as path from "path"
+import * as path from "node:path"
 import {NamedNode} from "./Node"
 import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "./Decls"
 import {Node as SyntaxNode, Tree} from "web-tree-sitter"
@@ -48,7 +48,14 @@ export class File {
             }
         }
 
-        const lastImport = imports[imports.length - 1]
+        const lastImport = imports.at(-1)
+        if (!lastImport) {
+            return {
+                line: 0,
+                character: 0,
+            }
+        }
+
         return {
             line: lastImport.endPosition.row + 1,
             character: lastImport.endPosition.column,

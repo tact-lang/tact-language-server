@@ -39,7 +39,7 @@ function generateArbitraryIntDoc(type: string): TypeDoc | null {
     if (!match) return null
 
     const [_, prefix, bits] = match
-    const bitWidth = parseInt(bits)
+    const bitWidth = Number.parseInt(bits)
 
     if (prefix === "uint" && (bitWidth < 1 || bitWidth > 256)) return null
     if (prefix === "int" && (bitWidth < 1 || bitWidth > 257)) return null

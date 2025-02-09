@@ -133,7 +133,7 @@ export class StorageMembersOwner extends NamedNode {
 
         const traitList = this.node.childForFieldName("traits")
         const baseTraitOrEmpty =
-            baseTraitNode !== null ? [new Trait(baseTraitNode.node, baseTraitNode.file)] : []
+            baseTraitNode === null ? [] : [new Trait(baseTraitNode.node, baseTraitNode.file)]
 
         if (!traitList) {
             return [...baseTraitOrEmpty]
@@ -343,7 +343,7 @@ export class Fun extends NamedNode {
     }
 
     public computeMethodId(): number {
-        return (crc16(Buffer.from(this.name())) & 0xffff) | 0x10000
+        return (crc16(Buffer.from(this.name())) & 0xff_ff) | 0x1_00_00
     }
 
     public computeGasConsumption(): GasConsumption {
@@ -374,7 +374,7 @@ export class Fun extends NamedNode {
             if (instr.doc.gas.includes("|") || instr.doc.gas.includes("+")) {
                 exact = false
             }
-            res += parseInt(instr.doc.gas)
+            res += Number.parseInt(instr.doc.gas)
         }
 
         if (!exact && singleInstr) {

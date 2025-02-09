@@ -30,7 +30,7 @@ export class CompilerInspection implements Inspection {
                 source: "tact-compiler",
                 code: this.id,
             }))
-        } catch (error) {
+        } catch {
             return []
         }
     }

@@ -1,5 +1,5 @@
-import * as fs from "fs"
-import * as path from "path"
+import * as fs from "node:fs"
+import * as path from "node:path"
 
 export interface AsmInstruction {
     mnemonic: string
@@ -40,7 +40,7 @@ export function asmData(): AsmData {
     }
 
     const filePath = path.join(__dirname, "asm.json")
-    const content = fs.readFileSync(filePath, "utf-8")
+    const content = fs.readFileSync(filePath, "utf8")
     data = JSON.parse(content) as AsmData
     return data
 }

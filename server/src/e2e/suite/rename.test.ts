@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import * as assert from "assert"
+import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import {TestCase} from "./TestParser"
 
@@ -20,7 +20,7 @@ suite("Rename Test Suite", () => {
                     const caretPosition = line.indexOf("^")
 
                     const character = caretPosition
-                    const renameTo = line.substring(caretPosition + 1).trim()
+                    const renameTo = line.slice(caretPosition + 1).trim()
 
                     positions.push({
                         line: i - 1,
@@ -72,7 +72,7 @@ suite("Rename Test Suite", () => {
     })()
 
     suiteSetup(async function () {
-        this.timeout(10000)
+        this.timeout(10_000)
         await testSuite.suiteSetup()
     })
 

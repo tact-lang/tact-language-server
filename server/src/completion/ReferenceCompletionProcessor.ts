@@ -56,7 +56,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
     public execute(node: Node, state: ResolveState): boolean {
         if (!(node instanceof NamedNode)) return true
 
-        const prefix = state.get("prefix") ? state.get("prefix") : ""
+        const prefix = state.get("prefix") ?? ""
         const name = node.name()
         if (name.endsWith("DummyIdentifier") || name === "AnyStruct") return true
 
@@ -78,11 +78,11 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
         if (node instanceof Fun) {
             // don't add `self.` prefix for global functions
-            const thisPrefix = prefix !== "" && node.owner() === null ? "" : (prefix ?? "")
+            const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
 
             const signature = node.signaturePresentation()
             const hasNoParams =
-                node.parameters().length == 0 || (node.withSelf() && node.parameters().length == 1)
+                node.parameters().length === 0 || (node.withSelf() && node.parameters().length == 1)
 
             const needSemicolon = this.ctx.isStatement && !this.ctx.beforeSemicolon
 
@@ -162,7 +162,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             })
         } else if (node instanceof Constant) {
             // don't add `self.` prefix for global constants
-            const thisPrefix = prefix !== "" && node.owner() === null ? "" : (prefix ?? "")
+            const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
 
             const typeNode = node.typeNode()
             const value = node.value()
@@ -184,7 +184,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             const owner = node.dataOwner()?.name() ?? ""
 
             // don't add `self.` for completion of field in init
-            const thisPrefix = this.ctx.inNameOfFieldInit ? "" : (prefix ?? "")
+            const thisPrefix = this.ctx.inNameOfFieldInit ? "" : prefix
             const comma = this.ctx.inMultilineStructInit ? "," : ""
             const suffix = this.ctx.inNameOfFieldInit ? `: $1${comma}$0` : ""
 

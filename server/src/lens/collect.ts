@@ -93,7 +93,7 @@ export function collect(
             if (fun.isVirtual()) {
                 const impls = search.implementationsFun(fun)
 
-                if (impls.length !== 0) {
+                if (impls.length > 0) {
                     result.push(
                         newLens(n, {
                             title: `${impls.length} override` + (impls.length > 1 ? "s" : ""),

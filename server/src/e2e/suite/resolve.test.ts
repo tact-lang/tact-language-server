@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import * as assert from "assert"
+import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import {TestCase} from "./TestParser"
 
@@ -9,7 +9,7 @@ suite("Resolve Test Suite", () => {
             input: string,
         ): Promise<(vscode.LocationLink[] | vscode.Location[] | undefined)[]> {
             const caretIndexes = this.findCaretPositions(input)
-            if (caretIndexes.length == 0) {
+            if (caretIndexes.length === 0) {
                 throw new Error("No <caret> marker found in input")
             }
 
@@ -54,11 +54,11 @@ suite("Resolve Test Suite", () => {
                         return `${this.formatLocation(pos)} -> ${this.formatLocation(
                             target.range.start,
                         )} resolved`
-                    } else {
-                        return `${this.formatLocation(pos)} -> ${this.formatLocation(
-                            target.targetRange.start,
-                        )} resolved`
                     }
+
+                    return `${this.formatLocation(pos)} -> ${this.formatLocation(
+                        target.targetRange.start,
+                    )} resolved`
                 })
                 .join("\n")
         }
@@ -86,7 +86,7 @@ suite("Resolve Test Suite", () => {
     })()
 
     suiteSetup(async function () {
-        this.timeout(10000)
+        this.timeout(10_000)
         await testSuite.suiteSetup()
     })
 

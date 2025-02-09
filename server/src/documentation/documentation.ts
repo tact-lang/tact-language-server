@@ -249,7 +249,7 @@ function extractCommentsDoc(node: NamedNode): string {
     for (const rawLine of lines) {
         const line = rawLine.trimEnd()
 
-        if (line.replace(/-/g, "").length === 0 && line.length !== 0) {
+        if (line.replace(/-/g, "").length === 0 && line.length > 0) {
             result += "\n\n"
             continue
         }

@@ -37,7 +37,7 @@ export class TlbSerializationCompletionProvider implements CompletionProvider {
         const type = field.typeNode()?.type()
         if (!type) return
 
-        const semicolonPart = !ctx.beforeSemicolon ? ";" : ""
+        const semicolonPart = ctx.beforeSemicolon ? "" : ";"
 
         const typeName = type.name()
         if (typeName === "Cell" || typeName === "Slice" || typeName === "Builder") {

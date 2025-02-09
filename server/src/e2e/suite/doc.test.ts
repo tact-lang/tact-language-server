@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import * as assert from "assert"
+import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import * as lsp from "vscode-languageserver"
 import {GetTypeAtPositionParams} from "./types.test"
@@ -9,7 +9,7 @@ suite("Documentation Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
         async getHovers(input: string): Promise<(lsp.Hover | undefined)[]> {
             const caretIndexes = this.findCaretPositions(input)
-            if (caretIndexes.length == 0) {
+            if (caretIndexes.length === 0) {
                 throw new Error("No <caret> marker found in input")
             }
 
@@ -63,7 +63,7 @@ suite("Documentation Test Suite", () => {
     })()
 
     suiteSetup(async function () {
-        this.timeout(10000)
+        this.timeout(10_000)
         await testSuite.suiteSetup()
     })
 
