@@ -101,6 +101,8 @@ export class FillStructInitBase implements Intention {
             return this.allFields || field.defaultValue() === null
         })
 
+        if (fields.length === 0) return null // no fields to init
+
         //       field: false,
         //       other: null,
         const fieldsPresentation = fields
