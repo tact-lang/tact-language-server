@@ -160,6 +160,13 @@ export class CompletionContext {
         if (parent.type.endsWith("_function")) {
             this.isExpression = false
             this.isStatement = false
+            this.inParameter = true
+        }
+
+        if (parent.type === "ERROR" && parent.parent?.type.endsWith("_function")) {
+            this.isExpression = false
+            this.isStatement = false
+            this.inParameter = true
         }
 
         if (parent.type === "trait_list") {
