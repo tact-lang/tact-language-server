@@ -1,16 +1,16 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionContext} from "@server/completion/CompletionContext"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 import {asLspRange} from "@server/utils/position"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 
 export class PostfixCompletionProvider implements CompletionProvider {
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return ctx.afterDot
     }
 
-    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         this.postfix(ctx, "not", "Negate expression", "!$expr", result)
         this.postfix(ctx, "call", "Use as function argument", "($expr)", result)
 
@@ -22,7 +22,7 @@ export class PostfixCompletionProvider implements CompletionProvider {
         }
     }
 
-    postfix(
+    private postfix(
         ctx: CompletionContext,
         selector: string,
         description: string,

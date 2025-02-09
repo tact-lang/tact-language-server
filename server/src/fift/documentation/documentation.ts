@@ -1,7 +1,7 @@
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {FiftReference} from "@server/fift/psi/FiftReference"
 import {generateAsmDoc} from "../../documentation/asm_documentation"
-import {File} from "@server/psi/File"
+import type {File} from "@server/psi/File"
 
 const CODE_FENCE = "```"
 

@@ -1,11 +1,11 @@
-import {Intention, IntentionContext} from "@server/intentions/Intention"
-import {WorkspaceEdit} from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {Intention, IntentionContext} from "@server/intentions/Intention"
+import type {WorkspaceEdit} from "vscode-languageserver"
+import type {File} from "@server/psi/File"
 import {asLspPosition, asParserPoint} from "@server/utils/position"
-import {Position} from "vscode-languageclient"
+import type {Position} from "vscode-languageclient"
 import {FileDiff} from "@server/utils/FileDiff"
 import {parentOfType} from "@server/psi/utils"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {NamedNode} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
 import {
@@ -17,15 +17,15 @@ import {
     PrimitiveTy,
     StructTy,
 } from "@server/types/BaseTy"
-import {Field} from "@server/psi/Decls"
+import type {Field} from "@server/psi/Decls"
 
 export class FillStructInitBase implements Intention {
-    id: string = "tact.fill-struct-init-base"
-    name: string = "Fill all fields..."
+    public readonly id: string = "tact.fill-struct-init-base"
+    public readonly name: string = "Fill all fields..."
 
-    constructor(private readonly allFields: boolean) {}
+    public constructor(private readonly allFields: boolean) {}
 
-    private findInstanceExpression(ctx: IntentionContext): SyntaxNode | null {
+    private static findInstanceExpression(ctx: IntentionContext): SyntaxNode | null {
         const referenceNode = nodeAtPosition(ctx.position, ctx.file)
         if (!referenceNode) return null
         const initExpr = parentOfType(referenceNode, "instance_expression")
@@ -33,8 +33,8 @@ export class FillStructInitBase implements Intention {
         return initExpr
     }
 
-    is_available(ctx: IntentionContext): boolean {
-        const instance = this.findInstanceExpression(ctx)
+    public isAvailable(ctx: IntentionContext): boolean {
+        const instance = FillStructInitBase.findInstanceExpression(ctx)
         if (!instance) return false
         const argumentsNode = instance.childForFieldName("arguments")
         if (!argumentsNode) return false
@@ -44,7 +44,7 @@ export class FillStructInitBase implements Intention {
         return args.length === 0
     }
 
-    private findBraces(instance: SyntaxNode) {
+    private static findBraces(instance: SyntaxNode) {
         const args = instance.childForFieldName("arguments")
         if (!args) return null
 
@@ -54,15 +54,15 @@ export class FillStructInitBase implements Intention {
         return {openBrace, closeBrace}
     }
 
-    private findIndent(ctx: IntentionContext, instance: SyntaxNode) {
+    private static findIndent(ctx: IntentionContext, instance: SyntaxNode) {
         const lines = ctx.file.content.split(/\r?\n/)
         const line = lines[instance.startPosition.row]
         const lineTrim = line.trimStart()
         return line.indexOf(lineTrim)
     }
 
-    invoke(ctx: IntentionContext): WorkspaceEdit | null {
-        const instance = this.findInstanceExpression(ctx)
+    public invoke(ctx: IntentionContext): WorkspaceEdit | null {
+        const instance = FillStructInitBase.findInstanceExpression(ctx)
         if (!instance) return null
 
         //    let some = Foo{}
@@ -74,7 +74,7 @@ export class FillStructInitBase implements Intention {
         if (!type) return null
         if (!(type instanceof FieldsOwnerTy)) return null
 
-        const braces = this.findBraces(instance)
+        const braces = FillStructInitBase.findBraces(instance)
         if (!braces) return null
 
         //    let some = Foo{}
@@ -83,7 +83,7 @@ export class FillStructInitBase implements Intention {
 
         //    let some = Foo{}
         //^^^^ this
-        const indent = this.findIndent(ctx, instance)
+        const indent = FillStructInitBase.findIndent(ctx, instance)
 
         //    let some = Foo{
         //        field: 1,
@@ -108,7 +108,7 @@ export class FillStructInitBase implements Intention {
         const fieldsPresentation = fields
             .map(field => {
                 const name = field.name()
-                const value = this.fieldDefaultValue(field)
+                const value = FillStructInitBase.fieldDefaultValue(field)
                 return `${fieldIndent}${name}: ${value},`
             })
             .join("\n")
@@ -131,7 +131,7 @@ export class FillStructInitBase implements Intention {
         return diff.toWorkspaceEdit()
     }
 
-    private fieldDefaultValue(field: Field): string | null {
+    private static fieldDefaultValue(field: Field): string {
         const defaultValue = field.defaultValue()
         if (defaultValue) return defaultValue.node.text
 
@@ -184,19 +184,19 @@ export class FillStructInitBase implements Intention {
 }
 
 export class FillAllStructInit extends FillStructInitBase {
-    override id: string = "tact.fill-struct-init"
-    override name: string = "Fill all fields..."
+    public override readonly id: string = "tact.fill-struct-init"
+    public override readonly name: string = "Fill all fields..."
 
-    constructor() {
+    public constructor() {
         super(true)
     }
 }
 
 export class FillRequiredStructInit extends FillStructInitBase {
-    override id: string = "tact.fill-required-struct-init"
-    override name: string = "Fill required fields..."
+    public override readonly id: string = "tact.fill-required-struct-init"
+    public override readonly name: string = "Fill required fields..."
 
-    constructor() {
+    public constructor() {
         super(false)
     }
 }

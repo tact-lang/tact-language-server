@@ -1,14 +1,14 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionContext} from "@server/completion/CompletionContext"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class MemberFunctionCompletionProvider implements CompletionProvider {
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return ctx.topLevelInTraitOrContract
     }
 
-    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const funLabel = "fun"
         const funTemplate = "fun $1($2)$3 {$0}"
         const modifiers = ["inline", "get"]

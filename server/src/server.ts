@@ -18,7 +18,7 @@ import * as lens from "./lens/collect"
 import * as search from "./search/implementations"
 import * as path from "node:path"
 import {existsSync} from "node:fs"
-import {ClientOptions} from "@shared/config-scheme"
+import type {ClientOptions} from "@shared/config-scheme"
 import {
     GetDocumentationAtPositionRequest,
     GetDocumentationAtPositionResponse,
@@ -27,11 +27,11 @@ import {
     GetTypeAtPositionResponse,
 } from "@shared/shared-msgtypes"
 import {KeywordsCompletionProvider} from "./completion/providers/KeywordsCompletionProvider"
-import {CompletionProvider} from "./completion/CompletionProvider"
+import type {CompletionProvider} from "./completion/CompletionProvider"
 import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvider"
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
 import {BaseTy, FieldsOwnerTy} from "./types/BaseTy"
-import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
+import type {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
 import {
     Constant,
     Contract,
@@ -53,7 +53,12 @@ import {MessageMethodCompletionProvider} from "./completion/providers/MessageMet
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
 import {measureTime, parentOfType} from "@server/psi/utils"
-import {FileChangeType, ParameterInformation, SymbolKind} from "vscode-languageserver"
+import {
+    DidChangeWatchedFilesParams,
+    FileChangeType,
+    ParameterInformation,
+    SymbolKind,
+} from "vscode-languageserver"
 import {Logger} from "@server/utils/logger"
 import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
 import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection"
@@ -85,14 +90,14 @@ import {UnusedImportInspection} from "./inspections/UnusedImportInspection"
 import {ImportResolver} from "@server/psi/ImportResolver"
 import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsCompletionProvider"
 import {CompletionResult} from "@server/completion/WeightedCompletionItem"
-import {DocumentUri, TextEdit} from "vscode-languageserver-types"
+import type {DocumentUri, TextEdit} from "vscode-languageserver-types"
 import {MissedFieldInContractInspection} from "@server/inspections/MissedFieldInContractInspection"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {TraitOrContractConstantsCompletionProvider} from "@server/completion/providers/TraitOrContractConstantsCompletionProvider"
 import {generateTlBTypeDoc} from "@server/documentation/tlb_type_documentation"
 import {BouncedTypeCompletionProvider} from "@server/completion/providers/BouncedTypeCompletionProvider"
 import {TopLevelCompletionProvider} from "@server/completion/providers/TopLevelCompletionProvider"
-import {Intention, IntentionArguments, IntentionContext} from "@server/intentions/Intention"
+import type {Intention, IntentionArguments, IntentionContext} from "@server/intentions/Intention"
 import {AddExplicitType} from "@server/intentions/AddExplicitType"
 import {AddImport} from "@server/intentions/AddImport"
 import {NotImportedSymbolInspection} from "@server/inspections/NotImportedSymbolInspection"
@@ -147,7 +152,7 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
             return existsSync(path.join(rootDir, searchDir))
         }) ?? null
 
-    if (!localFolder) {
+    if (localFolder === null) {
         console.error(
             "Standard library not found! Searched in:\n",
             searchDirs.map(dir => path.join(rootDir, dir)).join("\n"),
@@ -180,7 +185,7 @@ async function initialize() {
     const settings = await getDocumentSettings(rootUri)
 
     const stdlibPath = findStdlib(settings, rootDir)
-    if (stdlibPath) {
+    if (stdlibPath !== null) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
         const stdlibRoot = new IndexRoot(`file://${stdlibPath}`, IndexRootKind.Stdlib)
         await stdlibRoot.index()
@@ -253,17 +258,17 @@ async function initializeFallback(uri: string) {
     await initialize()
 }
 
-connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
+connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     console.info("Started new session")
-    console.info("Running in", params.clientInfo?.name)
-    console.info("workspaceFolders:", params.workspaceFolders)
+    console.info("Running in", initParams.clientInfo?.name)
+    console.info("workspaceFolders:", initParams.workspaceFolders)
 
-    if (params.clientInfo) {
-        clientInfo = params.clientInfo
+    if (initParams.clientInfo) {
+        clientInfo = initParams.clientInfo
     }
 
-    workspaceFolders = params.workspaceFolders ?? []
-    const opts = params.initializationOptions as ClientOptions | undefined
+    workspaceFolders = initParams.workspaceFolders ?? []
+    const opts = initParams.initializationOptions as ClientOptions | undefined
     const treeSitterUri = opts?.treeSitterWasmUri ?? `${__dirname}/tree-sitter.wasm`
     const tactLangUri = opts?.tactLangWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
     const fiftLangUri = opts?.fiftLangWasmUri ?? `${__dirname}/tree-sitter-fift.wasm`
@@ -328,7 +333,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         await connection.sendDiagnostics({uri, diagnostics})
     })
 
-    connection.onDidChangeWatchedFiles(params => {
+    connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams) => {
         for (const change of params.changes) {
             const uri = change.uri
             if (!uri.endsWith(".tact")) continue
@@ -444,7 +449,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             if (!parent) return null
             const func = new MessageFunction(parent, file)
             const doc = generateReceiverDoc(func)
-            if (!doc) return null
+            if (doc === null) return null
 
             return {
                 range: asLspRange(hoverNode),
@@ -460,7 +465,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             if (!parent) return null
             const func = new InitFunction(parent, file)
             const doc = generateInitDoc(func)
-            if (!doc) return null
+            if (doc === null) return null
 
             return {
                 range: asLspRange(hoverNode),
@@ -1208,7 +1213,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             if (!params.arguments || params.arguments.length === 0) return null
 
-            const intention = intentions.find(intention => intention.id === params.command)
+            const intention = intentions.find(it => it.id === params.command)
             if (!intention) return null
 
             const args = params.arguments[0] as IntentionArguments
@@ -1258,7 +1263,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const actions: lsp.CodeAction[] = []
 
             intentions.forEach(intention => {
-                if (!intention.is_available(ctx)) return
+                if (!intention.isAvailable(ctx)) return
 
                 actions.push({
                     title: intention.name,
@@ -1500,7 +1505,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const state = new ResolveState()
             const proc = new (class implements ScopeProcessor {
-                execute(node: Node, _state: ResolveState): boolean {
+                public execute(node: Node, _state: ResolveState): boolean {
                     if (!(node instanceof NamedNode)) return true
                     const nameIdentifier = node.nameIdentifier()
                     if (!nameIdentifier) return true

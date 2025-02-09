@@ -53,7 +53,7 @@ export class TactCompiler {
         return errors
     }
 
-    static async compile(_filePath: string): Promise<CompilerError[]> {
+    public static async compile(_filePath: string): Promise<CompilerError[]> {
         return new Promise((resolve, reject) => {
             const tactPath = path.join(__dirname, "../node_modules/.bin/tact")
 

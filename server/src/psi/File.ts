@@ -1,8 +1,8 @@
 import * as path from "node:path"
 import {NamedNode} from "./Node"
 import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "./Decls"
-import {Node as SyntaxNode, Tree} from "web-tree-sitter"
-import {Position} from "vscode-languageclient"
+import type {Node as SyntaxNode, Tree} from "web-tree-sitter"
+import type {Position} from "vscode-languageclient"
 import {trimSuffix} from "@server/utils/strings"
 
 export class File {
@@ -62,12 +62,12 @@ export class File {
         }
     }
 
-    public alreadyImport(path: string): boolean {
+    public alreadyImport(filepath: string): boolean {
         const imports = this.imports()
             .map(node => node.childForFieldName("library"))
             .filter(node => node !== null)
 
-        return imports.some(imp => imp.text.slice(1, -1) === path)
+        return imports.some(imp => imp.text.slice(1, -1) === filepath)
     }
 
     public imports() {

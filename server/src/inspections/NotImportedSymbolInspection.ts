@@ -1,5 +1,5 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 import {Reference} from "@server/psi/Reference"
@@ -8,9 +8,9 @@ import {Contract, Primitive} from "@server/psi/Decls"
 import {Inspection, InspectionIds} from "./Inspection"
 
 export class NotImportedSymbolInspection implements Inspection {
-    readonly id: "not-imported-symbol" = InspectionIds.NOT_IMPORTED_SYMBOL
+    public readonly id: "not-imported-symbol" = InspectionIds.NOT_IMPORTED_SYMBOL
 
-    inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: File): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 

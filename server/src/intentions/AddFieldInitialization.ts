@@ -1,18 +1,18 @@
-import {Intention, IntentionContext} from "@server/intentions/Intention"
-import {WorkspaceEdit} from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {Intention, IntentionContext} from "@server/intentions/Intention"
+import type {WorkspaceEdit} from "vscode-languageserver"
+import type {File} from "@server/psi/File"
 import {asLspPosition, asParserPoint} from "@server/utils/position"
-import {Position} from "vscode-languageclient"
+import type {Position} from "vscode-languageclient"
 import {FileDiff} from "@server/utils/FileDiff"
 import {Field, StorageMembersOwner} from "@server/psi/Decls"
-import {Ty} from "@server/types/BaseTy"
+import type {Ty} from "@server/types/BaseTy"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 
 export class AddFieldInitialization implements Intention {
-    id: string = "tact.add-field-to-init"
-    name: string = "Initialize field in init()"
+    public readonly id: string = "tact.add-field-to-init"
+    public readonly name: string = "Initialize field in init()"
 
-    resolveField(ctx: IntentionContext): Field | null {
+    private resolveField(ctx: IntentionContext): Field | null {
         const node = nodeAtPosition(ctx.position, ctx.file)
         if (node?.type !== "identifier") return null
 
@@ -22,7 +22,7 @@ export class AddFieldInitialization implements Intention {
         return new Field(field, ctx.file)
     }
 
-    is_available(ctx: IntentionContext): boolean {
+    public isAvailable(ctx: IntentionContext): boolean {
         const resolved = this.resolveField(ctx)
         if (!resolved) return false
         const owner = resolved.owner()
@@ -48,7 +48,7 @@ export class AddFieldInitialization implements Intention {
         return !initialized
     }
 
-    invoke(ctx: IntentionContext): WorkspaceEdit | null {
+    public invoke(ctx: IntentionContext): WorkspaceEdit | null {
         const field = this.resolveField(ctx)
         if (!field) return null
         const type = field.typeNode()?.type()

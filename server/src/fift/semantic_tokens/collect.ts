@@ -1,9 +1,9 @@
-import {SemanticTokens} from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {SemanticTokens} from "vscode-languageserver"
+import type {File} from "@server/psi/File"
 import {RecursiveVisitor} from "@server/psi/visitor"
 import {SemanticTokensBuilder} from "vscode-languageserver/lib/common/semanticTokens"
 import {SemanticTokenTypes} from "vscode-languageserver-protocol"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"
 import {FiftReference} from "@server/fift/psi/FiftReference"
 

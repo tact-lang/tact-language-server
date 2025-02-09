@@ -21,7 +21,7 @@ const SEPARATOR = "=============================================================
 const THIN_SEPARATOR = "------------------------------------------------------------------------"
 
 export class TestParser {
-    static parseAll(content: string): TestCase[] {
+    public static parseAll(content: string): TestCase[] {
         const tests: TestCase[] = []
         const lines = content.trim().replace(/\r\n/g, "\n").split("\n")
 
@@ -111,7 +111,7 @@ export class TestParser {
         return tests
     }
 
-    static updateExpectedBatch(
+    public static updateExpectedBatch(
         filePath: string,
         updates: {testName: string; actual: string}[],
     ): void {

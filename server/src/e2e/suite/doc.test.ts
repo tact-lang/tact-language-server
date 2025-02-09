@@ -1,13 +1,13 @@
 import * as vscode from "vscode"
 import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import * as lsp from "vscode-languageserver"
-import {GetTypeAtPositionParams} from "./types.test"
-import {TestCase} from "./TestParser"
+import type * as lsp from "vscode-languageserver"
+import type {GetTypeAtPositionParams} from "./types.test"
+import type {TestCase} from "./TestParser"
 
 suite("Documentation Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        async getHovers(input: string): Promise<(lsp.Hover | undefined)[]> {
+        public async getHovers(input: string): Promise<(lsp.Hover | undefined)[]> {
             const caretIndexes = this.findCaretPositions(input)
             if (caretIndexes.length === 0) {
                 throw new Error("No <caret> marker found in input")
@@ -16,15 +16,15 @@ suite("Documentation Test Suite", () => {
             const textWithoutCaret = input.replace(/<caret>/g, "")
             await this.replaceDocumentText(textWithoutCaret)
 
-            return await Promise.all(
-                caretIndexes.map(caretIndex => {
+            return Promise.all(
+                caretIndexes.map(async caretIndex => {
                     const position = this.calculatePosition(input, caretIndex)
                     return this.getHover(position)
                 }),
             )
         }
 
-        async getHover(position: vscode.Position): Promise<lsp.Hover | undefined> {
+        public async getHover(position: vscode.Position): Promise<lsp.Hover | undefined> {
             return vscode.commands.executeCommand<lsp.Hover>("tact/executeHoverProvider", {
                 textDocument: {
                     uri: this.document.uri.toString(),
@@ -36,7 +36,7 @@ suite("Documentation Test Suite", () => {
             } as GetTypeAtPositionParams)
         }
 
-        formatDocumentation(hover?: lsp.Hover): string {
+        private formatDocumentation(hover?: lsp.Hover): string {
             if (!hover) return "no documentation"
             return (hover.contents as lsp.MarkupContent).value.trimEnd()
         }
@@ -67,8 +67,8 @@ suite("Documentation Test Suite", () => {
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("documentation")

@@ -1,9 +1,8 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
-
 import {RecursiveVisitor} from "@server/psi/visitor"
 import {NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
-import {File} from "./File"
+import type {File} from "./File"
 import {isFunNode, isNamedFunNode, parentOfType} from "./utils"
 import {PARSED_FILES_CACHE} from "@server/index-root"
 import {Contract} from "@server/psi/Decls"
@@ -22,9 +21,9 @@ export interface SearchScope {
  * For example, the scope for a local variable will be the block in which it is defined.
  */
 export class LocalSearchScope implements SearchScope {
-    constructor(public node: SyntaxNode) {}
+    public constructor(public node: SyntaxNode) {}
 
-    toString(): string {
+    public toString(): string {
         return `LocalSearchScope:\n${this.node.text}`
     }
 }
@@ -40,9 +39,9 @@ export class GlobalSearchScope implements SearchScope {
         return new GlobalSearchScope(files)
     }
 
-    constructor(public files: File[]) {}
+    public constructor(public files: File[]) {}
 
-    toString(): string {
+    public toString(): string {
         return `GlobalSearchScope:\n${this.files.map(f => `- ${f.uri}`).join("\n")}`
     }
 }
@@ -235,34 +234,36 @@ export class Referent {
 
         if (parent.type === "let_statement") {
             // search only in outer block/function
-            return this.localSearchScope(parentOfType(parent, "function_body", "block_statement"))
+            return Referent.localSearchScope(
+                parentOfType(parent, "function_body", "block_statement"),
+            )
         }
 
         if (parent.type === "foreach_statement") {
             // search only in foreach block
-            return this.localSearchScope(parent.lastChild)
+            return Referent.localSearchScope(parent.lastChild)
         }
 
         if (parent.type === "catch_clause") {
             // search only in catch block
-            return this.localSearchScope(parent.lastChild)
+            return Referent.localSearchScope(parent.lastChild)
         }
 
         if (node.type === "parameter") {
             const grand = node.parent?.parent
             if (grand?.type === "asm_function") {
                 // search in function body and potentially asm arrangement
-                return this.localSearchScope(grand)
+                return Referent.localSearchScope(grand)
             }
 
             if (parent.type === "receive_function") {
                 // search in function body
-                return this.localSearchScope(parent)
+                return Referent.localSearchScope(parent)
             }
 
             if (grand && isFunNode(grand)) {
                 // search in function body
-                return this.localSearchScope(grand.lastChild)
+                return Referent.localSearchScope(grand.lastChild)
             }
         }
 
@@ -277,7 +278,7 @@ export class Referent {
                 return GlobalSearchScope.allFiles()
             }
             // search in whole contract
-            return this.localSearchScope(owner)
+            return Referent.localSearchScope(owner)
         }
 
         if (
@@ -304,7 +305,7 @@ export class Referent {
         return null
     }
 
-    private localSearchScope(node: SyntaxNode | null): SearchScope | null {
+    private static localSearchScope(node: SyntaxNode | null): SearchScope | null {
         if (!node) return null
         return new LocalSearchScope(node)
     }

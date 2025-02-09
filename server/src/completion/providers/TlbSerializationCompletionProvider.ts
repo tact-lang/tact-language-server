@@ -1,12 +1,12 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionContext} from "@server/completion/CompletionContext"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 import {Field} from "@server/psi/Decls"
 
 export class TlbSerializationCompletionProvider implements CompletionProvider {
     // see https://docs.tact-lang.org/book/integers/#common-serialization-types
-    types: string[] = [
+    private readonly types: string[] = [
         "uint8",
         "uint16",
         "uint32",
@@ -25,11 +25,11 @@ export class TlbSerializationCompletionProvider implements CompletionProvider {
         "uint{X}",
     ]
 
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return ctx.inTlbSerialization
     }
 
-    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const fieldNode = ctx.element.node.parent?.parent
         if (fieldNode?.type !== "field" && fieldNode?.type !== "storage_variable") return
 

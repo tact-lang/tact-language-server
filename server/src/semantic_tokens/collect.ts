@@ -1,10 +1,10 @@
 import {RecursiveVisitor} from "@server/psi/visitor"
-import {File} from "@server/psi/File"
+import type {File} from "@server/psi/File"
 import {Reference} from "@server/psi/Reference"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {NamedNode} from "@server/psi/Node"
 import * as lsp from "vscode-languageserver"
-import {SemanticTokens} from "vscode-languageserver"
+import type {SemanticTokens} from "vscode-languageserver"
 import {isNamedFunNode} from "@server/psi/utils"
 
 export function collect(file: File): SemanticTokens {

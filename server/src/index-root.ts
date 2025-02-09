@@ -16,12 +16,12 @@ export enum IndexRootKind {
 }
 
 export class IndexRoot {
-    constructor(
+    public constructor(
         public root: string,
         public kind: IndexRootKind,
     ) {}
 
-    async index() {
+    public async index() {
         const rootPath = this.root.slice(7)
 
         const ignore =

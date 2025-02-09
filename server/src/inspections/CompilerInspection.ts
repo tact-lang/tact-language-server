@@ -1,13 +1,13 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {File} from "@server/psi/File"
 import {TactCompiler} from "@server/compiler/TactCompiler"
 import {URI} from "vscode-uri"
 import {Inspection, InspectionIds} from "./Inspection"
 
 export class CompilerInspection implements Inspection {
-    readonly id: "tact-compiler-errors" = InspectionIds.COMPILER
+    public readonly id: "tact-compiler-errors" = InspectionIds.COMPILER
 
-    async inspect(file: File): Promise<lsp.Diagnostic[]> {
+    public async inspect(file: File): Promise<lsp.Diagnostic[]> {
         if (file.fromStdlib) return []
 
         try {

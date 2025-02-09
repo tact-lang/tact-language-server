@@ -1,4 +1,4 @@
-export function crc16(buffer: Buffer) {
+export function crc16(buffer: Buffer): number {
     let crc = 0xff_ff
     let odd = 0
 

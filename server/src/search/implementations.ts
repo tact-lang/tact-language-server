@@ -1,7 +1,7 @@
 import {Constant, Contract, Field, Fun, Trait} from "@server/psi/Decls"
 import {index, IndexKey} from "@server/indexes"
 import {ResolveState, ScopeProcessor} from "@server/psi/Reference"
-import {Node} from "@server/psi/Node"
+import type {Node} from "@server/psi/Node"
 
 export function implementations(trait: Trait): (Contract | Trait)[] {
     const result: (Contract | Trait)[] = []
@@ -19,7 +19,7 @@ class ImplementationProcessor implements ScopeProcessor {
         public result: (Contract | Trait)[],
     ) {}
 
-    execute(node: Node, _state: ResolveState): boolean {
+    public execute(node: Node, _state: ResolveState): boolean {
         if (!(node instanceof Trait) && !(node instanceof Contract)) return true
 
         const inheritsFromTrait = node

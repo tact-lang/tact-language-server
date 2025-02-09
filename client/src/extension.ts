@@ -16,8 +16,8 @@ import {
     GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
 } from "@shared/shared-msgtypes"
-import {Location, Position} from "vscode-languageclient"
-import {ClientOptions} from "@shared/config-scheme"
+import type {Location, Position} from "vscode-languageclient"
+import type {ClientOptions} from "@shared/config-scheme"
 
 let client: LanguageClient | null = null
 
@@ -165,7 +165,7 @@ function registerCommands(disposables: vscode.Disposable[]) {
                     return null
                 }
 
-                return await client.sendRequest<GetTypeAtPositionResponse>(
+                return client.sendRequest<GetTypeAtPositionResponse>(
                     GetDocumentationAtPositionRequest,
                     params,
                 )

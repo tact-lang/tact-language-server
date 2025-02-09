@@ -2,7 +2,7 @@ import * as path from "node:path"
 import * as Mocha from "mocha"
 import {glob} from "glob"
 
-export function run(): Promise<void> {
+export async function run(): Promise<void> {
     const mocha = new Mocha({
         ui: "tdd",
         color: true,
