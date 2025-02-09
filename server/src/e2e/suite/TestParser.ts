@@ -2,10 +2,11 @@ import * as fs from "node:fs"
 
 export interface TestCase {
     name: string
-    properties: Record<string, string>
+    properties: Map<string, string>
     input: string
     expected: string
     result?: string
+    propertiesOrder: string[]
 }
 
 enum ParserState {
@@ -25,7 +26,10 @@ export class TestParser {
         const lines = content.trim().replace(/\r\n/g, "\n").split("\n")
 
         let state = ParserState.WaitingForTestStart
-        let currentTest: Partial<TestCase> = {}
+        let currentTest: Partial<TestCase & {propertiesOrder: string[]}> = {
+            properties: new Map(),
+            propertiesOrder: [],
+        }
         let currentContent = ""
 
         for (const l of lines) {
@@ -35,14 +39,29 @@ export class TestParser {
                 case ParserState.WaitingForTestStart:
                     if (line === SEPARATOR) {
                         state = ParserState.ReadingProperties
-                        currentTest = {properties: {}}
+                        currentTest = {
+                            properties: new Map(),
+                            propertiesOrder: [],
+                        }
                     }
                     break
 
                 case ParserState.ReadingProperties:
-                    if (line.startsWith("@") && currentTest.properties) {
-                        const [key, value] = line.substring(1).split(" ")
-                        currentTest.properties[key] = value
+                    if (
+                        line.startsWith("@") &&
+                        currentTest.properties &&
+                        currentTest.propertiesOrder
+                    ) {
+                        const propertyLine = line.substring(1) // remove @
+                        const spaceIndex = propertyLine.indexOf(" ")
+                        if (spaceIndex !== -1) {
+                            const key = propertyLine.substring(0, spaceIndex)
+                            currentTest.properties.set(
+                                key,
+                                propertyLine.substring(spaceIndex + 1).trim(),
+                            )
+                            currentTest.propertiesOrder.push(key)
+                        }
                     } else {
                         currentTest.name = line
                         state = ParserState.ReadingName
@@ -71,7 +90,10 @@ export class TestParser {
                         currentTest.expected = currentContent.trim()
                         tests.push(currentTest as TestCase)
                         state = ParserState.ReadingProperties
-                        currentTest = {properties: {}}
+                        currentTest = {
+                            properties: new Map(),
+                            propertiesOrder: [],
+                        }
                         currentContent = ""
                     } else {
                         currentContent += line + "\n"
@@ -80,7 +102,6 @@ export class TestParser {
             }
         }
 
-        // Добавляем последний тест
         if (currentTest.name && currentContent) {
             currentTest.expected = currentContent.trim()
             tests.push(currentTest as TestCase)
@@ -103,8 +124,8 @@ export class TestParser {
 
             newContent.push(SEPARATOR)
 
-            for (const [key, value] of Object.entries(test.properties)) {
-                newContent.push(`@${key} ${value}`)
+            for (const key of test.propertiesOrder) {
+                newContent.push(`@${key} ${test.properties.get(key)}`)
             }
 
             newContent.push(test.name)

@@ -100,6 +100,11 @@ import {FillAllStructInit, FillRequiredStructInit} from "@server/intentions/Fill
 import {generateInitDoc, generateReceiverDoc} from "@server/documentation/receivers_documentation"
 import {AsKeywordCompletionProvider} from "@server/completion/providers/AsKeywordCompletionProvider"
 import {AddFieldInitialization} from "@server/intentions/AddFieldInitialization"
+import {
+    WrapSelectedToRepeat,
+    WrapSelectedToTry,
+    WrapSelectedToTryCatch,
+} from "@server/intentions/WrapSelected"
 
 /**
  * Whenever LS is initialized.
@@ -1168,6 +1173,9 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         new FillAllStructInit(),
         new FillRequiredStructInit(),
         new AddFieldInitialization(),
+        new WrapSelectedToTry(),
+        new WrapSelectedToTryCatch(),
+        new WrapSelectedToRepeat(),
     ]
 
     connection.onRequest(
@@ -1207,7 +1215,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const ctx: IntentionContext = {
                 file: file,
+                range: args.range,
                 position: args.position,
+                noSelection:
+                    args.range.start.line === args.range.end.line &&
+                    args.range.start.character === args.range.end.character,
             }
 
             const edits = intention.invoke(ctx)
@@ -1234,7 +1246,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const ctx: IntentionContext = {
                 file: file,
+                range: params.range,
                 position: params.range.start,
+                noSelection:
+                    params.range.start.line === params.range.end.line &&
+                    params.range.start.character === params.range.end.character,
             }
 
             const actions: lsp.CodeAction[] = []
@@ -1251,6 +1267,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                         arguments: [
                             {
                                 fileUri: file.uri,
+                                range: params.range,
                                 position: params.range.start,
                             } as IntentionArguments,
                         ],
