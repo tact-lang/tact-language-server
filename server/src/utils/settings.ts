@@ -1,8 +1,13 @@
 import {connection} from "@server/connection"
 
+export type FindUsagesScope = "workspace" | "everywhere"
+
 export interface TactSettings {
     stdlib: {
         path: string | null
+    }
+    findUsages: {
+        scope: FindUsagesScope
     }
     hints: {
         types: boolean
@@ -46,6 +51,9 @@ export interface TactSettings {
 const defaultSettings: TactSettings = {
     stdlib: {
         path: null,
+    },
+    findUsages: {
+        scope: "workspace",
     },
     hints: {
         types: true,
@@ -92,6 +100,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
     return {
         stdlib: {
             path: vsSettings.stdlib?.path ?? defaultSettings.stdlib.path,
+        },
+        findUsages: {
+            scope: vsSettings.findUsages?.scope ?? defaultSettings.findUsages.scope,
         },
         hints: {
             types: vsSettings.hints?.types ?? defaultSettings.hints.types,

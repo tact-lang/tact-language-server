@@ -868,7 +868,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.ReferencesRequest.type,
-        (params: lsp.ReferenceParams): lsp.Location[] | null => {
+        async (params: lsp.ReferenceParams): Promise<lsp.Location[] | null> => {
             const uri = params.textDocument.uri
 
             if (uri.endsWith(".fif")) {
@@ -899,6 +899,17 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const result = new Referent(referenceNode, file).findReferences(false)
             if (result.length === 0) return null
+
+            const settings = await getDocumentSettings(file.uri)
+            if (settings.findUsages.scope === "workspace") {
+                // filter out references from stdlib
+                return result
+                    .filter(value => !value.file.fromStdlib && !value.file.fromStubs)
+                    .map(value => ({
+                        uri: value.file.uri,
+                        range: asLspRange(value.node),
+                    }))
+            }
 
             return result.map(value => ({
                 uri: value.file.uri,
