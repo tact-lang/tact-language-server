@@ -243,6 +243,19 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Show message fields in document outline"
+                },
+                "tact.findUsages.scope": {
+                    "type": "string",
+                    "enum": [
+                        "workspace",
+                        "everywhere"
+                    ],
+                    "enumDescriptions": [
+                        "Search only in workspace files (default)",
+                        "Search everywhere including standard library"
+                    ],
+                    "default": "workspace",
+                    "description": "Where to search when using Find Usages"
                 }
             }
         },
