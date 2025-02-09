@@ -29,6 +29,7 @@ export class CompletionContext {
     isMessageContext: boolean = false
     isBouncedMessage: boolean = false
     isInitOfName: boolean = false
+    afterFieldType: boolean = false
 
     contextTy: Ty | null = null
 
@@ -114,6 +115,13 @@ export class CompletionContext {
             const type = parent.childForFieldName("type")
             if (type) {
                 this.contextTy = TypeInferer.inferType(new Expression(type, this.element.file))
+            }
+
+            const anchor = parent.childForFieldName("_completion_anchor")
+            if (anchor && element.node.equals(anchor)) {
+                this.afterFieldType = true
+                this.isExpression = false
+                this.isStatement = false
             }
         }
 
@@ -263,6 +271,7 @@ export class CompletionContext {
             !this.inNameOfFieldInit &&
             !this.inTraitList &&
             !this.inParameter &&
+            !this.afterFieldType &&
             !this.isInitOfName
         )
     }

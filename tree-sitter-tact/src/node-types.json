@@ -870,6 +870,16 @@
     "type": "field",
     "named": true,
     "fields": {
+      "_completion_anchor": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
       "name": {
         "multiple": false,
         "required": true,
@@ -2171,6 +2181,16 @@
     "type": "storage_variable",
     "named": true,
     "fields": {
+      "_completion_anchor": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
       "name": {
         "multiple": false,
         "required": true,

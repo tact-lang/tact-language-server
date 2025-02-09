@@ -299,6 +299,7 @@ module.exports = grammar({
       seq(
         ":",
         field("type", $._type),
+        field("_completion_anchor", optional($.identifier)),
         field("tlb", optional($.tlb_serialization)),
         optional(seq("=", field("value", $._expression))),
       ),

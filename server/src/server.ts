@@ -98,6 +98,7 @@ import {AddImport} from "@server/intentions/AddImport"
 import {NotImportedSymbolInspection} from "@server/inspections/NotImportedSymbolInspection"
 import {FillAllStructInit, FillRequiredStructInit} from "@server/intentions/FillAllStructInit"
 import {generateInitDoc, generateReceiverDoc} from "@server/documentation/receivers_documentation"
+import {AsKeywordCompletionProvider} from "@server/completion/providers/AsKeywordCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -688,6 +689,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const providers: CompletionProvider[] = [
                 new SnippetsCompletionProvider(),
                 new KeywordsCompletionProvider(),
+                new AsKeywordCompletionProvider(),
                 new MapTypeCompletionProvider(),
                 new BouncedTypeCompletionProvider(),
                 new ContractDeclCompletionProvider(),
