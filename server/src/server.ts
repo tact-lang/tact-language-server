@@ -105,6 +105,7 @@ import {
     WrapSelectedToTry,
     WrapSelectedToTryCatch,
 } from "@server/intentions/WrapSelected"
+import {PostfixCompletionProvider} from "@server/completion/providers/PostfixCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -711,6 +712,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 new ReturnCompletionProvider(),
                 new ReferenceCompletionProvider(ref),
                 new AsmInstructionCompletionProvider(),
+                new PostfixCompletionProvider(),
             ]
 
             providers.forEach((provider: CompletionProvider) => {

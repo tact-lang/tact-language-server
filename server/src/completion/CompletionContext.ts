@@ -13,6 +13,7 @@ export class CompletionContext {
     isType: boolean = false
     isExpression: boolean = false
     isStatement: boolean = false
+    isSelectorExpressionInStatement: boolean = false
     insideTraitOrContract: boolean = false
     insideTrait: boolean = false
     topLevel: boolean = false
@@ -64,6 +65,13 @@ export class CompletionContext {
 
         if (parent.type !== "expression_statement" && parent.type !== "field_access_expression") {
             this.isExpression = true
+        }
+
+        if (
+            parent.type === "field_access_expression" &&
+            parent.parent?.type === "expression_statement"
+        ) {
+            this.isSelectorExpressionInStatement = true
         }
 
         if (parent.type === "expression_statement") {

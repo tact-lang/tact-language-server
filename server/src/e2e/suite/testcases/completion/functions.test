@@ -75,6 +75,12 @@ fun test() {
 ------------------------------------------------------------------------
 2  double(self: Int): Int
 2  increment(self: Int): Int
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Fun completion in expression
