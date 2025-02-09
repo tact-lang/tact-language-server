@@ -5,6 +5,8 @@ import {parentOfType} from "./utils"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {findInstruction} from "@server/completion/data/types"
 import {crc16} from "@server/utils/crc16"
+import {Position} from "vscode-languageclient"
+import {asLspPosition} from "@server/utils/position"
 
 export class FieldsOwner extends NamedNode {
     public kind(): string {
@@ -158,6 +160,38 @@ export class InitFunction extends Node {
         const parametersNode = this.node.childForFieldName("parameters")
         if (!parametersNode) return "init()"
         return `init${parametersNode.text}`
+    }
+
+    public endParen(): SyntaxNode | null {
+        const parametersNode = this.node.childForFieldName("parameters")
+        if (!parametersNode) return null
+        return parametersNode.lastChild
+    }
+
+    public lastStatementPos(): Position | null {
+        const body = this.node.childForFieldName("body")
+        if (!body) return null
+
+        const children = body.children.filter(value => value !== null)
+        if (children.length === 0) return null
+        if (children.length <= 2) return asLspPosition(children[0].endPosition)
+
+        const statements = children.slice(1, -1)
+        const lastStatement = statements.at(-1)
+        if (!lastStatement) return null
+
+        return asLspPosition(lastStatement.endPosition)
+    }
+
+    public get hasOneLineBody(): boolean {
+        const body = this.node.childForFieldName("body")
+        if (!body) return false
+
+        const firstChild = body.firstChild
+        const lastChild = body.lastChild
+        if (!firstChild || !lastChild) return false
+
+        return firstChild.startPosition.row === lastChild.startPosition.row
     }
 
     public parameters(): NamedNode[] {

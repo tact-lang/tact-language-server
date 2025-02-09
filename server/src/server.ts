@@ -99,6 +99,7 @@ import {NotImportedSymbolInspection} from "@server/inspections/NotImportedSymbol
 import {FillAllStructInit, FillRequiredStructInit} from "@server/intentions/FillAllStructInit"
 import {generateInitDoc, generateReceiverDoc} from "@server/documentation/receivers_documentation"
 import {AsKeywordCompletionProvider} from "@server/completion/providers/AsKeywordCompletionProvider"
+import {AddFieldInitialization} from "@server/intentions/AddFieldInitialization"
 
 /**
  * Whenever LS is initialized.
@@ -1166,6 +1167,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         new AddImport(),
         new FillAllStructInit(),
         new FillRequiredStructInit(),
+        new AddFieldInitialization(),
     ]
 
     connection.onRequest(
