@@ -1,15 +1,15 @@
-import {Intention, IntentionContext} from "@server/intentions/Intention"
-import {WorkspaceEdit} from "vscode-languageserver"
+import type {Intention, IntentionContext} from "@server/intentions/Intention"
+import type {WorkspaceEdit} from "vscode-languageserver"
 import {FileDiff} from "@server/utils/FileDiff"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {RecursiveVisitor} from "@server/psi/visitor"
 
 export class WrapSelected implements Intention {
-    id: string
-    name: string
-    snippet: string
+    public readonly id: string
+    public readonly name: string
+    public readonly snippet: string
 
-    statementsWithSemicolon: string[] = [
+    private readonly statementsWithSemicolon: string[] = [
         "let_statement",
         "return_statement",
         "expression_statement",
@@ -18,7 +18,7 @@ export class WrapSelected implements Intention {
         "do_until_statement",
     ]
 
-    statementTypes: string[] = [
+    private readonly statementTypes: string[] = [
         ...this.statementsWithSemicolon,
 
         "block_statement",
@@ -29,13 +29,13 @@ export class WrapSelected implements Intention {
         "foreach_statement",
     ]
 
-    constructor(to: string, snippet: string) {
+    public constructor(to: string, snippet: string) {
         this.id = `tact.wrap-selected-${to}`
         this.name = `Wrap selected to "${to}"`
         this.snippet = snippet
     }
 
-    findStatements(ctx: IntentionContext): SyntaxNode[] {
+    public findStatements(ctx: IntentionContext): SyntaxNode[] {
         if (ctx.noSelection) return []
 
         const statements: SyntaxNode[] = []
@@ -70,11 +70,11 @@ export class WrapSelected implements Intention {
         return statements.filter(statement => !this.statementTypes.includes(statement.text))
     }
 
-    is_available(ctx: IntentionContext): boolean {
+    public isAvailable(ctx: IntentionContext): boolean {
         return this.findStatements(ctx).length > 0
     }
 
-    private findIndent(ctx: IntentionContext, node: SyntaxNode) {
+    private static findIndent(ctx: IntentionContext, node: SyntaxNode) {
         const lines = ctx.file.content.split(/\r?\n/)
         const line = lines[node.startPosition.row]
         const lineTrim = line.trimStart()
@@ -101,7 +101,7 @@ export class WrapSelected implements Intention {
             .join("\n")
     }
 
-    invoke(ctx: IntentionContext): WorkspaceEdit | null {
+    public invoke(ctx: IntentionContext): WorkspaceEdit | null {
         const statements = this.findStatements(ctx)
         if (statements.length === 0) return null
 
@@ -110,7 +110,7 @@ export class WrapSelected implements Intention {
         const lastStmt = statements.at(-1)
         if (!lastStmt) return null
 
-        const indentCount = this.findIndent(ctx, firstStmt)
+        const indentCount = WrapSelected.findIndent(ctx, firstStmt)
         const indent = " ".repeat(indentCount)
 
         const statementsText = statements
@@ -144,7 +144,7 @@ export class WrapSelected implements Intention {
 }
 
 export class WrapSelectedToTry extends WrapSelected {
-    constructor() {
+    public constructor() {
         super(
             "try",
             `
@@ -156,7 +156,7 @@ $indent}`,
 }
 
 export class WrapSelectedToTryCatch extends WrapSelected {
-    constructor() {
+    public constructor() {
         super(
             "try-catch",
             `
@@ -170,7 +170,7 @@ $indent}`,
 }
 
 export class WrapSelectedToRepeat extends WrapSelected {
-    constructor() {
+    public constructor() {
         super(
             "repeat",
             `

@@ -1,18 +1,18 @@
-import {Intention, IntentionContext} from "@server/intentions/Intention"
-import {WorkspaceEdit} from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {Intention, IntentionContext} from "@server/intentions/Intention"
+import type {WorkspaceEdit} from "vscode-languageserver"
+import type {File} from "@server/psi/File"
 import {asParserPoint} from "@server/utils/position"
-import {Position} from "vscode-languageclient"
+import type {Position} from "vscode-languageclient"
 import {NamedNode} from "@server/psi/Node"
 import {FileDiff} from "@server/utils/FileDiff"
 import {Reference} from "@server/psi/Reference"
 import {Contract, Primitive} from "@server/psi/Decls"
 
 export class AddImport implements Intention {
-    id: string = "tact.add-import"
-    name: string = "Import symbol from other file"
+    public readonly id: string = "tact.add-import"
+    public readonly name: string = "Import symbol from other file"
 
-    resolveIdentifier(ctx: IntentionContext): NamedNode | null {
+    private static resolveIdentifier(ctx: IntentionContext): NamedNode | null {
         const node = nodeAtPosition(ctx.position, ctx.file)
         if (node?.type !== "identifier" && node?.type !== "type_identifier") return null
 
@@ -23,8 +23,8 @@ export class AddImport implements Intention {
         return resolved
     }
 
-    is_available(ctx: IntentionContext): boolean {
-        const resolved = this.resolveIdentifier(ctx)
+    public isAvailable(ctx: IntentionContext): boolean {
+        const resolved = AddImport.resolveIdentifier(ctx)
         if (!resolved) return false
         if (resolved.file.uri === ctx.file.uri) return false
 
@@ -32,8 +32,8 @@ export class AddImport implements Intention {
         return !ctx.file.alreadyImport(importPath) && !resolved.file.isImportedImplicitly()
     }
 
-    invoke(ctx: IntentionContext): WorkspaceEdit | null {
-        const resolved = this.resolveIdentifier(ctx)
+    public invoke(ctx: IntentionContext): WorkspaceEdit | null {
+        const resolved = AddImport.resolveIdentifier(ctx)
         if (!resolved) return null
 
         const diff = FileDiff.forFile(ctx.file.uri)

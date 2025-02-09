@@ -1,42 +1,42 @@
 import {Expression, Node} from "@server/psi/Node"
-import * as lsp from "vscode-languageserver/node"
+import type * as lsp from "vscode-languageserver/node"
 import {parentOfType} from "@server/psi/utils"
 import {MapTy, NullTy, OptionTy, Ty} from "@server/types/BaseTy"
 import {TypeInferer} from "@server/TypeInferer"
-import {TactSettings} from "@server/utils/settings"
+import type {TactSettings} from "@server/utils/settings"
 
 export class CompletionContext {
-    element: Node
-    position: lsp.Position
-    triggerKind: lsp.CompletionTriggerKind
+    public element: Node
+    public position: lsp.Position
+    public triggerKind: lsp.CompletionTriggerKind
 
-    isType: boolean = false
-    isExpression: boolean = false
-    isStatement: boolean = false
-    isSelectorExpressionInStatement: boolean = false
-    insideTraitOrContract: boolean = false
-    insideTrait: boolean = false
-    topLevel: boolean = false
-    topLevelInTraitOrContract: boolean = false
-    topLevelInStructOrMessage: boolean = false
-    inTlbSerialization: boolean = false
-    afterDot: boolean = false
-    beforeParen: boolean = false
-    beforeSemicolon: boolean = false
-    inNameOfFieldInit: boolean = false
-    inMultilineStructInit: boolean = false
-    inTraitList: boolean = false
-    inParameter: boolean = false
-    isMessageContext: boolean = false
-    isBouncedMessage: boolean = false
-    isInitOfName: boolean = false
-    afterFieldType: boolean = false
+    public isType: boolean = false
+    public isExpression: boolean = false
+    public isStatement: boolean = false
+    public isSelectorExpressionInStatement: boolean = false
+    public insideTraitOrContract: boolean = false
+    public insideTrait: boolean = false
+    public topLevel: boolean = false
+    public topLevelInTraitOrContract: boolean = false
+    public topLevelInStructOrMessage: boolean = false
+    public inTlbSerialization: boolean = false
+    public afterDot: boolean = false
+    public beforeParen: boolean = false
+    public beforeSemicolon: boolean = false
+    public inNameOfFieldInit: boolean = false
+    public inMultilineStructInit: boolean = false
+    public inTraitList: boolean = false
+    public inParameter: boolean = false
+    public isMessageContext: boolean = false
+    public isBouncedMessage: boolean = false
+    public isInitOfName: boolean = false
+    public afterFieldType: boolean = false
 
-    contextTy: Ty | null = null
+    public contextTy: Ty | null = null
 
-    settings: TactSettings
+    public settings: TactSettings
 
-    constructor(
+    public constructor(
         content: string,
         element: Node,
         position: lsp.Position,

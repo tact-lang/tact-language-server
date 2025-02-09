@@ -30,7 +30,7 @@ export default tseslint.config(
     },
 
     tseslint.configs.stylisticTypeChecked,
-    tseslint.configs.strictTypeChecked,
+    tseslint.configs.all,
 
     {
         languageOptions: {
@@ -64,6 +64,27 @@ export default tseslint.config(
 
             "@unused-imports/no-unused-imports": "error",
             "no-duplicate-imports": "error",
+
+            "@typescript-eslint/no-magic-numbers": "off",
+            "@typescript-eslint/no-unsafe-type-assertion": "off",
+            "@typescript-eslint/prefer-readonly-parameter-types": "off",
+            "@typescript-eslint/member-ordering": "off",
+            "@typescript-eslint/explicit-function-return-type": "off",
+            "@typescript-eslint/parameter-properties": "off",
+            "@typescript-eslint/method-signature-style": "off",
+            "@typescript-eslint/prefer-destructuring": "off",
+            "@typescript-eslint/strict-boolean-expressions": "off",
+            "@typescript-eslint/explicit-module-boundary-types": "off",
+            "@typescript-eslint/no-use-before-define": "off",
+
+            "@typescript-eslint/class-methods-use-this": "off",
+            "@typescript-eslint/no-shadow": "off",
+            "@typescript-eslint/consistent-type-imports": "off",
+            "@typescript-eslint/naming-convention": "off",
+            "@typescript-eslint/max-params": "off",
+            "@typescript-eslint/no-invalid-this": "off",
+            "@typescript-eslint/init-declarations": "off",
+            "@typescript-eslint/prefer-enum-initializers": "off",
         },
     },
 )

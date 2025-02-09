@@ -1,5 +1,5 @@
 import * as lsp from "vscode-languageserver/node"
-import * as Parser from "web-tree-sitter"
+import type * as Parser from "web-tree-sitter"
 
 export function asNullableLspRange(node: Parser.Node | null | undefined): lsp.Range {
     if (!node) {

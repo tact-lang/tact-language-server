@@ -1,14 +1,14 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "@server/completion/CompletionContext"
-import {CompletionResult} from "@server/completion/WeightedCompletionItem"
+import type {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionResult} from "@server/completion/WeightedCompletionItem"
 
 export class ContractDeclCompletionProvider implements CompletionProvider {
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return ctx.topLevel
     }
 
-    addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
         result.add({
             label: `contract`,
             labelDetails: {

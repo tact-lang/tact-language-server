@@ -1,5 +1,5 @@
-import * as lsp from "vscode-languageserver"
-import {Position} from "vscode-languageclient"
+import type * as lsp from "vscode-languageserver"
+import type {Position} from "vscode-languageclient"
 
 interface Edit {
     range: lsp.Range
@@ -17,21 +17,21 @@ export class FileDiff {
     /**
      * Create a new diff for a file
      */
-    static forFile(uri: string): FileDiff {
+    public static forFile(uri: string): FileDiff {
         return new FileDiff(uri)
     }
 
     /**
      * Add text at the beginning of a line
      */
-    appendToBegin(line: number, text: string): this {
+    public appendToBegin(line: number, text: string): this {
         return this.appendTo({line, character: 0}, text)
     }
 
     /**
      * Add text at specific position
      */
-    appendTo(pos: Position, text: string): this {
+    public appendTo(pos: Position, text: string): this {
         this.edits.push({
             range: {start: pos, end: pos},
             newText: text,
@@ -42,7 +42,7 @@ export class FileDiff {
     /**
      * Add text as a new line before specified line
      */
-    appendAsPrevLine(line: number, text: string): this {
+    public appendAsPrevLine(line: number, text: string): this {
         const pos = {line, character: 0}
         this.edits.push({
             range: {start: pos, end: pos},
@@ -54,7 +54,7 @@ export class FileDiff {
     /**
      * Add text as a new line after specified line
      */
-    appendAsNextLine(line: number, text: string): this {
+    public appendAsNextLine(line: number, text: string): this {
         const pos = {line: line + 1, character: 0}
         this.edits.push({
             range: {start: pos, end: pos},
@@ -66,7 +66,7 @@ export class FileDiff {
     /**
      * Replace text in range
      */
-    replace(range: lsp.Range, newText: string): this {
+    public replace(range: lsp.Range, newText: string): this {
         this.edits.push({range, newText})
         return this
     }
@@ -74,7 +74,7 @@ export class FileDiff {
     /**
      * Convert to LSP WorkspaceEdit
      */
-    toWorkspaceEdit(): lsp.WorkspaceEdit {
+    public toWorkspaceEdit(): lsp.WorkspaceEdit {
         return {
             changes: {
                 [this.uri]: this.toTextEdits(),
@@ -85,7 +85,7 @@ export class FileDiff {
     /**
      * Convert to array of TextEdit
      */
-    toTextEdits(): lsp.TextEdit[] {
+    public toTextEdits(): lsp.TextEdit[] {
         return this.edits.map(edit => ({
             range: edit.range,
             newText: edit.newText,
@@ -95,7 +95,7 @@ export class FileDiff {
     /**
      * Get URI of the file being edited
      */
-    getUri(): string {
+    public getUri(): string {
         return this.uri
     }
 }

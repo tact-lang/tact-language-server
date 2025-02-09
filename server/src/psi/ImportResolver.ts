@@ -1,11 +1,11 @@
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as path from "node:path"
 import {PARSED_FILES_CACHE} from "@server/index-root"
-import {File} from "./File"
+import type {File} from "./File"
 import {existsSync} from "node:fs"
 
 export class ImportResolver {
-    static resolveImport(fromFile: File, importPath: string): File | null {
+    public static resolveImport(fromFile: File, importPath: string): File | null {
         let currentDir = path.dirname(fromFile.uri.slice(7))
         if (importPath.startsWith("@stdlib") && currentDir.endsWith("sources")) {
             currentDir = path.dirname(currentDir)
@@ -30,7 +30,7 @@ export class ImportResolver {
         return PARSED_FILES_CACHE.get(targetUri) ?? null
     }
 
-    static resolveNode(file: File, pathNode: SyntaxNode): File | null {
+    public static resolveNode(file: File, pathNode: SyntaxNode): File | null {
         return this.resolveImport(file, pathNode.text.slice(1, -1))
     }
 }

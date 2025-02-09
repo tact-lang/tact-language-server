@@ -1,16 +1,16 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionContext} from "@server/completion/CompletionContext"
 import {parentOfType} from "@server/psi/utils"
 import {StorageMembersOwner} from "@server/psi/Decls"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class OverrideCompletionProvider implements CompletionProvider {
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return ctx.topLevelInTraitOrContract
     }
 
-    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const ownerNode = parentOfType(ctx.element.node, "trait", "contract")
         if (!ownerNode) return
 

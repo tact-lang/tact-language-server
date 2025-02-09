@@ -1,12 +1,12 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/psi/File"
-import {Contract, Field} from "@server/psi/Decls"
+import type {File} from "@server/psi/File"
+import type {Contract, Field} from "@server/psi/Decls"
 import {UnusedInspection} from "./UnusedInspection"
 import {asLspRange} from "@server/utils/position"
 import {Inspection, InspectionIds} from "./Inspection"
 
 export class MissedFieldInContractInspection extends UnusedInspection implements Inspection {
-    readonly id: "missed-field-in-contract" = InspectionIds.MISSED_FIELD_IN_CONTRACT
+    public readonly id: "missed-field-in-contract" = InspectionIds.MISSED_FIELD_IN_CONTRACT
 
     protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
         file.getContracts().forEach(contract => {

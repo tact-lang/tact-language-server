@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import {TestCase} from "./TestParser"
+import type {TestCase} from "./TestParser"
 
 interface RenamePosition {
     line: number
@@ -11,7 +11,7 @@ interface RenamePosition {
 
 suite("Rename Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        findRenamePositions(input: string): RenamePosition[] {
+        private findRenamePositions(input: string): RenamePosition[] {
             const positions: RenamePosition[] = []
             const lines = input.split("\n")
 
@@ -32,7 +32,7 @@ suite("Rename Test Suite", () => {
             return positions
         }
 
-        async renameTo(position: vscode.Position, newName: string) {
+        private async renameTo(position: vscode.Position, newName: string) {
             const result = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
                 "vscode.executeDocumentRenameProvider",
                 this.document.uri,
@@ -76,8 +76,8 @@ suite("Rename Test Suite", () => {
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("rename")

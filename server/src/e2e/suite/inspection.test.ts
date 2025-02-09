@@ -1,11 +1,11 @@
 import * as vscode from "vscode"
 import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import {TestCase} from "./TestParser"
+import type {TestCase} from "./TestParser"
 
 suite("Inspection Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        async getInspections(): Promise<string> {
+        public async getInspections(): Promise<string> {
             await new Promise(resolve => setTimeout(resolve, 100))
 
             const diagnostics = vscode.languages.getDiagnostics(this.document.uri)
@@ -52,8 +52,8 @@ suite("Inspection Test Suite", () => {
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("inspection")

@@ -1,11 +1,11 @@
 import * as vscode from "vscode"
 import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import {TestCase} from "./TestParser"
+import type {TestCase} from "./TestParser"
 
 suite("Resolve Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        async getDefinitions(
+        private async getDefinitions(
             input: string,
         ): Promise<(vscode.LocationLink[] | vscode.Location[] | undefined)[]> {
             const caretIndexes = this.findCaretPositions(input)
@@ -16,15 +16,15 @@ suite("Resolve Test Suite", () => {
             const textWithoutCaret = input.replace(/<caret>/g, "")
             await this.replaceDocumentText(textWithoutCaret)
 
-            return await Promise.all(
-                caretIndexes.map(caretIndex => {
+            return Promise.all(
+                caretIndexes.map(async caretIndex => {
                     const position = this.calculatePosition(input, caretIndex)
                     return this.getDefinitionAt(position)
                 }),
             )
         }
 
-        async getDefinitionAt(
+        private async getDefinitionAt(
             position: vscode.Position,
         ): Promise<vscode.LocationLink[] | vscode.Location[] | undefined> {
             return vscode.commands.executeCommand<vscode.LocationLink[]>(
@@ -34,11 +34,11 @@ suite("Resolve Test Suite", () => {
             )
         }
 
-        formatLocation(position: vscode.Position): string {
+        private formatLocation(position: vscode.Position): string {
             return `${position.line}:${position.character}`
         }
 
-        formatResult(
+        private formatResult(
             positions: vscode.Position[],
             definitions: (vscode.LocationLink[] | vscode.Location[] | undefined)[],
         ): string {
@@ -90,8 +90,8 @@ suite("Resolve Test Suite", () => {
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("resolve")

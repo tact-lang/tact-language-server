@@ -26,7 +26,7 @@ export type WeightedCompletionItem = CompletionItem & {
 }
 
 export class CompletionResult {
-    elements: WeightedCompletionItem[] = []
+    public elements: WeightedCompletionItem[] = []
 
     public add(...element: WeightedCompletionItem[]) {
         this.elements.push(...element)

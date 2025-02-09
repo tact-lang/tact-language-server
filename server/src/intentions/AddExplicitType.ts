@@ -1,16 +1,16 @@
-import {Intention, IntentionContext} from "@server/intentions/Intention"
-import {WorkspaceEdit} from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {Intention, IntentionContext} from "@server/intentions/Intention"
+import type {WorkspaceEdit} from "vscode-languageserver"
+import type {File} from "@server/psi/File"
 import {asLspPosition, asParserPoint} from "@server/utils/position"
-import {Position} from "vscode-languageclient"
+import type {Position} from "vscode-languageclient"
 import {VarDeclaration} from "@server/psi/Node"
 import {FileDiff} from "@server/utils/FileDiff"
 
 export class AddExplicitType implements Intention {
-    id: string = "tact.add-explicit-type"
-    name: string = "Add explicit type"
+    public readonly id: string = "tact.add-explicit-type"
+    public readonly name: string = "Add explicit type"
 
-    findVariable(ctx: IntentionContext): VarDeclaration | null {
+    private static findVariable(ctx: IntentionContext): VarDeclaration | null {
         const referenceNode = nodeAtPosition(ctx.position, ctx.file)
         if (referenceNode?.type !== "identifier") return null
         const parent = referenceNode.parent
@@ -18,14 +18,14 @@ export class AddExplicitType implements Intention {
         return new VarDeclaration(parent, ctx.file)
     }
 
-    is_available(ctx: IntentionContext): boolean {
-        const variable = this.findVariable(ctx)
+    public isAvailable(ctx: IntentionContext): boolean {
+        const variable = AddExplicitType.findVariable(ctx)
         if (!variable) return false
         return !variable.hasTypeHint()
     }
 
-    invoke(ctx: IntentionContext): WorkspaceEdit | null {
-        const variable = this.findVariable(ctx)
+    public invoke(ctx: IntentionContext): WorkspaceEdit | null {
+        const variable = AddExplicitType.findVariable(ctx)
         if (!variable) return null
         if (variable.hasTypeHint()) return null
 

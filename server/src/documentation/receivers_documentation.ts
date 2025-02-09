@@ -1,4 +1,4 @@
-import {InitFunction, MessageFunction} from "@server/psi/Decls"
+import type {InitFunction, MessageFunction} from "@server/psi/Decls"
 import {Expression} from "@server/psi/Node"
 import {BouncedTy, MessageTy} from "@server/types/BaseTy"
 

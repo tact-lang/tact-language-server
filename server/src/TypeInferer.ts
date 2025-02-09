@@ -15,7 +15,7 @@ import {CallLike, Expression, NamedNode, Node} from "@server/psi/Node"
 import {Reference} from "@server/psi/Reference"
 import {Struct, Message, Fun, Primitive, Contract, Trait} from "@server/psi/Decls"
 import {isTypeOwnerNode} from "@server/psi/utils"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {CACHE} from "./cache"
 import {index, IndexKey} from "./indexes"
 

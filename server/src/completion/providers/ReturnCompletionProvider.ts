@@ -1,6 +1,6 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionContext} from "@server/completion/CompletionContext"
 import {funNodesTypes, parentOfType} from "@server/psi/utils"
 import {Fun} from "@server/psi/Decls"
 import {OptionTy, PrimitiveTy} from "@server/types/BaseTy"
@@ -8,11 +8,11 @@ import {TypeInferer} from "@server/TypeInferer"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class ReturnCompletionProvider implements CompletionProvider {
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return ctx.isStatement
     }
 
-    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const outerFunctionNode = parentOfType(ctx.element.node, ...funNodesTypes())
         if (!outerFunctionNode) return
         const outerFunction = new Fun(outerFunctionNode, ctx.element.file)

@@ -13,7 +13,7 @@ export interface TextDocumentChange2 {
 }
 
 export class DocumentStore extends TextDocuments<TextDocument> {
-    constructor(_connection: lsp.Connection) {
+    public constructor(_connection: lsp.Connection) {
         super({
             create: TextDocument.create,
             update: (doc, changes, version) => {

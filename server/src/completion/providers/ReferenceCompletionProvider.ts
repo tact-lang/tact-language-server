@@ -1,10 +1,10 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
-import {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionContext} from "@server/completion/CompletionContext"
 import {Reference, ResolveState, ScopeProcessor} from "@server/psi/Reference"
 import {ReferenceCompletionProcessor} from "@server/completion/ReferenceCompletionProcessor"
 import {NamedNode, Node} from "@server/psi/Node"
 import {FieldsOwner} from "@server/psi/Decls"
-import {CompletionResult} from "@server/completion/WeightedCompletionItem"
+import type {CompletionResult} from "@server/completion/WeightedCompletionItem"
 
 enum CompletionKind {
     ONLY_FIELDS = "ONLY_FIELDS",
@@ -12,9 +12,9 @@ enum CompletionKind {
 }
 
 export class ReferenceCompletionProvider implements CompletionProvider {
-    constructor(private readonly ref: Reference) {}
+    public constructor(private readonly ref: Reference) {}
 
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return (
             !ctx.topLevelInTraitOrContract &&
             !ctx.topLevelInStructOrMessage &&
@@ -25,7 +25,7 @@ export class ReferenceCompletionProvider implements CompletionProvider {
         )
     }
 
-    addCompletion(ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const state = new ResolveState()
         const processor = new ReferenceCompletionProcessor(ctx)
 
@@ -39,7 +39,7 @@ export class ReferenceCompletionProvider implements CompletionProvider {
         result.add(...processor.result.values())
     }
 
-    processFields(
+    public processFields(
         processor: ScopeProcessor,
         state: ResolveState,
         ctx: CompletionContext,
@@ -96,7 +96,7 @@ export class ReferenceCompletionProvider implements CompletionProvider {
         }
 
         const variablesProcessor = new (class implements ScopeProcessor {
-            execute(node: Node, state: ResolveState): boolean {
+            public execute(node: Node, state: ResolveState): boolean {
                 if (node.node.type !== "identifier" && node.node.type !== "parameter") return true
 
                 const name = node instanceof NamedNode ? node.name() : node.node.text

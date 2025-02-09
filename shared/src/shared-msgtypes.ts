@@ -1,4 +1,4 @@
-import * as lsp from "vscode-languageserver"
+import type * as lsp from "vscode-languageserver"
 
 export const GetTypeAtPositionRequest = "tact/getTypeAtPosition"
 export const GetDocumentationAtPositionRequest = "tact/executeHoverProvider"

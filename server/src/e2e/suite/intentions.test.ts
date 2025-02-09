@@ -1,11 +1,11 @@
 import * as vscode from "vscode"
 import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import {TestCase} from "./TestParser"
+import type {TestCase} from "./TestParser"
 
 suite("Intentions Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        async getCodeActions(input: string): Promise<vscode.CodeAction[]> {
+        public async getCodeActions(input: string): Promise<vscode.CodeAction[]> {
             const selectionStart = input.indexOf("<selection>")
             const selectionEnd = input.indexOf("</selection>")
 
@@ -99,8 +99,8 @@ suite("Intentions Test Suite", () => {
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("intentions")

@@ -1,7 +1,7 @@
-import {WorkspaceEdit} from "vscode-languageserver"
-import {File} from "@server/psi/File"
-import {Position} from "vscode-languageclient"
-import {Range} from "vscode-languageserver-textdocument"
+import type {WorkspaceEdit} from "vscode-languageserver"
+import type {File} from "@server/psi/File"
+import type {Position} from "vscode-languageclient"
+import type {Range} from "vscode-languageserver-textdocument"
 
 export interface IntentionContext {
     file: File
@@ -20,7 +20,7 @@ export interface Intention {
     id: string
     name: string
 
-    is_available(ctx: IntentionContext): boolean
+    isAvailable(ctx: IntentionContext): boolean
 
     invoke(ctx: IntentionContext): WorkspaceEdit | null
 }

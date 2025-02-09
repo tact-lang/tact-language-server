@@ -1,4 +1,4 @@
-import {
+import type {
     Struct,
     Message,
     FieldsOwner,
@@ -11,7 +11,7 @@ import {
     InitFunction,
     Field,
 } from "@server/psi/Decls"
-import {NamedNode} from "@server/psi/Node"
+import type {NamedNode} from "@server/psi/Node"
 
 export interface Ty {
     name(): string
@@ -20,8 +20,8 @@ export interface Ty {
 }
 
 export abstract class BaseTy<Anchor extends NamedNode> implements Ty {
-    anchor: Anchor | null = null
-    _name: string
+    public readonly anchor: Anchor | null = null
+    protected readonly _name: string
 
     public constructor(_name: string, anchor: Anchor | null) {
         this.anchor = anchor
@@ -58,7 +58,7 @@ export class PrimitiveTy extends BaseTy<Primitive> {
     }
 
     public override name(): string {
-        if (this.tlb) {
+        if (this.tlb !== null) {
             return `${this._name} as ${this.tlb}`
         }
 
@@ -66,7 +66,7 @@ export class PrimitiveTy extends BaseTy<Primitive> {
     }
 
     public override qualifiedName(): string {
-        if (this.tlb) {
+        if (this.tlb !== null) {
             return `${this._name} as ${this.tlb}`
         }
 
@@ -118,50 +118,50 @@ export class TraitTy extends StorageMembersOwnerTy<Trait> {}
 export class ContractTy extends StorageMembersOwnerTy<Contract> {}
 
 export class BouncedTy implements Ty {
-    constructor(public innerTy: Ty) {}
+    public constructor(public innerTy: Ty) {}
 
-    name(): string {
+    public name(): string {
         return `bounced<${this.innerTy.name()}>`
     }
 
-    qualifiedName(): string {
+    public qualifiedName(): string {
         return `bounced<${this.innerTy.qualifiedName()}>`
     }
 }
 
 export class OptionTy implements Ty {
-    constructor(public innerTy: Ty) {}
+    public constructor(public innerTy: Ty) {}
 
-    name(): string {
+    public name(): string {
         return `${this.innerTy.name()}?`
     }
 
-    qualifiedName(): string {
+    public qualifiedName(): string {
         return `${this.innerTy.qualifiedName()}?`
     }
 }
 
 export class MapTy implements Ty {
-    constructor(
+    public constructor(
         public keyTy: Ty,
         public valueTy: Ty,
     ) {}
 
-    name(): string {
+    public name(): string {
         return `map<${this.keyTy.name()}, ${this.valueTy.name()}>`
     }
 
-    qualifiedName(): string {
+    public qualifiedName(): string {
         return `map<${this.keyTy.qualifiedName()}, ${this.valueTy.qualifiedName()}>`
     }
 }
 
 export class NullTy implements Ty {
-    name(): string {
+    public name(): string {
         return "null"
     }
 
-    qualifiedName(): string {
+    public qualifiedName(): string {
         return "null"
     }
 }

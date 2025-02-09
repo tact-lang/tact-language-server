@@ -1,11 +1,11 @@
 import * as vscode from "vscode"
 import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import {TestCase} from "./TestParser"
+import type {TestCase} from "./TestParser"
 
 suite("Completion Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        async getCompletions(
+        public async getCompletions(
             input: string,
             triggerCharacter?: string,
         ): Promise<vscode.CompletionList> {
@@ -64,8 +64,8 @@ suite("Completion Test Suite", () => {
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("completion")

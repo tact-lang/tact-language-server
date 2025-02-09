@@ -17,11 +17,11 @@ export abstract class BaseTestSuite {
     protected testFilePath!: string
     protected updates: TestUpdate[] = []
 
-    async suiteSetup() {
+    public async suiteSetup() {
         await activate()
     }
 
-    async setup() {
+    public async setup() {
         this.testFilePath = path.join(__dirname, "../../../test-workspace/test.tact")
         const testDir = path.dirname(this.testFilePath)
         await fs.promises.mkdir(testDir, {recursive: true})
@@ -32,7 +32,7 @@ export abstract class BaseTestSuite {
         this.editor = await vscode.window.showTextDocument(this.document)
     }
 
-    async teardown() {
+    public async teardown() {
         await vscode.commands.executeCommand("workbench.action.closeActiveEditor")
         try {
             await fs.promises.unlink(this.testFilePath)
@@ -72,7 +72,7 @@ export abstract class BaseTestSuite {
         return positions
     }
 
-    suiteTeardown() {
+    public suiteTeardown() {
         const fileUpdates: Map<string, TestUpdate[]> = new Map()
 
         for (const update of this.updates) {
@@ -88,7 +88,7 @@ export abstract class BaseTestSuite {
         return true
     }
 
-    runTestsFromDirectory(directory: string) {
+    public runTestsFromDirectory(directory: string) {
         const testCasesPath = path.join(
             __dirname,
             "..",

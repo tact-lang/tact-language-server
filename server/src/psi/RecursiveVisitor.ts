@@ -1,7 +1,7 @@
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 
 export class RecursiveVisitor {
-    static visit(node: SyntaxNode | null, visitor: (node: SyntaxNode) => void) {
+    public static visit(node: SyntaxNode | null, visitor: (node: SyntaxNode) => void) {
         if (!node) return
         visitor(node)
         node.children.forEach(child => {
