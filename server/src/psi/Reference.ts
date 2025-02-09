@@ -312,13 +312,20 @@ export class Reference {
             }
         }
 
-        if (!this.processBlock(proc, state)) return false
-
         if (parent?.type === "asm_arrangement_args") {
             // `asm(cell self) extends fun storeRef(self: Builder, cell: Cell): Builder`
             //           ^^^^ this
             return this.resolveAsmArrangementArgs(parent, proc, state)
         }
+
+        if (parent?.type === "static_call_expression") {
+            // let context = context();
+            // context();
+            // ^^^^^^^ resolve only as global symbol
+            return this.processAllEntities(proc, state)
+        }
+
+        if (!this.processBlock(proc, state)) return false
 
         return this.processAllEntities(proc, state)
     }
