@@ -1149,6 +1149,22 @@
         },
         {
           "type": "FIELD",
+          "name": "_completion_anchor",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "identifier"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
+        },
+        {
+          "type": "FIELD",
           "name": "tlb",
           "content": {
             "type": "CHOICE",

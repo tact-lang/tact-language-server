@@ -37,12 +37,14 @@ export class TlbSerializationCompletionProvider implements CompletionProvider {
         const type = field.typeNode()?.type()
         if (!type) return
 
+        const semicolonPart = !ctx.beforeSemicolon ? ";" : ""
+
         const typeName = type.name()
         if (typeName === "Cell" || typeName === "Slice" || typeName === "Builder") {
             result.add({
                 label: "remaining",
                 kind: CompletionItemKind.Keyword,
-                insertText: "remaining",
+                insertText: `remaining${semicolonPart}`,
                 weight: CompletionWeight.CONTEXT_ELEMENT,
             })
             return
@@ -54,7 +56,9 @@ export class TlbSerializationCompletionProvider implements CompletionProvider {
                     label: type,
                     kind: CompletionItemKind.Keyword,
                     insertTextFormat: InsertTextFormat.Snippet,
-                    insertText: type.includes("{X}") ? type.replace("{X}", "$1") : type,
+                    insertText: type.includes("{X}")
+                        ? type.replace("{X}", "$1")
+                        : type + semicolonPart,
                     weight: CompletionWeight.CONTEXT_ELEMENT,
                 })
             }
