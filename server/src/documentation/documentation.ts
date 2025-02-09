@@ -254,7 +254,7 @@ function extractCommentsDoc(node: NamedNode): string {
             continue
         }
 
-        const isEndOfSentence = /[.!?:]$/.test(line)
+        const isEndOfSentence = /[!.:?]$/.test(line)
         const isList = line.startsWith("-") || line.startsWith("*")
         const isHeader = line.startsWith("#")
         const isTable = line.startsWith("|")

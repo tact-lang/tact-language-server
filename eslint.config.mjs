@@ -31,7 +31,7 @@ export default tseslint.config(
     },
 
     tseslint.configs.all,
-    unicornPlugin.configs["flat/recommended"],
+    unicornPlugin.configs["flat/all"],
 
     {
         languageOptions: {
@@ -120,6 +120,8 @@ export default tseslint.config(
             // "unicorn/prefer-at": "off",
             // "unicorn/prefer-math-min-max": "off",
             // "unicorn/no-array-reduce": "off",
+            "unicorn/no-keyword-prefix": "off",
+            "unicorn/prefer-json-parse-buffer": "off",
         },
     },
 )
