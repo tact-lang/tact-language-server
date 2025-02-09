@@ -148,22 +148,30 @@ export class FillStructInitBase implements Intention {
 
         if (type instanceof PrimitiveTy) {
             switch (type.name()) {
-                case "Int":
+                case "Int": {
                     return "0"
-                case "Bool":
+                }
+                case "Bool": {
                     return "false"
-                case "Address":
+                }
+                case "Address": {
                     return "sender()"
-                case "Cell":
+                }
+                case "Cell": {
                     return "emptyCell()"
-                case "Builder":
+                }
+                case "Builder": {
                     return "beginCell()"
-                case "Slice":
+                }
+                case "Slice": {
                     return "emptySlice()"
-                case "String":
+                }
+                case "String": {
                     return `""`
-                case "StringBuilder":
+                }
+                case "StringBuilder": {
                     return `beginString()`
+                }
             }
         }
 

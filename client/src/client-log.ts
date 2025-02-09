@@ -14,7 +14,9 @@ export function createClientLog(): vscode.OutputChannel {
 }
 
 export function consoleError(...items: unknown[]) {
-    consoleLogChannel?.appendLine("[ERROR] " + items.map(itemToString).join(" "))
+    consoleLogChannel?.appendLine(
+        "[ERROR] " + items.map(element => itemToString(element)).join(" "),
+    )
 }
 
 function itemToString(item: unknown): string {
@@ -28,7 +30,7 @@ function itemToString(item: unknown): string {
     if (typeof item === "object") {
         try {
             return JSON.stringify(item, null, 2)
-        } catch (error) {
+        } catch {
             return item.toString()
         }
     }

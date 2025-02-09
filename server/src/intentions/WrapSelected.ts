@@ -107,7 +107,8 @@ export class WrapSelected implements Intention {
 
         const diff = FileDiff.forFile(ctx.file.uri)
         const firstStmt = statements[0]
-        const lastStmt = statements[statements.length - 1]
+        const lastStmt = statements.at(-1)
+        if (!lastStmt) return null
 
         const indentCount = this.findIndent(ctx, firstStmt)
         const indent = " ".repeat(indentCount)

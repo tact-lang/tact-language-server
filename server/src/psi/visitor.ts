@@ -6,10 +6,8 @@ class TreeWalker {
     constructor(private readonly cursor: TreeCursor) {}
 
     next(): SyntaxNode | null {
-        if (!this.alreadyVisitedChildren) {
-            if (this.cursor.gotoFirstChild()) {
-                this.alreadyVisitedChildren = false
-            } else if (this.cursor.gotoNextSibling()) {
+        if (this.alreadyVisitedChildren) {
+            if (this.cursor.gotoNextSibling()) {
                 this.alreadyVisitedChildren = false
             } else {
                 if (!this.cursor.gotoParent()) {
@@ -19,7 +17,9 @@ class TreeWalker {
                 return this.next()
             }
         } else {
-            if (this.cursor.gotoNextSibling()) {
+            if (this.cursor.gotoFirstChild()) {
+                this.alreadyVisitedChildren = false
+            } else if (this.cursor.gotoNextSibling()) {
                 this.alreadyVisitedChildren = false
             } else {
                 if (!this.cursor.gotoParent()) {

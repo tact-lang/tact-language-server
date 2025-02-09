@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import * as assert from "assert"
+import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import {TextDocumentPositionParams} from "vscode-languageserver"
 import {TestCase} from "./TestParser"
@@ -8,7 +8,7 @@ suite("References Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
         async getReferences(input: string): Promise<[vscode.Location[], string][]> {
             const caretIndexes = this.findCaretPositions(input)
-            if (caretIndexes.length == 0) {
+            if (caretIndexes.length === 0) {
                 throw new Error("No <caret> marker found in input")
             }
 
@@ -85,7 +85,7 @@ suite("References Test Suite", () => {
     })()
 
     suiteSetup(async function () {
-        this.timeout(10000)
+        this.timeout(10_000)
         await testSuite.suiteSetup()
     })
 

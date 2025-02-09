@@ -961,11 +961,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         if (callNode.type === "instance_expression") return null // don't show any signature helps
 
         if (callNode.type === "instance_argument_list" || callNode.type === "instance_argument") {
-            let name = callNode.childForFieldName("name")
-                ? callNode.childForFieldName("name")
-                : hoverNode.type === "instance_argument"
-                  ? hoverNode.firstChild
-                  : hoverNode.previousNamedSibling
+            let name =
+                callNode.childForFieldName("name") ??
+                (hoverNode.type === "instance_argument"
+                    ? hoverNode.firstChild
+                    : hoverNode.previousNamedSibling)
 
             if (!name) return null
             if (name.type === "instance_argument") {
@@ -1440,9 +1440,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 }
 
                 if (element instanceof Contract) {
-                    children.push(...element.ownConstants())
-                    children.push(...element.ownFields())
-                    children.push(...element.ownMethods())
+                    children.push(
+                        ...element.ownConstants(),
+                        ...element.ownFields(),
+                        ...element.ownMethods(),
+                    )
 
                     const initFunction = element.initFunction()
                     if (initFunction) {
@@ -1458,9 +1460,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 }
 
                 if (element instanceof Trait) {
-                    children.push(...element.ownConstants())
-                    children.push(...element.ownFields())
-                    children.push(...element.ownMethods())
+                    children.push(
+                        ...element.ownConstants(),
+                        ...element.ownFields(),
+                        ...element.ownMethods(),
+                    )
 
                     addMessageFunctions(element, additionalChildren)
                 }
@@ -1569,7 +1573,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 codeActionKinds: [lsp.CodeActionKind.QuickFix],
             },
             executeCommandProvider: {
-                commands: [...["tact/executeGetScopeProvider"], ...intentions.map(it => it.id)],
+                commands: ["tact/executeGetScopeProvider", ...intentions.map(it => it.id)],
             },
         },
     }

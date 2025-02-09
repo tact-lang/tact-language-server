@@ -36,7 +36,7 @@ export class TestParser {
             const line = l.trimEnd()
 
             switch (state) {
-                case ParserState.WaitingForTestStart:
+                case ParserState.WaitingForTestStart: {
                     if (line === SEPARATOR) {
                         state = ParserState.ReadingProperties
                         currentTest = {
@@ -45,20 +45,20 @@ export class TestParser {
                         }
                     }
                     break
-
-                case ParserState.ReadingProperties:
+                }
+                case ParserState.ReadingProperties: {
                     if (
                         line.startsWith("@") &&
                         currentTest.properties &&
                         currentTest.propertiesOrder
                     ) {
-                        const propertyLine = line.substring(1) // remove @
+                        const propertyLine = line.slice(1) // remove @
                         const spaceIndex = propertyLine.indexOf(" ")
                         if (spaceIndex !== -1) {
-                            const key = propertyLine.substring(0, spaceIndex)
+                            const key = propertyLine.slice(0, spaceIndex)
                             currentTest.properties.set(
                                 key,
-                                propertyLine.substring(spaceIndex + 1).trim(),
+                                propertyLine.slice(spaceIndex + 1).trim(),
                             )
                             currentTest.propertiesOrder.push(key)
                         }
@@ -67,15 +67,15 @@ export class TestParser {
                         state = ParserState.ReadingName
                     }
                     break
-
-                case ParserState.ReadingName:
+                }
+                case ParserState.ReadingName: {
                     if (line === SEPARATOR) {
                         state = ParserState.ReadingInput
                         currentContent = ""
                     }
                     break
-
-                case ParserState.ReadingInput:
+                }
+                case ParserState.ReadingInput: {
                     if (line === THIN_SEPARATOR) {
                         currentTest.input = currentContent.trim()
                         state = ParserState.ReadingExpected
@@ -84,8 +84,8 @@ export class TestParser {
                         currentContent += line + "\n"
                     }
                     break
-
-                case ParserState.ReadingExpected:
+                }
+                case ParserState.ReadingExpected: {
                     if (line === SEPARATOR) {
                         currentTest.expected = currentContent.trim()
                         tests.push(currentTest as TestCase)
@@ -99,6 +99,7 @@ export class TestParser {
                         currentContent += line + "\n"
                     }
                     break
+                }
             }
         }
 
@@ -128,10 +129,7 @@ export class TestParser {
                 newContent.push(`@${key} ${test.properties.get(key)}`)
             }
 
-            newContent.push(test.name)
-            newContent.push(SEPARATOR)
-            newContent.push(test.input)
-            newContent.push(THIN_SEPARATOR)
+            newContent.push(test.name, SEPARATOR, test.input, THIN_SEPARATOR)
 
             const update = updates.find(u => u.testName === test.name)
             newContent.push(update ? update.actual : test.expected)

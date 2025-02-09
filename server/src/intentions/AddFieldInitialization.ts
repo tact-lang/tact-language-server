@@ -155,7 +155,7 @@ export class AddFieldInitialization implements Intention {
         // }
         //
         // line to add here will be line of `const FOO: Int = 10;`
-        const lineToAdd = lines.reduce((prev, cur) => (cur > prev ? cur : prev), 0)
+        const lineToAdd = Math.max(...lines)
 
         diff.appendAsNextLine(lineToAdd, actualText)
         return diff.toWorkspaceEdit()

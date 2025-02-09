@@ -1,5 +1,5 @@
-import * as cp from "child_process"
-import * as path from "path"
+import * as cp from "node:child_process"
+import * as path from "node:path"
 
 interface CompilerError {
     line: number
@@ -36,8 +36,8 @@ export class TactCompiler {
 
             const error: CompilerError = {
                 file,
-                line: parseInt(lineNum, 10) - 1,
-                character: parseInt(char, 10) - 1,
+                line: Number.parseInt(lineNum, 10) - 1,
+                character: Number.parseInt(char, 10) - 1,
                 message: contextFound ? fullMessage.trim() : rawMessage,
             }
 

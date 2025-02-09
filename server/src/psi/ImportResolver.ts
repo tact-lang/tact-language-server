@@ -1,8 +1,8 @@
 import {Node as SyntaxNode} from "web-tree-sitter"
-import * as path from "path"
+import * as path from "node:path"
 import {PARSED_FILES_CACHE} from "@server/index-root"
 import {File} from "./File"
-import {existsSync} from "fs"
+import {existsSync} from "node:fs"
 
 export class ImportResolver {
     static resolveImport(fromFile: File, importPath: string): File | null {
@@ -12,7 +12,7 @@ export class ImportResolver {
         }
 
         if (importPath.startsWith("@stdlib")) {
-            importPath = "./stdlib/std/" + importPath.substring("@stdlib".length + 1)
+            importPath = "./stdlib/std/" + importPath.slice("@stdlib".length + 1)
         }
 
         const resolved = importPath.startsWith("./") ? currentDir + importPath.slice(1) : importPath

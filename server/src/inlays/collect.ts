@@ -7,7 +7,7 @@ import {Field, Fun} from "@server/psi/Decls"
 import {CallLike, Expression, VarDeclaration} from "@server/psi/Node"
 import {MapTy} from "@server/types/BaseTy"
 import {findInstruction} from "@server/completion/data/types"
-import {createHash} from "crypto"
+import {createHash} from "node:crypto"
 
 export function collect(
     file: File,
@@ -147,7 +147,7 @@ export function collect(
                 if (message && args.length > 1) {
                     const content = message.text.slice(1, -1)
                     const buff = createHash("sha256").update(content).digest()
-                    const code = (buff.readUInt32BE(0) % 63000) + 1000
+                    const code = (buff.readUInt32BE(0) % 63_000) + 1000
 
                     const codeStr =
                         hints.exitCodeFormat === "hex"
@@ -168,7 +168,7 @@ export function collect(
             // skip self parameter
             const shift = type === "method_call_expression" && res.withSelf() ? 1 : 0
 
-            for (let i = 0; i < min(params.length - shift, args.length); i++) {
+            for (let i = 0; i < Math.min(params.length - shift, args.length); i++) {
                 const param = params[i + shift]
                 const arg = args[i]
                 const paramName = param.name()
@@ -260,8 +260,4 @@ export function collect(
     }
 
     return null
-}
-
-function min<T>(a: T, b: T): T {
-    return a < b ? a : b
 }

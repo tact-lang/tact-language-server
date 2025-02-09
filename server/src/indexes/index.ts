@@ -91,36 +91,44 @@ export class FileIndex {
 
     public elementByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K] | null {
         switch (key) {
-            case IndexKey.Contracts:
+            case IndexKey.Contracts: {
                 return this.findElement(this.elements[IndexKey.Contracts], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Funs:
+            }
+            case IndexKey.Funs: {
                 return this.findElement(this.elements[IndexKey.Funs], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Messages:
+            }
+            case IndexKey.Messages: {
                 return this.findElement(this.elements[IndexKey.Messages], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Structs:
+            }
+            case IndexKey.Structs: {
                 return this.findElement(this.elements[IndexKey.Structs], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Traits:
+            }
+            case IndexKey.Traits: {
                 return this.findElement(this.elements[IndexKey.Traits], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Primitives:
+            }
+            case IndexKey.Primitives: {
                 return this.findElement(this.elements[IndexKey.Primitives], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Constants:
+            }
+            case IndexKey.Constants: {
                 return this.findElement(this.elements[IndexKey.Constants], name) as
                     | IndexKeyToType[K]
                     | null
-            default:
+            }
+            default: {
                 return null
+            }
         }
     }
 

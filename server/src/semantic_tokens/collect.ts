@@ -85,16 +85,28 @@ export function collect(file: File): SemanticTokens {
             if (!resolved) return true
             const resolvedType = resolved.node.type
 
-            if (resolvedType === "parameter") {
-                pushToken(n, lsp.SemanticTokenTypes.parameter)
-            } else if (resolvedType === "field" || resolvedType === "storage_variable") {
-                pushToken(n, lsp.SemanticTokenTypes.property)
-            } else if (resolvedType === "constant" || resolvedType === "storage_constant") {
-                pushToken(n, lsp.SemanticTokenTypes.enumMember)
-            } else if (isNamedFunNode(resolved.node)) {
-                pushToken(n, lsp.SemanticTokenTypes.function)
-            } else if (resolved.node.parent?.type === "let_statement") {
-                pushToken(n, lsp.SemanticTokenTypes.variable)
+            switch (resolvedType) {
+                case "parameter": {
+                    pushToken(n, lsp.SemanticTokenTypes.parameter)
+                    break
+                }
+                case "field":
+                case "storage_variable": {
+                    pushToken(n, lsp.SemanticTokenTypes.property)
+                    break
+                }
+                case "constant":
+                case "storage_constant": {
+                    pushToken(n, lsp.SemanticTokenTypes.enumMember)
+                    break
+                }
+                default: {
+                    if (isNamedFunNode(resolved.node)) {
+                        pushToken(n, lsp.SemanticTokenTypes.function)
+                    } else if (resolved.node.parent?.type === "let_statement") {
+                        pushToken(n, lsp.SemanticTokenTypes.variable)
+                    }
+                }
             }
         }
 

@@ -7,7 +7,7 @@ import {
     ServerOptions,
     TransportKind,
 } from "vscode-languageclient/node"
-import * as path from "path"
+import * as path from "node:path"
 import {consoleError, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
@@ -108,24 +108,19 @@ function registerCommands(disposables: vscode.Disposable[]) {
                 await showReferencesImpl(client, uri, position)
             },
         ),
-    )
-
-    disposables.push(
         vscode.commands.registerCommand(
             "tact.showReferences",
             async (uri: string, position: Position, locations: Location[]) => {
                 if (!client) return
+                const thisClient = client
                 await vscode.commands.executeCommand(
                     "editor.action.showReferences",
                     vscode.Uri.parse(uri),
                     client.protocol2CodeConverter.asPosition(position),
-                    locations.map(client.protocol2CodeConverter.asLocation),
+                    locations.map(element => thisClient.protocol2CodeConverter.asLocation(element)),
                 )
             },
         ),
-    )
-
-    disposables.push(
         vscode.commands.registerCommand(
             GetTypeAtPositionRequest,
             async (params: GetTypeAtPositionParams | undefined) => {
@@ -163,9 +158,6 @@ function registerCommands(disposables: vscode.Disposable[]) {
                 return result
             },
         ),
-    )
-
-    disposables.push(
         vscode.commands.registerCommand(
             GetDocumentationAtPositionRequest,
             async (params: GetTypeAtPositionParams | undefined) => {

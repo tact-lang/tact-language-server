@@ -1,4 +1,4 @@
-import * as path from "path"
+import * as path from "node:path"
 import * as Mocha from "mocha"
 import {glob} from "glob"
 
@@ -6,7 +6,7 @@ export function run(): Promise<void> {
     const mocha = new Mocha({
         ui: "tdd",
         color: true,
-        timeout: 20000,
+        timeout: 20_000,
     })
 
     const testsRoot = path.resolve(__dirname, ".")
@@ -26,12 +26,12 @@ export function run(): Promise<void> {
                             resolve()
                         }
                     })
-                } catch (err) {
-                    reject(err instanceof Error ? err : new Error(String(err)))
+                } catch (error) {
+                    reject(error instanceof Error ? error : new Error(String(error)))
                 }
             })
-            .catch((err: unknown) => {
-                reject(err instanceof Error ? err : new Error(String(err)))
+            .catch((error: unknown) => {
+                reject(error instanceof Error ? error : new Error(String(error)))
             })
     })
 }
