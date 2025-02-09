@@ -6,16 +6,31 @@ import {TestCase} from "./TestParser"
 suite("Intentions Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
         async getCodeActions(input: string): Promise<vscode.CodeAction[]> {
-            const textWithoutCaret = input.replace("<caret>", "")
-            await this.replaceDocumentText(textWithoutCaret)
+            const selectionStart = input.indexOf("<selection>")
+            const selectionEnd = input.indexOf("</selection>")
 
-            const caretIndex = input.indexOf("<caret>")
-            if (caretIndex === -1) {
-                throw new Error("No <caret> marker found in input")
+            let range: vscode.Range
+            let textWithoutMarkers: string
+
+            if (selectionStart !== -1 && selectionEnd !== -1) {
+                textWithoutMarkers = input.replace("<selection>", "").replace("</selection>", "")
+                await this.replaceDocumentText(textWithoutMarkers)
+
+                const startPos = this.document.positionAt(selectionStart)
+                const endPos = this.document.positionAt(selectionEnd - "<selection>".length)
+                range = new vscode.Range(startPos, endPos)
+            } else {
+                textWithoutMarkers = input.replace("<caret>", "")
+                await this.replaceDocumentText(textWithoutMarkers)
+
+                const caretIndex = input.indexOf("<caret>")
+                if (caretIndex === -1) {
+                    throw new Error("No <caret> or <selection> markers found in input")
+                }
+
+                const position = this.document.positionAt(caretIndex)
+                range = new vscode.Range(position, position)
             }
-
-            const position = this.document.positionAt(caretIndex)
-            const range = new vscode.Range(position, position)
 
             return vscode.commands.executeCommand<vscode.CodeAction[]>(
                 "vscode.executeCodeActionProvider",
@@ -41,9 +56,21 @@ suite("Intentions Test Suite", () => {
                     return
                 }
 
-                assert.ok(actions.length > 0, "No code actions available")
+                let selectedAction = actions[0]
 
-                const command = actions[0].command
+                const intentionName = testCase.properties.get("intention")
+                if (intentionName) {
+                    const found = actions.find(action => action.title === intentionName)
+                    assert.ok(
+                        found,
+                        `Intention "${intentionName}" not found. Available intentions: ${actions
+                            .map(a => a.title)
+                            .join(", ")}`,
+                    )
+                    selectedAction = found
+                }
+
+                const command = selectedAction.command
                 if (!command || !command.arguments) throw new Error("No intention command")
 
                 await vscode.commands.executeCommand(
