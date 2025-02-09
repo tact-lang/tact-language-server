@@ -54,8 +54,8 @@
                     ".tact"
                 ],
                 "icon": {
-                    "light": "./icons/icon-light.svg",
-                    "dark": "./icons/icon-dark.svg"
+                    "light": "./dist/icons/icon-light.svg",
+                    "dark": "./dist/icons/icon-dark.svg"
                 },
                 "configuration": "./language-configuration.json"
             },
@@ -68,8 +68,8 @@
                     ".fif"
                 ],
                 "icon": {
-                    "light": "./icons/ton-icon.svg",
-                    "dark": "./icons/ton-icon.svg"
+                    "light": "./dist/icons/ton-icon.svg",
+                    "dark": "./dist/icons/ton-icon.svg"
                 },
                 "configuration": "./fift-language-configuration.json"
             }
