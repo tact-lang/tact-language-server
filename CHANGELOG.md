@@ -8,7 +8,6 @@ All notable changes to this project will be documented in this file.
 
 ### Improvements
 
-- use `vscode-tact` id by @i582 in https://github.com/tact-lang/tact-language-server/pull/37
 - chore: auto-insertion of `///` and concealment of `/**/` comments by @novusnota in https://github.com/tact-lang/tact-language-server/pull/93
 - feat(hover): show name of struct/message in hover documentation for fields/constants/functions by @i582 in https://github.com/tact-lang/tact-language-server/pull/95
 - feat(completion): take into account type of field inside default value completion by @i582 in https://github.com/tact-lang/tact-language-server/pull/100
@@ -67,6 +66,7 @@ All notable changes to this project will be documented in this file.
 
 ### Other
 
+- use `vscode-tact` id by @i582 in https://github.com/tact-lang/tact-language-server/pull/37
 - More eslint rules by @i582 in https://github.com/tact-lang/tact-language-server/pull/56
 - added `eslint` to the `husky` pre-hook by @Danil42Russia in https://github.com/tact-lang/tact-language-server/pull/134
 - feat(CI): add nightly builds by @i582 in https://github.com/tact-lang/tact-language-server/pull/142
