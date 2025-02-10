@@ -77,8 +77,6 @@ All notable changes to this project will be documented in this file.
 
 - @novusnota made their first contribution in https://github.com/tact-lang/tact-language-server/pull/93
 
-**Full Changelog**: https://github.com/tact-lang/tact-language-server/compare/v0.0.1-alpha...v0.0,1-alpha.2
-
 ## [0.0.1-alpha] - 2025-02-06
 
 Initial development release for alpha testers
