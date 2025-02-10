@@ -4,8 +4,6 @@ All notable changes to this project will be documented in this file.
 
 ## [0.0.1-alpha.2] - 2025-02-10
 
-## What's Changed
-
 ### Improvements
 
 - chore: auto-insertion of `///` and concealment of `/**/` comments by @novusnota in https://github.com/tact-lang/tact-language-server/pull/93
