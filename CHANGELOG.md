@@ -6,15 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Improvements
 
-- chore: auto-insertion of `///` and concealment of `/**/` comments by @novusnota in https://github.com/tact-lang/tact-language-server/pull/93
-- feat(inline-hints): show `as int257` for `Int` fields by @i582 in https://github.com/tact-lang/tact-language-server/pull/97
 - feat(definition): add go to definition for `initOf` keyword by @i582 in https://github.com/tact-lang/tact-language-server/pull/101
 - feat(references): add find references for `init` function by @i582 in https://github.com/tact-lang/tact-language-server/pull/104
 - feat(completion): add completion for `initOf` and contracts in it by @i582 in https://github.com/tact-lang/tact-language-server/pull/102
 - feat(completion): take into account type of field inside default value completion by @i582 in https://github.com/tact-lang/tact-language-server/pull/100
 - feat(completion): add `do` snippet by @i582 in https://github.com/tact-lang/tact-language-server/pull/106
 - feat(completion): add constant declaration completion in traits and contracts by @i582 in https://github.com/tact-lang/tact-language-server/pull/105
-- fix(inspections): fix unused inspection for `_` names by @i582 in https://github.com/tact-lang/tact-language-server/pull/107
 - feat(completion): add empty `receiver() {}` to completion by @i582 in https://github.com/tact-lang/tact-language-server/pull/108
 - feat(completion): add `external() {}` to completion by @i582 in https://github.com/tact-lang/tact-language-server/pull/111
 - feat(completion): add `bounced<>` to completion by @i582 in https://github.com/tact-lang/tact-language-server/pull/112
@@ -28,9 +25,6 @@ All notable changes to this project will be documented in this file.
 - feat(hover): show TL-B types in field documentation by @i582 in https://github.com/tact-lang/tact-language-server/pull/125
 - feat(hover): add documentation for TL-B types by @i582 in https://github.com/tact-lang/tact-language-server/pull/110
 - feat(hover): add documentation for receivers (`receive`, `bounced`, `external`) and `init()` constructor by @i582 in https://github.com/tact-lang/tact-language-server/pull/145
-- feat(inspections): add inspection for symbols from other files without explicit import by @i582 in https://github.com/tact-lang/tact-language-server/pull/129
-- feat(configuration): add configuration for all type hints, code lenses and inspections by @i582 in https://github.com/tact-lang/tact-language-server/pull/131
-- feat(workspace): show error message if stdlib not found by @i582 in https://github.com/tact-lang/tact-language-server/pull/132
 - feat(signature-help): add Signature help for `initOf` by @i582 in https://github.com/tact-lang/tact-language-server/pull/103
 - feat(signature-help): add signature help for struct/message fields by @i582 in https://github.com/tact-lang/tact-language-server/pull/135
 - feat(document-symbols): sort elements by position by @i582 in https://github.com/tact-lang/tact-language-server/pull/136
@@ -40,11 +34,16 @@ All notable changes to this project will be documented in this file.
 - feat(documentation): add `tact` as language of code blocks for better highlighting in Helix/Neovim by @i582 in https://github.com/tact-lang/tact-language-server/pull/139
 - feat(ci): add archive with LS to nightly releases by @i582 in https://github.com/tact-lang/tact-language-server/pull/147
 - feat(find-usages): add setting for "Find Usages" scope by @i582 in https://github.com/tact-lang/tact-language-server/pull/157
+- feat(vscode-language-configuration): auto-insertion of `///` and concealment of `/**/` comments by @novusnota in https://github.com/tact-lang/tact-language-server/pull/93
 - feat(vscode-language-configuration): add foldings of `// region: ` and `// endregion: ` and `colorizedBracketPairs` by @i582 in https://github.com/tact-lang/tact-language-server/pull/160
 - feat(intentions): initial intention to fill all/required struct/message fields by @i582 in https://github.com/tact-lang/tact-language-server/pull/133
 - feat(intention): add "Add explicit type" intention by @i582 in https://github.com/tact-lang/tact-language-server/pull/127
 - feat(intention): add initial implementation of intention to initialize field in `init()` by @i582 in https://github.com/tact-lang/tact-language-server/pull/164
 - feat(intention): add initial implementation of "wrap to" with try, try-catch and repeat by @i582 in https://github.com/tact-lang/tact-language-server/pull/165
+- feat(inline-hints): show `as int257` for `Int` fields by @i582 in https://github.com/tact-lang/tact-language-server/pull/97
+- feat(inspections): add inspection for symbols from other files without explicit import by @i582 in https://github.com/tact-lang/tact-language-server/pull/129
+- feat(configuration): add configuration for all type hints, code lenses and inspections by @i582 in https://github.com/tact-lang/tact-language-server/pull/131
+- feat(workspace): show error message if stdlib not found by @i582 in https://github.com/tact-lang/tact-language-server/pull/132
 
 ### Fixed
 
@@ -61,6 +60,7 @@ All notable changes to this project will be documented in this file.
 - fix(intention): don't do anything for "Fill in required fields..." if there are no such fields, or no fields to fill in at all by @i582 in https://github.com/tact-lang/tact-language-server/pull/162
 - fix(type-inference): for ternary expression with null branch by @i582 in https://github.com/tact-lang/tact-language-server/pull/141
 - fix(vscode-extension): fix Tact file icons by @i582 in https://github.com/tact-lang/tact-language-server/pull/168
+- fix(inspections): fix unused inspection for `_` names by @i582 in https://github.com/tact-lang/tact-language-server/pull/107
 
 ### Other
 
