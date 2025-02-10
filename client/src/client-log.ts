@@ -13,7 +13,7 @@ export function createClientLog(): vscode.OutputChannel {
     return consoleLogChannel
 }
 
-export function consoleError(...items: unknown[]) {
+export function consoleError(...items: unknown[]): void {
     consoleLogChannel?.appendLine(
         "[ERROR] " + items.map(element => itemToString(element)).join(" "),
     )

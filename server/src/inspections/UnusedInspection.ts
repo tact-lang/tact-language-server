@@ -25,7 +25,7 @@ export abstract class UnusedInspection {
             rangeNode?: SyntaxNode
             skipIf?: () => boolean
         },
-    ) {
+    ): void {
         if (!node || node.text === "_") return
 
         const references = new Referent(node, file).findReferences()

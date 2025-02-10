@@ -56,7 +56,6 @@ export default tseslint.config(
             "@typescript-eslint/unbound-method": "off",
             "@typescript-eslint/no-misused-promises": "off",
             "@typescript-eslint/no-extraneous-class": "off",
-            "@typescript-eslint/restrict-template-expressions": "off",
 
             "@typescript-eslint/prefer-readonly": "error",
             "@typescript-eslint/switch-exhaustiveness-check": "error",
@@ -73,7 +72,6 @@ export default tseslint.config(
             "@typescript-eslint/method-signature-style": "off",
             "@typescript-eslint/prefer-destructuring": "off",
             "@typescript-eslint/strict-boolean-expressions": "off",
-            "@typescript-eslint/explicit-module-boundary-types": "off",
             "@typescript-eslint/no-use-before-define": "off",
 
             "@typescript-eslint/class-methods-use-this": "off",
@@ -83,7 +81,6 @@ export default tseslint.config(
             "@typescript-eslint/max-params": "off",
             "@typescript-eslint/no-invalid-this": "off",
             "@typescript-eslint/init-declarations": "off",
-            "@typescript-eslint/prefer-enum-initializers": "off",
         },
     },
 )

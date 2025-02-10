@@ -28,7 +28,7 @@ export type WeightedCompletionItem = CompletionItem & {
 export class CompletionResult {
     public elements: WeightedCompletionItem[] = []
 
-    public add(...element: WeightedCompletionItem[]) {
+    public add(...element: WeightedCompletionItem[]): void {
         this.elements.push(...element)
     }
 
@@ -44,9 +44,10 @@ export class CompletionResult {
         let lastWeight = sorted[0].weight ?? 0
 
         sorted.forEach(item => {
-            if (lastWeight !== (item.weight as number)) {
+            const weight = item.weight as number
+            if (lastWeight !== weight) {
                 groupIndex++
-                lastWeight = item.weight as number
+                lastWeight = weight
             }
 
             item.sortText = groupIndex.toString()
