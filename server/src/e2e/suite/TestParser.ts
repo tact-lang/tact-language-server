@@ -10,11 +10,11 @@ export interface TestCase {
 }
 
 enum ParserState {
-    WaitingForTestStart,
-    ReadingProperties,
-    ReadingName,
-    ReadingInput,
-    ReadingExpected,
+    WaitingForTestStart = 0,
+    ReadingProperties = 1,
+    ReadingName = 2,
+    ReadingInput = 3,
+    ReadingExpected = 4,
 }
 
 const SEPARATOR = "========================================================================"

@@ -70,7 +70,7 @@ export class File {
         return imports.some(imp => imp.text.slice(1, -1) === filepath)
     }
 
-    public imports() {
+    public imports(): SyntaxNode[] {
         return this.tree.rootNode.children
             .filter(node => node !== null && node.type === "import")
             .filter(node => node !== null)

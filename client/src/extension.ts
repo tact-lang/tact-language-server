@@ -21,7 +21,7 @@ import type {ClientOptions} from "@shared/config-scheme"
 
 let client: LanguageClient | null = null
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
     startServer(context).catch(consoleError)
 }
 

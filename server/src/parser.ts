@@ -7,7 +7,7 @@ export const initParser = async (
     treeSitterUri: string,
     tactLangUri: string,
     fiftLangUri: string,
-) => {
+): Promise<void> => {
     if (tactLanguage && fiftLanguage) {
         return
     }
@@ -21,13 +21,13 @@ export const initParser = async (
     fiftLanguage = await Language.load(fiftLangUri)
 }
 
-export function createTactParser() {
+export function createTactParser(): Parser {
     const parser = new Parser()
     parser.setLanguage(tactLanguage)
     return parser
 }
 
-export function createFiftParser() {
+export function createFiftParser(): Parser {
     const parser = new Parser()
     parser.setLanguage(fiftLanguage)
     return parser

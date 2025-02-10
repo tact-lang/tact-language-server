@@ -21,6 +21,6 @@ export function getClientConfiguration(): TactPluginConfigScheme {
     return cachedClientConfig
 }
 
-export function resetClientConfigCache() {
+export function resetClientConfigCache(): void {
     cachedClientConfig = null
 }

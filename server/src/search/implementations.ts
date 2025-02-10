@@ -53,7 +53,7 @@ export function superMethod(method: Fun): Fun | null {
     if (inheritTraits.length === 0) return null
 
     const superTraitWithFun = inheritTraits.find(t =>
-        t.methods().find(it => it.name() === method.name()),
+        t.methods().some(it => it.name() === method.name()),
     )
     if (!superTraitWithFun) return null
 
@@ -68,7 +68,7 @@ export function superField(field: Field): Field | null {
     if (inheritTraits.length === 0) return null
 
     const superTraitWithField = inheritTraits.find(t =>
-        t.fields().find(it => it.name() === field.name()),
+        t.fields().some(it => it.name() === field.name()),
     )
     if (!superTraitWithField) return null
 
@@ -83,7 +83,7 @@ export function superConstant(constant: Constant): Constant | null {
     if (inheritTraits.length === 0) return null
 
     const superTraitWithConstant = inheritTraits.find(t =>
-        t.constants().find(it => it.name() === constant.name()),
+        t.constants().some(it => it.name() === constant.name()),
     )
     if (!superTraitWithConstant) return null
 

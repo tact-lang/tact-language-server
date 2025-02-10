@@ -21,7 +21,7 @@ export class IndexRoot {
         public kind: IndexRootKind,
     ) {}
 
-    public async index() {
+    public async index(): Promise<void> {
         const rootPath = this.root.slice(7)
 
         const ignore =
