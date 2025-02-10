@@ -47,7 +47,6 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- fixed resolving of inherited constants in https://github.com/tact-lang/tact-language-server/pull/45
 - fix(hover): LS hangs when calling hover documentation on `receive() {}` in https://github.com/tact-lang/tact-language-server/pull/96
 - fix(resolving): don't resolve variable before its declaration in https://github.com/tact-lang/tact-language-server/pull/118
 - fix(completion): fix completion of variants with the same name in https://github.com/tact-lang/tact-language-server/pull/119
@@ -55,6 +54,7 @@ All notable changes to this project will be documented in this file.
 - fix(completion): disable completion in variable declaration name in https://github.com/tact-lang/tact-language-server/pull/121
 - fix(completion): disable completion in all function declaration names in https://github.com/tact-lang/tact-language-server/pull/122
 - fix(completion): don't complete anything in parameters in https://github.com/tact-lang/tact-language-server/pull/156
+- fix(resolve) resolving of inherited constants in https://github.com/tact-lang/tact-language-server/pull/45
 - fix(resolve): inherit trait fields in child trait in https://github.com/tact-lang/tact-language-server/pull/99
 - fix(resolve): function call with same name variable in scope in https://github.com/tact-lang/tact-language-server/pull/159
 - fix(intention): don't do anything for "Fill in required fields..." if there are no such fields, or no fields to fill in at all in https://github.com/tact-lang/tact-language-server/pull/162
