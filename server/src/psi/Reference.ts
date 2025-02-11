@@ -179,10 +179,15 @@ export class Reference {
         if (qualifierType === null) return true
 
         if (qualifierType instanceof StructTy || qualifierType instanceof MessageTy) {
-            const node = index.elementByName(IndexKey.Primitives, "AnyStruct")
-            if (node) {
-                const structPrimitiveTy = new PrimitiveTy("AnyStruct", node, null)
+            const nodeStruct = index.elementByName(IndexKey.Primitives, "Struct")
+            if (nodeStruct) {
+                const structPrimitiveTy = new PrimitiveTy("Struct", nodeStruct, null)
                 if (!this.processType(qualifier, structPrimitiveTy, proc, state)) return false
+            }
+            const nodeMessage = index.elementByName(IndexKey.Primitives, "Message")
+            if (nodeMessage) {
+                const messagePrimitiveTy = new PrimitiveTy("Message", nodeMessage, null)
+                if (!this.processType(qualifier, messagePrimitiveTy, proc, state)) return false
             }
         }
 

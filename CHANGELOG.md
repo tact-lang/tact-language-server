@@ -44,6 +44,7 @@ All notable changes to this project will be documented in this file.
 - feat(inspections): add inspection for symbols from other files without explicit import in https://github.com/tact-lang/tact-language-server/pull/129
 - feat(configuration): add configuration for all type hints, code lenses and inspections in https://github.com/tact-lang/tact-language-server/pull/131
 - feat(workspace): show error message if stdlib not found in https://github.com/tact-lang/tact-language-server/pull/132
+- feat(documentation): add missing functions to `stubs/` and adjust the format to match the rest of other stdlib doc `///` comments in https://github.com/tact-lang/tact-language-server/pull/189
 
 ### Fixed
 
