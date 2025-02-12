@@ -1535,6 +1535,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             index.processElementsByKey(IndexKey.Primitives, proc, state)
             index.processElementsByKey(IndexKey.Constants, proc, state)
 
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            const _needed = TypeInferer.inferType
+
             return result
         },
     )
