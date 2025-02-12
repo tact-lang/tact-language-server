@@ -2,6 +2,7 @@ import path from "node:path"
 import tseslint from "typescript-eslint"
 import url from "node:url"
 import unusedImports from "eslint-plugin-unused-imports"
+import unicornPlugin from "eslint-plugin-unicorn"
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
@@ -30,6 +31,7 @@ export default tseslint.config(
     },
 
     tseslint.configs.all,
+    unicornPlugin.configs["flat/all"],
 
     {
         languageOptions: {
@@ -81,6 +83,24 @@ export default tseslint.config(
             "@typescript-eslint/max-params": "off",
             "@typescript-eslint/no-invalid-this": "off",
             "@typescript-eslint/init-declarations": "off",
+
+            // override unicorn
+            "unicorn/no-null": "off",
+            "unicorn/prevent-abbreviations": "off",
+            "unicorn/no-array-for-each": "off",
+            "unicorn/import-style": "off",
+            "unicorn/filename-case": "off",
+            "unicorn/consistent-function-scoping": "off",
+            "unicorn/no-nested-ternary": "off",
+            "unicorn/prefer-module": "off",
+            "unicorn/prefer-string-replace-all": "off",
+            "unicorn/no-process-exit": "off",
+            "unicorn/number-literal-case": "off", // prettier changes to lowercase
+            "unicorn/no-lonely-if": "off",
+            "unicorn/prefer-top-level-await": "off",
+            "unicorn/no-static-only-class": "off",
+            "unicorn/no-keyword-prefix": "off",
+            "unicorn/prefer-json-parse-buffer": "off",
         },
     },
 )
