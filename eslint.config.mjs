@@ -61,7 +61,6 @@ export default tseslint.config(
                     varsIgnorePattern: "^_",
                 },
             ],
-            "@typescript-eslint/unbound-method": "off",
             "@typescript-eslint/no-misused-promises": "off",
             "@typescript-eslint/no-extraneous-class": "off",
 

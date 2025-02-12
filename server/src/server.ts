@@ -1535,9 +1535,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    // noinspection JSUnusedLocalSymbols
-    const _needed = TypeInferer.inferType
-
     console.info("Tact language server is ready!")
 
     return {
