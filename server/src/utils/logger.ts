@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-base-to-string */
 import type {Connection} from "vscode-languageserver"
 import * as fs from "node:fs"
 import * as path from "node:path"
