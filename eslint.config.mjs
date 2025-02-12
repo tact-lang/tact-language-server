@@ -42,7 +42,7 @@ export default tseslint.config(
         },
 
         rules: {
-            // override stylisticTypeChecked
+            // override typescript-eslint
             "@typescript-eslint/no-empty-function": ["error", {allow: ["arrowFunctions"]}],
             "@typescript-eslint/no-inferrable-types": "off",
             "@typescript-eslint/typedef": [
@@ -50,9 +50,6 @@ export default tseslint.config(
                 {parameter: true, memberVariableDeclaration: true},
             ],
             "@typescript-eslint/consistent-generic-constructors": ["error", "type-annotation"],
-            "@typescript-eslint/prefer-optional-chain": "off",
-
-            // override strictTypeChecked
             "@typescript-eslint/no-unused-vars": [
                 "error",
                 {
@@ -61,19 +58,18 @@ export default tseslint.config(
                     varsIgnorePattern: "^_",
                 },
             ],
-            "@typescript-eslint/no-extraneous-class": "off",
-
-            // override all
-            "@typescript-eslint/no-magic-numbers": "off",
-            "@typescript-eslint/no-unsafe-type-assertion": "off",
-            "@typescript-eslint/prefer-readonly-parameter-types": "off",
-            "@typescript-eslint/member-ordering": "off",
             "@typescript-eslint/explicit-function-return-type": [
                 "error",
                 {
                     allowExpressions: true,
                 },
             ],
+            "@typescript-eslint/prefer-optional-chain": "off",
+            "@typescript-eslint/no-extraneous-class": "off",
+            "@typescript-eslint/no-magic-numbers": "off",
+            "@typescript-eslint/no-unsafe-type-assertion": "off",
+            "@typescript-eslint/prefer-readonly-parameter-types": "off",
+            "@typescript-eslint/member-ordering": "off",
             "@typescript-eslint/parameter-properties": "off",
             "@typescript-eslint/method-signature-style": "off",
             "@typescript-eslint/prefer-destructuring": "off",
