@@ -7,7 +7,7 @@ import {NamedNode} from "@server/psi/Node"
 import {FileDiff} from "@server/utils/FileDiff"
 import {Reference} from "@server/psi/Reference"
 import {Contract, Primitive} from "@server/psi/Decls"
-import {Node} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 
 export class AddImport implements Intention {
     public readonly id: string = "tact.add-import"
@@ -50,7 +50,7 @@ export class AddImport implements Intention {
     }
 }
 
-function nodeAtPosition(pos: Position, file: File): Node | null {
+function nodeAtPosition(pos: Position, file: File): SyntaxNode | null {
     const cursorPosition = asParserPoint(pos)
     return file.rootNode.descendantForPosition(cursorPosition)
 }

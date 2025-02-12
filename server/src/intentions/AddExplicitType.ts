@@ -5,7 +5,7 @@ import {asLspPosition, asParserPoint} from "@server/utils/position"
 import type {Position} from "vscode-languageclient"
 import {VarDeclaration} from "@server/psi/Node"
 import {FileDiff} from "@server/utils/FileDiff"
-import {Node} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 
 export class AddExplicitType implements Intention {
     public readonly id: string = "tact.add-explicit-type"
@@ -43,7 +43,7 @@ export class AddExplicitType implements Intention {
     }
 }
 
-function nodeAtPosition(pos: Position, file: File): Node | null {
+function nodeAtPosition(pos: Position, file: File): SyntaxNode | null {
     const cursorPosition = asParserPoint(pos)
     return file.rootNode.descendantForPosition(cursorPosition)
 }

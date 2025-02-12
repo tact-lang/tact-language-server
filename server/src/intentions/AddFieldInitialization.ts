@@ -7,7 +7,7 @@ import {FileDiff} from "@server/utils/FileDiff"
 import {Field, StorageMembersOwner} from "@server/psi/Decls"
 import type {Ty} from "@server/types/BaseTy"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
-import {Node} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 
 export class AddFieldInitialization implements Intention {
     public readonly id: string = "tact.add-field-to-init"
@@ -163,7 +163,7 @@ export class AddFieldInitialization implements Intention {
     }
 }
 
-function nodeAtPosition(pos: Position, file: File): Node | null {
+function nodeAtPosition(pos: Position, file: File): SyntaxNode | null {
     const cursorPosition = asParserPoint(pos)
     return file.rootNode.descendantForPosition(cursorPosition)
 }
