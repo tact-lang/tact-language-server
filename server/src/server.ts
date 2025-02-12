@@ -217,6 +217,7 @@ async function initialize() {
     initialized = true
 }
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 connection.onInitialized(async () => {
     await initialize()
 })
