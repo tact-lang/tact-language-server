@@ -53,7 +53,14 @@ export default tseslint.config(
             "@typescript-eslint/prefer-optional-chain": "off",
 
             // override strictTypeChecked
-            "@typescript-eslint/no-unused-vars": "off",
+            "@typescript-eslint/no-unused-vars": [
+                "error",
+                {
+                    argsIgnorePattern: "^_",
+                    caughtErrorsIgnorePattern: "^_",
+                    varsIgnorePattern: "^_",
+                },
+            ],
             "@typescript-eslint/no-base-to-string": "off",
             "@typescript-eslint/unbound-method": "off",
             "@typescript-eslint/no-misused-promises": "off",
