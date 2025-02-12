@@ -63,7 +63,6 @@ export default tseslint.config(
             ],
             "@typescript-eslint/no-extraneous-class": "off",
 
-            "@typescript-eslint/prefer-readonly": "error",
             "@typescript-eslint/switch-exhaustiveness-check": "error",
 
             "@unused-imports/no-unused-imports": "error",
