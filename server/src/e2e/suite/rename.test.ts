@@ -32,7 +32,7 @@ suite("Rename Test Suite", () => {
             return positions
         }
 
-        private async renameTo(position: vscode.Position, newName: string) {
+        private async renameTo(position: vscode.Position, newName: string): Promise<void> {
             const result = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
                 "vscode.executeDocumentRenameProvider",
                 this.document.uri,
@@ -45,7 +45,7 @@ suite("Rename Test Suite", () => {
             }
         }
 
-        protected runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase): void {
             test(`Rename: ${testCase.name}`, async () => {
                 const positions = this.findRenamePositions(testCase.input)
 

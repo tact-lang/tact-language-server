@@ -79,7 +79,7 @@ export function generateReceiverDoc(func: MessageFunction): string | null {
     return defaultResult(name, "", link)
 }
 
-function defaultResult(name: string, doc: string, link: string) {
+function defaultResult(name: string, doc: string, link: string): string {
     return (
         `${CODE_FENCE}tact\n${name} {}\n${CODE_FENCE}` +
         "\n" +

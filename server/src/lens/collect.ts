@@ -194,7 +194,7 @@ export function collect(
     return result
 }
 
-function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]) {
+function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]): void {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (file.fromStdlib || !file.fromStdlib) {
         // disabled for now

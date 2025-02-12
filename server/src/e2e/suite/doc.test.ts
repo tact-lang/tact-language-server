@@ -41,7 +41,7 @@ suite("Documentation Test Suite", () => {
             return (hover.contents as lsp.MarkupContent).value.trimEnd()
         }
 
-        protected runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase): void {
             test(`Documentation: ${testCase.name}`, async () => {
                 const hovers = await this.getHovers(testCase.input)
                 const actual = hovers

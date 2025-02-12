@@ -39,7 +39,7 @@ suite("Intentions Test Suite", () => {
             )
         }
 
-        protected runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase): void {
             test(`Intention: ${testCase.name}`, async () => {
                 const actions = await this.getCodeActions(testCase.input)
 

@@ -25,7 +25,7 @@ export class UnusedParameterInspection extends UnusedInspection implements Inspe
         })
     }
 
-    private inspectFunction(fun: Fun, diagnostics: lsp.Diagnostic[]) {
+    private inspectFunction(fun: Fun, diagnostics: lsp.Diagnostic[]): void {
         if (!fun.hasBody()) return
         const parameters = fun.parameters()
 

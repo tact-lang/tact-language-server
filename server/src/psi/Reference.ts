@@ -203,7 +203,7 @@ export class Reference {
         qualifierType: Ty | StructTy | MessageTy | TraitTy | ContractTy,
         proc: ScopeProcessor,
         state: ResolveState,
-    ) {
+    ): boolean {
         const methodRef = qualifier.node.parent?.type === "method_call_expression"
 
         if (!this.processTypeMethods(qualifierType, proc, state)) return false

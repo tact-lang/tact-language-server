@@ -33,7 +33,7 @@ class TreeWalker {
         return this.cursor.currentNode
     }
 
-    public skipChildren() {
+    public skipChildren(): void {
         this.alreadyVisitedChildren = true
     }
 }

@@ -81,7 +81,7 @@ export class Logger {
     }
 
     private static formatDate(date: Date): string {
-        const pad = (n: number) => n.toString().padStart(2, "0")
+        const pad = (n: number): string => n.toString().padStart(2, "0")
 
         const year = date.getFullYear().toString()
         const month = pad(date.getMonth() + 1)

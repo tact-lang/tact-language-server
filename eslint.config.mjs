@@ -68,7 +68,12 @@ export default tseslint.config(
             "@typescript-eslint/no-unsafe-type-assertion": "off",
             "@typescript-eslint/prefer-readonly-parameter-types": "off",
             "@typescript-eslint/member-ordering": "off",
-            "@typescript-eslint/explicit-function-return-type": "off",
+            "@typescript-eslint/explicit-function-return-type": [
+                "error",
+                {
+                    allowExpressions: true,
+                },
+            ],
             "@typescript-eslint/parameter-properties": "off",
             "@typescript-eslint/method-signature-style": "off",
             "@typescript-eslint/prefer-destructuring": "off",

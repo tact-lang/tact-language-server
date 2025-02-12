@@ -74,7 +74,7 @@ export class WrapSelected implements Intention {
         return this.findStatements(ctx).length > 0
     }
 
-    private static findIndent(ctx: IntentionContext, node: SyntaxNode) {
+    private static findIndent(ctx: IntentionContext, node: SyntaxNode): number {
         const lines = ctx.file.content.split(/\r?\n/)
         const line = lines[node.startPosition.row]
         const lineTrim = line.trimStart()

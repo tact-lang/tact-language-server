@@ -5,7 +5,7 @@ import {asLspPosition, asParserPoint} from "@server/utils/position"
 import type {Position} from "vscode-languageclient"
 import {FileDiff} from "@server/utils/FileDiff"
 import {parentOfType} from "@server/psi/utils"
-import type {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node, Node as SyntaxNode} from "web-tree-sitter"
 import {NamedNode} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
 import {
@@ -44,7 +44,7 @@ export class FillStructInitBase implements Intention {
         return args.length === 0
     }
 
-    private static findBraces(instance: SyntaxNode) {
+    private static findBraces(instance: SyntaxNode): {openBrace: Node; closeBrace: Node} | null {
         const args = instance.childForFieldName("arguments")
         if (!args) return null
 
@@ -54,7 +54,7 @@ export class FillStructInitBase implements Intention {
         return {openBrace, closeBrace}
     }
 
-    private static findIndent(ctx: IntentionContext, instance: SyntaxNode) {
+    private static findIndent(ctx: IntentionContext, instance: SyntaxNode): number {
         const lines = ctx.file.content.split(/\r?\n/)
         const line = lines[instance.startPosition.row]
         const lineTrim = line.trimStart()
@@ -201,7 +201,7 @@ export class FillRequiredStructInit extends FillStructInitBase {
     }
 }
 
-function nodeAtPosition(pos: Position, file: File) {
+function nodeAtPosition(pos: Position, file: File): Node | null {
     const cursorPosition = asParserPoint(pos)
     return file.rootNode.descendantForPosition(cursorPosition)
 }

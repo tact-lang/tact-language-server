@@ -19,7 +19,7 @@ export function collectFift(
 
     const builder = new SemanticTokensBuilder()
 
-    function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes) {
+    function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes): void {
         builder.push(
             n.startPosition.row,
             n.startPosition.column,

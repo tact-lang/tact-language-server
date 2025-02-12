@@ -128,7 +128,7 @@ let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
  */
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
-const showErrorMessage = (msg: string) => {
+const showErrorMessage = (msg: string): void => {
     void connection.sendNotification(lsp.ShowMessageNotification.type, {
         type: lsp.MessageType.Error,
         message: msg,
@@ -169,7 +169,7 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
     return stdlibPath
 }
 
-async function initialize() {
+async function initialize(): Promise<void> {
     if (!workspaceFolders || workspaceFolders.length === 0 || initialized) {
         // use fallback later, see `initializeFallback`
         return
@@ -241,7 +241,7 @@ function findConfigFileDir(startPath: string, fileName: string): string | null {
 
 // For some reason some editors (like Neovim) doesn't pass workspace folders to initialization.
 // So we need to find root first and then call initialize.
-async function initializeFallback(uri: string) {
+async function initializeFallback(uri: string): Promise<void> {
     // let's try to initialize with this way
     const projectDir = findConfigFileDir(path.dirname(uri.slice(7)), "tact.config.json")
     if (projectDir === null) {
@@ -372,7 +372,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         void connection.sendRequest(lsp.CodeLensRefreshRequest.type)
     })
 
-    function nodeAtPosition(params: lsp.TextDocumentPositionParams, file: File) {
+    function nodeAtPosition(params: lsp.TextDocumentPositionParams, file: File): SyntaxNode | null {
         const cursorPosition = asParserPoint(params.position)
         return file.rootNode.descendantForPosition(cursorPosition)
     }
@@ -859,7 +859,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const result = new Referent(highlightNode, file).findReferences(true, true, true)
             if (result.length === 0) return null
 
-            const usageKind = (value: Node) => {
+            const usageKind = (value: Node): lsp.DocumentHighlightKind => {
                 const parent = value.node.parent
                 if (
                     parent?.type === "assignment_statement" ||
@@ -1390,7 +1390,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             const result: lsp.DocumentSymbol[] = []
 
-            function symbolDetail(element: NamedNode | Fun | Field | Constant) {
+            function symbolDetail(element: NamedNode | Fun | Field | Constant): string {
                 if (element instanceof Fun) {
                     return element.signaturePresentation()
                 }
@@ -1421,7 +1421,10 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 }
             }
 
-            function addMessageFunctions(element: StorageMembersOwner, to: lsp.DocumentSymbol[]) {
+            function addMessageFunctions(
+                element: StorageMembersOwner,
+                to: lsp.DocumentSymbol[],
+            ): void {
                 const messageFunctions = element.messageFunctions()
                 messageFunctions.forEach(messageFunction => {
                     to.push({

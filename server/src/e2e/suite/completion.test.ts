@@ -29,7 +29,7 @@ suite("Completion Test Suite", () => {
             )
         }
 
-        protected runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase): void {
             test(`Completion: ${testCase.name}`, async () => {
                 const completions = await this.getCompletions(testCase.input, ".")
 

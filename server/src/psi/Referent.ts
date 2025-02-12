@@ -109,7 +109,7 @@ export class Referent {
         sameFileOnly: boolean,
         includeSelf: boolean,
         result: Node[],
-    ) {
+    ): void {
         if (!this.resolved) return
 
         if (scope instanceof LocalSearchScope) {
@@ -128,7 +128,7 @@ export class Referent {
         }
     }
 
-    private traverseTree(file: File, node: SyntaxNode, includeSelf: boolean, result: Node[]) {
+    private traverseTree(file: File, node: SyntaxNode, includeSelf: boolean, result: Node[]): void {
         const resolved = this.resolved
         if (!resolved) return
 

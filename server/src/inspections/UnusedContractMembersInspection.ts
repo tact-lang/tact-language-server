@@ -14,7 +14,7 @@ export class UnusedContractMembersInspection extends UnusedInspection implements
         })
     }
 
-    private inspectContract(contract: Contract, diagnostics: lsp.Diagnostic[]) {
+    private inspectContract(contract: Contract, diagnostics: lsp.Diagnostic[]): void {
         contract.ownFields().forEach(field => {
             const nameIdent = field.nameIdentifier()
             if (!nameIdent) return

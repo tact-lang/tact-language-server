@@ -28,7 +28,7 @@ export class PostfixCompletionProvider implements CompletionProvider {
         description: string,
         snippet: string,
         result: CompletionResult,
-    ) {
+    ): void {
         const expr = ctx.element.node.parent
         if (expr?.type !== "field_access_expression") return
         const object = expr.childForFieldName("object")
