@@ -22,7 +22,7 @@ export class StructInitializationInspection implements Inspection {
         return diagnostics
     }
 
-    private checkStructLiteral(node: SyntaxNode, diagnostics: lsp.Diagnostic[]) {
+    private checkStructLiteral(node: SyntaxNode, diagnostics: lsp.Diagnostic[]): void {
         const structName = node.childForFieldName("name")
         if (!structName) return
         const args = node.childForFieldName("arguments")

@@ -1,7 +1,7 @@
 import * as lsp from "vscode-languageserver"
 import {File} from "@server/psi/File"
 import {RecursiveVisitor} from "@server/psi/visitor"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {isNamedFunNode, parentOfType} from "@server/psi/utils"
 import {Fun, StorageMembersOwner, Struct, Trait} from "@server/psi/Decls"
 import {NamedNode} from "@server/psi/Node"
@@ -194,7 +194,7 @@ export function collect(
     return result
 }
 
-function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]) {
+function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]): void {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (file.fromStdlib || !file.fromStdlib) {
         // disabled for now

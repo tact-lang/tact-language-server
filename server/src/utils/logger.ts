@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-base-to-string */
 import type {Connection} from "vscode-languageserver"
 import * as fs from "node:fs"
 import * as path from "node:path"
@@ -80,7 +81,7 @@ export class Logger {
     }
 
     private static formatDate(date: Date): string {
-        const pad = (n: number) => n.toString().padStart(2, "0")
+        const pad = (n: number): string => n.toString().padStart(2, "0")
 
         const year = date.getFullYear().toString()
         const month = pad(date.getMonth() + 1)

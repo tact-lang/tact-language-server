@@ -1,7 +1,7 @@
 import {FoldingRange, FoldingRangeKind} from "vscode-languageserver-types"
 import {RecursiveVisitor} from "@server/psi/visitor"
 import type {File} from "@server/psi/File"
-import {Point} from "web-tree-sitter"
+import type {Point} from "web-tree-sitter"
 import type * as lsp from "vscode-languageserver"
 
 export function collectFift(file: File): FoldingRange[] {

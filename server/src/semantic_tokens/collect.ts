@@ -10,7 +10,7 @@ import {isNamedFunNode} from "@server/psi/utils"
 export function collect(file: File): SemanticTokens {
     const builder = new lsp.SemanticTokensBuilder()
 
-    function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes) {
+    function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes): void {
         builder.push(
             n.startPosition.row,
             n.startPosition.column,

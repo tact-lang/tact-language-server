@@ -65,7 +65,7 @@ suite("References Test Suite", () => {
                 .join("\n\n")
         }
 
-        protected runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase): void {
             test(`References: ${testCase.name}`, async () => {
                 const caretIndexes = this.findCaretPositions(testCase.input)
                 const positions = caretIndexes.map(index =>

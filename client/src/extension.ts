@@ -89,7 +89,7 @@ async function showReferencesImpl(
     client: LanguageClient | undefined,
     uri: string,
     position: Position,
-) {
+): Promise<void> {
     if (!client) return
     await vscode.commands.executeCommand(
         "editor.action.showReferences",
@@ -99,7 +99,7 @@ async function showReferencesImpl(
     )
 }
 
-function registerCommands(disposables: vscode.Disposable[]) {
+function registerCommands(disposables: vscode.Disposable[]): void {
     disposables.push(
         vscode.commands.registerCommand(
             "tact.showParent",

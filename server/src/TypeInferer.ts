@@ -346,13 +346,13 @@ export class TypeInferer {
         return null
     }
 
-    private primitiveType(name: string) {
+    private primitiveType(name: string): PrimitiveTy | null {
         const node = index.elementByName(IndexKey.Primitives, name)
         if (!node) return null
         return new PrimitiveTy(name, node, null)
     }
 
-    private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: Node) {
+    private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: Node): Ty | null {
         const inferred = this.inferType(new Expression(typeNode, resolved.file))
         if (inferred && !(inferred instanceof OptionTy) && typeNode.nextSibling?.text === "?") {
             return new OptionTy(inferred)
@@ -360,7 +360,7 @@ export class TypeInferer {
         return inferred
     }
 
-    private inferTypeMaybeTlB(typeNode: SyntaxNode, resolved: Node) {
+    private inferTypeMaybeTlB(typeNode: SyntaxNode, resolved: Node): Ty | null {
         const inferredType = this.inferTypeMaybeOption(typeNode, resolved)
         if (inferredType instanceof PrimitiveTy) {
             const tlb = resolved.node.childForFieldName("tlb")

@@ -14,7 +14,7 @@ export class MissedFieldInContractInspection extends UnusedInspection implements
         })
     }
 
-    private inspectContract(contract: Contract, diagnostics: lsp.Diagnostic[]) {
+    private inspectContract(contract: Contract, diagnostics: lsp.Diagnostic[]): void {
         const inheritedTraits = contract.inheritTraits()
         if (inheritedTraits.length === 0) return // nothing to check
 
