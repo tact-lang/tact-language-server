@@ -63,9 +63,7 @@ export default tseslint.config(
             ],
             "@typescript-eslint/no-extraneous-class": "off",
 
-            "@unused-imports/no-unused-imports": "error",
-            "no-duplicate-imports": "error",
-
+            // override all
             "@typescript-eslint/no-magic-numbers": "off",
             "@typescript-eslint/no-unsafe-type-assertion": "off",
             "@typescript-eslint/prefer-readonly-parameter-types": "off",
@@ -76,7 +74,6 @@ export default tseslint.config(
             "@typescript-eslint/prefer-destructuring": "off",
             "@typescript-eslint/strict-boolean-expressions": "off",
             "@typescript-eslint/no-use-before-define": "off",
-
             "@typescript-eslint/class-methods-use-this": "off",
             "@typescript-eslint/no-shadow": "off",
             "@typescript-eslint/consistent-type-imports": "off",
@@ -84,6 +81,9 @@ export default tseslint.config(
             "@typescript-eslint/max-params": "off",
             "@typescript-eslint/no-invalid-this": "off",
             "@typescript-eslint/init-declarations": "off",
+
+            "@unused-imports/no-unused-imports": "error",
+            "no-duplicate-imports": "error",
 
             // override unicorn
             "unicorn/no-null": "off",
