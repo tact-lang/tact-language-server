@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Improvements
+
+- feat(documentation): add missing functions to `stubs/` and adjust the format to match the rest of other stdlib doc `///` comments in https://github.com/tact-lang/tact-language-server/pull/189
+
+### Fixed
+
+### Other
+
 ## [0.1.0] - 2025-02-10
 
 ### Improvements
@@ -44,7 +54,6 @@ All notable changes to this project will be documented in this file.
 - feat(inspections): add inspection for symbols from other files without explicit import in https://github.com/tact-lang/tact-language-server/pull/129
 - feat(configuration): add configuration for all type hints, code lenses and inspections in https://github.com/tact-lang/tact-language-server/pull/131
 - feat(workspace): show error message if stdlib not found in https://github.com/tact-lang/tact-language-server/pull/132
-- feat(documentation): add missing functions to `stubs/` and adjust the format to match the rest of other stdlib doc `///` comments in https://github.com/tact-lang/tact-language-server/pull/189
 
 ### Fixed
 
@@ -74,7 +83,7 @@ All notable changes to this project will be documented in this file.
 - refactor: enable eslint all in https://github.com/tact-lang/tact-language-server/pull/170
 - refactor: enable more eslint rules in https://github.com/tact-lang/tact-language-server/pull/171
 
-## New Contributors
+### New Contributors
 
 - @novusnota made their first contribution in https://github.com/tact-lang/tact-language-server/pull/93
 
