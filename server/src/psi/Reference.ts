@@ -179,6 +179,36 @@ export class Reference {
         if (qualifierType === null) return true
 
         if (qualifierType instanceof StructTy || qualifierType instanceof MessageTy) {
+            if (qualifier.node.type === "identifier") {
+                const resolved = Reference.resolve(new NamedNode(qualifier.node, qualifier.file))
+                if (resolved instanceof Struct || resolved instanceof Message) {
+                    // found `Foo.fromCell` case
+                    const prefix = resolved instanceof Struct ? "AnyStruct_" : "AnyMessage_"
+
+                    const fromCellName = prefix + "fromCell"
+                    const fromCell = index.elementByName(IndexKey.Funs, fromCellName)
+                    if (fromCell) {
+                        const newState = state.withValue(
+                            "search-name",
+                            prefix + this.element.name(),
+                        )
+                        if (!proc.execute(fromCell, newState)) return false
+                    }
+
+                    const fromSliceName = prefix + "fromSlice"
+                    const fromSlice = index.elementByName(IndexKey.Funs, fromSliceName)
+                    if (fromSlice) {
+                        const newState = state.withValue(
+                            "search-name",
+                            prefix + this.element.name(),
+                        )
+                        if (!proc.execute(fromSlice, newState)) return false
+                    }
+
+                    return true
+                }
+            }
+
             const nodeStruct = index.elementByName(IndexKey.Primitives, "AnyStruct")
             if (nodeStruct) {
                 const structPrimitiveTy = new PrimitiveTy("AnyStruct", nodeStruct, null)
@@ -418,6 +448,13 @@ export class Reference {
                 public execute(node: Node, state: ResolveState): boolean {
                     if (!(node instanceof Fun)) return true
                     if (node.withSelf()) return true // don't add methods to unqualified completion
+                    if (
+                        node.name().startsWith("AnyStruct_") ||
+                        node.name().startsWith("AnyMessage_")
+                    ) {
+                        // this functions in fact static methods
+                        return true
+                    }
                     return proc.execute(node, state)
                 }
             })()

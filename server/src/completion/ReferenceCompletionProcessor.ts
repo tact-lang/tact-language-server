@@ -11,6 +11,7 @@ import {
 } from "@server/completion/WeightedCompletionItem"
 import {StructTy} from "@server/types/BaseTy"
 import {tactCodeBlock} from "@server/documentation/documentation"
+import {trimPrefix} from "@server/utils/strings"
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {
     public constructor(private readonly ctx: CompletionContext) {}
@@ -58,7 +59,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         if (!(node instanceof NamedNode)) return true
 
         const prefix = state.get("prefix") ?? ""
-        const name = node.name()
+        const name = trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyStruct_")
         if (name.endsWith("DummyIdentifier") || name === "AnyStruct" || name === "AnyMessage") {
             return true
         }
