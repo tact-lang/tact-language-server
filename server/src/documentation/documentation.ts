@@ -1,4 +1,4 @@
-import type {NamedNode} from "@server/psi/Node"
+import {NamedNode, Node} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
 import {Constant, Contract, Field, Fun, Message, Struct, Trait} from "@server/psi/Decls"
 import type {Node as SyntaxNode} from "web-tree-sitter"
@@ -220,7 +220,7 @@ export function generateDocFor(node: NamedNode): string | null {
     return null
 }
 
-function extractCommentsDoc(node: NamedNode): string {
+export function extractCommentsDoc(node: Node): string {
     const prevSibling = node.node.previousSibling
     if (!prevSibling || prevSibling.type !== "comment") return ""
 
