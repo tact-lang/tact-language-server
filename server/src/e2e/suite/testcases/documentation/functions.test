@@ -60,7 +60,7 @@ Gas: `~36`
 ```tact
 asm(self other) fun test() { b{00} PUSHSLICE }
 ```
-Gas: `~22`
+Gas: `22`
 
 ========================================================================
 Asm function documentation with one line body
@@ -149,7 +149,7 @@ Calculates and returns the so-called _original_ forward fee in nanoToncoins `Int
 
  Attempts to specify a negative value of `fwdFee` throw an exception with exit code 5: `Integer out of expected range`.
 
-
+ 
 ```tact
 fun example() {
     let fwdFee: Int = context().readForwardFee();

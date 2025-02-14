@@ -1,0 +1,107 @@
+========================================================================
+Completion inside asm function
+========================================================================
+asm fun test() {
+    <caret>
+}
+------------------------------------------------------------------------
+2  -ROLLX    18
+2  ABS x - |x|   26
+2  ACCEPT -   26
+2  ADD x y - x+y   18
+2  ADDCONST x - x+cc   26
+2  ADDDIVMOD x w z - q=floor((x+w)/z) r=(x+w)-zq   26
+2  ADDDIVMODC x w y - q=ceil((x+w)/z) r=(x+w)-zq   26
+2  ADDDIVMODR x w z - q=round((x+w)/z) r=(x+w)-zq   26
+2  ADDRAND x -    26
+2  ADDRSHIFTCMOD x w - q=round((x+w)/2^(tt+1)) r=(x+w)-q*2^(tt+1)   34
+2  ADDRSHIFTMOD x w z - q=floor((x+w)/2^z) r=(x+w)-q*2^z   26
+2  ADDRSHIFTMOD x w - q=floor((x+w)/2^(tt+1)) r=(x+w)-q*2^(tt+1)   34
+2  ADDRSHIFTMODC x w z - q=ceil((x+w)/2^z) r=(x+w)-q*2^z   26
+2  ADDRSHIFTMODR x w z - q=round((x+w)/2^z) r=(x+w)-q*2^z   26
+2  ADDRSHIFTRMOD x w - q=round((x+w)/2^(tt+1)) r=(x+w)-q*2^(tt+1)   34
+2  AGAIN c -    18
+2  AGAINBRK c -   26
+2  AGAINEND -   18
+2  AGAINENDBRK -   26
+2  AND x y - x&y   18
+2  ATEXIT c -    26
+2  ATEXITALT c -    26
+2  BALANCE - t
+2  BBITREFS b - x y   26
+2  BBITS b - x   26
+2  BCHKBITREFS b x y -    26/76
+2  BCHKBITREFSQ b x y - ?   26
+2  BCHKBITS b -   34/84
+2  BCHKBITSQ b - ?   34
+2  BCHKBITSQ_VAR b x - ?   26
+2  BCHKBITS_VAR b x -    26/76
+2  BCHKREFS b y -    26/76
+2  BCHKREFSQ b y - ?   26
+2  BDEPTH b - x   26
+2  BITSIZE x - c   26
+2  BLESS s - c   26
+2  BLESSARGS x_1...x_r s - c   26
+2  BLESSNUMARGSs - c
+2  BLESSVARARGS x_1...x_r s r n - c   26+s''
+2  BLKDROP    26
+2  BLKDROP2    26
+2  BLKPUSH    26
+2  BLKSWAP    26
+2  BLKSWX    18
+2  BLOCKLT - x
+2  BLS_AGGREGATE sig_1 ... sig_n n - sig   n*4350-2616
+2  BLS_AGGREGATEVERIFY pk_1 msg_1 ... pk_n msg_n n sgn - bool   38534+n*22500
+2  BLS_FASTAGGREGATEVERIFY pk_1 ... pk_n n msg sig - bool   58034+n*3000
+2  BLS_G1_ADD x y - x+y   3934
+2  BLS_G1_INGROUP x - bool   2984
+2  BLS_G1_ISZERO x - bool   34
+2  BLS_G1_MUL x s - x*s   5234
+2  BLS_G1_MULTIEXP x_1 s_1 ... x_n s_n n - x_1*s_1+...+x_n*s_n   11409+n*630+n/floor(max(log2(n),4))*8820
+2  BLS_G1_NEG x - -x   784
+2  BLS_G1_SUB x y - x-y   3934
+2  BLS_G1_ZERO - zero   34
+2  BLS_G2_ADD x y - x+y   6134
+2  BLS_G2_INGROUP x - bool   4284
+2  BLS_G2_ISZERO x - bool   34
+2  BLS_G2_MUL x s - x*s   10584
+2  BLS_G2_MULTIEXP x_1 s_1 ... x_n s_n n - x_1*s_1+...+x_n*s_n   30422+n*1280+n/floor(max(log2(n),4))*22840
+2  BLS_G2_NEG x - -x   1584
+2  BLS_G2_SUB x y - x-y   6134
+2  BLS_G2_ZERO - zero   34
+2  BLS_MAP_TO_G1 f - x   2384
+2  BLS_MAP_TO_G2 f - x   7984
+2  BLS_PAIRING x_1 y_1 ... x_n y_n n - bool   20034+n*11800
+2  BLS_PUSHR - r   34
+2  BLS_VERIFY pk msg sgn - bool   61034
+2  BOOLEVAL c - ?   26
+2  BRANCH f -    26
+2  BREFS b - y   26
+2  BREMBITREFS b - x' y'   26
+2  BREMBITS b - x'   26
+2  BREMREFS b - y'   26
+2  CADDRt - x
+2  CADRt - x
+2  CALLCC c -    26
+2  CALLCCARGS c -    34
+2  CALLCCVARARGS c p r -    26
+2  CALLDICT - nn   
+2  CALLDICT_LONG - n   
+2  CALLREF    126/51
+2  CALLXARGS c -    26
+2  CALLXARGS_VAR c -    26
+2  CALLXVARARGS c p r -    26
+2  CDATASIZE c n - x y z   
+2  CDATASIZEQ c n - x y z -1 or 0   
+2  CDDDRt - x
+2  CDDRt - x
+2  CDEPTH c - x   26
+2  CDEPTHI cell - depth   26
+2  CDEPTHIX cell i - depth   26
+2  CHANGELIB h x -    526
+2  CHASHI cell - hash   26
+2  CHASHIX cell i - hash   26
+2  CHKBITx - x
+2  CHKBOOLx - x
+2  CHKDEPTH i -   18/58
+2  CHKNAN x - x   18/68

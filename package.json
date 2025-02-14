@@ -169,6 +169,22 @@
                     "default": true,
                     "description": "Show gas consumption hints for assembly instructions"
                 },
+                "tact.hints.showPushcontGas": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show gas consumption hints for PUSHCONT blocks"
+                },
+                "tact.hints.gasFormat": {
+                    "type": "string",
+                    "default": ": {gas}",
+                    "description": "Format string for gas consumption hints. Use {gas} as placeholder for the gas value",
+                    "examples": [
+                        "💨 {gas}",
+                        "Gas: {gas}",
+                        "⛽ {gas}",
+                        "{gas} gas units"
+                    ]
+                },
                 "tact.hints.showExitCodes": {
                     "type": "boolean",
                     "default": true,

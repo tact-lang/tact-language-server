@@ -18,6 +18,8 @@ export interface TactSettings {
         showAsmInstructionGas: boolean
         showExitCodes: boolean
         showExplicitTLBIntType: boolean
+        gasFormat: string
+        showPushcontGas: boolean
     }
     codeLens: {
         enabled: boolean
@@ -64,6 +66,8 @@ const defaultSettings: TactSettings = {
         showAsmInstructionGas: true,
         showExitCodes: true,
         showExplicitTLBIntType: true,
+        gasFormat: ": {gas}",
+        showPushcontGas: true,
     },
     codeLens: {
         enabled: true,
@@ -119,6 +123,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             showExplicitTLBIntType:
                 vsSettings.hints?.showExplicitTLBIntType ??
                 defaultSettings.hints.showExplicitTLBIntType,
+            gasFormat: vsSettings.hints?.gasFormat ?? defaultSettings.hints.gasFormat,
+            showPushcontGas:
+                vsSettings.hints?.showPushcontGas ?? defaultSettings.hints.showPushcontGas,
         },
         codeLens: {
             enabled: vsSettings.codeLens?.enabled ?? defaultSettings.codeLens.enabled,

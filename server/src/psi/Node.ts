@@ -3,6 +3,7 @@ import {File} from "./File"
 import {Ty} from "@server/types/BaseTy"
 import {TypeInferer} from "@server/TypeInferer"
 import {Range} from "vscode-languageserver-textdocument"
+import {AsmInstruction, findInstruction} from "@server/completion/data/types"
 
 export class Node {
     public node: SyntaxNode
@@ -124,5 +125,17 @@ export class CallLike extends NamedNode {
         const node = this.node.childForFieldName("arguments")
         if (!node) return []
         return node.children.filter(it => it !== null)
+    }
+}
+
+export class AsmInstr extends NamedNode {
+    public arguments(): SyntaxNode[] {
+        const argsList = this.node.childForFieldName("arguments")
+        if (!argsList) return []
+        return argsList.children.filter(it => it !== null)
+    }
+
+    public info(): AsmInstruction | null {
+        return findInstruction(this.name(), this.arguments())
     }
 }

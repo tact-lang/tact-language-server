@@ -6,15 +6,17 @@ import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCom
 
 export class AsmInstructionCompletionProvider implements CompletionProvider {
     public isAvailable(ctx: CompletionContext): boolean {
-        return ctx.element.node.parent?.type === "tvm_ordinary_word"
+        return ctx.element.node.type === "tvm_instruction"
     }
 
     public addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
         const data = asmData()
 
         for (const instruction of data.instructions) {
+            const name = this.adjustName(instruction.mnemonic)
+
             result.add({
-                label: instruction.mnemonic,
+                label: name,
                 kind: CompletionItemKind.Function,
                 labelDetails: {
                     detail: " " + instruction.doc.stack,
@@ -33,5 +35,14 @@ export class AsmInstructionCompletionProvider implements CompletionProvider {
                 weight: CompletionWeight.CONTEXT_ELEMENT,
             })
         }
+    }
+
+    private adjustName(name: string): string {
+        if (name.startsWith("PUSHINT_")) return "PUSHINT"
+        if (name === "XCHG_0I") return "XCHG0"
+        if (name === "XCHG_IJ") return "XCHG"
+        if (name === "XCHG_0I_LONG") return "XCHG"
+        if (name === "XCHG_1I") return "XCHG"
+        return name
     }
 }

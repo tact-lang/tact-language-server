@@ -182,6 +182,10 @@ export class CompletionContext {
             this.inParameter = true
         }
 
+        if (parent.type === "asm_expression") {
+            this.isExpression = false
+        }
+
         if (parent.type === "ERROR" && parent.parent?.type.endsWith("_function")) {
             this.isExpression = false
             this.isStatement = false

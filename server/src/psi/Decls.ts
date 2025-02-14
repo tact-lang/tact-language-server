@@ -1,12 +1,12 @@
-import {Expression, NamedNode, Node} from "./Node"
+import {AsmInstr, Expression, NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
 import {index, IndexKey} from "@server/indexes"
 import {parentOfType} from "./utils"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {findInstruction} from "@server/completion/data/types"
 import {crc16} from "@server/utils/crc16"
 import {Position} from "vscode-languageclient"
 import {asLspPosition} from "@server/utils/position"
+import {computeGasConsumption, GasConsumption} from "@server/asm/gas"
 
 export class FieldsOwner extends NamedNode {
     public kind(): string {
@@ -357,49 +357,13 @@ export class Fun extends NamedNode {
             }
         }
 
-        const singleInstr = body.children.length === 3
-        let exact = true
-        let res = 0
+        const instructions = body.children
+            .filter(it => it?.type === "asm_expression")
+            .filter(it => it !== null)
+            .map(it => new AsmInstr(it, this.file))
 
-        for (const child of body.children) {
-            if (!child) continue
-
-            if (child.type !== "tvm_ordinary_word") continue
-            const name = child.text
-            const instr = findInstruction(name)
-            if (!instr || instr.doc.gas === "") {
-                exact = false
-                continue
-            }
-            if (instr.doc.gas.includes("|") || instr.doc.gas.includes("+")) {
-                exact = false
-            }
-            res += Number.parseInt(instr.doc.gas)
-        }
-
-        if (!exact && singleInstr) {
-            return {
-                value: 0,
-                unknown: true,
-                exact: false,
-                singleInstr: true,
-            }
-        }
-
-        return {
-            value: res,
-            unknown: false,
-            exact,
-            singleInstr: singleInstr,
-        }
+        return computeGasConsumption(instructions)
     }
-}
-
-export interface GasConsumption {
-    value: number
-    unknown: boolean
-    exact: boolean
-    singleInstr: boolean
 }
 
 export class Field extends NamedNode {

@@ -72,14 +72,19 @@ export function collect(file: File): SemanticTokens {
             return true
         }
 
-        if (type === "identifier") {
-            // asm fun foo() { ONE }
-            //                 ^^^ this
-            if (n.parent?.type === "tvm_ordinary_word") {
-                pushToken(n, lsp.SemanticTokenTypes.macro)
-                return true
-            }
+        // asm fun foo() { ONE }
+        //                 ^^^ this
+        if (type === "tvm_instruction") {
+            pushToken(n, lsp.SemanticTokenTypes.macro)
+            return true
+        }
 
+        if (type === "asm_stack_register") {
+            pushToken(n, lsp.SemanticTokenTypes.parameter)
+            return true
+        }
+
+        if (type === "identifier") {
             const element = new NamedNode(n, file)
             const resolved = Reference.resolve(element)
             if (!resolved) return true
