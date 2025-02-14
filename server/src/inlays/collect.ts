@@ -4,11 +4,11 @@ import type {File} from "@server/psi/File"
 import {TypeInferer} from "@server/TypeInferer"
 import {Reference} from "@server/psi/Reference"
 import {Field, Fun, InitFunction} from "@server/psi/Decls"
-import {CallLike, Expression, NamedNode, VarDeclaration} from "@server/psi/Node"
+import {AsmInstr, CallLike, Expression, NamedNode, VarDeclaration} from "@server/psi/Node"
 import {MapTy} from "@server/types/BaseTy"
-import {findInstruction} from "@server/completion/data/types"
 import {createHash} from "node:crypto"
 import type {Node as SyntaxNode} from "web-tree-sitter"
+import {computeGasConsumption, GasConsumption} from "@server/asm/gas"
 
 function processParameterHints(
     shift: number,
@@ -42,6 +42,28 @@ function processParameterHints(
     }
 }
 
+function getGasPresentation(gas: string | undefined, format: string): string {
+    if (!gas || gas === "") {
+        return ": no data"
+    }
+    return format.replace("{gas}", gas)
+}
+
+function calculatePushcontGas(instr: AsmInstr, file: File): GasConsumption | null {
+    const args = instr.arguments()
+    if (args.length === 0) return null
+
+    const arg = args[0]
+    if (arg.type !== "asm_sequence") return null
+
+    const instructions = arg.children
+        .filter(it => it?.type === "asm_expression")
+        .filter(it => it !== null)
+        .map(it => new AsmInstr(it, file))
+
+    return computeGasConsumption(instructions)
+}
+
 export function collect(
     file: File,
     hints: {
@@ -53,6 +75,8 @@ export function collect(
         showAsmInstructionGas: boolean
         showExitCodes: boolean
         showExplicitTLBIntType: boolean
+        gasFormat: string
+        showPushcontGas: boolean
     },
 ): InlayHint[] | null {
     if (!hints.types && !hints.parameters) return []
@@ -233,18 +257,39 @@ export function collect(
             return true
         }
 
-        if (type === "tvm_ordinary_word" && hints.showAsmInstructionGas) {
-            const instruction = findInstruction(n.text)
-            if (instruction) {
+        if (type === "asm_expression" && hints.showAsmInstructionGas) {
+            const instr = new AsmInstr(n, file)
+            const info = instr.info()
+
+            if (instr.name() === "PUSHCONT" && hints.showPushcontGas) {
+                const gas = calculatePushcontGas(instr, file)
+                if (!gas) return true
+
+                const openBrace = instr.arguments()[0].firstChild
+                if (!openBrace) return true
+
                 result.push({
                     kind: InlayHintKind.Type,
-                    label: instruction.doc.gas,
+                    label: getGasPresentation(gas.value.toString(), hints.gasFormat),
                     position: {
-                        line: n.endPosition.row,
-                        character: n.endPosition.column,
+                        line: openBrace.endPosition.row,
+                        character: openBrace.endPosition.column,
                     },
+                    paddingLeft: true,
                 })
             }
+
+            const gasPresentation = getGasPresentation(info?.doc.gas, hints.gasFormat)
+
+            result.push({
+                kind: InlayHintKind.Type,
+                label: gasPresentation,
+                position: {
+                    line: n.endPosition.row,
+                    character: n.endPosition.column,
+                },
+                paddingLeft: true,
+            })
             return true
         }
 

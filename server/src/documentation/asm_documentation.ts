@@ -12,12 +12,14 @@ export function generateAsmDoc(word: string): string | null {
 
     const instruction = data.instructions.find(i => i.mnemonic === upperWord)
     if (instruction) {
+        const stackInfo = instruction.doc.stack ? `- Stack: \`${instruction.doc.stack}\`` : ""
+
         const gas = instruction.doc.gas.length > 0 ? instruction.doc.gas : `unknown`
         return [
             "```",
             `${instruction.mnemonic} (${instruction.doc.category})`,
             "```",
-            `- Stack: \`${instruction.doc.stack}\``,
+            stackInfo,
             `- Gas: \`${gas}\``,
             "",
             instruction.doc.description,
@@ -31,13 +33,15 @@ export function generateAsmDoc(word: string): string | null {
 
     const alias = data.aliases.find(a => a.mnemonic === upperWord)
     if (alias) {
+        const stackInfo = alias.doc_stack ? `- Stack: \`${alias.doc_stack}\`` : ""
+
         const operandsStr = formatOperands(alias.operands)
         return [
             "```",
             alias.mnemonic,
             "```",
             `- Alias of: \`${operandsStr} ${alias.alias_of}\`\n`,
-            alias.doc_stack ? `- Stack: \`${alias.doc_stack}\`\n` : "",
+            stackInfo,
             "",
             alias.description ?? "",
             "",

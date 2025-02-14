@@ -5,7 +5,7 @@ import {asLspRange, asNullableLspRange, asParserPoint} from "@server/utils/posit
 import {TypeInferer} from "./TypeInferer"
 import {LocalSearchScope, Referent} from "@server/psi/Referent"
 import {index, IndexKey} from "./indexes"
-import {CallLike, Expression, NamedNode, Node} from "@server/psi/Node"
+import {AsmInstr, CallLike, Expression, NamedNode, Node} from "@server/psi/Node"
 import {Reference, ResolveState, ScopeProcessor} from "@server/psi/Reference"
 import {File} from "@server/psi/File"
 import {CompletionContext} from "./completion/CompletionContext"
@@ -377,9 +377,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         return file.rootNode.descendantForPosition(cursorPosition)
     }
 
-    connection.onRequest(lsp.HoverRequest.type, (params: lsp.HoverParams): lsp.Hover | null => {
-        const uri = params.textDocument.uri
-
+    function provideDocumentation(uri: string, params: lsp.HoverParams): lsp.Hover | null {
         if (uri.endsWith(".fif")) {
             const file = findFiftFile(uri)
             const hoverNode = nodeAtPosition(params, file)
@@ -414,9 +412,15 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
         }
 
-        const parent = hoverNode.parent
-        if (parent?.type === "tvm_ordinary_word") {
-            const doc = generateAsmDoc(hoverNode.text)
+        if (hoverNode.type === "tvm_instruction") {
+            const asmExpression = hoverNode.parent
+            if (!asmExpression) return null
+
+            const instr = new AsmInstr(asmExpression, file)
+            const actualName = instr.info()?.mnemonic
+            if (!actualName) return null
+
+            const doc = generateAsmDoc(actualName)
             if (doc === null) return null
 
             return {
@@ -428,6 +432,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
         }
 
+        const parent = hoverNode.parent
         if (parent?.type === "tlb_serialization") {
             const doc = generateTlBTypeDoc(hoverNode.text)
             if (doc === null) return null
@@ -510,6 +515,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 value: doc,
             },
         }
+    }
+
+    connection.onRequest(lsp.HoverRequest.type, (params: lsp.HoverParams): lsp.Hover | null => {
+        const uri = params.textDocument.uri
+        return provideDocumentation(uri, params)
     })
 
     connection.onRequest(
@@ -682,7 +692,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const cursorNode = tree.rootNode.descendantForPosition(cursorPosition)
             if (
                 cursorNode === null ||
-                (cursorNode.type !== "identifier" && cursorNode.type !== "type_identifier")
+                (cursorNode.type !== "identifier" &&
+                    cursorNode.type !== "type_identifier" &&
+                    cursorNode.type !== "tvm_instruction")
             ) {
                 return []
             }
@@ -1310,45 +1322,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     connection.onRequest(
         GetDocumentationAtPositionRequest,
         (params: GetTypeAtPositionParams): GetDocumentationAtPositionResponse | null => {
-            const file = findFile(params.textDocument.uri)
-            const hoverNode = nodeAtPosition(params, file)
-            if (!hoverNode) return null
-
-            const parent = hoverNode.parent
-            if (parent?.type === "tlb_serialization") {
-                const doc = generateTlBTypeDoc(hoverNode.text)
-                if (doc === null) return null
-
-                return {
-                    range: asLspRange(hoverNode),
-                    contents: {
-                        kind: "markdown",
-                        value: doc,
-                    },
-                }
-            }
-
-            const res = Reference.resolve(NamedNode.create(hoverNode, file))
-            if (res === null) {
-                return {
-                    range: asLspRange(hoverNode),
-                    contents: {
-                        kind: "plaintext",
-                        value: hoverNode.type,
-                    },
-                }
-            }
-
-            const doc = docs.generateDocFor(res)
-            if (doc === null) return null
-
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
+            const uri = params.textDocument.uri
+            return provideDocumentation(uri, params)
         },
     )
 

@@ -10,7 +10,7 @@ asm fun sum(two: AB): Int {
 primitive Int;
 
 asm fun sum(two: AB): Int {
-    ADD/* 18 */
+    ADD/* : 18 */
 }
 
 ========================================================================
@@ -26,8 +26,8 @@ asm fun push_two(x: Int) {
 primitive Int;
 
 asm fun push_two(x: Int) {/*   36 gas */
-    INC/* 18 */
-    INC/* 18 */
+    INC/* : 18 */
+    INC/* : 18 */
 }
 
 ========================================================================
@@ -39,4 +39,4 @@ asm fun bocchiThe(BOC: Cell): Cell { BOC }
 ------------------------------------------------------------------------
 primitive Int;
 
-asm fun bocchiThe(BOC: Cell): Cell { BOC }
+asm fun bocchiThe(BOC: Cell): Cell { BOC/* : no data */ }

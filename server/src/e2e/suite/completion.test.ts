@@ -2,13 +2,14 @@ import * as vscode from "vscode"
 import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import type {TestCase} from "./TestParser"
+import {CompletionItem} from "vscode"
 
 suite("Completion Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
         public async getCompletions(
             input: string,
             triggerCharacter?: string,
-        ): Promise<vscode.CompletionList> {
+        ): Promise<CompletionItem[]> {
             const textWithoutCaret = input.replace("<caret>", "")
             await this.replaceDocumentText(textWithoutCaret)
 
@@ -21,19 +22,23 @@ suite("Completion Test Suite", () => {
             this.editor.selection = new vscode.Selection(position, position)
             this.editor.revealRange(new vscode.Range(position, position))
 
-            return vscode.commands.executeCommand<vscode.CompletionList>(
+            const items = await vscode.commands.executeCommand<vscode.CompletionList>(
                 "vscode.executeCompletionItemProvider",
                 this.document.uri,
                 position,
                 triggerCharacter,
             )
+            if (items.items.length > 100) {
+                return items.items.slice(0, 100)
+            }
+            return items.items
         }
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Completion: ${testCase.name}`, async () => {
                 const completions = await this.getCompletions(testCase.input, ".")
 
-                const items = completions.items.map(item => {
+                const items = completions.map(item => {
                     const label = typeof item.label === "object" ? item.label.label : item.label
                     const details =
                         (typeof item.label === "object" ? item.label.detail : item.detail) ?? ""

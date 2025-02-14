@@ -298,12 +298,12 @@ export class Reference {
             if (!this.processType(expr, ownerTy, proc, newState)) return false
         }
 
-        const parent = this.element.node.parent
-        if (parent?.type === "tvm_ordinary_word") {
+        if (this.element.node.type === "tvm_instruction") {
             // don't try to resolve TVM assembly
             return true
         }
 
+        const parent = this.element.node.parent
         if (parent?.type === "instance_argument") {
             // `Foo { name: "" }`
             //        ^^^^^^^^ this

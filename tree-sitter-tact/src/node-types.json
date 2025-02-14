@@ -101,6 +101,49 @@
     }
   },
   {
+    "type": "asm_argument_list",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "asm_bin_bitstring",
+          "named": true
+        },
+        {
+          "type": "asm_boc_hex",
+          "named": true
+        },
+        {
+          "type": "asm_control_register",
+          "named": true
+        },
+        {
+          "type": "asm_hex_bitstring",
+          "named": true
+        },
+        {
+          "type": "asm_integer",
+          "named": true
+        },
+        {
+          "type": "asm_sequence",
+          "named": true
+        },
+        {
+          "type": "asm_stack_register",
+          "named": true
+        },
+        {
+          "type": "asm_string",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "asm_arrangement",
     "named": true,
     "fields": {
@@ -154,6 +197,37 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "asm_boc_hex",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "asm_expression",
+    "named": true,
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "asm_argument_list",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "tvm_instruction",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -247,15 +321,36 @@
       "required": false,
       "types": [
         {
-          "type": "tvm_literal",
-          "named": true
-        },
-        {
-          "type": "tvm_ordinary_word",
+          "type": "asm_expression",
           "named": true
         }
       ]
     }
+  },
+  {
+    "type": "asm_sequence",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "asm_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "asm_stack_register",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "asm_string",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "assignment_statement",
@@ -2539,66 +2634,6 @@
     }
   },
   {
-    "type": "tvm_boolean_literal",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "tvm_literal",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "tvm_boolean_literal",
-          "named": true
-        },
-        {
-          "type": "tvm_byte_hex_literal",
-          "named": true
-        },
-        {
-          "type": "tvm_number_literal",
-          "named": true
-        },
-        {
-          "type": "tvm_slice_binary_literal",
-          "named": true
-        },
-        {
-          "type": "tvm_slice_hex_literal",
-          "named": true
-        },
-        {
-          "type": "tvm_string_literal",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "tvm_number_literal",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "tvm_ordinary_word",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "unary_expression",
     "named": true,
     "fields": {
@@ -2743,6 +2778,10 @@
     "named": false
   },
   {
+    "type": "+\"",
+    "named": false
+  },
+  {
     "type": "+=",
     "named": false
   },
@@ -2764,6 +2803,10 @@
   },
   {
     "type": ".",
+    "named": false
+  },
+  {
+    "type": ".\"",
     "named": false
   },
   {
@@ -2792,6 +2835,10 @@
   },
   {
     "type": "<=",
+    "named": false
+  },
+  {
+    "type": "<{",
     "named": false
   },
   {
@@ -2835,6 +2882,10 @@
     "named": false
   },
   {
+    "type": "abort\"",
+    "named": false
+  },
+  {
     "type": "abstract",
     "named": false
   },
@@ -2845,6 +2896,22 @@
   {
     "type": "asm",
     "named": false
+  },
+  {
+    "type": "asm_bin_bitstring",
+    "named": true
+  },
+  {
+    "type": "asm_control_register",
+    "named": true
+  },
+  {
+    "type": "asm_hex_bitstring",
+    "named": true
+  },
+  {
+    "type": "asm_integer",
+    "named": true
   },
   {
     "type": "bounced",
@@ -3000,19 +3067,7 @@
     "named": false
   },
   {
-    "type": "tvm_byte_hex_literal",
-    "named": true
-  },
-  {
-    "type": "tvm_slice_binary_literal",
-    "named": true
-  },
-  {
-    "type": "tvm_slice_hex_literal",
-    "named": true
-  },
-  {
-    "type": "tvm_string_literal",
+    "type": "tvm_instruction",
     "named": true
   },
   {
@@ -3053,6 +3108,22 @@
   },
   {
     "type": "}",
+    "named": false
+  },
+  {
+    "type": "}>",
+    "named": false
+  },
+  {
+    "type": "}>CONT",
+    "named": false
+  },
+  {
+    "type": "}>c",
+    "named": false
+  },
+  {
+    "type": "}>s",
     "named": false
   },
   {
