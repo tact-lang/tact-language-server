@@ -230,3 +230,20 @@ contract Foo {
 0  Int
 0  primitive
 0  return
+
+========================================================================
+Completion of function return type
+========================================================================
+primitive Int;
+
+struct Bar {}
+struct Baz {}
+
+fun multiply(x: Int, y: Int): <caret> {
+    return x * y;
+}
+------------------------------------------------------------------------
+13 map<K, V>
+9  Int
+21 Bar
+21 Baz

@@ -173,7 +173,10 @@ export class CompletionContext {
             this.isStatement = false
         }
 
-        if (parent.type.endsWith("_function")) {
+        if (
+            parent.type.endsWith("_function") &&
+            parent.childForFieldName("name")?.equals(this.element.node)
+        ) {
             this.isExpression = false
             this.isStatement = false
             this.inParameter = true
