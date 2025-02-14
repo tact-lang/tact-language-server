@@ -1,15 +1,15 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind} from "vscode-languageserver-types"
-import {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionContext} from "@server/completion/CompletionContext"
 import {asmData} from "@server/completion/data/types"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class AsmInstructionCompletionProvider implements CompletionProvider {
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return ctx.element.node.parent?.type === "tvm_ordinary_word"
     }
 
-    addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
         const data = asmData()
 
         for (const instruction of data.instructions) {

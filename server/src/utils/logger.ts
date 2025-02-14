@@ -1,6 +1,7 @@
-import {Connection} from "vscode-languageserver"
-import * as fs from "fs"
-import * as path from "path"
+/* eslint-disable @typescript-eslint/no-base-to-string */
+import type {Connection} from "vscode-languageserver"
+import * as fs from "node:fs"
+import * as path from "node:path"
 
 export class Logger {
     private logFile: fs.WriteStream | null = null
@@ -10,7 +11,7 @@ export class Logger {
         private readonly connection: Connection,
         logPath?: string,
     ) {
-        if (logPath) {
+        if (logPath !== undefined) {
             const logDir = path.dirname(logPath)
             if (!fs.existsSync(logDir)) {
                 fs.mkdirSync(logDir, {recursive: true})
@@ -19,7 +20,7 @@ export class Logger {
         }
     }
 
-    static initialize(connection: Connection, logPath?: string): Logger {
+    public static initialize(connection: Connection, logPath?: string): Logger {
         if (!Logger.instance) {
             const instance = new Logger(connection, logPath)
 
@@ -41,15 +42,46 @@ export class Logger {
         return Logger.instance
     }
 
-    static getInstance(): Logger {
+    public static getInstance(): Logger {
         if (!Logger.instance) {
             throw new Error("Logger not initialized")
         }
         return Logger.instance
     }
 
-    private formatDate(date: Date): string {
-        const pad = (n: number) => n.toString().padStart(2, "0")
+    public log(...args: unknown[]): void {
+        const message = Logger.formatMessage(args)
+        this.connection.console.log(message)
+        this.writeToFile(`[LOG] [${Logger.formatDate(new Date())}] ${message}`)
+    }
+
+    public info(...args: unknown[]): void {
+        const message = Logger.formatMessage(args)
+        this.connection.console.info(message)
+        this.writeToFile(`[INFO] [${Logger.formatDate(new Date())}] ${message}`)
+    }
+
+    public warn(...args: unknown[]): void {
+        const message = Logger.formatMessage(args)
+        this.connection.console.warn(message)
+        this.writeToFile(`[WARN] [${Logger.formatDate(new Date())}] ${message}`)
+    }
+
+    public error(...args: unknown[]): void {
+        const message = Logger.formatMessage(args)
+        this.connection.console.error(message)
+        this.writeToFile(`[ERROR] [${Logger.formatDate(new Date())}] ${message}`)
+    }
+
+    public dispose(): void {
+        if (this.logFile) {
+            this.logFile.end()
+            this.logFile = null
+        }
+    }
+
+    private static formatDate(date: Date): string {
+        const pad = (n: number): string => n.toString().padStart(2, "0")
 
         const year = date.getFullYear().toString()
         const month = pad(date.getMonth() + 1)
@@ -61,47 +93,16 @@ export class Logger {
         return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`
     }
 
-    private formatMessage(args: unknown[]): string {
+    private static formatMessage(args: unknown[]): string {
         return args
             .filter(arg => arg !== undefined)
             .map(arg => (typeof arg === "object" ? JSON.stringify(arg) : arg.toString()))
             .join(" ")
     }
 
-    private writeToFile(message: string) {
+    private writeToFile(message: string): void {
         if (this.logFile) {
             this.logFile.write(message + "\n")
-        }
-    }
-
-    log(...args: unknown[]) {
-        const message = this.formatMessage(args)
-        this.connection.console.log(message)
-        this.writeToFile(`[LOG] [${this.formatDate(new Date())}] ${message}`)
-    }
-
-    info(...args: unknown[]) {
-        const message = this.formatMessage(args)
-        this.connection.console.info(message)
-        this.writeToFile(`[INFO] [${this.formatDate(new Date())}] ${message}`)
-    }
-
-    warn(...args: unknown[]) {
-        const message = this.formatMessage(args)
-        this.connection.console.warn(message)
-        this.writeToFile(`[WARN] [${this.formatDate(new Date())}] ${message}`)
-    }
-
-    error(...args: unknown[]) {
-        const message = this.formatMessage(args)
-        this.connection.console.error(message)
-        this.writeToFile(`[ERROR] [${this.formatDate(new Date())}] ${message}`)
-    }
-
-    dispose() {
-        if (this.logFile) {
-            this.logFile.end()
-            this.logFile = null
         }
     }
 }

@@ -11,7 +11,7 @@ fun test() {
     Foo{ <caret> };
 }
 ------------------------------------------------------------------------
-9  age : Int   of Foo
+9  age : Int    of Foo
 
 ========================================================================
 First field in struct init with variable
@@ -28,8 +28,8 @@ fun test() {
     Foo{ <caret> };
 }
 ------------------------------------------------------------------------
-5  age  Int
-9  age : Int   of Foo
+5  age   Int
+9  age : Int    of Foo
 
 ========================================================================
 First field in struct init with parameter
@@ -44,8 +44,8 @@ fun test(age: Int, some: Int) {
     Foo{ <caret> };
 }
 ------------------------------------------------------------------------
-5  age  Int
-9  age : Int   of Foo
+5  age   Int
+9  age : Int    of Foo
 
 ========================================================================
 Second field in struct init
@@ -61,7 +61,7 @@ fun test() {
     Foo{ age: 10, <caret> };
 }
 ------------------------------------------------------------------------
-9  value : Int   of Foo
+9  value : Int    of Foo
 
 ========================================================================
 Second field in struct init 2
@@ -77,9 +77,10 @@ fun test() {
     Foo{ <caret> value: 10 };
 }
 ------------------------------------------------------------------------
-9  age: Int  of Foo
-9  value: Int  of Foo
+9  age: Int   of Foo
+9  value: Int   of Foo
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 true
 
@@ -98,7 +99,7 @@ fun test() {
     Foo{ age: 10, <caret> };
 }
 ------------------------------------------------------------------------
-9  value : Int   of Foo
+9  value : Int    of Foo
 
 ========================================================================
 Completion in field value
@@ -114,6 +115,7 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 true
 2  test()

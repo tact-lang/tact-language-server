@@ -1,12 +1,15 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {index, IndexKey} from "@server/indexes"
+import {Inspection, InspectionIds} from "./Inspection"
 
-export class StructInitializationInspection {
-    inspect(file: File): lsp.Diagnostic[] {
+export class StructInitializationInspection implements Inspection {
+    public readonly id: "struct-initialization" = InspectionIds.STRUCT_INITIALIZATION
+
+    public inspect(file: File): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 
@@ -19,7 +22,7 @@ export class StructInitializationInspection {
         return diagnostics
     }
 
-    private checkStructLiteral(node: SyntaxNode, diagnostics: lsp.Diagnostic[]) {
+    private checkStructLiteral(node: SyntaxNode, diagnostics: lsp.Diagnostic[]): void {
         const structName = node.childForFieldName("name")
         if (!structName) return
         const args = node.childForFieldName("arguments")

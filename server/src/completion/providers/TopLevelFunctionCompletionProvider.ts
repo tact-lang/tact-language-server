@@ -1,14 +1,14 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionContext} from "@server/completion/CompletionContext"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class TopLevelFunctionCompletionProvider implements CompletionProvider {
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return ctx.topLevel
     }
 
-    addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
         const funLabel = " name() {}"
         const funTemplate = "$1($2)$3 {$0}"
         const extendsTemplate = "$1(self: $2$3)$4 {$0}"
@@ -53,6 +53,17 @@ export class TopLevelFunctionCompletionProvider implements CompletionProvider {
             },
             kind: CompletionItemKind.Keyword,
             insertText: `extends fun ${extendsTemplate}`,
+            insertTextFormat: InsertTextFormat.Snippet,
+            weight: CompletionWeight.KEYWORD,
+        })
+
+        result.add({
+            label: "extends mutates",
+            labelDetails: {
+                detail: " name(self: <type>) {}",
+            },
+            kind: CompletionItemKind.Keyword,
+            insertText: `extends mutates fun ${extendsTemplate}`,
             insertTextFormat: InsertTextFormat.Snippet,
             weight: CompletionWeight.KEYWORD,
         })

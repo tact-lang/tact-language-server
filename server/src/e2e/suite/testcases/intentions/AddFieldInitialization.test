@@ -1,0 +1,310 @@
+========================================================================
+Add field initialization for single field contract
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    field: Int;
+
+    init(field: Int) {
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization for single field contract with default value
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int = 0;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    field: Int;
+
+    init(field: Int) {
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization for single field contract with other field
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int;
+    other: Int;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    field: Int;
+    other: Int;
+
+    init(field: Int) {
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization for single field contract with other field and constant
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int;
+    other: Int;
+
+    const FOO: Int = 100;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    field: Int;
+    other: Int;
+
+    const FOO: Int = 100;
+
+    init(field: Int) {
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization for single field contract with function
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int;
+
+    fun foo() {}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    field: Int;
+
+    init(field: Int) {
+        self.field = field;
+    }
+
+    fun foo() {}
+}
+
+========================================================================
+Add field initialization with empty init()
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int;
+
+    init() {}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    field: Int;
+
+    init(field: Int) {
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization with empty init() 2
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int;
+
+    init() {
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    field: Int;
+
+    init(field: Int) {
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization with init() with single param
+========================================================================
+primitive Int;
+
+contract Test {
+    param: Int;
+    <caret>field: Int;
+
+    init(param: Int) {
+        self.param = param;
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    param: Int;
+    field: Int;
+
+    init(param: Int, field: Int) {
+        self.param = param;
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization with init() with single param and default value
+========================================================================
+primitive Int;
+
+contract Test {
+    param: Int;
+    <caret>field: Int = 0;
+
+    init(param: Int) {
+        self.param = param;
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    param: Int;
+    field: Int;
+
+    init(param: Int, field: Int) {
+        self.param = param;
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization with init() with single param and if statement
+========================================================================
+primitive Int;
+
+contract Test {
+    param: Int;
+    <caret>field: Int;
+
+    init(param: Int) {
+        self.param = param;
+        if (true) {
+            self.param = 100;
+        }
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    param: Int;
+    field: Int;
+
+    init(param: Int, field: Int) {
+        self.param = param;
+        if (true) {
+            self.param = 100;
+        }
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization with init() with single param with field name
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int;
+
+    init(field: Int) {
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Test {
+    field: Int;
+
+    init(field: Int) {
+        self.field = field;
+    }
+}
+
+========================================================================
+Add field initialization for already initialized field
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int;
+
+    init(field: Int) {
+        self.field = field;
+    }
+}
+------------------------------------------------------------------------
+No intentions
+
+========================================================================
+Add field initialization for already initialized field in if
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int;
+
+    init(field: Int) {
+        if (true) {
+            self.field = field;
+        }
+    }
+}
+------------------------------------------------------------------------
+No intentions
+
+========================================================================
+No intentions on function
+========================================================================
+contract Test {
+    field: Int;
+
+    <caret>fun test() {
+    }
+}
+------------------------------------------------------------------------
+No intentions
+
+========================================================================
+Add field initialization for struct field
+========================================================================
+primitive Int;
+
+struct Test {
+    <caret>field: Int;
+}
+------------------------------------------------------------------------
+No intentions

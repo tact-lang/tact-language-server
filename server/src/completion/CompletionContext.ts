@@ -1,37 +1,42 @@
 import {Expression, Node} from "@server/psi/Node"
-import * as lsp from "vscode-languageserver/node"
+import type * as lsp from "vscode-languageserver/node"
 import {parentOfType} from "@server/psi/utils"
 import {MapTy, NullTy, OptionTy, Ty} from "@server/types/BaseTy"
 import {TypeInferer} from "@server/TypeInferer"
-import {TactSettings} from "@server/utils/settings"
+import type {TactSettings} from "@server/utils/settings"
 
 export class CompletionContext {
-    element: Node
-    position: lsp.Position
-    triggerKind: lsp.CompletionTriggerKind
+    public element: Node
+    public position: lsp.Position
+    public triggerKind: lsp.CompletionTriggerKind
 
-    isType: boolean = false
-    isExpression: boolean = false
-    isStatement: boolean = false
-    insideTraitOrContract: boolean = false
-    insideTrait: boolean = false
-    topLevel: boolean = false
-    topLevelInTraitOrContract: boolean = false
-    topLevelInStructOrMessage: boolean = false
-    inTlbSerialization: boolean = false
-    afterDot: boolean = false
-    beforeSemicolon: boolean = false
-    inNameOfFieldInit: boolean = false
-    inMultilineStructInit: boolean = false
-    inTraitList: boolean = false
-    inParameter: boolean = false
-    isMessageContext: boolean = false
+    public isType: boolean = false
+    public isExpression: boolean = false
+    public isStatement: boolean = false
+    public isSelectorExpressionInStatement: boolean = false
+    public insideTraitOrContract: boolean = false
+    public insideTrait: boolean = false
+    public topLevel: boolean = false
+    public topLevelInTraitOrContract: boolean = false
+    public topLevelInStructOrMessage: boolean = false
+    public inTlbSerialization: boolean = false
+    public afterDot: boolean = false
+    public beforeParen: boolean = false
+    public beforeSemicolon: boolean = false
+    public inNameOfFieldInit: boolean = false
+    public inMultilineStructInit: boolean = false
+    public inTraitList: boolean = false
+    public inParameter: boolean = false
+    public isMessageContext: boolean = false
+    public isBouncedMessage: boolean = false
+    public isInitOfName: boolean = false
+    public afterFieldType: boolean = false
 
-    contextTy: Ty | null = null
+    public contextTy: Ty | null = null
 
-    settings: TactSettings
+    public settings: TactSettings
 
-    constructor(
+    public constructor(
         content: string,
         element: Node,
         position: lsp.Position,
@@ -44,9 +49,12 @@ export class CompletionContext {
         this.settings = settings
 
         const lines = content.split(/\n/g)
-        if (lines[position.line] && lines[position.line][position.character - 1]) {
-            const symbolAfter = lines[position.line][position.character - 1]
+        const currentLine = lines[position.line]
+        if (currentLine && currentLine[position.character - 1]) {
+            const symbolAfter = currentLine[position.character - 1]
             this.afterDot = symbolAfter === "."
+            const symbolAfterDummy = currentLine[position.character + "DummyIdentifier".length]
+            this.beforeParen = symbolAfterDummy === "("
         }
 
         const symbolAfter = element.file.symbolAt(element.node.endIndex)
@@ -57,6 +65,13 @@ export class CompletionContext {
 
         if (parent.type !== "expression_statement" && parent.type !== "field_access_expression") {
             this.isExpression = true
+        }
+
+        if (
+            parent.type === "field_access_expression" &&
+            parent.parent?.type === "expression_statement"
+        ) {
+            this.isSelectorExpressionInStatement = true
         }
 
         if (parent.type === "expression_statement") {
@@ -104,6 +119,20 @@ export class CompletionContext {
             }
         }
 
+        if (parent.type === "storage_variable" || parent.type === "field") {
+            const type = parent.childForFieldName("type")
+            if (type) {
+                this.contextTy = TypeInferer.inferType(new Expression(type, this.element.file))
+            }
+
+            const anchor = parent.childForFieldName("_completion_anchor")
+            if (anchor && element.node.equals(anchor)) {
+                this.afterFieldType = true
+                this.isExpression = false
+                this.isStatement = false
+            }
+        }
+
         if (element.node.type === "type_identifier") {
             this.isType = true
         }
@@ -114,7 +143,18 @@ export class CompletionContext {
 
         if (parent.type === "parameter") {
             const grand = parent.parent
+            if (grand?.type === "bounced_function") {
+                this.isBouncedMessage = true
+                this.isMessageContext = true
+            }
+        }
+
+        if (parent.type === "parameter") {
+            const grand = parent.parent
             if (grand?.type === "receive_function") {
+                this.isMessageContext = true
+            }
+            if (grand?.type === "external_function") {
                 this.isMessageContext = true
             }
         }
@@ -125,8 +165,38 @@ export class CompletionContext {
             this.isStatement = false
         }
 
+        if (
+            parent.type === "let_statement" &&
+            parent.childForFieldName("name")?.equals(this.element.node)
+        ) {
+            this.isExpression = false
+            this.isStatement = false
+        }
+
+        if (parent.type.endsWith("_function")) {
+            this.isExpression = false
+            this.isStatement = false
+            this.inParameter = true
+        }
+
+        if (parent.type === "ERROR" && parent.parent?.type.endsWith("_function")) {
+            this.isExpression = false
+            this.isStatement = false
+            this.inParameter = true
+        }
+
         if (parent.type === "trait_list") {
             this.inTraitList = true
+        }
+
+        if (parent.type === "initOf" && parent.childForFieldName("name")?.equals(element.node)) {
+            this.isInitOfName = true
+        }
+
+        if (parent.type === "ERROR" && parent.parent?.type === "map_type") {
+            this.isType = true
+            this.isExpression = false
+            this.isStatement = false
         }
 
         if (parent.type === "ERROR" && parent.parent?.type === "parameter_list") {
@@ -208,7 +278,9 @@ export class CompletionContext {
             !this.inTlbSerialization &&
             !this.inNameOfFieldInit &&
             !this.inTraitList &&
-            !this.inParameter
+            !this.inParameter &&
+            !this.afterFieldType &&
+            !this.isInitOfName
         )
     }
 }

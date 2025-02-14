@@ -1,6 +1,5 @@
-import * as cp from "child_process"
-import * as path from "path"
-import {Logger} from "@server/utils/logger"
+import * as cp from "node:child_process"
+import * as path from "node:path"
 
 interface CompilerError {
     line: number
@@ -37,8 +36,8 @@ export class TactCompiler {
 
             const error: CompilerError = {
                 file,
-                line: parseInt(lineNum, 10) - 1,
-                character: parseInt(char, 10) - 1,
+                line: Number.parseInt(lineNum, 10) - 1,
+                character: Number.parseInt(char, 10) - 1,
                 message: contextFound ? fullMessage.trim() : rawMessage,
             }
 
@@ -54,7 +53,7 @@ export class TactCompiler {
         return errors
     }
 
-    static async compile(_filePath: string): Promise<CompilerError[]> {
+    public static async compile(_filePath: string): Promise<CompilerError[]> {
         return new Promise((resolve, reject) => {
             const tactPath = path.join(__dirname, "../node_modules/.bin/tact")
 

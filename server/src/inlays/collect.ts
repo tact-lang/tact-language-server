@@ -1,13 +1,13 @@
 import {InlayHint, InlayHintKind} from "vscode-languageserver-types"
 import {RecursiveVisitor} from "@server/psi/visitor"
-import {File} from "@server/psi/File"
+import type {File} from "@server/psi/File"
 import {TypeInferer} from "@server/TypeInferer"
 import {Reference} from "@server/psi/Reference"
-import {Fun} from "@server/psi/Decls"
+import {Field, Fun} from "@server/psi/Decls"
 import {CallLike, Expression, VarDeclaration} from "@server/psi/Node"
 import {MapTy} from "@server/types/BaseTy"
 import {findInstruction} from "@server/completion/data/types"
-import {createHash} from "crypto"
+import {createHash} from "node:crypto"
 
 export function collect(
     file: File,
@@ -16,6 +16,10 @@ export function collect(
         parameters: boolean
         exitCodeFormat: "decimal" | "hex"
         showMethodId: boolean
+        showGasConsumption: boolean
+        showAsmInstructionGas: boolean
+        showExitCodes: boolean
+        showExplicitTLBIntType: boolean
     },
 ): InlayHint[] | null {
     if (!hints.types && !hints.parameters) return []
@@ -47,6 +51,28 @@ export function collect(
                 },
             })
             return true
+        }
+
+        if (type === "field" || type === "storage_variable") {
+            const field = new Field(n, file)
+            const typeNode = field.typeNode()
+            if (!typeNode) return true
+            const type = typeNode.type()
+
+            if (
+                type?.name() === "Int" &&
+                field.tlbType() === null &&
+                hints.showExplicitTLBIntType
+            ) {
+                result.push({
+                    kind: InlayHintKind.Type,
+                    label: ` as int257`,
+                    position: {
+                        line: typeNode.node.endPosition.row,
+                        character: typeNode.node.endPosition.column,
+                    },
+                })
+            }
         }
 
         if (type === "foreach_statement" && hints.types) {
@@ -99,7 +125,8 @@ export function collect(
 
         if (
             (type === "static_call_expression" || type === "method_call_expression") &&
-            hints.parameters
+            hints.parameters &&
+            hints.showExitCodes
         ) {
             const call = new CallLike(n, file)
             const rawArgs = call.rawArguments()
@@ -120,7 +147,7 @@ export function collect(
                 if (message && args.length > 1) {
                     const content = message.text.slice(1, -1)
                     const buff = createHash("sha256").update(content).digest()
-                    const code = (buff.readUInt32BE(0) % 63000) + 1000
+                    const code = (buff.readUInt32BE(0) % 63_000) + 1000
 
                     const codeStr =
                         hints.exitCodeFormat === "hex"
@@ -141,7 +168,7 @@ export function collect(
             // skip self parameter
             const shift = type === "method_call_expression" && res.withSelf() ? 1 : 0
 
-            for (let i = 0; i < min(params.length - shift, args.length); i++) {
+            for (let i = 0; i < Math.min(params.length - shift, args.length); i++) {
                 const param = params[i + shift]
                 const arg = args[i]
                 const paramName = param.name()
@@ -168,7 +195,7 @@ export function collect(
             return true
         }
 
-        if (type === "tvm_ordinary_word") {
+        if (type === "tvm_ordinary_word" && hints.showAsmInstructionGas) {
             const instruction = findInstruction(n.text)
             if (instruction) {
                 result.push({
@@ -183,7 +210,7 @@ export function collect(
             return true
         }
 
-        if (type === "asm_function") {
+        if (type === "asm_function" && hints.showGasConsumption) {
             const func = new Fun(n, file)
             const openBrace = func.openBrace()
             if (!openBrace) return true
@@ -204,9 +231,7 @@ export function collect(
             return true
         }
 
-        if (type === "storage_function") {
-            if (!hints.showMethodId) return true
-
+        if (type === "storage_function" && hints.showMethodId) {
             const func = new Fun(n, file)
             if (!func.isGetMethod) return true
 
@@ -235,8 +260,4 @@ export function collect(
     }
 
     return null
-}
-
-function min<T>(a: T, b: T): T {
-    return a < b ? a : b
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-base-to-string */
 import * as vscode from "vscode"
 
 let consoleLogChannel: vscode.OutputChannel | null = null
@@ -13,8 +14,10 @@ export function createClientLog(): vscode.OutputChannel {
     return consoleLogChannel
 }
 
-export function consoleError(...items: unknown[]) {
-    consoleLogChannel?.appendLine("[ERROR] " + items.map(itemToString).join(" "))
+export function consoleError(...items: unknown[]): void {
+    consoleLogChannel?.appendLine(
+        "[ERROR] " + items.map(element => itemToString(element)).join(" "),
+    )
 }
 
 function itemToString(item: unknown): string {
@@ -28,7 +31,7 @@ function itemToString(item: unknown): string {
     if (typeof item === "object") {
         try {
             return JSON.stringify(item, null, 2)
-        } catch (error) {
+        } catch {
             return item.toString()
         }
     }

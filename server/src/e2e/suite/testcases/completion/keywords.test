@@ -8,11 +8,13 @@ trait Foo {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  self.foo()
 13 self
+14 do
 14 foreach
 14 if
 14 ife
@@ -34,11 +36,13 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  self.foo()
 13 self
+14 do
 14 foreach
 14 if
 14 ife
@@ -58,10 +62,12 @@ fun foo() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  foo()
+14 do
 14 foreach
 14 if
 14 ife

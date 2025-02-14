@@ -1,11 +1,12 @@
-import {CompletionProvider} from "@server/completion/CompletionProvider"
+import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
-import {CompletionContext} from "@server/completion/CompletionContext"
+import type {CompletionContext} from "@server/completion/CompletionContext"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class SnippetsCompletionProvider implements CompletionProvider {
-    isAvailable(ctx: CompletionContext): boolean {
+    public isAvailable(ctx: CompletionContext): boolean {
         return (
+            ctx.isStatement &&
             !ctx.isExpression &&
             !ctx.topLevel &&
             !ctx.afterDot &&
@@ -15,7 +16,7 @@ export class SnippetsCompletionProvider implements CompletionProvider {
         )
     }
 
-    addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
+    public addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
         result.add({
             label: "let",
             kind: CompletionItemKind.Snippet,
@@ -58,6 +59,14 @@ export class SnippetsCompletionProvider implements CompletionProvider {
 
         result.add({
             label: "until",
+            kind: CompletionItemKind.Snippet,
+            insertTextFormat: InsertTextFormat.Snippet,
+            insertText: "do {\n\t${0}\n} until (${1:condition});",
+            weight: CompletionWeight.SNIPPET,
+        })
+
+        result.add({
+            label: "do",
             kind: CompletionItemKind.Snippet,
             insertTextFormat: InsertTextFormat.Snippet,
             insertText: "do {\n\t${0}\n} until (${1:condition});",

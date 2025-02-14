@@ -1,7 +1,8 @@
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {File} from "./File"
 import {Ty} from "@server/types/BaseTy"
 import {TypeInferer} from "@server/TypeInferer"
+import {Range} from "vscode-languageserver-textdocument"
 
 export class Node {
     public node: SyntaxNode
@@ -64,6 +65,24 @@ export class NamedNode extends Node {
         const valueNode = this.node.childForFieldName("value")
         if (valueNode === null) return null
         return new Expression(valueNode, this.file)
+    }
+
+    public defaultValueRange(): Range | null {
+        const valueNode = this.node.childForFieldName("value")
+        if (valueNode === null) return null
+        const typeNode = this.node.childForFieldName("type")
+        if (typeNode === null) return null
+
+        return {
+            start: {
+                line: typeNode.endPosition.row,
+                character: typeNode.endPosition.column,
+            },
+            end: {
+                line: valueNode.endPosition.row,
+                character: valueNode.endPosition.column,
+            },
+        }
     }
 }
 

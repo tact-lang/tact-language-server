@@ -1,10 +1,11 @@
-import {NamedNode} from "@server/psi/Node"
+import type {NamedNode} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
 import {Constant, Contract, Field, Fun, Message, Struct, Trait} from "@server/psi/Decls"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
+import {trimPrefix} from "@server/utils/strings"
 
 const CODE_FENCE = "```"
-const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
+const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
 
 /**
  * Returns the documentation for the given symbol in Markdown format, or null
@@ -13,6 +14,19 @@ const DOC_TMPL = `${CODE_FENCE}\n{signature}\n${CODE_FENCE}\n{documentation}\n`
  */
 export function generateDocFor(node: NamedNode): string | null {
     const astNode = node.node
+
+    function renderOwnerPresentation(symbol: Fun | Constant | Field): string | null {
+        const owner = symbol.owner()
+        if (!owner) return null // not possible in correct code
+        return owner.kind() + " " + owner.name() + "\n"
+    }
+
+    function renderDataOwnerPresentation(symbol: Field): string | null {
+        const owner = symbol.dataOwner()
+        if (!owner) return null // not possible in correct code
+        return owner.kind() + " " + owner.name() + "\n"
+    }
+
     switch (astNode.type) {
         case "native_function": {
             const func = new Fun(astNode, node.file)
@@ -37,6 +51,8 @@ export function generateDocFor(node: NamedNode): string | null {
         case "storage_function": {
             const func = new Fun(astNode, node.file)
             const doc = extractCommentsDoc(node)
+            const ownerPresentation = renderOwnerPresentation(func)
+            if (!ownerPresentation) return null // not possible in correct code
 
             const actualId = func.computeMethodId()
             const actualIdPresentation = `Method ID: \`0x${actualId.toString(16)}\`\n\n`
@@ -44,7 +60,7 @@ export function generateDocFor(node: NamedNode): string | null {
             const idPresentation = func.isGetMethod ? actualIdPresentation : ""
 
             return defaultResult(
-                `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}`,
+                `${ownerPresentation}${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}`,
                 idPresentation + doc,
             )
         }
@@ -104,8 +120,7 @@ export function generateDocFor(node: NamedNode): string | null {
             const doc = extractCommentsDoc(node)
             return defaultResult(`primitive ${node.name()}`, doc)
         }
-        case "global_constant":
-        case "storage_constant": {
+        case "global_constant": {
             const constant = new Constant(astNode, node.file)
             const type = constant.typeNode()?.type()?.qualifiedName() ?? "unknown"
             if (!type) return null
@@ -119,17 +134,56 @@ export function generateDocFor(node: NamedNode): string | null {
                 doc,
             )
         }
-        case "storage_variable":
-        case "field": {
+        case "storage_constant": {
+            const constant = new Constant(astNode, node.file)
+            const type = constant.typeNode()?.type()?.qualifiedName() ?? "unknown"
+            if (!type) return null
+
+            const ownerPresentation = renderOwnerPresentation(constant)
+            if (!ownerPresentation) return null // not possible in correct code
+
+            const value = constant.value()
+            if (!value) return null
+
+            const doc = extractCommentsDoc(node)
+            return defaultResult(
+                `${ownerPresentation}${constant.modifiers()}const ${node.name()}: ${type} = ${value.node.text}`,
+                doc,
+            )
+        }
+        case "storage_variable": {
             const doc = extractCommentsDoc(node)
             const field = new Field(node.node, node.file)
+
+            const ownerPresentation = renderOwnerPresentation(field)
+            if (!ownerPresentation) return null // not possible in correct code
 
             const name = field.nameNode()
             if (!name) return null
 
             const type = TypeInferer.inferType(name)?.qualifiedName() ?? "unknown"
 
-            return defaultResult(`${node.name()}: ${type}${field.defaultValuePresentation()}`, doc)
+            return defaultResult(
+                `${ownerPresentation}${node.name()}: ${type}${field.defaultValuePresentation()}`,
+                doc,
+            )
+        }
+        case "field": {
+            const doc = extractCommentsDoc(node)
+            const field = new Field(node.node, node.file)
+
+            const ownerPresentation = renderDataOwnerPresentation(field)
+            if (!ownerPresentation) return null // not possible in correct code
+
+            const name = field.nameNode()
+            if (!name) return null
+
+            const type = TypeInferer.inferType(name)?.qualifiedName() ?? "unknown"
+
+            return defaultResult(
+                `${ownerPresentation}${node.name()}: ${type}${field.defaultValuePresentation()}`,
+                doc,
+            )
         }
         case "identifier": {
             const parent = astNode.parent
@@ -165,13 +219,6 @@ export function generateDocFor(node: NamedNode): string | null {
     return null
 }
 
-function trimPrefix(text: string, prefix: string): string {
-    if (text.startsWith(prefix)) {
-        return text.slice(prefix.length)
-    }
-    return text
-}
-
 function extractCommentsDoc(node: NamedNode): string {
     const prevSibling = node.node.previousSibling
     if (!prevSibling || prevSibling.type !== "comment") return ""
@@ -202,12 +249,12 @@ function extractCommentsDoc(node: NamedNode): string {
     for (const rawLine of lines) {
         const line = rawLine.trimEnd()
 
-        if (line.replace(/-/g, "").length === 0 && line.length !== 0) {
+        if (line.replace(/-/g, "").length === 0 && line.length > 0) {
             result += "\n\n"
             continue
         }
 
-        const isEndOfSentence = /[.!?:]$/.test(line)
+        const isEndOfSentence = /[!.:?]$/.test(line)
         const isList = line.startsWith("-") || line.startsWith("*")
         const isHeader = line.startsWith("#")
         const isTable = line.startsWith("|")
@@ -237,6 +284,6 @@ function extractCommentsDoc(node: NamedNode): string {
     return result.trimEnd()
 }
 
-function defaultResult(signature: string, documentation: string = "") {
+function defaultResult(signature: string, documentation: string = ""): string {
     return DOC_TMPL.replace("{signature}", signature).replace("{documentation}", documentation)
 }

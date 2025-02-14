@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import {defaultConfig, TactPluginConfigScheme} from "@shared/config-scheme"
 
-let cachedClientConfig: TactPluginConfigScheme | undefined = undefined
+let cachedClientConfig: TactPluginConfigScheme | null = null
 
 export function getClientConfiguration(): TactPluginConfigScheme {
     if (cachedClientConfig) {
@@ -21,6 +21,6 @@ export function getClientConfiguration(): TactPluginConfigScheme {
     return cachedClientConfig
 }
 
-export function resetClientConfigCache() {
-    cachedClientConfig = undefined
+export function resetClientConfigCache(): void {
+    cachedClientConfig = null
 }

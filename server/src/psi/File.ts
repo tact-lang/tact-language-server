@@ -1,6 +1,9 @@
+import * as path from "node:path"
 import {NamedNode} from "./Node"
 import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "./Decls"
-import {Node as SyntaxNode, Tree} from "web-tree-sitter"
+import type {Node as SyntaxNode, Tree} from "web-tree-sitter"
+import type {Position} from "vscode-languageclient"
+import {trimSuffix} from "@server/utils/strings"
 
 export class File {
     public constructor(
@@ -27,6 +30,78 @@ export class File {
 
     public get path(): string {
         return this.uri.slice(7)
+    }
+
+    public isImportedImplicitly(): boolean {
+        if (this.fromStubs) return true
+        if (!this.fromStdlib) return false
+        return this.path.includes("std/") || this.path.includes("std\\")
+    }
+
+    public positionForNextImport(): Position {
+        const imports = this.imports()
+
+        if (imports.length === 0) {
+            return {
+                line: 0,
+                character: 0,
+            }
+        }
+
+        const lastImport = imports.at(-1)
+        if (!lastImport) {
+            return {
+                line: 0,
+                character: 0,
+            }
+        }
+
+        return {
+            line: lastImport.endPosition.row + 1,
+            character: lastImport.endPosition.column,
+        }
+    }
+
+    public alreadyImport(filepath: string): boolean {
+        const imports = this.imports()
+            .map(node => node.childForFieldName("library"))
+            .filter(node => node !== null)
+
+        return imports.some(imp => imp.text.slice(1, -1) === filepath)
+    }
+
+    public imports(): SyntaxNode[] {
+        return this.tree.rootNode.children
+            .filter(node => node !== null && node.type === "import")
+            .filter(node => node !== null)
+    }
+
+    public importPath(inFile: File): string {
+        const filePath = this.path
+
+        if (this.fromStdlib) {
+            const candidates = ["stdlib/libs", "stdlib/std"]
+            for (const candidate of candidates) {
+                if (filePath.includes(candidate)) {
+                    const relative = filePath.slice(
+                        filePath.indexOf(candidate) + candidate.length + 1,
+                    )
+                    const withoutTactExt = trimSuffix(relative, ".tact")
+                    return `@stdlib/${withoutTactExt}`
+                }
+            }
+
+            return filePath
+        }
+
+        const relativeTo = path.dirname(inFile.path)
+        if (filePath.startsWith(relativeTo)) {
+            const relative = filePath.slice(relativeTo.length + 1)
+            const withoutTactExt = trimSuffix(relative, ".tact")
+            return `./${withoutTactExt}`
+        }
+
+        return filePath
     }
 
     public getDecls(): NamedNode[] {

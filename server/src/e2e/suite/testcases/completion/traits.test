@@ -11,6 +11,10 @@ trait Child with Parent {
 ------------------------------------------------------------------------
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
@@ -18,6 +22,8 @@ trait Child with Parent {
 2  override fun foo(): Int {} of Parent
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
+13 virtual fun name() {}
 
 ========================================================================
 Completion of override methods in trait with deep inheritance
@@ -36,6 +42,10 @@ trait Child with Parent {
 ------------------------------------------------------------------------
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
@@ -44,6 +54,8 @@ trait Child with Parent {
 2  override fun bar(name: String): Bool {} of Grand
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
+13 virtual fun name() {}
 
 ========================================================================
 Completion of override methods in trait with method
@@ -60,6 +72,10 @@ trait Child with Parent {
 ------------------------------------------------------------------------
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
@@ -67,6 +83,8 @@ trait Child with Parent {
 2  override fun bar(): Int {} of Parent
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
+13 virtual fun name() {}
 
 ========================================================================
 Completion of fields in trait
@@ -84,12 +102,18 @@ trait Child with Parent {
 9  name: String; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
 13 inline fun name() {}
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
+13 virtual fun name() {}
 
 ========================================================================
 Completion of fields in trait with deep inheritance
@@ -113,12 +137,18 @@ trait Child with Parent {
 9  name: String; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
 13 inline fun name() {}
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
+13 virtual fun name() {}
 
 ========================================================================
 Completion of fields in trait with field
@@ -139,12 +169,18 @@ trait Child with Parent {
 9  age: Int; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
 13 inline fun name() {}
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
+13 virtual fun name() {}
 
 ========================================================================
 Completion of methods and fields without self
@@ -161,8 +197,9 @@ trait Child with Parent {
     }
 }
 ------------------------------------------------------------------------
-9  self.field: Int  of Child
+9  self.field: Int   of Child
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return <expr>;
 13 true
@@ -170,6 +207,7 @@ trait Child with Parent {
 2  self.foo(): Int
 13 self
 14 return 0;
+14 do
 14 foreach
 14 if
 14 ife

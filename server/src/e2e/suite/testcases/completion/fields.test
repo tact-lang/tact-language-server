@@ -13,8 +13,14 @@ fun test(msg: Transfer) {
     msg.<caret>
 }
 ------------------------------------------------------------------------
-9  amount: Int  of Transfer
-9  to: Address  of Transfer
+9  amount: Int   of Transfer
+9  to: Address   of Transfer
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Struct fields completion
@@ -31,9 +37,15 @@ fun test(p: Point) {
     p.<caret>
 }
 ------------------------------------------------------------------------
-9  x: Int  of Point
-9  y: Int  of Point
-9  z: Int?  of Point
+9  x: Int   of Point
+9  y: Int   of Point
+9  z: Int?   of Point
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Contract fields completion
@@ -55,8 +67,14 @@ fun test(c: Counter) {
     c.<caret>
 }
 ------------------------------------------------------------------------
-9  owner: Address  of Counter
-9  val: Int  of Counter
+9  owner: Address   of Counter
+9  val: Int   of Counter
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Map fields completion
@@ -73,8 +91,14 @@ fun test(s: Storage) {
     s.<caret>
 }
 ------------------------------------------------------------------------
-9  allowances: map<Address, Int>  of Storage
-9  balances: map<Address, Int>  of Storage
+9  allowances: map<Address, Int>   of Storage
+9  balances: map<Address, Int>   of Storage
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Optional fields completion
@@ -92,9 +116,15 @@ fun test(u: User?) {
     u.<caret>
 }
 ------------------------------------------------------------------------
-9  address: Address?  of User
-9  age: Int?  of User
-9  name:   of User
+9  address: Address?   of User
+9  age: Int?   of User
+9  name:    of User
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Nested fields completion
@@ -114,7 +144,13 @@ fun test(o: Outer) {
     o.inner.<caret>
 }
 ------------------------------------------------------------------------
-9  value: Int  of Inner
+9  value: Int   of Inner
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Message with TLB fields completion
@@ -134,11 +170,17 @@ fun test(msg: TokenTransfer) {
     msg.<caret>
 }
 ------------------------------------------------------------------------
-9  amount: Int  of TokenTransfer
-9  from: Address  of TokenTransfer
-9  queryId: Int  of TokenTransfer
-9  responseDestination: Address?  of TokenTransfer
-9  to: Address  of TokenTransfer
+9  amount: Int   of TokenTransfer
+9  from: Address   of TokenTransfer
+9  queryId: Int   of TokenTransfer
+9  responseDestination: Address?   of TokenTransfer
+9  to: Address   of TokenTransfer
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Field of bounced<struct>
@@ -159,9 +201,15 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-9  address: Address?  of User
-9  age: Int?  of User
-9  name: String  of User
+9  address: Address?   of User
+9  age: Int?   of User
+9  name: String   of User
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Field of option struct without unwrapping
@@ -180,9 +228,15 @@ fun foo(f: User?) {
     f.<caret>
 }
 ------------------------------------------------------------------------
-9  address: Address?  of User
-9  age: Int?  of User
-9  name: String  of User
+9  address: Address?   of User
+9  age: Int?   of User
+9  name: String   of User
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
 Field of option struct with unwrapping
@@ -201,6 +255,37 @@ fun foo(f: User?) {
     f!!.<caret>
 }
 ------------------------------------------------------------------------
-9  address: Address?  of User
-9  age: Int?  of User
-9  name: String  of User
+9  address: Address?   of User
+9  age: Int?   of User
+9  name: String   of User
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
+
+========================================================================
+Field with same name method
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+trait Foo {
+    name: String;
+
+    fun name(): String {
+        return self.name;
+    }
+
+    fun bar() {
+        return self.<caret>;
+    }
+}
+------------------------------------------------------------------------
+9  name: String   of Foo
+2  bar()
+2  name(): String
+14 call  Use as function argument
+14 not  Negate expression

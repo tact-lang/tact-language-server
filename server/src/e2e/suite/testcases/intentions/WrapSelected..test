@@ -1,0 +1,242 @@
+========================================================================
+@intention Wrap selected to "try"
+Wrap multiple statements in try
+========================================================================
+contract Test {
+    fun test() {
+        <selection>let a = 1;
+        let b = 2;
+        let c = 3;</selection>
+    }
+}
+------------------------------------------------------------------------
+contract Test {
+    fun test() {
+        try {
+            let a = 1;
+            let b = 2;
+            let c = 3;
+        }
+    }
+}
+
+========================================================================
+@intention Wrap selected to "try-catch"
+Wrap multiple statements in try-catch
+========================================================================
+contract Test {
+    fun test() {
+        <selection>let a = 1;
+        let b = 2;</selection>
+    }
+}
+------------------------------------------------------------------------
+contract Test {
+    fun test() {
+        try {
+            let a = 1;
+            let b = 2;
+        } catch(e) {
+
+        }
+    }
+}
+
+========================================================================
+@intention Wrap selected to "repeat"
+Wrap multiple statements in repeat
+========================================================================
+contract Test {
+    fun test() {
+        <selection>let a = 1;
+        let b = 2;</selection>
+    }
+}
+------------------------------------------------------------------------
+contract Test {
+    fun test() {
+        repeat(10) {
+            let a = 1;
+            let b = 2;
+        }
+    }
+}
+
+========================================================================
+No intentions on empty selection
+========================================================================
+contract Test {
+    fun test() {
+        <selection>    </selection>
+    }
+}
+------------------------------------------------------------------------
+No intentions
+
+========================================================================
+@intention Wrap selected to "repeat"
+Wrap single statement in repeat
+========================================================================
+contract Test {
+    fun test() {
+        <selection>let a = 1;</selection>
+    }
+}
+------------------------------------------------------------------------
+contract Test {
+    fun test() {
+        repeat(10) {
+            let a = 1;
+        }
+    }
+}
+
+========================================================================
+@intention Wrap selected to "try"
+Wrap single statement
+========================================================================
+contract Test {
+    fun test() {
+        <selection>let a = 1;</selection>
+    }
+}
+------------------------------------------------------------------------
+contract Test {
+    fun test() {
+        try {
+            let a = 1;
+        }
+    }
+}
+
+========================================================================
+@intention Wrap selected to "try"
+Wrap mixed statements
+========================================================================
+contract Test {
+    fun test() {
+        <selection>let a = 1;
+        return a + 1;
+        self.value = 10;
+        a += 1;
+        do {
+            a = 2;
+        } until (a > 10);</selection>
+    }
+}
+------------------------------------------------------------------------
+contract Test {
+    fun test() {
+        try {
+            let a = 1;
+            return a + 1;
+            self.value = 10;
+            a += 1;
+            do {
+                a = 2;
+            } until (a > 10);
+        }
+    }
+}
+
+========================================================================
+@intention Wrap selected to "try-catch"
+Wrap complex control flow statements
+========================================================================
+contract Test {
+    fun test() {
+        <selection>if (true) {
+            let x = 1;
+        }
+        while (x < 10) {
+            x += 1;
+        }
+        repeat(5) {
+            x = x * 2;
+        }
+        foreach(k, v in map) {
+            sum += v;
+        }</selection>
+    }
+}
+------------------------------------------------------------------------
+contract Test {
+    fun test() {
+        try {
+            if (true) {
+                let x = 1;
+            }
+            while (x < 10) {
+                x += 1;
+            }
+            repeat(5) {
+                x = x * 2;
+            }
+            foreach(k, v in map) {
+                sum += v;
+            }
+        } catch(e) {
+
+        }
+    }
+}
+
+========================================================================
+@intention Wrap selected to "repeat"
+Wrap nested control flow
+========================================================================
+contract Test {
+    fun test() {
+        <selection>try {
+            if (x > 0) {
+                while(true) {
+                    x -= 1;
+                }
+            }
+        } catch(e) {
+            return 0;
+        }</selection>
+    }
+}
+------------------------------------------------------------------------
+contract Test {
+    fun test() {
+        repeat(10) {
+            try {
+                if (x > 0) {
+                    while(true) {
+                        x -= 1;
+                    }
+                }
+            } catch(e) {
+                return 0;
+            }
+        }
+    }
+}
+
+========================================================================
+@intention Wrap selected to "try"
+Wrap expressions and assignments
+========================================================================
+contract Test {
+    fun test() {
+        <selection>send();
+        x = 1;
+        y += 2;
+        z *= 3;
+        w |= 4;</selection>
+    }
+}
+------------------------------------------------------------------------
+contract Test {
+    fun test() {
+        try {
+            send();
+            x = 1;
+            y += 2;
+            z *= 3;
+            w |= 4;
+        }
+    }
+}

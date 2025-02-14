@@ -12,12 +12,11 @@ import {
 import {StructTy} from "@server/types/BaseTy"
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {
-    constructor(private readonly ctx: CompletionContext) {}
+    public constructor(private readonly ctx: CompletionContext) {}
 
     public result: Map<string, CompletionItem> = new Map()
 
     private allowedInContext(node: Node): boolean {
-        if (node instanceof Contract) return false // filter contracts for now
         if (node instanceof NamedNode && node.name() === "BaseTrait") return false
 
         if (this.ctx.isType) {
@@ -29,6 +28,11 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             if (this.ctx.inTraitList) {
                 // for trait list allow only traits
                 return node instanceof Trait
+            }
+
+            if (this.ctx.isInitOfName) {
+                // only contracts can be used in `initOf Name()`
+                return node instanceof Contract
             }
 
             // for types, we want to complete only types
@@ -44,6 +48,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         if (node instanceof Trait || node instanceof Primitive) return false
         // but since structs and messages can be created like `Foo{}` we allow them
         if (node instanceof Struct || node instanceof Message) return true
+        if (node instanceof Contract) return false // filter contracts for now
 
         return true
     }
@@ -51,9 +56,11 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
     public execute(node: Node, state: ResolveState): boolean {
         if (!(node instanceof NamedNode)) return true
 
-        const prefix = state.get("prefix") ? state.get("prefix") : ""
+        const prefix = state.get("prefix") ?? ""
         const name = node.name()
-        if (name.endsWith("DummyIdentifier") || name === "AnyStruct") return true
+        if (name.endsWith("DummyIdentifier") || name === "AnyStruct" || name === "AnyMessage") {
+            return true
+        }
 
         if (!this.allowedInContext(node)) {
             return true
@@ -73,17 +80,19 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
         if (node instanceof Fun) {
             // don't add `self.` prefix for global functions
-            const thisPrefix = prefix !== "" && node.owner() === null ? "" : (prefix ?? "")
+            const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
 
             const signature = node.signaturePresentation()
             const hasNoParams =
-                node.parameters().length == 0 || (node.withSelf() && node.parameters().length == 1)
+                node.parameters().length === 0 || (node.withSelf() && node.parameters().length == 1)
 
             const needSemicolon = this.ctx.isStatement && !this.ctx.beforeSemicolon
 
             // We want to place cursor in parens only if there are any parameters to write.
-            const insertText =
-                thisPrefix + name + (hasNoParams ? "()" : "($1)") + (needSemicolon ? "$2;$0" : "")
+            // and add brackets only if they are not there yet
+            const parensPart = this.ctx.beforeParen ? "" : hasNoParams ? "()" : "($1)"
+            const semicolonPart = needSemicolon ? "$2;$0" : ""
+            const insertText = thisPrefix + name + parensPart + semicolonPart
 
             this.addItem({
                 label: thisPrefix + name,
@@ -127,8 +136,24 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 weight: CompletionWeight.TRAIT,
             })
         } else if (node instanceof Contract) {
-            // don't add contract in completion for now
-            return true
+            const suffix = this.ctx.isInitOfName ? "()" : ""
+            const initFunction = node.initFunction()
+            const insertSuffix = this.ctx.isInitOfName
+                ? initFunction !== null && initFunction.parameters().length > 0
+                    ? "($1)"
+                    : "()"
+                : ""
+
+            this.addItem({
+                label: name,
+                labelDetails: {
+                    detail: suffix,
+                },
+                kind: CompletionItemKind.Constructor,
+                insertText: `${name}${insertSuffix}$0`,
+                insertTextFormat: InsertTextFormat.Snippet,
+                weight: CompletionWeight.CONTRACT,
+            })
         } else if (node instanceof Primitive) {
             this.addItem({
                 label: name,
@@ -139,7 +164,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             })
         } else if (node instanceof Constant) {
             // don't add `self.` prefix for global constants
-            const thisPrefix = prefix !== "" && node.owner() === null ? "" : (prefix ?? "")
+            const thisPrefix = prefix !== "" && node.owner() === null ? "" : prefix
 
             const typeNode = node.typeNode()
             const value = node.value()
@@ -161,7 +186,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             const owner = node.dataOwner()?.name() ?? ""
 
             // don't add `self.` for completion of field in init
-            const thisPrefix = this.ctx.inNameOfFieldInit ? "" : (prefix ?? "")
+            const thisPrefix = this.ctx.inNameOfFieldInit ? "" : prefix
             const comma = this.ctx.inMultilineStructInit ? "," : ""
             const suffix = this.ctx.inNameOfFieldInit ? `: $1${comma}$0` : ""
 
@@ -175,7 +200,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 kind: CompletionItemKind.Property,
                 labelDetails: {
                     detail: details,
-                    description: `of ${owner}`,
+                    description: ` of ${owner}`,
                 },
                 insertText: thisPrefix + name + suffix,
                 insertTextFormat: InsertTextFormat.Snippet,
@@ -194,12 +219,13 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 parent.type === "catch_clause"
             ) {
                 const type = TypeInferer.inferType(node)
+                const typeName = type?.qualifiedName() ?? "unknown"
 
                 this.addItem({
                     label: name,
                     kind: CompletionItemKind.Variable,
                     labelDetails: {
-                        description: type?.qualifiedName() ?? "unknown",
+                        description: ` ${typeName}`,
                     },
                     insertText: name,
                     insertTextFormat: InsertTextFormat.Snippet,
@@ -214,12 +240,13 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             if (!parent) return true
 
             const type = TypeInferer.inferType(node)
+            const typeName = type?.qualifiedName() ?? "unknown"
 
             this.addItem({
                 label: name,
                 kind: CompletionItemKind.Variable,
                 labelDetails: {
-                    description: type?.qualifiedName() ?? "unknown",
+                    description: ` ${typeName}`,
                 },
                 insertText: name,
                 insertTextFormat: InsertTextFormat.Snippet,
@@ -238,10 +265,15 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         return true
     }
 
-    public addItem(node: WeightedCompletionItem) {
+    public addItem(node: WeightedCompletionItem): void {
         if (node.label === "") return
-        const prev = this.result.get(node.label)
+        const lookup = this.lookupString(node)
+        const prev = this.result.get(lookup)
         if (prev && prev.kind === node.kind) return
-        this.result.set(node.label, node)
+        this.result.set(lookup, node)
+    }
+
+    private lookupString(item: WeightedCompletionItem): string {
+        return (item.kind ?? 1).toString() + item.label
     }
 }

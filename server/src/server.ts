@@ -18,7 +18,7 @@ import * as lens from "./lens/collect"
 import * as search from "./search/implementations"
 import * as path from "node:path"
 import {existsSync} from "node:fs"
-import {ClientOptions} from "@shared/config-scheme"
+import type {ClientOptions} from "@shared/config-scheme"
 import {
     GetDocumentationAtPositionRequest,
     GetDocumentationAtPositionResponse,
@@ -27,12 +27,24 @@ import {
     GetTypeAtPositionResponse,
 } from "@shared/shared-msgtypes"
 import {KeywordsCompletionProvider} from "./completion/providers/KeywordsCompletionProvider"
-import {CompletionProvider} from "./completion/CompletionProvider"
+import type {CompletionProvider} from "./completion/CompletionProvider"
 import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvider"
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
-import {BaseTy} from "./types/BaseTy"
-import {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
-import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from "@server/psi/Decls"
+import {BaseTy, FieldsOwnerTy} from "./types/BaseTy"
+import type {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
+import {
+    Constant,
+    Contract,
+    Field,
+    Fun,
+    InitFunction,
+    Message,
+    MessageFunction,
+    Primitive,
+    StorageMembersOwner,
+    Struct,
+    Trait,
+} from "@server/psi/Decls"
 import {ReferenceCompletionProvider} from "./completion/providers/ReferenceCompletionProvider"
 import {OverrideCompletionProvider} from "./completion/providers/OverrideCompletionProvider"
 import {TraitOrContractFieldsCompletionProvider} from "./completion/providers/TraitOrContractFieldsCompletionProvider"
@@ -41,7 +53,12 @@ import {MessageMethodCompletionProvider} from "./completion/providers/MessageMet
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
 import {measureTime, parentOfType} from "@server/psi/utils"
-import {FileChangeType} from "vscode-languageserver"
+import {
+    DidChangeWatchedFilesParams,
+    FileChangeType,
+    ParameterInformation,
+    SymbolKind,
+} from "vscode-languageserver"
 import {Logger} from "@server/utils/logger"
 import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
 import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection"
@@ -50,6 +67,7 @@ import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
 import {CACHE} from "./cache"
 import {
     findFile,
+    findFiftFile,
     IndexRoot,
     IndexRootKind,
     PARSED_FILES_CACHE,
@@ -65,7 +83,6 @@ import {collectFift as collectFiftSemanticTokens} from "./fift/semantic_tokens/c
 import {FiftReference} from "@server/fift/psi/FiftReference"
 import {collectFift as collectFiftInlays} from "./fift/inlays/collect"
 import {FiftReferent} from "@server/fift/psi/FiftReferent"
-import {findFiftFile} from "./index-root"
 import {generateFiftDocFor} from "./fift/documentation/documentation"
 import {UnusedContractMembersInspection} from "./inspections/UnusedContractMembersInspection"
 import {generateKeywordDoc} from "@server/documentation/keywords_documentation"
@@ -73,8 +90,27 @@ import {UnusedImportInspection} from "./inspections/UnusedImportInspection"
 import {ImportResolver} from "@server/psi/ImportResolver"
 import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsCompletionProvider"
 import {CompletionResult} from "@server/completion/WeightedCompletionItem"
-import {DocumentUri, TextEdit} from "vscode-languageserver-types"
+import type {DocumentUri, TextEdit} from "vscode-languageserver-types"
 import {MissedFieldInContractInspection} from "@server/inspections/MissedFieldInContractInspection"
+import type {Node as SyntaxNode} from "web-tree-sitter"
+import {TraitOrContractConstantsCompletionProvider} from "@server/completion/providers/TraitOrContractConstantsCompletionProvider"
+import {generateTlBTypeDoc} from "@server/documentation/tlb_type_documentation"
+import {BouncedTypeCompletionProvider} from "@server/completion/providers/BouncedTypeCompletionProvider"
+import {TopLevelCompletionProvider} from "@server/completion/providers/TopLevelCompletionProvider"
+import type {Intention, IntentionArguments, IntentionContext} from "@server/intentions/Intention"
+import {AddExplicitType} from "@server/intentions/AddExplicitType"
+import {AddImport} from "@server/intentions/AddImport"
+import {NotImportedSymbolInspection} from "@server/inspections/NotImportedSymbolInspection"
+import {FillAllStructInit, FillRequiredStructInit} from "@server/intentions/FillAllStructInit"
+import {generateInitDoc, generateReceiverDoc} from "@server/documentation/receivers_documentation"
+import {AsKeywordCompletionProvider} from "@server/completion/providers/AsKeywordCompletionProvider"
+import {AddFieldInitialization} from "@server/intentions/AddFieldInitialization"
+import {
+    WrapSelectedToRepeat,
+    WrapSelectedToTry,
+    WrapSelectedToTryCatch,
+} from "@server/intentions/WrapSelected"
+import {PostfixCompletionProvider} from "@server/completion/providers/PostfixCompletionProvider"
 import {MistiInspection} from "@server/inspections/MistInspection"
 
 /**
@@ -93,6 +129,13 @@ let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
  */
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
 
+const showErrorMessage = (msg: string): void => {
+    void connection.sendNotification(lsp.ShowMessageNotification.type, {
+        type: lsp.MessageType.Error,
+        message: msg,
+    })
+}
+
 function findStdlib(settings: TactSettings, rootDir: string): string | null {
     if (settings.stdlib.path !== null && settings.stdlib.path.length > 0) {
         return settings.stdlib.path
@@ -110,9 +153,14 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
             return existsSync(path.join(rootDir, searchDir))
         }) ?? null
 
-    if (!localFolder) {
+    if (localFolder === null) {
         console.error(
-            "Standard library not found! Did you run `npm/yarn install`? Try to define path in the settings",
+            "Standard library not found! Searched in:\n",
+            searchDirs.map(dir => path.join(rootDir, dir)).join("\n"),
+        )
+
+        showErrorMessage(
+            "Tact standard library is missing! Try installing dependencies with `yarn/npm install` or specify `tact.stdlib.path` in settings",
         )
         return null
     }
@@ -122,7 +170,7 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
     return stdlibPath
 }
 
-async function initialize() {
+async function initialize(): Promise<void> {
     if (!workspaceFolders || workspaceFolders.length === 0 || initialized) {
         // use fallback later, see `initializeFallback`
         return
@@ -138,7 +186,7 @@ async function initialize() {
     const settings = await getDocumentSettings(rootUri)
 
     const stdlibPath = findStdlib(settings, rootDir)
-    if (stdlibPath) {
+    if (stdlibPath !== null) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
         const stdlibRoot = new IndexRoot(`file://${stdlibPath}`, IndexRootKind.Stdlib)
         await stdlibRoot.index()
@@ -170,6 +218,7 @@ async function initialize() {
     initialized = true
 }
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 connection.onInitialized(async () => {
     await initialize()
 })
@@ -193,7 +242,7 @@ function findConfigFileDir(startPath: string, fileName: string): string | null {
 
 // For some reason some editors (like Neovim) doesn't pass workspace folders to initialization.
 // So we need to find root first and then call initialize.
-async function initializeFallback(uri: string) {
+async function initializeFallback(uri: string): Promise<void> {
     // let's try to initialize with this way
     const projectDir = findConfigFileDir(path.dirname(uri.slice(7)), "tact.config.json")
     if (projectDir === null) {
@@ -211,17 +260,17 @@ async function initializeFallback(uri: string) {
     await initialize()
 }
 
-connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
+connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     console.info("Started new session")
-    console.info("Running in", params.clientInfo?.name)
-    console.info("workspaceFolders:", params.workspaceFolders)
+    console.info("Running in", initParams.clientInfo?.name)
+    console.info("workspaceFolders:", initParams.workspaceFolders)
 
-    if (params.clientInfo) {
-        clientInfo = params.clientInfo
+    if (initParams.clientInfo) {
+        clientInfo = initParams.clientInfo
     }
 
-    workspaceFolders = params.workspaceFolders ?? []
-    const opts = params.initializationOptions as ClientOptions | undefined
+    workspaceFolders = initParams.workspaceFolders ?? []
+    const opts = initParams.initializationOptions as ClientOptions | undefined
     const treeSitterUri = opts?.treeSitterWasmUri ?? `${__dirname}/tree-sitter.wasm`
     const tactLangUri = opts?.tactLangWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
     const fiftLangUri = opts?.fiftLangWasmUri ?? `${__dirname}/tree-sitter-fift.wasm`
@@ -267,30 +316,30 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             new UnusedContractMembersInspection(),
             new UnusedImportInspection(),
             new MissedFieldInContractInspection(),
+            new NotImportedSymbolInspection(),
         ]
 
+        const settings = await getDocumentSettings(uri)
         const diagnostics: lsp.Diagnostic[] = []
+
         for (const inspection of inspections) {
+            if (settings.inspections.disabled.includes(inspection.id)) {
+                continue
+            }
             diagnostics.push(...inspection.inspect(file))
         }
 
         // const compilerInspection = new CompilerInspection()
         // diagnostics.push(...await compilerInspection.inspect(file))
 
-        // const compilerInspection = new MistiInspection()
+        // const compilerInspection = new 
+()
         // diagnostics.push(...await compilerInspection.inspect(file))
 
         await connection.sendDiagnostics({uri, diagnostics})
     })
 
-    const showErrorMessage = (msg: string) => {
-        void connection.sendNotification(lsp.ShowMessageNotification.type, {
-            type: lsp.MessageType.Error,
-            message: msg,
-        })
-    }
-
-    connection.onDidChangeWatchedFiles(params => {
+    connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams) => {
         for (const change of params.changes) {
             const uri = change.uri
             if (!uri.endsWith(".tact")) continue
@@ -328,7 +377,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         void connection.sendRequest(lsp.CodeLensRefreshRequest.type)
     })
 
-    function nodeAtPosition(params: lsp.TextDocumentPositionParams, file: File) {
+    function nodeAtPosition(params: lsp.TextDocumentPositionParams, file: File): SyntaxNode | null {
         const cursorPosition = asParserPoint(params.position)
         return file.rootNode.descendantForPosition(cursorPosition)
     }
@@ -382,6 +431,63 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                     value: doc,
                 },
             }
+        }
+
+        if (parent?.type === "tlb_serialization") {
+            const doc = generateTlBTypeDoc(hoverNode.text)
+            if (doc === null) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        if (
+            hoverNode.type === "receive" ||
+            hoverNode.type === "external" ||
+            hoverNode.type === "bounced"
+        ) {
+            const parent = hoverNode.parent
+            if (!parent) return null
+            const func = new MessageFunction(parent, file)
+            const doc = generateReceiverDoc(func)
+            if (doc === null) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        if (hoverNode.type === "init") {
+            const parent = hoverNode.parent
+            if (!parent) return null
+            const func = new InitFunction(parent, file)
+            const doc = generateInitDoc(func)
+            if (doc === null) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        if (
+            hoverNode.type !== "identifier" &&
+            hoverNode.type !== "type_identifier" &&
+            hoverNode.type !== "self"
+        ) {
+            return null
         }
 
         const res = Reference.resolve(NamedNode.create(hoverNode, file))
@@ -452,6 +558,21 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                         targetSelectionRange: startOfFile,
                         originSelectionRange: asLspRange(hoverNode),
                     } as lsp.LocationLink,
+                ]
+            }
+
+            // resolve `initOf Foo()`
+            //          ^^^^^^ this
+            // to `init` function of the contract or contract name
+            if (hoverNode.type === "initOf") {
+                const resolved = Reference.resolveInitOf(hoverNode, file)
+                if (!resolved) return []
+
+                return [
+                    {
+                        uri: resolved.file.uri,
+                        range: asLspRange(resolved.node),
+                    },
                 ]
             }
 
@@ -586,18 +707,23 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const providers: CompletionProvider[] = [
                 new SnippetsCompletionProvider(),
                 new KeywordsCompletionProvider(),
+                new AsKeywordCompletionProvider(),
                 new MapTypeCompletionProvider(),
+                new BouncedTypeCompletionProvider(),
                 new ContractDeclCompletionProvider(),
                 new TopLevelFunctionCompletionProvider(),
+                new TopLevelCompletionProvider(),
                 new MemberFunctionCompletionProvider(),
                 new MessageMethodCompletionProvider(),
                 new TlbSerializationCompletionProvider(),
                 new OverrideCompletionProvider(),
                 new TraitOrContractFieldsCompletionProvider(),
+                new TraitOrContractConstantsCompletionProvider(),
                 new SelfCompletionProvider(),
                 new ReturnCompletionProvider(),
                 new ReferenceCompletionProvider(ref),
                 new AsmInstructionCompletionProvider(),
+                new PostfixCompletionProvider(),
             ]
 
             providers.forEach((provider: CompletionProvider) => {
@@ -609,19 +735,18 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    connection.onRequest(
-        lsp.InlayHintRequest.type,
+    connection.languages.inlayHint.on(
         async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
             const uri = params.textDocument.uri
-
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
-                return collectFiftInlays(file)
+                const settings = await getDocumentSettings(uri)
+                return collectFiftInlays(file, settings.fift.hints)
             }
 
             const file = findFile(uri)
-            const settings = await getDocumentSettings(params.textDocument.uri)
-            return measureTime("inlay hints", () => inlays.collect(file, settings.hints))
+            const settings = await getDocumentSettings(uri)
+            return inlays.collect(file, settings.hints)
         },
     )
 
@@ -739,7 +864,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const result = new Referent(highlightNode, file).findReferences(true, true, true)
             if (result.length === 0) return null
 
-            const usageKind = (value: Node) => {
+            const usageKind = (value: Node): lsp.DocumentHighlightKind => {
                 const parent = value.node.parent
                 if (
                     parent?.type === "assignment_statement" ||
@@ -764,7 +889,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.ReferencesRequest.type,
-        (params: lsp.ReferenceParams): lsp.Location[] | null => {
+        async (params: lsp.ReferenceParams): Promise<lsp.Location[] | null> => {
             const uri = params.textDocument.uri
 
             if (uri.endsWith(".fif")) {
@@ -785,12 +910,27 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const referenceNode = nodeAtPosition(params, file)
             if (!referenceNode) return null
 
-            if (referenceNode.type !== "identifier" && referenceNode.type !== "type_identifier") {
+            if (
+                referenceNode.type !== "identifier" &&
+                referenceNode.type !== "type_identifier" &&
+                referenceNode.type !== "init"
+            ) {
                 return []
             }
 
             const result = new Referent(referenceNode, file).findReferences(false)
             if (result.length === 0) return null
+
+            const settings = await getDocumentSettings(file.uri)
+            if (settings.findUsages.scope === "workspace") {
+                // filter out references from stdlib
+                return result
+                    .filter(value => !value.file.fromStdlib && !value.file.fromStubs)
+                    .map(value => ({
+                        uri: value.file.uri,
+                        range: asLspRange(value.node),
+                    }))
+            }
 
             return result.map(value => ({
                 uri: value.file.uri,
@@ -798,6 +938,130 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             }))
         },
     )
+
+    const findSignatureHelpTarget = (
+        hoverNode: SyntaxNode,
+        file: File,
+    ): {
+        rawArguments: SyntaxNode[]
+        parametersInfo: lsp.ParameterInformation[]
+        presentation: string
+        isMethod: boolean
+        isStructField: boolean
+        structFieldIndex: number
+    } | null => {
+        const findParametersNode = (element: NamedNode): SyntaxNode | null => {
+            if (element instanceof Contract) {
+                return element.initFunction()?.node.childForFieldName("parameters") ?? null
+            }
+
+            return element.node.childForFieldName("parameters")
+        }
+
+        const callNode = parentOfType(
+            hoverNode,
+            "static_call_expression",
+            "method_call_expression",
+            "initOf",
+            "instance_expression",
+            "instance_argument",
+            "instance_argument_list",
+        )
+        if (!callNode) return null
+
+        if (callNode.type === "instance_expression") return null // don't show any signature helps
+
+        if (callNode.type === "instance_argument_list" || callNode.type === "instance_argument") {
+            let name =
+                callNode.childForFieldName("name") ??
+                (hoverNode.type === "instance_argument"
+                    ? hoverNode.firstChild
+                    : hoverNode.previousNamedSibling)
+
+            if (!name) return null
+            if (name.type === "instance_argument") {
+                name = name.firstChild
+            }
+            if (!name) return null
+
+            const type = new Expression(name, file).type()
+            if (!type) return null
+
+            const instanceExpression = parentOfType(callNode, "instance_expression")
+            if (!instanceExpression) return null
+
+            const instanceName = instanceExpression.childForFieldName("name")
+            if (!instanceName) return null
+
+            const instanceType = new Expression(instanceName, file).type()
+            if (!instanceType) return null
+            if (!(instanceType instanceof FieldsOwnerTy)) return null
+
+            const fields = instanceType.fields()
+            const fieldPresentations = fields.map(
+                field => `${field.name()}: ${field.typeNode()?.node.text ?? ""}`,
+            )
+
+            const fieldsInfo = fieldPresentations.map(
+                name =>
+                    ({
+                        label: name,
+                    }) as ParameterInformation,
+            )
+
+            const presentation = instanceType.name() + "{ " + fieldPresentations.join(", ") + " }"
+
+            return {
+                rawArguments: [],
+                parametersInfo: fieldsInfo,
+                presentation: presentation,
+                isMethod: false,
+                isStructField: true,
+                structFieldIndex: fields.findIndex(f => f.name() === name.text),
+            }
+        }
+
+        const call = new CallLike(callNode, file)
+
+        const res = Reference.resolve(call.nameNode())
+        if (res === null) return null
+
+        const parametersNode = findParametersNode(res)
+        if (!parametersNode) return null
+
+        const parameters = parametersNode.children
+            .filter(value => value?.type === "parameter")
+            .filter(value => value !== null)
+
+        const rawArguments = call.rawArguments()
+
+        const parametersInfo: lsp.ParameterInformation[] = parameters.map(value => ({
+            label: value.text,
+        }))
+        const parametersString = parametersInfo.map(el => el.label).join(", ")
+
+        if (callNode.type === "initOf") {
+            return {
+                rawArguments,
+                parametersInfo,
+                presentation: `init(${parametersString})`,
+                isMethod: false,
+                isStructField: false,
+                structFieldIndex: 0,
+            }
+        }
+
+        if (!(res instanceof Fun)) return null
+
+        return {
+            rawArguments,
+            parametersInfo,
+            presentation: `fun ${call.name()}(${parametersString})`,
+            isMethod: callNode.type === "method_call_expression" && res.withSelf(),
+            isStructField: false,
+            structFieldIndex: 0,
+        }
+    }
 
     connection.onRequest(
         lsp.SignatureHelpRequest.type,
@@ -807,25 +1071,29 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
 
-            const callNode = parentOfType(
-                hoverNode,
-                "static_call_expression",
-                "method_call_expression",
-            )
-            if (!callNode) return null
+            const res = findSignatureHelpTarget(hoverNode, file)
+            if (!res) return null
 
-            const call = new CallLike(callNode, file)
+            const {
+                parametersInfo,
+                rawArguments,
+                isMethod,
+                presentation,
+                isStructField,
+                structFieldIndex,
+            } = res
 
-            const res = Reference.resolve(call.nameNode())
-            if (res === null) return null
-            if (!(res instanceof Fun)) return null
-
-            const parametersNode = res.node.childForFieldName("parameters")
-            if (!parametersNode) return null
-
-            const parameters = parametersNode.children
-                .filter(value => value?.type === "parameter")
-                .filter(value => value !== null)
+            if (isStructField) {
+                return {
+                    signatures: [
+                        {
+                            label: presentation,
+                            parameters: parametersInfo,
+                            activeParameter: structFieldIndex,
+                        },
+                    ],
+                }
+            }
 
             // The algorithm below uses the positions of commas and parentheses to findTo find the active parameter, it is enough to find the last comma, which has a position in the line less than the cursor position. In order not to complicate the algorithm, we consider the opening bracket as a kind of comma for the zero element. If the cursor position is greater than the position of any comma, then we consider that this is the last element. the active parameter.
             //
@@ -843,7 +1111,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             //
             // TODO: support multiline calls and functions with self
 
-            const rawArguments = call.rawArguments()
             const argsCommas = rawArguments.filter(
                 value => value.text === "," || value.text === "(",
             )
@@ -857,20 +1124,15 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 currentIndex = i
             }
 
-            if (callNode.type === "method_call_expression" && res.withSelf()) {
+            if (isMethod) {
                 // skip self
                 currentIndex++
             }
 
-            const parametersInfo: lsp.ParameterInformation[] = parameters.map(value => ({
-                label: value.text,
-            }))
-            const parametersString = parametersInfo.map(el => el.label).join(", ")
-
             return {
                 signatures: [
                     {
-                        label: `fun ${call.name()}(${parametersString})`,
+                        label: presentation,
                         parameters: parametersInfo,
                         activeParameter: currentIndex,
                     },
@@ -895,15 +1157,16 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
     connection.onRequest(
         lsp.SemanticTokensRequest.type,
-        (params: lsp.SemanticTokensParams): lsp.SemanticTokens | null => {
+        async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
             const uri = params.textDocument.uri
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
-                return collectFiftSemanticTokens(file)
+                const settings = await getDocumentSettings(uri)
+                return collectFiftSemanticTokens(file, settings.fift.semanticHighlighting)
             }
 
             const file = findFile(uri)
-            return measureTime("semantic tokens", () => semantic.collect(file))
+            return semantic.collect(file)
         },
     )
 
@@ -913,7 +1176,119 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const uri = params.textDocument.uri
             const file = findFile(uri)
             const settings = await getDocumentSettings(uri)
-            return lens.collect(file, settings.codeLens.enabled)
+            return lens.collect(file, settings.codeLens)
+        },
+    )
+
+    const intentions: Intention[] = [
+        new AddExplicitType(),
+        new AddImport(),
+        new FillAllStructInit(),
+        new FillRequiredStructInit(),
+        new AddFieldInitialization(),
+        new WrapSelectedToTry(),
+        new WrapSelectedToTryCatch(),
+        new WrapSelectedToRepeat(),
+    ]
+
+    connection.onRequest(
+        lsp.ExecuteCommandRequest.type,
+        async (params: lsp.ExecuteCommandParams) => {
+            if (params.command === "tact/executeGetScopeProvider") {
+                const commandParams = params.arguments?.[0] as
+                    | lsp.TextDocumentPositionParams
+                    | undefined
+                if (!commandParams) return "Invalid parameters"
+
+                const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)
+                if (!file) {
+                    return "File not found"
+                }
+
+                const node = nodeAtPosition(commandParams, file)
+                if (!node) {
+                    return "Node not found"
+                }
+
+                const referent = new Referent(node, file)
+                const scope = referent.useScope()
+                if (!scope) return "Scope not found"
+                if (scope instanceof LocalSearchScope) return scope.toString()
+                return "GlobalSearchScope"
+            }
+
+            if (!params.arguments || params.arguments.length === 0) return null
+
+            const intention = intentions.find(it => it.id === params.command)
+            if (!intention) return null
+
+            const args = params.arguments[0] as IntentionArguments
+
+            const file = findFile(args.fileUri)
+
+            const ctx: IntentionContext = {
+                file: file,
+                range: args.range,
+                position: args.position,
+                noSelection:
+                    args.range.start.line === args.range.end.line &&
+                    args.range.start.character === args.range.end.character,
+            }
+
+            const edits = intention.invoke(ctx)
+            if (!edits) return null
+
+            await connection.sendRequest(lsp.ApplyWorkspaceEditRequest.method, {
+                label: `Intention "${intention.name}"`,
+                edit: edits,
+            } as lsp.ApplyWorkspaceEditParams)
+
+            return null
+        },
+    )
+
+    connection.onRequest(
+        lsp.CodeActionRequest.type,
+        (params: lsp.CodeActionParams): lsp.CodeAction[] | null => {
+            const uri = params.textDocument.uri
+            if (uri.endsWith(".fif")) {
+                return null
+            }
+
+            const file = findFile(uri)
+
+            const ctx: IntentionContext = {
+                file: file,
+                range: params.range,
+                position: params.range.start,
+                noSelection:
+                    params.range.start.line === params.range.end.line &&
+                    params.range.start.character === params.range.end.character,
+            }
+
+            const actions: lsp.CodeAction[] = []
+
+            intentions.forEach(intention => {
+                if (!intention.isAvailable(ctx)) return
+
+                actions.push({
+                    title: intention.name,
+                    kind: lsp.CodeActionKind.QuickFix,
+                    command: {
+                        title: intention.name,
+                        command: intention.id,
+                        arguments: [
+                            {
+                                fileUri: file.uri,
+                                range: params.range,
+                                position: params.range.start,
+                            } as IntentionArguments,
+                        ],
+                    },
+                })
+            })
+
+            return actions
         },
     )
 
@@ -943,6 +1318,20 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             const file = findFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
+
+            const parent = hoverNode.parent
+            if (parent?.type === "tlb_serialization") {
+                const doc = generateTlBTypeDoc(hoverNode.text)
+                if (doc === null) return null
+
+                return {
+                    range: asLspRange(hoverNode),
+                    contents: {
+                        kind: "markdown",
+                        value: doc,
+                    },
+                }
+            }
 
             const res = Reference.resolve(NamedNode.create(hoverNode, file))
             if (res === null) {
@@ -990,18 +1379,23 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         if (node instanceof Constant) {
             return lsp.SymbolKind.Constant
         }
+        if (node instanceof Field) {
+            return lsp.SymbolKind.Field
+        }
         return lsp.SymbolKind.Object
     }
 
     connection.onRequest(
         lsp.DocumentSymbolRequest.type,
-        (params: lsp.DocumentSymbolParams): lsp.DocumentSymbol[] => {
+        async (params: lsp.DocumentSymbolParams): Promise<lsp.DocumentSymbol[]> => {
             const uri = params.textDocument.uri
             const file = findFile(uri)
 
+            const settings = await getDocumentSettings(file.uri)
+
             const result: lsp.DocumentSymbol[] = []
 
-            function symbolDetail(element: NamedNode | Fun | Field | Constant) {
+            function symbolDetail(element: NamedNode | Fun | Field | Constant): string {
                 if (element instanceof Fun) {
                     return element.signaturePresentation()
                 }
@@ -1032,31 +1426,74 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
                 }
             }
 
+            function addMessageFunctions(
+                element: StorageMembersOwner,
+                to: lsp.DocumentSymbol[],
+            ): void {
+                const messageFunctions = element.messageFunctions()
+                messageFunctions.forEach(messageFunction => {
+                    to.push({
+                        name: messageFunction.nameLike(),
+                        range: asNullableLspRange(messageFunction.node),
+                        selectionRange: asNullableLspRange(messageFunction.kindIdentifier()),
+                        kind: SymbolKind.Method,
+                    })
+                })
+            }
+
             function symbolChildren(element: NamedNode): lsp.DocumentSymbol[] {
                 const children: NamedNode[] = []
+                const additionalChildren: lsp.DocumentSymbol[] = []
 
-                if (element instanceof Struct) {
+                if (element instanceof Struct && settings.documentSymbols.showStructFields) {
                     children.push(...element.fields())
                 }
 
-                if (element instanceof Message) {
+                if (element instanceof Message && settings.documentSymbols.showMessageFields) {
                     children.push(...element.fields())
                 }
 
                 if (element instanceof Contract) {
-                    children.push(...element.ownConstants())
-                    children.push(...element.ownFields())
-                    children.push(...element.ownMethods())
+                    children.push(
+                        ...element.ownConstants(),
+                        ...element.ownFields(),
+                        ...element.ownMethods(),
+                    )
+
+                    const initFunction = element.initFunction()
+                    if (initFunction) {
+                        additionalChildren.push({
+                            name: initFunction.nameLike(),
+                            range: asNullableLspRange(initFunction.node),
+                            selectionRange: asNullableLspRange(initFunction.initIdentifier()),
+                            kind: SymbolKind.Constructor,
+                        })
+                    }
+
+                    addMessageFunctions(element, additionalChildren)
                 }
 
                 if (element instanceof Trait) {
-                    children.push(...element.ownConstants())
-                    children.push(...element.ownFields())
-                    children.push(...element.ownMethods())
+                    children.push(
+                        ...element.ownConstants(),
+                        ...element.ownFields(),
+                        ...element.ownMethods(),
+                    )
+
+                    addMessageFunctions(element, additionalChildren)
                 }
 
-                return children.map(el => createSymbol(el))
+                return [...children.map(el => createSymbol(el)), ...additionalChildren]
             }
+
+            file.imports().forEach(imp => {
+                result.push({
+                    name: imp.text,
+                    range: asLspRange(imp),
+                    selectionRange: asLspRange(imp),
+                    kind: SymbolKind.Module,
+                })
+            })
 
             file.getFuns().forEach(n => result.push(createSymbol(n)))
             file.getStructs().forEach(n => result.push(createSymbol(n)))
@@ -1066,7 +1503,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             file.getContracts().forEach(n => result.push(createSymbol(n)))
             file.getPrimitives().forEach(n => result.push(createSymbol(n)))
 
-            return result
+            return result.sort((a, b) => a.range.start.line - b.range.start.line)
         },
     )
 
@@ -1077,7 +1514,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
 
             const state = new ResolveState()
             const proc = new (class implements ScopeProcessor {
-                execute(node: Node, _state: ResolveState): boolean {
+                public execute(node: Node, _state: ResolveState): boolean {
                     if (!(node instanceof NamedNode)) return true
                     const nameIdentifier = node.nameIdentifier()
                     if (!nameIdentifier) return true
@@ -1107,29 +1544,7 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
         },
     )
 
-    connection.onExecuteCommand(params => {
-        if (params.command !== "tact/executeGetScopeProvider") return
-
-        const commandParams = params.arguments?.[0] as lsp.TextDocumentPositionParams | undefined
-        if (!commandParams) return "Invalid parameters"
-
-        const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)
-        if (!file) {
-            return "File not found"
-        }
-
-        const node = nodeAtPosition(commandParams, file)
-        if (!node) {
-            return "Node not found"
-        }
-
-        const referent = new Referent(node, file)
-        const scope = referent.useScope()
-        if (!scope) return "Scope not found"
-        if (scope instanceof LocalSearchScope) return scope.toString()
-        return "GlobalSearchScope"
-    })
-
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const _needed = TypeInferer.inferType
 
     console.info("Tact language server is ready!")
@@ -1137,7 +1552,6 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
     return {
         capabilities: {
             textDocumentSync: lsp.TextDocumentSyncKind.Incremental,
-            // codeActionProvider: true,
             documentSymbolProvider: true,
             workspaceSymbolProvider: true,
             definitionProvider: true,
@@ -1169,8 +1583,11 @@ connection.onInitialize(async (params: lsp.InitializeParams): Promise<lsp.Initia
             codeLensProvider: {
                 resolveProvider: false,
             },
+            codeActionProvider: {
+                codeActionKinds: [lsp.CodeActionKind.QuickFix],
+            },
             executeCommandProvider: {
-                commands: ["tact/executeGetScopeProvider"],
+                commands: ["tact/executeGetScopeProvider", ...intentions.map(it => it.id)],
             },
         },
     }

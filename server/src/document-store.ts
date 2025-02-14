@@ -3,7 +3,6 @@ import {TextDocuments} from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"
 
 export interface TextDocumentChange2 {
-    document: TextDocument
     changes: {
         range: lsp.Range
         rangeOffset: number
@@ -13,11 +12,11 @@ export interface TextDocumentChange2 {
 }
 
 export class DocumentStore extends TextDocuments<TextDocument> {
-    constructor(_connection: lsp.Connection) {
+    public constructor(_connection: lsp.Connection) {
         super({
             create: TextDocument.create,
             update: (doc, changes, version) => {
-                const event: TextDocumentChange2 = {document: doc, changes: []}
+                const event: TextDocumentChange2 = {changes: []}
 
                 for (const change of changes) {
                     if (!lsp.TextDocumentContentChangeEvent.isIncremental(change)) {

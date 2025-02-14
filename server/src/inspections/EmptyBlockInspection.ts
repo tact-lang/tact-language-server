@@ -1,10 +1,13 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
+import {Inspection, InspectionIds} from "./Inspection"
 
-export class EmptyBlockInspection {
-    inspect(file: File): lsp.Diagnostic[] {
+export class EmptyBlockInspection implements Inspection {
+    public readonly id: "empty-block" = InspectionIds.EMPTY_BLOCK
+
+    public inspect(file: File): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 

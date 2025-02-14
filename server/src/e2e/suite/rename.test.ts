@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
-import * as assert from "assert"
+import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import {TestCase} from "./TestParser"
+import type {TestCase} from "./TestParser"
 
 interface RenamePosition {
     line: number
@@ -11,7 +11,7 @@ interface RenamePosition {
 
 suite("Rename Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        findRenamePositions(input: string): RenamePosition[] {
+        private findRenamePositions(input: string): RenamePosition[] {
             const positions: RenamePosition[] = []
             const lines = input.split("\n")
 
@@ -20,7 +20,7 @@ suite("Rename Test Suite", () => {
                     const caretPosition = line.indexOf("^")
 
                     const character = caretPosition
-                    const renameTo = line.substring(caretPosition + 1).trim()
+                    const renameTo = line.slice(caretPosition + 1).trim()
 
                     positions.push({
                         line: i - 1,
@@ -32,7 +32,7 @@ suite("Rename Test Suite", () => {
             return positions
         }
 
-        async renameTo(position: vscode.Position, newName: string) {
+        private async renameTo(position: vscode.Position, newName: string): Promise<void> {
             const result = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
                 "vscode.executeDocumentRenameProvider",
                 this.document.uri,
@@ -45,7 +45,7 @@ suite("Rename Test Suite", () => {
             }
         }
 
-        protected runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase): void {
             test(`Rename: ${testCase.name}`, async () => {
                 const positions = this.findRenamePositions(testCase.input)
 
@@ -72,12 +72,12 @@ suite("Rename Test Suite", () => {
     })()
 
     suiteSetup(async function () {
-        this.timeout(10000)
+        this.timeout(10_000)
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("rename")

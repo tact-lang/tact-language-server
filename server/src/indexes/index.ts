@@ -91,36 +91,44 @@ export class FileIndex {
 
     public elementByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K] | null {
         switch (key) {
-            case IndexKey.Contracts:
+            case IndexKey.Contracts: {
                 return this.findElement(this.elements[IndexKey.Contracts], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Funs:
+            }
+            case IndexKey.Funs: {
                 return this.findElement(this.elements[IndexKey.Funs], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Messages:
+            }
+            case IndexKey.Messages: {
                 return this.findElement(this.elements[IndexKey.Messages], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Structs:
+            }
+            case IndexKey.Structs: {
                 return this.findElement(this.elements[IndexKey.Structs], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Traits:
+            }
+            case IndexKey.Traits: {
                 return this.findElement(this.elements[IndexKey.Traits], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Primitives:
+            }
+            case IndexKey.Primitives: {
                 return this.findElement(this.elements[IndexKey.Primitives], name) as
                     | IndexKeyToType[K]
                     | null
-            case IndexKey.Constants:
+            }
+            case IndexKey.Constants: {
                 return this.findElement(this.elements[IndexKey.Constants], name) as
                     | IndexKeyToType[K]
                     | null
-            default:
+            }
+            default: {
                 return null
+            }
         }
     }
 
@@ -132,7 +140,7 @@ export class FileIndex {
 export class GlobalIndex {
     private readonly files: Map<string, FileIndex> = new Map()
 
-    public addFile(uri: string, file: File, clearCache: boolean = true) {
+    public addFile(uri: string, file: File, clearCache: boolean = true): void {
         if (this.files.has(uri)) {
             return
         }
@@ -147,7 +155,7 @@ export class GlobalIndex {
         console.info(`added ${uri} to index`)
     }
 
-    public removeFile(uri: string) {
+    public removeFile(uri: string): void {
         CACHE.clear()
 
         this.files.delete(uri)
@@ -156,7 +164,7 @@ export class GlobalIndex {
         console.info(`removed ${uri} from index`)
     }
 
-    public fileChanged(uri: string) {
+    public fileChanged(uri: string): void {
         CACHE.clear()
         this.files.delete(uri)
         console.info(`found changes in ${uri}`)

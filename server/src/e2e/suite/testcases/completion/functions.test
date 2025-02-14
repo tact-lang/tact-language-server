@@ -16,12 +16,14 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  add(a: Int, b: Int): Int
 2  multiply(x: Int, y: Int): Int
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -46,8 +48,8 @@ fun test() {
     let result = <caret>
 }
 ------------------------------------------------------------------------
-5  result  unknown
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 true
 2  add(a: Int, b: Int): Int
@@ -73,9 +75,15 @@ fun test() {
 ------------------------------------------------------------------------
 2  double(self: Int): Int
 2  increment(self: Int): Int
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
 
 ========================================================================
-Fun completion in expression // TODO: remove x?
+Fun completion in expression
 ========================================================================
 primitive Int;
 
@@ -87,8 +95,8 @@ fun test() {
     let x = add(<caret>)
 }
 ------------------------------------------------------------------------
-5  x  Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 true
 2  add(a: Int, b: Int): Int
@@ -110,12 +118,14 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  add(a: Int, b: Int): Int
 2  multiply(x: Int, y: Int): Int
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -147,11 +157,13 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  foo()
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -162,3 +174,59 @@ fun test() {
 14 try-catch
 14 until
 14 while
+
+========================================================================
+Completion in function name
+========================================================================
+primitive Int;
+
+fun <caret>(a: Int, b: Int): Int {
+    return a + b;
+}
+------------------------------------------------------------------------
+0  a
+0  b
+0  fun
+0  Int
+0  primitive
+0  return
+
+========================================================================
+Completion in function name 2
+========================================================================
+primitive Int;
+
+trait Foo {
+    fun <caret>(a: Int, b: Int): Int {
+        return a + b;
+    }
+}
+------------------------------------------------------------------------
+0  a
+0  b
+0  Foo
+0  fun
+0  Int
+0  primitive
+0  return
+0  trait
+
+========================================================================
+Completion in function name 3
+========================================================================
+primitive Int;
+
+contract Foo {
+    fun <caret>(a: Int, b: Int): Int {
+        return a + b;
+    }
+}
+------------------------------------------------------------------------
+0  a
+0  b
+0  contract
+0  Foo
+0  fun
+0  Int
+0  primitive
+0  return

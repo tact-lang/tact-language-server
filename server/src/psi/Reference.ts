@@ -1,4 +1,4 @@
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {
     BouncedTy,
     ContractTy,
@@ -13,10 +13,11 @@ import {
 } from "@server/types/BaseTy"
 import {index, IndexKey} from "@server/indexes"
 import {Expression, NamedNode, Node} from "./Node"
-import {File} from "./File"
+import type {File} from "./File"
 import {Contract, Field, Fun, Message, Struct, Trait} from "./Decls"
 import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "@server/cache"
+import {TypeInferer} from "@server/TypeInferer"
 
 export class ResolveState {
     private values: Map<string, string> = new Map()
@@ -73,15 +74,20 @@ export class Reference {
     private resolveImpl(): NamedNode | null {
         const result: NamedNode[] = []
         const state = new ResolveState()
-        this.processResolveVariants(this.createResolveProcessor(result, this.element), state)
+        this.processResolveVariants(Reference.createResolveProcessor(result, this.element), state)
         if (result.length === 0) return null
         return result[0]
     }
 
-    private createResolveProcessor(result: Node[], element: Node): ScopeProcessor {
+    private static createResolveProcessor(result: Node[], element: Node): ScopeProcessor {
         return new (class implements ScopeProcessor {
             public execute(node: Node, state: ResolveState): boolean {
                 if (node.node.equals(element.node)) {
+                    result.push(node)
+                    return false
+                }
+
+                if (node.node.type === "init" && state.get("search-name") === "init") {
                     result.push(node)
                     return false
                 }
@@ -110,13 +116,13 @@ export class Reference {
             // so process whole `foo: Int` node
             const parent = this.element.node.parent
             if (!parent) return true
-            return proc.execute(this.declarationAstToNode(parent, this.element.file), state)
+            return proc.execute(Reference.declarationAstToNode(parent, this.element.file), state)
         }
         if (this.element.node.type === "parameter") {
             return proc.execute(this.element, state)
         }
 
-        const qualifier = this.getQualifier(this.element)
+        const qualifier = Reference.getQualifier(this.element)
         return qualifier
             ? // foo.bar
               // ^^^ qualifier
@@ -135,6 +141,12 @@ export class Reference {
         // ^^^^^^^^ this
         const parent = identifier.parent
 
+        // init()
+        // ^^^^^^ this
+        if (parent?.type === "init_function") {
+            return true
+        }
+
         // foo: Int
         // ^^^ this
         const name = parent?.childForFieldName("name")
@@ -145,6 +157,7 @@ export class Reference {
             parent.type === "field" ||
             parent.type === "parameter" ||
             parent.type === "storage_variable" ||
+            parent.type === "let_statement" ||
             parent.type === "trait" ||
             parent.type === "struct" ||
             parent.type === "message" ||
@@ -166,10 +179,15 @@ export class Reference {
         if (qualifierType === null) return true
 
         if (qualifierType instanceof StructTy || qualifierType instanceof MessageTy) {
-            const node = index.elementByName(IndexKey.Primitives, "AnyStruct")
-            if (node) {
-                const structPrimitiveTy = new PrimitiveTy("AnyStruct", node)
+            const nodeStruct = index.elementByName(IndexKey.Primitives, "AnyStruct")
+            if (nodeStruct) {
+                const structPrimitiveTy = new PrimitiveTy("AnyStruct", nodeStruct, null)
                 if (!this.processType(qualifier, structPrimitiveTy, proc, state)) return false
+            }
+            const nodeMessage = index.elementByName(IndexKey.Primitives, "AnyMessage")
+            if (nodeMessage) {
+                const messagePrimitiveTy = new PrimitiveTy("AnyMessage", nodeMessage, null)
+                if (!this.processType(qualifier, messagePrimitiveTy, proc, state)) return false
             }
         }
 
@@ -190,17 +208,17 @@ export class Reference {
         qualifierType: Ty | StructTy | MessageTy | TraitTy | ContractTy,
         proc: ScopeProcessor,
         state: ResolveState,
-    ) {
+    ): boolean {
         const methodRef = qualifier.node.parent?.type === "method_call_expression"
 
         if (!this.processTypeMethods(qualifierType, proc, state)) return false
 
         if (qualifierType instanceof StructTy) {
-            if (!this.processNamedEls(proc, state, qualifierType.fields())) return false
+            if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
         }
 
         if (qualifierType instanceof MessageTy) {
-            if (!this.processNamedEls(proc, state, qualifierType.fields())) return false
+            if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
         }
 
         // Traits or contracts
@@ -208,13 +226,13 @@ export class Reference {
             // for `foo.bar()` first check for methods since there is no callable types
             // for `foo.bar` first check for fields since there is no function pointers
             if (methodRef) {
-                if (!this.processNamedEls(proc, state, qualifierType.methods())) return false
-                if (!this.processNamedEls(proc, state, qualifierType.ownFields())) return false
-                if (!this.processNamedEls(proc, state, qualifierType.ownConstants())) return false
+                if (!Reference.processNamedEls(proc, state, qualifierType.methods())) return false
+                if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
+                if (!Reference.processNamedEls(proc, state, qualifierType.constants())) return false
             } else {
-                if (!this.processNamedEls(proc, state, qualifierType.ownFields())) return false
-                if (!this.processNamedEls(proc, state, qualifierType.ownConstants())) return false
-                if (!this.processNamedEls(proc, state, qualifierType.methods())) return false
+                if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
+                if (!Reference.processNamedEls(proc, state, qualifierType.constants())) return false
+                if (!Reference.processNamedEls(proc, state, qualifierType.methods())) return false
             }
         }
 
@@ -225,7 +243,7 @@ export class Reference {
         return index.processElementsByKey(
             IndexKey.Funs,
             new (class implements ScopeProcessor {
-                execute(fun: Node, state: ResolveState): boolean {
+                public execute(fun: Node, state: ResolveState): boolean {
                     if (!(fun instanceof Fun)) return true
                     if (!fun.withSelf()) return true
                     const selfParam = fun.parameters()[0]
@@ -292,13 +310,27 @@ export class Reference {
             if (!this.resolveInstanceInitField(parent, proc, state)) return false
         }
 
-        if (!this.processBlock(proc, state)) return false
+        if (this.element.node.type === "initOf" && this.element.node.text === "initOf") {
+            const resolved = Reference.resolveInitOf(this.element.node, this.element.file)
+            if (resolved) {
+                if (!proc.execute(resolved, state.withValue("search-name", "init"))) return false
+            }
+        }
 
         if (parent?.type === "asm_arrangement_args") {
             // `asm(cell self) extends fun storeRef(self: Builder, cell: Cell): Builder`
             //           ^^^^ this
             return this.resolveAsmArrangementArgs(parent, proc, state)
         }
+
+        if (parent?.type === "static_call_expression") {
+            // let context = context();
+            // context();
+            // ^^^^^^^ resolve only as global symbol
+            return this.processAllEntities(proc, state)
+        }
+
+        if (!this.processBlock(proc, state)) return false
 
         return this.processAllEntities(proc, state)
     }
@@ -379,7 +411,7 @@ export class Reference {
     private processAllEntities(proc: ScopeProcessor, state: ResolveState): boolean {
         if (state.get("completion")) {
             const intermediateProc = new (class implements ScopeProcessor {
-                execute(node: Node, state: ResolveState): boolean {
+                public execute(node: Node, state: ResolveState): boolean {
                     if (!(node instanceof Fun)) return true
                     if (node.withSelf()) return true // don't add methods to unqualified completion
                     return proc.execute(node, state)
@@ -399,21 +431,26 @@ export class Reference {
         return index.processElementsByKey(IndexKey.Contracts, proc, state)
     }
 
-    public processBlock(proc: ScopeProcessor, state: ResolveState) {
+    public processBlock(proc: ScopeProcessor, state: ResolveState): boolean {
         const file = this.element.file
         let descendant: SyntaxNode | null = this.element.node
+
+        let startStatement: SyntaxNode | null = null
 
         while (descendant) {
             // walk all variables inside block
             if (descendant.type === "block_statement" || descendant.type === "function_body") {
                 const statements = descendant.children
                 for (const stmt of statements) {
-                    if (!stmt) continue
+                    if (!stmt) break
+
+                    // reached the starting statement, look no further
+                    if (startStatement && stmt.equals(startStatement)) break
                     if (stmt.type === "let_statement") {
                         // let name = expr;
                         //     ^^^^ this
                         const name = stmt.childForFieldName("name")
-                        if (name === null) continue
+                        if (name === null) break
                         if (!proc.execute(new NamedNode(name, file), state)) return false
                     }
                 }
@@ -423,19 +460,28 @@ export class Reference {
                 // foreach (key, value in expr)
                 //          ^^^ this
                 const key = descendant.childForFieldName("key")
-                if (key === null) continue
+                if (key === null) {
+                    descendant = descendant.parent
+                    continue
+                }
                 if (!proc.execute(new NamedNode(key, file), state)) return false
 
                 // foreach (key, value in expr)
                 //               ^^^^^ this
                 const value = descendant.childForFieldName("value")
-                if (value === null) continue
+                if (value === null) {
+                    descendant = descendant.parent
+                    continue
+                }
                 if (!proc.execute(new NamedNode(value, file), state)) return false
             }
 
             if (descendant.type === "catch_clause") {
                 const name = descendant.childForFieldName("name")
-                if (name === null) continue
+                if (name === null) {
+                    descendant = descendant.parent
+                    continue
+                }
                 if (!proc.execute(new NamedNode(name, file), state)) return false
             }
 
@@ -444,12 +490,12 @@ export class Reference {
                 const rawParameters = descendant.childForFieldName("parameters")
                 if (rawParameters === null) {
                     const parameter = descendant.childForFieldName("parameter")
-                    if (parameter === null) continue
+                    if (parameter === null) break
 
                     if (!proc.execute(new NamedNode(parameter, file), state)) return false
                 } else {
                     const children = rawParameters.children
-                    if (children.length < 2) continue
+                    if (children.length < 2) break
                     const params = children.slice(1, -1)
 
                     for (const param of params) {
@@ -459,13 +505,17 @@ export class Reference {
                 }
             }
 
+            if (descendant.type === "let_statement" || descendant.type === "expression_statement") {
+                startStatement = descendant
+            }
+
             descendant = descendant.parent
         }
 
         return true
     }
 
-    public processNamedEls(
+    public static processNamedEls(
         proc: ScopeProcessor,
         state: ResolveState,
         elements: NamedNode[],
@@ -476,7 +526,7 @@ export class Reference {
         return true
     }
 
-    private getQualifier(node: Node): Expression | null {
+    private static getQualifier(node: Node): Expression | null {
         const parent = node.node.parent
         if (!parent) {
             return null
@@ -503,7 +553,7 @@ export class Reference {
         return null
     }
 
-    private declarationAstToNode(node: SyntaxNode, file: File): NamedNode {
+    private static declarationAstToNode(node: SyntaxNode, file: File): NamedNode {
         if (node.type === "struct") {
             return new Struct(node, file)
         }
@@ -519,6 +569,34 @@ export class Reference {
         if (node.type === "storage_function") {
             return new Fun(node, file)
         }
+        if (node.type === "let_statement") {
+            const name = node.childForFieldName("name")
+            if (!name) return new NamedNode(node, file)
+            return new NamedNode(name, file)
+        }
+
         return new NamedNode(node, file)
+    }
+
+    public static resolveInitOf(node: SyntaxNode, file: File): Node | null {
+        const actualNode = node.parent
+        if (!actualNode) return null
+        const name = actualNode.childForFieldName("name")
+        if (!name) return null
+        const type = TypeInferer.inferType(new Node(name, file))
+        if (!type) return null
+        if (!(type instanceof ContractTy)) return null
+        const initFunc = type.initFunction()
+        if (!initFunc) {
+            // if no init function in contract go to contract name
+            if (!type.anchor) return null
+            const nameNode = type.anchor.nameNode()
+            if (!nameNode) return null
+            return new Node(nameNode.node, file)
+        }
+
+        const initIdent = initFunc.initIdentifier()
+        if (!initIdent) return null
+        return new Node(initIdent, file)
     }
 }

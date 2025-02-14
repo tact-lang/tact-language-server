@@ -7,7 +7,7 @@ contract <caret>Foo {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 contract Foo
 ```
 Some cool contract
@@ -23,7 +23,7 @@ contract <caret>Foo with Other {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 contract Foo with Other
 ```
 Some cool contract
@@ -36,7 +36,8 @@ contract Foo {
     get fun <caret>foo() {}
 }
 ------------------------------------------------------------------------
-```
+```tact
+contract Foo
 get fun foo()
 ```
 Method ID: `0x103fc`
@@ -51,7 +52,82 @@ contract Foo {
     fun <caret>foo() {}
 }
 ------------------------------------------------------------------------
-```
+```tact
+contract Foo
 fun foo()
 ```
 Some cool function
+
+========================================================================
+Contract field declaration
+========================================================================
+primitive Int;
+
+contract Foo {
+    field: Int;
+
+    fun foo() {
+        self.<caret>field;
+    }
+}
+------------------------------------------------------------------------
+```tact
+contract Foo
+field: Int
+```
+
+========================================================================
+Contract field declaration with default value
+========================================================================
+primitive Int;
+
+contract Foo {
+    field: Int = 0;
+
+    fun foo() {
+        self.<caret>field;
+    }
+}
+------------------------------------------------------------------------
+```tact
+contract Foo
+field: Int = 0
+```
+
+========================================================================
+Contract constant declaration with default value
+========================================================================
+primitive Int;
+
+contract Foo {
+    const FOO: Int = 0;
+
+    fun foo() {
+        self.<caret>FOO;
+    }
+}
+------------------------------------------------------------------------
+```tact
+contract Foo
+const FOO: Int = 0
+```
+
+========================================================================
+Contract constant declaration from trait
+========================================================================
+primitive Int;
+
+trait WithFoo {
+    const FOO: Int = 0;
+}
+
+contract Foo with WithFoo {
+    fun foo() {
+        self.<caret>FOO;
+    }
+}
+------------------------------------------------------------------------
+```tact
+trait WithFoo
+const FOO: Int = 0
+```

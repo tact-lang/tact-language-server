@@ -1,12 +1,21 @@
-import {Expression, NamedNode} from "./Node"
+import {Expression, NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
 import {index, IndexKey} from "@server/indexes"
 import {parentOfType} from "./utils"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {findInstruction} from "@server/completion/data/types"
 import {crc16} from "@server/utils/crc16"
+import {Position} from "vscode-languageclient"
+import {asLspPosition} from "@server/utils/position"
 
 export class FieldsOwner extends NamedNode {
+    public kind(): string {
+        if (this.node.type === "message") {
+            return "message"
+        }
+        return "struct"
+    }
+
     public fields(): Field[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
@@ -38,6 +47,38 @@ export class Struct extends FieldsOwner {
 export class Primitive extends NamedNode {}
 
 export class StorageMembersOwner extends NamedNode {
+    public kind(): string {
+        if (this.node.type === "trait") {
+            return "trait"
+        }
+        return "contract"
+    }
+
+    public initFunction(): InitFunction | null {
+        const body = this.node.childForFieldName("body")
+        if (!body) return null
+        const candidates = body.children
+            .filter(value => value?.type === "init_function")
+            .filter(value => value !== null)
+            .map(value => new InitFunction(value, this.file))
+        if (candidates.length === 0) return null
+        return candidates[0]
+    }
+
+    public messageFunctions(): MessageFunction[] {
+        const body = this.node.childForFieldName("body")
+        if (!body) return []
+        return body.children
+            .filter(
+                value =>
+                    value?.type === "receive_function" ||
+                    value?.type === "external_function" ||
+                    value?.type === "bounced_function",
+            )
+            .filter(value => value !== null)
+            .map(value => new MessageFunction(value, this.file))
+    }
+
     public ownMethods(): Fun[] {
         const body = this.node.childForFieldName("body")
         if (!body) return []
@@ -92,7 +133,7 @@ export class StorageMembersOwner extends NamedNode {
 
         const traitList = this.node.childForFieldName("traits")
         const baseTraitOrEmpty =
-            baseTraitNode !== null ? [new Trait(baseTraitNode.node, baseTraitNode.file)] : []
+            baseTraitNode === null ? [] : [new Trait(baseTraitNode.node, baseTraitNode.file)]
 
         if (!traitList) {
             return [...baseTraitOrEmpty]
@@ -113,6 +154,78 @@ export class StorageMembersOwner extends NamedNode {
 export class Trait extends StorageMembersOwner {}
 
 export class Contract extends StorageMembersOwner {}
+
+export class InitFunction extends Node {
+    public nameLike(): string {
+        const parametersNode = this.node.childForFieldName("parameters")
+        if (!parametersNode) return "init()"
+        return `init${parametersNode.text}`
+    }
+
+    public endParen(): SyntaxNode | null {
+        const parametersNode = this.node.childForFieldName("parameters")
+        if (!parametersNode) return null
+        return parametersNode.lastChild
+    }
+
+    public lastStatementPos(): Position | null {
+        const body = this.node.childForFieldName("body")
+        if (!body) return null
+
+        const children = body.children.filter(value => value !== null)
+        if (children.length === 0) return null
+        if (children.length <= 2) return asLspPosition(children[0].endPosition)
+
+        const statements = children.slice(1, -1)
+        const lastStatement = statements.at(-1)
+        if (!lastStatement) return null
+
+        return asLspPosition(lastStatement.endPosition)
+    }
+
+    public get hasOneLineBody(): boolean {
+        const body = this.node.childForFieldName("body")
+        if (!body) return false
+
+        const firstChild = body.firstChild
+        const lastChild = body.lastChild
+        if (!firstChild || !lastChild) return false
+
+        return firstChild.startPosition.row === lastChild.startPosition.row
+    }
+
+    public parameters(): NamedNode[] {
+        const parametersNode = this.node.childForFieldName("parameters")
+        if (!parametersNode) return []
+
+        return parametersNode.children
+            .filter(value => value?.type === "parameter")
+            .filter(value => value !== null)
+            .map(value => new NamedNode(value, this.file))
+    }
+
+    public initIdentifier(): SyntaxNode | null {
+        return this.node.firstChild
+    }
+}
+
+export class MessageFunction extends Node {
+    public nameLike(): string {
+        const parametersNode = this.node.childForFieldName("parameter")
+        const kindIdent = this.kindIdentifier()
+        if (!kindIdent) return "unknown()"
+        if (!parametersNode) return `${kindIdent.text}()`
+        return `${kindIdent.text}(${parametersNode.text})`
+    }
+
+    public parameter(): SyntaxNode | null {
+        return this.node.childForFieldName("parameter")
+    }
+
+    public kindIdentifier(): SyntaxNode | null {
+        return this.node.firstChild
+    }
+}
 
 export class Fun extends NamedNode {
     public hasBody(): boolean {
@@ -230,7 +343,7 @@ export class Fun extends NamedNode {
     }
 
     public computeMethodId(): number {
-        return (crc16(Buffer.from(this.name())) & 0xffff) | 0x10000
+        return (crc16(Buffer.from(this.name())) & 0xff_ff) | 0x1_00_00
     }
 
     public computeGasConsumption(): GasConsumption {
@@ -261,7 +374,7 @@ export class Fun extends NamedNode {
             if (instr.doc.gas.includes("|") || instr.doc.gas.includes("+")) {
                 exact = false
             }
-            res += parseInt(instr.doc.gas)
+            res += Number.parseInt(instr.doc.gas)
         }
 
         if (!exact && singleInstr) {
@@ -294,6 +407,14 @@ export class Field extends NamedNode {
         const value = this.node.childForFieldName("type")
         if (!value) return null
         return new Expression(value, this.file)
+    }
+
+    public tlbType(): string | null {
+        const tlb = this.node.childForFieldName("tlb")
+        if (!tlb) return null
+        const type = tlb.childForFieldName("type")
+        if (!type) return "" // return "" here to show that type has incomplete `as`
+        return type.text
     }
 
     public defaultValuePresentation(): string {

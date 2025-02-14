@@ -7,7 +7,7 @@ struct <caret>Foo {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 struct Foo {
     name: String;
     value: Int;
@@ -24,7 +24,7 @@ message <caret>Foo {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 message Foo {
     name: String;
     value: Int;
@@ -41,10 +41,139 @@ message(0x178d4519) <caret>Foo {
     value: Int;
 }
 ------------------------------------------------------------------------
-```
+```tact
 message(0x178d4519) Foo {
     name: String;
     value: Int;
 }
 ```
 Some cool message
+
+========================================================================
+Field declaration
+========================================================================
+primitive Int;
+
+struct Foo {
+    field: Int;
+}
+
+fun foo() {
+    let f = Foo { <caret>field: 10 };
+}
+------------------------------------------------------------------------
+```tact
+struct Foo
+field: Int
+```
+
+========================================================================
+Field declaration 2
+========================================================================
+primitive Int;
+
+struct Foo {
+    field: Int;
+}
+
+fun foo() {
+    let f = Foo { field: 10 };
+    f.<caret>field;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo
+field: Int
+```
+
+========================================================================
+Field declaration 3
+========================================================================
+primitive Int;
+
+message Foo {
+    field: Int;
+}
+
+fun foo() {
+    let f = Foo { field: 10 };
+    f.<caret>field;
+}
+------------------------------------------------------------------------
+```tact
+message Foo
+field: Int
+```
+
+========================================================================
+Field declaration with default value
+========================================================================
+primitive Int;
+
+struct Foo {
+    field: Int = 0;
+}
+
+fun foo() {
+    let f = Foo { field: 10 };
+    f.<caret>field;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo
+field: Int = 0
+```
+
+========================================================================
+Field declaration with type with TL-B
+========================================================================
+primitive Int;
+
+struct Foo {
+    field: Int as uint8;
+}
+
+fun foo() {
+    let f = Foo { <caret>field: 10 };
+}
+------------------------------------------------------------------------
+```tact
+struct Foo
+field: Int as uint8
+```
+
+========================================================================
+Field declaration with type with TL-B 2
+========================================================================
+primitive Slice;
+
+struct Foo {
+    field: Slice as remaining;
+}
+
+fun foo() {
+    let f = Foo { <caret>field: 10 };
+}
+------------------------------------------------------------------------
+```tact
+struct Foo
+field: Slice as remaining
+```
+
+========================================================================
+Field declaration with type with TL-B 3
+========================================================================
+primitive Int;
+
+struct Foo {
+    field: map<Int as uint8, Int>;
+}
+
+fun foo() {
+    let f = Foo { <caret>field: 10 };
+}
+------------------------------------------------------------------------
+```tact
+struct Foo
+field: map<Int as uint8, Int>
+```

@@ -1,4 +1,4 @@
-import {
+import type {
     Struct,
     Message,
     FieldsOwner,
@@ -8,8 +8,10 @@ import {
     Trait,
     StorageMembersOwner,
     Primitive,
+    InitFunction,
+    Field,
 } from "@server/psi/Decls"
-import {NamedNode} from "@server/psi/Node"
+import type {NamedNode} from "@server/psi/Node"
 
 export interface Ty {
     name(): string
@@ -18,8 +20,8 @@ export interface Ty {
 }
 
 export abstract class BaseTy<Anchor extends NamedNode> implements Ty {
-    anchor: Anchor | null = null
-    _name: string
+    public readonly anchor: Anchor | null = null
+    protected readonly _name: string
 
     public constructor(_name: string, anchor: Anchor | null) {
         this.anchor = anchor
@@ -36,7 +38,7 @@ export abstract class BaseTy<Anchor extends NamedNode> implements Ty {
 }
 
 export class FieldsOwnerTy<Anchor extends FieldsOwner> extends BaseTy<Anchor> {
-    public fields(): NamedNode[] {
+    public fields(): Field[] {
         if (this.anchor === null) return []
         return this.anchor.fields()
     }
@@ -46,7 +48,31 @@ export class StructTy extends FieldsOwnerTy<Struct> {}
 
 export class MessageTy extends FieldsOwnerTy<Message> {}
 
-export class PrimitiveTy extends BaseTy<Primitive> {}
+export class PrimitiveTy extends BaseTy<Primitive> {
+    public constructor(
+        name: string,
+        anchor: Primitive | null,
+        public tlb: string | null,
+    ) {
+        super(name, anchor)
+    }
+
+    public override name(): string {
+        if (this.tlb !== null) {
+            return `${this._name} as ${this.tlb}`
+        }
+
+        return this._name
+    }
+
+    public override qualifiedName(): string {
+        if (this.tlb !== null) {
+            return `${this._name} as ${this.tlb}`
+        }
+
+        return this._name
+    }
+}
 
 export class PlaceholderTy extends BaseTy<NamedNode> {}
 
@@ -66,9 +92,24 @@ export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends B
         return this.anchor.ownConstants()
     }
 
+    public constants(): Constant[] {
+        if (this.anchor === null) return []
+        return this.anchor.constants()
+    }
+
+    public fields(): NamedNode[] {
+        if (this.anchor === null) return []
+        return this.anchor.fields()
+    }
+
     public methods(): Fun[] {
         if (this.anchor === null) return []
         return this.anchor.methods()
+    }
+
+    public initFunction(): InitFunction | null {
+        if (this.anchor === null) return null
+        return this.anchor.initFunction()
     }
 }
 
@@ -77,50 +118,50 @@ export class TraitTy extends StorageMembersOwnerTy<Trait> {}
 export class ContractTy extends StorageMembersOwnerTy<Contract> {}
 
 export class BouncedTy implements Ty {
-    constructor(public innerTy: Ty) {}
+    public constructor(public innerTy: Ty) {}
 
-    name(): string {
+    public name(): string {
         return `bounced<${this.innerTy.name()}>`
     }
 
-    qualifiedName(): string {
+    public qualifiedName(): string {
         return `bounced<${this.innerTy.qualifiedName()}>`
     }
 }
 
 export class OptionTy implements Ty {
-    constructor(public innerTy: Ty) {}
+    public constructor(public innerTy: Ty) {}
 
-    name(): string {
+    public name(): string {
         return `${this.innerTy.name()}?`
     }
 
-    qualifiedName(): string {
+    public qualifiedName(): string {
         return `${this.innerTy.qualifiedName()}?`
     }
 }
 
 export class MapTy implements Ty {
-    constructor(
+    public constructor(
         public keyTy: Ty,
         public valueTy: Ty,
     ) {}
 
-    name(): string {
+    public name(): string {
         return `map<${this.keyTy.name()}, ${this.valueTy.name()}>`
     }
 
-    qualifiedName(): string {
+    public qualifiedName(): string {
         return `map<${this.keyTy.qualifiedName()}, ${this.valueTy.qualifiedName()}>`
     }
 }
 
 export class NullTy implements Ty {
-    name(): string {
+    public name(): string {
         return "null"
     }
 
-    qualifiedName(): string {
+    public qualifiedName(): string {
         return "null"
     }
 }

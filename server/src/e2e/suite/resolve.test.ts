@@ -1,30 +1,30 @@
 import * as vscode from "vscode"
-import * as assert from "assert"
+import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import {TestCase} from "./TestParser"
+import type {TestCase} from "./TestParser"
 
 suite("Resolve Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        async getDefinitions(
+        private async getDefinitions(
             input: string,
         ): Promise<(vscode.LocationLink[] | vscode.Location[] | undefined)[]> {
             const caretIndexes = this.findCaretPositions(input)
-            if (caretIndexes.length == 0) {
+            if (caretIndexes.length === 0) {
                 throw new Error("No <caret> marker found in input")
             }
 
             const textWithoutCaret = input.replace(/<caret>/g, "")
             await this.replaceDocumentText(textWithoutCaret)
 
-            return await Promise.all(
-                caretIndexes.map(caretIndex => {
+            return Promise.all(
+                caretIndexes.map(async caretIndex => {
                     const position = this.calculatePosition(input, caretIndex)
                     return this.getDefinitionAt(position)
                 }),
             )
         }
 
-        async getDefinitionAt(
+        private async getDefinitionAt(
             position: vscode.Position,
         ): Promise<vscode.LocationLink[] | vscode.Location[] | undefined> {
             return vscode.commands.executeCommand<vscode.LocationLink[]>(
@@ -34,11 +34,11 @@ suite("Resolve Test Suite", () => {
             )
         }
 
-        formatLocation(position: vscode.Position): string {
+        private formatLocation(position: vscode.Position): string {
             return `${position.line}:${position.character}`
         }
 
-        formatResult(
+        private formatResult(
             positions: vscode.Position[],
             definitions: (vscode.LocationLink[] | vscode.Location[] | undefined)[],
         ): string {
@@ -54,16 +54,16 @@ suite("Resolve Test Suite", () => {
                         return `${this.formatLocation(pos)} -> ${this.formatLocation(
                             target.range.start,
                         )} resolved`
-                    } else {
-                        return `${this.formatLocation(pos)} -> ${this.formatLocation(
-                            target.targetRange.start,
-                        )} resolved`
                     }
+
+                    return `${this.formatLocation(pos)} -> ${this.formatLocation(
+                        target.targetRange.start,
+                    )} resolved`
                 })
                 .join("\n")
         }
 
-        protected runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase): void {
             test(`Resolve: ${testCase.name}`, async () => {
                 const caretIndexes = this.findCaretPositions(testCase.input)
                 const positions = caretIndexes.map(index =>
@@ -86,12 +86,12 @@ suite("Resolve Test Suite", () => {
     })()
 
     suiteSetup(async function () {
-        this.timeout(10000)
+        this.timeout(10_000)
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("resolve")

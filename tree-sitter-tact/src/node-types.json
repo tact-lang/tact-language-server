@@ -870,6 +870,16 @@
     "type": "field",
     "named": true,
     "fields": {
+      "_completion_anchor": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
       "name": {
         "multiple": false,
         "required": true,
@@ -1301,7 +1311,7 @@
     "fields": {
       "arguments": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "argument_list",
@@ -1314,7 +1324,7 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "type_identifier",
             "named": true
           }
         ]
@@ -1464,7 +1474,7 @@
       },
       "value": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "binary_expression",
@@ -2171,6 +2181,16 @@
     "type": "storage_variable",
     "named": true,
     "fields": {
+      "_completion_anchor": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
       "name": {
         "multiple": false,
         "required": true,

@@ -1,11 +1,14 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {ImportResolver} from "@server/psi/ImportResolver"
+import {Inspection, InspectionIds} from "./Inspection"
 
-export class UnusedImportInspection {
-    inspect(file: File): lsp.Diagnostic[] {
+export class UnusedImportInspection implements Inspection {
+    public readonly id: "unused-import" = InspectionIds.UNUSED_IMPORT
+
+    public inspect(file: File): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 
@@ -43,7 +46,7 @@ export class UnusedImportInspection {
         })
 
         for (const [importPath, {node, names}] of imports) {
-            if (!this.usedInFile(names, file)) {
+            if (!UnusedImportInspection.usedInFile(names, file)) {
                 diagnostics.push({
                     severity: lsp.DiagnosticSeverity.Hint,
                     range: asLspRange(node),
@@ -58,7 +61,7 @@ export class UnusedImportInspection {
         return diagnostics
     }
 
-    private usedInFile(names: Set<string>, file: File): boolean {
+    private static usedInFile(names: Set<string>, file: File): boolean {
         for (const name of names) {
             if (file.content.includes(name)) {
                 return true

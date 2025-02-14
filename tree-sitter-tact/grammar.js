@@ -299,6 +299,7 @@ module.exports = grammar({
       seq(
         ":",
         field("type", $._type),
+        field("_completion_anchor", optional($.identifier)),
         field("tlb", optional($.tlb_serialization)),
         optional(seq("=", field("value", $._expression))),
       ),
@@ -436,9 +437,13 @@ module.exports = grammar({
       seq(
         "let",
         field("name", $.identifier),
-        optional(seq(":", field("type", $._type))),
-        "=",
-        field("value", $._expression),
+        optional(
+          seq(
+            optional(seq(":", field("type", $._type))),
+            "=",
+            field("value", $._expression),
+          ),
+        ),
       ),
 
     block_statement: ($) =>
@@ -736,8 +741,8 @@ module.exports = grammar({
     initOf: ($) =>
       seq(
         "initOf",
-        field("name", $.identifier),
-        field("arguments", $.argument_list),
+        field("name", alias($._type_identifier, $.type_identifier)),
+        optional(field("arguments", $.argument_list)),
       ),
 
     /* Types */

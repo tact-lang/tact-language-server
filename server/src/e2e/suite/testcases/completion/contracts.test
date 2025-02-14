@@ -6,12 +6,17 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
 13 fun name() {}
 13 get fun name() {}
 13 init() {}
 13 inline fun name() {}
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
+13 receive() {}
 
 ========================================================================
 Completion of contract constants
@@ -26,6 +31,7 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
@@ -33,6 +39,7 @@ contract Foo {
 20 self.BAR:  = 100
 20 self.FOO:  = 100
 13 self
+14 do
 14 foreach
 14 if
 14 ife
@@ -43,3 +50,37 @@ contract Foo {
 14 try-catch
 14 until
 14 while
+
+========================================================================
+Completion inside `receive()` parameters
+========================================================================
+contract Foo {
+    receive(<caret>) {}
+}
+------------------------------------------------------------------------
+0  contract
+0  Foo
+0  receive
+
+========================================================================
+Completion inside `external()` parameters
+========================================================================
+contract Foo {
+    external(<caret>) {}
+}
+------------------------------------------------------------------------
+0  contract
+0  external
+0  Foo
+
+========================================================================
+Completion inside `fun()` parameters
+========================================================================
+contract Foo {
+    fun foo(<caret>) {}
+}
+------------------------------------------------------------------------
+0  contract
+0  Foo
+0  foo
+0  fun

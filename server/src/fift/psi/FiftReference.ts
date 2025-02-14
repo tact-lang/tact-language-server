@@ -1,12 +1,12 @@
-import {Node as SyntaxNode} from "web-tree-sitter"
-import {File} from "../../psi/File"
+import type {Node as SyntaxNode} from "web-tree-sitter"
+import type {File} from "../../psi/File"
 import {RecursiveVisitor} from "@server/psi/visitor"
 
 export class FiftReference {
     private readonly node: SyntaxNode
     private readonly file: File
 
-    constructor(node: SyntaxNode, file: File) {
+    public constructor(node: SyntaxNode, file: File) {
         this.node = node
         this.file = file
     }

@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import * as path from "path"
-import * as fs from "fs"
+import * as path from "node:path"
+import * as fs from "node:fs"
 import * as glob from "glob"
 import {TestCase, TestParser} from "./TestParser"
 
@@ -17,11 +17,11 @@ export abstract class BaseTestSuite {
     protected testFilePath!: string
     protected updates: TestUpdate[] = []
 
-    async suiteSetup() {
+    public async suiteSetup(): Promise<void> {
         await activate()
     }
 
-    async setup() {
+    public async setup(): Promise<void> {
         this.testFilePath = path.join(__dirname, "../../../test-workspace/test.tact")
         const testDir = path.dirname(this.testFilePath)
         await fs.promises.mkdir(testDir, {recursive: true})
@@ -32,17 +32,17 @@ export abstract class BaseTestSuite {
         this.editor = await vscode.window.showTextDocument(this.document)
     }
 
-    async teardown() {
+    public async teardown(): Promise<void> {
         await vscode.commands.executeCommand("workbench.action.closeActiveEditor")
         try {
             await fs.promises.unlink(this.testFilePath)
-        } catch (e) {
-            console.warn("Failed to delete test file:", e)
+        } catch (error) {
+            console.warn("Failed to delete test file:", error)
         }
     }
 
     protected calculatePosition(text: string, caretIndex: number): vscode.Position {
-        const textBeforeCaret = text.substring(0, caretIndex)
+        const textBeforeCaret = text.slice(0, caretIndex)
         const lines = textBeforeCaret.split("\n")
         const line = lines.length - 1
         const character = lines[line].length
@@ -50,7 +50,7 @@ export abstract class BaseTestSuite {
         return new vscode.Position(line, character)
     }
 
-    protected async replaceDocumentText(text: string) {
+    protected async replaceDocumentText(text: string): Promise<void> {
         await this.editor.edit(edit => {
             const fullRange = new vscode.Range(
                 this.document.positionAt(0),
@@ -72,7 +72,7 @@ export abstract class BaseTestSuite {
         return positions
     }
 
-    suiteTeardown() {
+    public suiteTeardown(): boolean {
         const fileUpdates: Map<string, TestUpdate[]> = new Map()
 
         for (const update of this.updates) {
@@ -88,7 +88,7 @@ export abstract class BaseTestSuite {
         return true
     }
 
-    runTestsFromDirectory(directory: string) {
+    public runTestsFromDirectory(directory: string): void {
         const testCasesPath = path.join(
             __dirname,
             "..",
@@ -120,10 +120,10 @@ export abstract class BaseTestSuite {
 async function activate(): Promise<void> {
     console.log("Activating extension...")
 
-    const ext = vscode.extensions.getExtension("tonstudio.tact-vscode")
+    const ext = vscode.extensions.getExtension("tonstudio.vscode-tact")
     if (!ext) {
         throw new Error(
-            "Extension not found. Make sure the extension is installed and the ID is correct (tonstudio.tact-vscode)",
+            "Extension not found. Make sure the extension is installed and the ID is correct (tonstudio.vscode-tact)",
         )
     }
 

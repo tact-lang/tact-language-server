@@ -11,12 +11,14 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
 20 BAR: Int = 100
 20 FOO: Int = 100
+14 do
 14 foreach
 14 if
 14 ife
@@ -27,3 +29,49 @@ fun test() {
 14 try-catch
 14 until
 14 while
+
+========================================================================
+Contract constant completion
+========================================================================
+primitive Int;
+
+contract Foo {
+    const<caret>
+}
+------------------------------------------------------------------------
+13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
+13 fun name() {}
+13 get fun name() {}
+13 init() {}
+13 inline fun name() {}
+13 receive(msg: <type>) {}
+13 receive("<message>") {}
+13 receive() {}
+
+========================================================================
+Trait constant completion
+========================================================================
+primitive Int;
+
+trait Foo {
+    const<caret>
+}
+------------------------------------------------------------------------
+13 abstract fun name();
+13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
+13 fun name() {}
+13 get fun name() {}
+13 init() {}
+13 inline fun name() {}
+13 receive(msg: <type>) {}
+13 receive("<message>") {}
+13 receive() {}
+13 virtual fun name() {}

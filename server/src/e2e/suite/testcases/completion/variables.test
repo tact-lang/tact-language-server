@@ -13,14 +13,16 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-5  myAddress  Address
-5  myInt  Int
-5  myString  String
+5  myAddress   Address
+5  myInt   Int
+5  myString   String
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -42,13 +44,15 @@ fun test(amount: Int, to: Address) {
     <caret>
 }
 ------------------------------------------------------------------------
-5  amount  Int
-5  to  Address
+5  amount   Int
+5  to   Address
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test(amount: Int, to: Address)
+14 do
 14 foreach
 14 if
 14 ife
@@ -70,14 +74,16 @@ extends fun move(self: Point, x: Int, y: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-5  self  Point
-5  x  Int
-5  y  Int
+5  self   Point
+5  x   Int
+5  y   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 21 Point{}
+14 do
 14 foreach
 14 if
 14 ife
@@ -100,14 +106,16 @@ extends fun scale(self: Point, factor: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-5  temp  Int
-5  factor  Int
-5  self  Point
+5  temp   Int
+5  factor   Int
+5  self   Point
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 21 Point{}
+14 do
 14 foreach
 14 if
 14 ife
@@ -133,13 +141,15 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  inner  Int
-5  outer  Int
+5  inner   Int
+5  outer   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -167,14 +177,16 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  a  Int
-5  b  Int
-5  c  Int
+5  a   Int
+5  b   Int
+5  c   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -199,14 +211,16 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  items  map<Int, Int>
-5  key  Int
-5  value  Int
+5  items   map<Int, Int>
+5  key   Int
+5  value   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -233,13 +247,15 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  result  Int
-5  value  Int
+5  result   Int
+5  value   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -265,13 +281,15 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  error  Int
-5  value  Int
+5  error   Int
+5  value   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -296,12 +314,14 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  value  Int
+5  value   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -323,13 +343,15 @@ fun test(param: Int) {
     <caret>
 }
 ------------------------------------------------------------------------
-5  local  Int
-5  param  Int
+5  local   Int
+5  param   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test(param: Int)
+14 do
 14 foreach
 14 if
 14 ife
@@ -351,12 +373,13 @@ fun test() {
     let variable: Int = 1;
 }
 ------------------------------------------------------------------------
-5  variable  Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -378,12 +401,14 @@ fun test() {
     <caret>
 }
 ------------------------------------------------------------------------
-5  variable  Int
+5  variable   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -409,13 +434,13 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  first  Int
-5  second  Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
 14 foreach
 14 if
 14 ife
@@ -441,14 +466,78 @@ fun test() {
     }
 }
 ------------------------------------------------------------------------
-5  first  Int
-5  second  Int
-5  third  Int
+5  first   Int
+5  second   Int
+5  third   Int
 13 false
+13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+14 do
+14 foreach
+14 if
+14 ife
+14 let
+14 lett
+14 repeat
+14 try
+14 try-catch
+14 until
+14 while
+
+========================================================================
+Completion in variable name
+========================================================================
+primitive Int;
+
+fun test() {
+    let <caret>
+}
+------------------------------------------------------------------------
+0  fun
+0  Int
+0  let
+0  primitive
+0  test
+
+========================================================================
+Completion in variable name 2
+========================================================================
+primitive Int;
+
+fun test() {
+    let <caret> = 10;
+}
+------------------------------------------------------------------------
+0  fun
+0  Int
+0  let
+0  primitive
+0  test
+
+========================================================================
+Variable and function with the same name
+========================================================================
+primitive Int;
+
+fun first() {}
+
+fun test() {
+    let first = 1;
+    <caret>
+}
+------------------------------------------------------------------------
+5  first   Int
+13 false
+13 initOf Contract(params)   StateInit
+13 null
+13 return;
+13 true
+2  first()
+2  test()
+14 do
 14 foreach
 14 if
 14 ife

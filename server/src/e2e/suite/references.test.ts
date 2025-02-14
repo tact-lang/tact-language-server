@@ -1,21 +1,21 @@
 import * as vscode from "vscode"
-import * as assert from "assert"
+import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import {TextDocumentPositionParams} from "vscode-languageserver"
-import {TestCase} from "./TestParser"
+import type {TextDocumentPositionParams} from "vscode-languageserver"
+import type {TestCase} from "./TestParser"
 
 suite("References Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        async getReferences(input: string): Promise<[vscode.Location[], string][]> {
+        public async getReferences(input: string): Promise<[vscode.Location[], string][]> {
             const caretIndexes = this.findCaretPositions(input)
-            if (caretIndexes.length == 0) {
+            if (caretIndexes.length === 0) {
                 throw new Error("No <caret> marker found in input")
             }
 
             const textWithoutCaret = input.replace(/<caret>/g, "")
             await this.replaceDocumentText(textWithoutCaret)
 
-            return await Promise.all(
+            return Promise.all(
                 caretIndexes.map(async caretIndex => {
                     const position = this.calculatePosition(input, caretIndex)
                     const references = await this.getReferencesAt(position)
@@ -25,7 +25,7 @@ suite("References Test Suite", () => {
             )
         }
 
-        async getReferencesAt(position: vscode.Position): Promise<vscode.Location[]> {
+        public async getReferencesAt(position: vscode.Position): Promise<vscode.Location[]> {
             return vscode.commands.executeCommand<vscode.Location[]>(
                 "vscode.executeReferenceProvider",
                 this.document.uri,
@@ -33,7 +33,7 @@ suite("References Test Suite", () => {
             )
         }
 
-        async getScopeAt(position: vscode.Position): Promise<string> {
+        public async getScopeAt(position: vscode.Position): Promise<string> {
             return vscode.commands.executeCommand<string>("tact/executeGetScopeProvider", {
                 textDocument: {
                     uri: this.document.uri.toString(),
@@ -45,11 +45,14 @@ suite("References Test Suite", () => {
             } as TextDocumentPositionParams)
         }
 
-        formatLocation(position: vscode.Position): string {
+        private formatLocation(position: vscode.Position): string {
             return `${position.line}:${position.character}`
         }
 
-        formatResult(positions: vscode.Position[], results: [vscode.Location[], string][]): string {
+        private formatResult(
+            positions: vscode.Position[],
+            results: [vscode.Location[], string][],
+        ): string {
             return positions
                 .map((_pos, index) => {
                     const [references, scope] = results[index]
@@ -62,7 +65,7 @@ suite("References Test Suite", () => {
                 .join("\n\n")
         }
 
-        protected runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase): void {
             test(`References: ${testCase.name}`, async () => {
                 const caretIndexes = this.findCaretPositions(testCase.input)
                 const positions = caretIndexes.map(index =>
@@ -85,12 +88,12 @@ suite("References Test Suite", () => {
     })()
 
     suiteSetup(async function () {
-        this.timeout(10000)
+        this.timeout(10_000)
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("references")

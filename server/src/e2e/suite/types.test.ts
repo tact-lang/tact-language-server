@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
-import * as assert from "assert"
+import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
-import {TestCase} from "./TestParser"
+import type {TestCase} from "./TestParser"
 
 export interface GetTypeAtPositionParams {
     textDocument: {
@@ -25,7 +25,7 @@ interface TypePosition {
 
 suite("Type Inference Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
-        findTypePositions(input: string): TypePosition[] {
+        public findTypePositions(input: string): TypePosition[] {
             const positions: TypePosition[] = []
             const lines = input.split("\n")
 
@@ -34,7 +34,7 @@ suite("Type Inference Test Suite", () => {
                     const caretPosition = line.indexOf("^")
 
                     const character = caretPosition
-                    const expectedType = line.substring(caretPosition + 1).trim()
+                    const expectedType = line.slice(caretPosition + 1).trim()
 
                     positions.push({
                         line: i - 1,
@@ -46,7 +46,7 @@ suite("Type Inference Test Suite", () => {
             return positions
         }
 
-        async getType(position: vscode.Position): Promise<string | undefined> {
+        private async getType(position: vscode.Position): Promise<string | undefined> {
             const params: GetTypeAtPositionParams = {
                 textDocument: {
                     uri: this.document.uri.toString(),
@@ -65,7 +65,7 @@ suite("Type Inference Test Suite", () => {
             return response.type ?? undefined
         }
 
-        protected runTest(testFile: string, testCase: TestCase) {
+        protected runTest(testFile: string, testCase: TestCase): void {
             test(`Types: ${testCase.name}`, async () => {
                 const positions = this.findTypePositions(testCase.input)
 
@@ -101,12 +101,12 @@ suite("Type Inference Test Suite", () => {
     })()
 
     suiteSetup(async function () {
-        this.timeout(10000)
+        this.timeout(10_000)
         await testSuite.suiteSetup()
     })
 
-    setup(() => testSuite.setup())
-    teardown(() => testSuite.teardown())
+    setup(async () => testSuite.setup())
+    teardown(async () => testSuite.teardown())
     suiteTeardown(() => testSuite.suiteTeardown())
 
     testSuite.runTestsFromDirectory("types")

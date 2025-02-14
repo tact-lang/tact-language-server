@@ -1,11 +1,11 @@
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/psi/File"
+import type {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {Referent} from "@server/psi/Referent"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 
 export abstract class UnusedInspection {
-    inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: File): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
@@ -15,7 +15,7 @@ export abstract class UnusedInspection {
     protected abstract checkFile(file: File, diagnostics: lsp.Diagnostic[]): void
 
     protected checkUnused(
-        node: SyntaxNode,
+        node: SyntaxNode | null,
         file: File,
         diagnostics: lsp.Diagnostic[],
         options: {
@@ -25,7 +25,9 @@ export abstract class UnusedInspection {
             rangeNode?: SyntaxNode
             skipIf?: () => boolean
         },
-    ) {
+    ): void {
+        if (!node || node.text === "_") return
+
         const references = new Referent(node, file).findReferences()
         if (references.length === 0) {
             const range = asLspRange(options.rangeNode ?? node)

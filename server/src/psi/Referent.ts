@@ -1,11 +1,11 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
-
 import {RecursiveVisitor} from "@server/psi/visitor"
 import {NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
-import {File} from "./File"
+import type {File} from "./File"
 import {isFunNode, isNamedFunNode, parentOfType} from "./utils"
 import {PARSED_FILES_CACHE} from "@server/index-root"
+import {Contract} from "@server/psi/Decls"
 
 /**
  * Describes a scope that contains all possible uses of a certain symbol.
@@ -21,9 +21,9 @@ export interface SearchScope {
  * For example, the scope for a local variable will be the block in which it is defined.
  */
 export class LocalSearchScope implements SearchScope {
-    constructor(public node: SyntaxNode) {}
+    public constructor(public node: SyntaxNode) {}
 
-    toString(): string {
+    public toString(): string {
         return `LocalSearchScope:\n${this.node.text}`
     }
 }
@@ -39,9 +39,9 @@ export class GlobalSearchScope implements SearchScope {
         return new GlobalSearchScope(files)
     }
 
-    constructor(public files: File[]) {}
+    public constructor(public files: File[]) {}
 
-    toString(): string {
+    public toString(): string {
         return `GlobalSearchScope:\n${this.files.map(f => `- ${f.uri}`).join("\n")}`
     }
 }
@@ -109,7 +109,7 @@ export class Referent {
         sameFileOnly: boolean,
         includeSelf: boolean,
         result: Node[],
-    ) {
+    ): void {
         if (!this.resolved) return
 
         if (scope instanceof LocalSearchScope) {
@@ -128,7 +128,7 @@ export class Referent {
         }
     }
 
-    private traverseTree(file: File, node: SyntaxNode, includeSelf: boolean, result: Node[]) {
+    private traverseTree(file: File, node: SyntaxNode, includeSelf: boolean, result: Node[]): void {
         const resolved = this.resolved
         if (!resolved) return
 
@@ -142,14 +142,17 @@ export class Referent {
             if (
                 node.type !== "identifier" &&
                 node.type !== "self" &&
+                node.type !== "initOf" &&
                 node.type !== "type_identifier"
             ) {
                 return true
             }
             // fast path, identifier name doesn't equal to definition name
             // self can refer to enclosing trait or contract
-            if (node.text !== resolved.name() && node.text !== "self") return true
-            if (node.text === "self" && !includeSelf) return true
+            const nodeName = node.text
+            if (nodeName !== resolved.name() && nodeName !== "self" && nodeName !== "initOf")
+                return true
+            if (nodeName === "self" && !includeSelf) return true
 
             const parent = node.parent
             if (parent === null) return true
@@ -182,6 +185,27 @@ export class Referent {
             const res = Reference.resolve(new NamedNode(node, file))
             if (!res) return true
 
+            // check if this `initOf Foo()` reference our `init` function
+            if (res.node.type === "init" && nodeName === "initOf") {
+                const owner = parentOfType(resolved.node, "contract")
+                if (!owner) return true
+                if (owner.type !== "contract") return true
+                const initOf = node.parent
+                const name = initOf?.childForFieldName("name") ?? null
+                if (!name) return true
+
+                const ownerContract = new Contract(owner, file)
+
+                if (ownerContract.name() !== name.text) {
+                    // initOf for other contract
+                    return true
+                }
+
+                // found new reference
+                result.push(new Node(node, file))
+                return true
+            }
+
             const identifier = res.nameIdentifier()
             if (!identifier) return true
 
@@ -210,34 +234,36 @@ export class Referent {
 
         if (parent.type === "let_statement") {
             // search only in outer block/function
-            return this.localSearchScope(parentOfType(parent, "function_body", "block_statement"))
+            return Referent.localSearchScope(
+                parentOfType(parent, "function_body", "block_statement"),
+            )
         }
 
         if (parent.type === "foreach_statement") {
             // search only in foreach block
-            return this.localSearchScope(parent.lastChild)
+            return Referent.localSearchScope(parent.lastChild)
         }
 
         if (parent.type === "catch_clause") {
             // search only in catch block
-            return this.localSearchScope(parent.lastChild)
+            return Referent.localSearchScope(parent.lastChild)
         }
 
         if (node.type === "parameter") {
             const grand = node.parent?.parent
             if (grand?.type === "asm_function") {
                 // search in function body and potentially asm arrangement
-                return this.localSearchScope(grand)
+                return Referent.localSearchScope(grand)
             }
 
             if (parent.type === "receive_function") {
                 // search in function body
-                return this.localSearchScope(parent)
+                return Referent.localSearchScope(parent)
             }
 
             if (grand && isFunNode(grand)) {
                 // search in function body
-                return this.localSearchScope(grand.lastChild)
+                return Referent.localSearchScope(grand.lastChild)
             }
         }
 
@@ -252,7 +278,7 @@ export class Referent {
                 return GlobalSearchScope.allFiles()
             }
             // search in whole contract
-            return this.localSearchScope(owner)
+            return Referent.localSearchScope(owner)
         }
 
         if (
@@ -272,10 +298,14 @@ export class Referent {
             return GlobalSearchScope.allFiles()
         }
 
+        if (this.resolved.node.type === "init_function") {
+            return GlobalSearchScope.allFiles()
+        }
+
         return null
     }
 
-    private localSearchScope(node: SyntaxNode | null): SearchScope | null {
+    private static localSearchScope(node: SyntaxNode | null): SearchScope | null {
         if (!node) return null
         return new LocalSearchScope(node)
     }

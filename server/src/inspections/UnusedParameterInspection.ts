@@ -1,9 +1,12 @@
-import * as lsp from "vscode-languageserver"
-import {File} from "@server/psi/File"
-import {Fun} from "@server/psi/Decls"
+import type * as lsp from "vscode-languageserver"
+import type {File} from "@server/psi/File"
+import type {Fun} from "@server/psi/Decls"
 import {UnusedInspection} from "./UnusedInspection"
+import {Inspection, InspectionIds} from "./Inspection"
 
-export class UnusedParameterInspection extends UnusedInspection {
+export class UnusedParameterInspection extends UnusedInspection implements Inspection {
+    public readonly id: "unused-parameter" = InspectionIds.UNUSED_PARAMETER
+
     protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
         file.getFuns().forEach(fun => {
             this.inspectFunction(fun, diagnostics)
@@ -22,7 +25,7 @@ export class UnusedParameterInspection extends UnusedInspection {
         })
     }
 
-    private inspectFunction(fun: Fun, diagnostics: lsp.Diagnostic[]) {
+    private inspectFunction(fun: Fun, diagnostics: lsp.Diagnostic[]): void {
         if (!fun.hasBody()) return
         const parameters = fun.parameters()
 
@@ -30,7 +33,7 @@ export class UnusedParameterInspection extends UnusedInspection {
             const nameIdent = param.nameIdentifier()
             if (!nameIdent) return
 
-            this.checkUnused(param.node, fun.file, diagnostics, {
+            this.checkUnused(param.nameIdentifier(), fun.file, diagnostics, {
                 kind: "Parameter",
                 code: "unused-parameter",
                 rangeNode: nameIdent,

@@ -1,10 +1,9 @@
 import {File} from "@server/psi/File"
 import {glob} from "glob"
-import * as fs from "fs"
+import * as fs from "node:fs"
 import {URI} from "vscode-uri"
-import {createTactParser} from "./parser"
+import {createTactParser, createFiftParser} from "./parser"
 import {index} from "./indexes"
-import {createFiftParser} from "./parser"
 import {measureTime} from "@server/psi/utils"
 
 export const PARSED_FILES_CACHE: Map<string, File> = new Map()
@@ -17,17 +16,18 @@ export enum IndexRootKind {
 }
 
 export class IndexRoot {
-    constructor(
+    public constructor(
         public root: string,
         public kind: IndexRootKind,
     ) {}
 
-    async index() {
+    public async index(): Promise<void> {
         const rootPath = this.root.slice(7)
 
         const ignore =
-            this.kind !== IndexRootKind.Stdlib
-                ? [
+            this.kind === IndexRootKind.Stdlib
+                ? []
+                : [
                       "**/node_modules/**",
                       "**/test/e2e-emulated/**",
                       "**/__testdata/**",
@@ -37,7 +37,6 @@ export class IndexRoot {
                       "**/types/stmts/**",
                       "**/tact-lang/compiler/**",
                   ]
-                : []
 
         const files = await glob("**/*.tact", {
             cwd: rootPath,
@@ -104,7 +103,7 @@ export function findFiftFile(uri: string, content?: string): File {
 function safeFileRead(path: string): string | null {
     try {
         return fs.readFileSync(path).toString()
-    } catch (_) {
+    } catch {
         return null
     }
 }

@@ -15,7 +15,7 @@ import {CallLike, Expression, NamedNode, Node} from "@server/psi/Node"
 import {Reference} from "@server/psi/Reference"
 import {Struct, Message, Fun, Primitive, Contract, Trait} from "@server/psi/Decls"
 import {isTypeOwnerNode} from "@server/psi/utils"
-import {Node as SyntaxNode} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import {CACHE} from "./cache"
 import {index, IndexKey} from "./indexes"
 
@@ -103,6 +103,12 @@ export class TypeInferer {
                 return this.primitiveType("Int")
             }
 
+            if (resolved.node.type === "field" || resolved.node.type === "storage_variable") {
+                const typeNode = resolved.node.childForFieldName("type")
+                if (!typeNode) return null
+                return this.inferTypeMaybeTlB(typeNode, resolved)
+            }
+
             if (isTypeOwnerNode(resolved.node)) {
                 const typeNode = resolved.node.childForFieldName("type")
                 if (!typeNode) return null
@@ -124,6 +130,22 @@ export class TypeInferer {
 
             const valueTy = this.inferChildFieldType(node, "value")
             if (valueTy === null) return null
+
+            if (keyTy instanceof PrimitiveTy) {
+                const tlb = node.node.childForFieldName("tlb_key")
+                const tlbType = tlb?.childForFieldName("type")
+                if (tlbType) {
+                    keyTy.tlb = tlbType.text
+                }
+            }
+
+            if (valueTy instanceof PrimitiveTy) {
+                const tlb = node.node.childForFieldName("tlb_value")
+                const tlbType = tlb?.childForFieldName("type")
+                if (tlbType) {
+                    valueTy.tlb = tlbType.text
+                }
+            }
 
             return new MapTy(keyTy, valueTy)
         }
@@ -301,7 +323,20 @@ export class TypeInferer {
             const alternate = node.node.childForFieldName("alternative")
             if (!consequent || !alternate) return null
 
-            return this.inferType(new Expression(consequent, node.file))
+            const trueType = this.inferType(new Expression(consequent, node.file))
+            const falseType = this.inferType(new Expression(alternate, node.file))
+            if (!falseType) return trueType
+            if (!trueType) return falseType
+
+            if (trueType instanceof NullTy) {
+                return new OptionTy(falseType)
+            }
+
+            if (falseType instanceof NullTy) {
+                return new OptionTy(trueType)
+            }
+
+            return trueType
         }
 
         if (node instanceof NamedNode) {
@@ -311,13 +346,13 @@ export class TypeInferer {
         return null
     }
 
-    private primitiveType(name: string) {
+    private primitiveType(name: string): PrimitiveTy | null {
         const node = index.elementByName(IndexKey.Primitives, name)
         if (!node) return null
-        return new PrimitiveTy(name, node)
+        return new PrimitiveTy(name, node, null)
     }
 
-    private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: Node) {
+    private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: Node): Ty | null {
         const inferred = this.inferType(new Expression(typeNode, resolved.file))
         if (inferred && !(inferred instanceof OptionTy) && typeNode.nextSibling?.text === "?") {
             return new OptionTy(inferred)
@@ -325,9 +360,21 @@ export class TypeInferer {
         return inferred
     }
 
+    private inferTypeMaybeTlB(typeNode: SyntaxNode, resolved: Node): Ty | null {
+        const inferredType = this.inferTypeMaybeOption(typeNode, resolved)
+        if (inferredType instanceof PrimitiveTy) {
+            const tlb = resolved.node.childForFieldName("tlb")
+            const tlbType = tlb?.childForFieldName("type")
+            if (tlbType) {
+                inferredType.tlb = tlbType.text
+            }
+        }
+        return inferredType
+    }
+
     private inferTypeFromResolved(resolved: NamedNode): Ty | null {
         if (resolved instanceof Primitive) {
-            return new PrimitiveTy(resolved.name(), resolved)
+            return new PrimitiveTy(resolved.name(), resolved, null)
         }
         if (resolved instanceof Struct) {
             return new StructTy(resolved.name(), resolved)
