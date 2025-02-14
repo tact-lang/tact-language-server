@@ -10,6 +10,7 @@ import {
     WeightedCompletionItem,
 } from "@server/completion/WeightedCompletionItem"
 import {StructTy} from "@server/types/BaseTy"
+import {tactCodeBlock} from "@server/documentation/documentation"
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {
     public constructor(private readonly ctx: CompletionContext) {}
@@ -100,7 +101,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 labelDetails: {
                     detail: signature,
                 },
-                documentation: `fn ${name}${signature}`,
+                documentation: tactCodeBlock(`fun ${name}${signature}`),
                 insertText: insertText,
                 insertTextFormat: InsertTextFormat.Snippet,
                 weight: contextWeight(
