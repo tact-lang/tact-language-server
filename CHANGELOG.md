@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Improvements
 
 - feat(documentation): add missing functions to `stubs/` and adjust the format to match the rest of other stdlib doc `///` comments in https://github.com/tact-lang/tact-language-server/pull/189
+- feat(documentation): add installation instructions for Vim 8+ in https://github.com/tact-lang/tact-language-server/pull/231
 
 ### Fixed
 
