@@ -33,7 +33,9 @@ const config = {
     resolve: {
         extensions: [".ts", ".js"],
         alias: {
-            // provides alternate implementation for node module and source files
+            // "@server": path.resolve(__dirname, "server/src"),
+            // "@shared": path.resolve(__dirname, "shared/src"),
+            "tvm-dec": path.resolve(__dirname, "../tvm-dec/src"),
         },
         plugins: [new TsconfigPathsPlugin()],
         fallback: {},
@@ -48,6 +50,11 @@ const config = {
                         loader: "ts-loader",
                     },
                 ],
+            },
+            {
+                test: /\.json$/,
+                type: "json",
+                include: [path.resolve(__dirname, "../tvm-dec/src")],
             },
         ],
     },

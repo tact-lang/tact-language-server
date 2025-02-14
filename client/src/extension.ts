@@ -45,6 +45,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         documentSelector: [
             {scheme: "file", language: "tact"},
             {scheme: "file", language: "fift"},
+            {scheme: "file", language: "tlb"},
         ],
         synchronize: {
             configurationSection: "tact",

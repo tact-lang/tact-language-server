@@ -3,6 +3,7 @@ import * as Mocha from "mocha"
 import {glob} from "glob"
 
 export async function run(): Promise<void> {
+    // @ts-ignore
     const mocha = new Mocha({
         ui: "tdd",
         color: true,
@@ -19,6 +20,7 @@ export async function run(): Promise<void> {
                 files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)))
 
                 try {
+                    // @ts-ignore
                     mocha.run(failures => {
                         if (failures > 0) {
                             reject(new Error(`${failures} tests failed.`))

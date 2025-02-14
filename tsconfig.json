@@ -5,8 +5,10 @@
         "lib": ["es2020"],
         "sourceMap": true,
         "strict": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
         "allowUnreachableCode": true,
-        "exactOptionalPropertyTypes": true,
+        //        "exactOptionalPropertyTypes": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitOverride": true,
         "noImplicitReturns": true,
@@ -15,7 +17,9 @@
         "baseUrl": ".",
         "paths": {
             "@server/*": ["server/src/*"],
-            "@shared/*": ["shared/src/*"]
+            "@shared/*": ["shared/src/*"],
+            "tvm-dec": ["../tvm-dec/src"],
+            "tvm-dec/*": ["../tvm-dec/src/*"]
         }
     },
     "include": ["server/src/**/*", "client/src/**/*"],
