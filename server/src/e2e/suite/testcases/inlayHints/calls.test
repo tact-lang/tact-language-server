@@ -1,0 +1,68 @@
+========================================================================
+Function call with argument with the same name as parameter
+========================================================================
+primitive Int;
+
+fun foo(bar: Int) {}
+
+fun test() {
+    let bar = 100;
+    foo(bar); // no hint here
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun foo(bar: Int) {}
+
+fun test() {
+    let bar/* : Int */ = 100;
+    foo(bar); // no hint here
+}
+
+========================================================================
+Function call with field argument with the same name as parameter
+========================================================================
+primitive Int;
+
+fun foo(bar: Int) {}
+
+struct Bar { bar: Int }
+
+fun test() {
+    let instance = Bar { bar: 10 };
+    foo(instance.bar); // no hint here
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun foo(bar: Int) {}
+
+struct Bar { bar: Int/*  as int257 */ }
+
+fun test() {
+    let instance/* : Bar */ = Bar { bar: 10 };
+    foo(instance.bar); // no hint here
+}
+
+========================================================================
+Function call with struct init argument
+========================================================================
+primitive Int;
+
+struct Bar { bar: Int }
+
+fun foo(bar: Bar) {}
+
+fun test() {
+    foo(Bar { bar: 10 }); // no hint here
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Bar { bar: Int/*  as int257 */ }
+
+fun foo(bar: Bar) {}
+
+fun test() {
+    foo(Bar { bar: 10 }); // no hint here
+}
