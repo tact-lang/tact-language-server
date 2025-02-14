@@ -10,19 +10,13 @@ module.exports = grammar({
 
         comment: _ => token(seq("//", /[^\n]*/)),
 
-        program: $ =>
-            seq(
-                "PROGRAM{",
-                repeat($.declaration),
-                repeat($.definition),
-                repeat($.global_var),
-                "END>c",
-            ),
+        program: $ => seq("PROGRAM{", repeat($.declaration), repeat($.definition), "END>c"),
 
         declaration: $ =>
             choice(
                 seq("DECLPROC", field("name", $.identifier)),
                 seq(/\d+/, "DECLMETHOD", field("name", $.identifier)),
+                $.global_var,
             ),
 
         global_var: $ => seq("DECLGLOBVAR", field("name", $.identifier)),
