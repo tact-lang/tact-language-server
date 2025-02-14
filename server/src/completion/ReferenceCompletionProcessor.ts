@@ -139,11 +139,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         } else if (node instanceof Contract) {
             const suffix = this.ctx.isInitOfName ? "()" : ""
             const initFunction = node.initFunction()
-            const insertSuffix = this.ctx.isInitOfName
-                ? initFunction !== null && initFunction.parameters().length > 0
-                    ? "($1)"
-                    : "()"
-                : ""
+            const needParens = this.ctx.isInitOfName && !this.ctx.beforeParen
+            const hasParameters = initFunction !== null && initFunction.parameters().length > 0
+
+            const insertSuffix = needParens ? (hasParameters ? "($1)" : "()") : ""
 
             this.addItem({
                 label: name,
