@@ -138,7 +138,6 @@ export function collect(
             if (type instanceof MapTy) {
                 const tlbKey = typeNode.node.childForFieldName("tlb_key")
                 const tlbValue = typeNode.node.childForFieldName("tlb_value")
-                if (tlbKey !== null && tlbValue !== null) return true
 
                 if (tlbKey === null) {
                     const key = typeNode.node.childForFieldName("key")
