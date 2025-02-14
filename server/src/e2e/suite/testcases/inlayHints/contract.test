@@ -79,3 +79,75 @@ contract Foo {
         }
     }
 }
+
+========================================================================
+Show exit codes in require() call
+========================================================================
+primitive String;
+primitive Bool;
+
+fun require(that: Bool, msg: String) {}
+
+contract Foo {
+
+    receive(msg: "Test") {
+        require(true, "bar");
+    }
+}
+------------------------------------------------------------------------
+primitive String;
+primitive Bool;
+
+fun require(that: Bool, msg: String) {}
+
+contract Foo {
+
+    receive(msg: "Test") {
+        require(/* that: */true, /* msg: */"bar"/*  exit code: 62478 */);
+    }
+}
+
+========================================================================
+Show parameter name hints in function calls
+========================================================================
+contract Foo {
+
+    internal fun test1(x: Int) {
+        return x;
+    }
+
+    external fun test2(x: Int) {
+        return x;
+    }
+
+    get fun test3(x: Int) {
+        return x;
+    }
+
+    init() {
+        const a = self.test1(42);
+        const b = self.test2(42);
+        const c = self.test3(42);
+    }
+}
+------------------------------------------------------------------------
+contract Foo {
+
+    internal fun test1(x: Int) {
+        return x;
+    }
+
+    external fun test2(x: Int) {
+        return x;
+    }
+
+    get/* (0x1091c) */ fun test3(x: Int) {
+        return x;
+    }
+
+    init() {
+        const a = self.test1(/* x: */42);
+        const b = self.test2(/* x: */42);
+        const c = self.test3(/* x: */42);
+    }
+}

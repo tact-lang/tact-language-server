@@ -19,24 +19,21 @@ suite("Inlay Hints Test Suite", () => {
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Hint: ${testCase.name}`, async () => {
-                const hints = await this.getHints(testCase.input)
+                const initialHints = await this.getHints(testCase.input)
                 const expected = testCase.expected.split("\n").filter((line: string) => line !== "")
-
                 await this.replaceDocumentText(testCase.input)
 
-                for (const hint of hints) {
-                    await this.editor.edit(edit => {
-                        let labelString: string
-
+                for (const hint of initialHints) {
+                    await this.editor.edit(editBuilder => {
                         if (typeof hint.label === "string") {
-                            labelString = hint.label
-                        } else if (Array.isArray(hint.label)) {
-                            labelString = hint.label.map(part => part.value || "").join("")
-                        } else {
-                            labelString = String(hint.label)
+                            editBuilder.insert(hint.position, `/* ${hint.label} */`)
                         }
+                    })
 
-                        edit.insert(hint.position, `/* ${labelString} */`)
+                    const updatedHints = await this.getHints(this.document.getText())
+
+                    initialHints.forEach((h, index) => {
+                        h.position = updatedHints[index].position
                     })
                 }
 
@@ -47,7 +44,7 @@ suite("Inlay Hints Test Suite", () => {
                         actual: this.document.getText(),
                     })
                 } else {
-                    assert.deepStrictEqual(hints, expected)
+                    assert.deepStrictEqual(initialHints, expected)
                 }
             })
         }
