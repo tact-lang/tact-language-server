@@ -4,8 +4,9 @@ import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 import {Reference} from "@server/psi/Reference"
 import {NamedNode} from "@server/psi/Node"
-import {Contract, Primitive} from "@server/psi/Decls"
+import {Contract, Field, Primitive} from "@server/psi/Decls"
 import {Inspection, InspectionIds} from "./Inspection"
+import {index} from "@server/indexes"
 
 export class NotImportedSymbolInspection implements Inspection {
     public readonly id: "not-imported-symbol" = InspectionIds.NOT_IMPORTED_SYMBOL
@@ -18,7 +19,13 @@ export class NotImportedSymbolInspection implements Inspection {
             if (node.type !== "identifier" && node.type !== "type_identifier") return
             const resolved = Reference.resolve(new NamedNode(node, file))
             if (!resolved) return
-            if (resolved instanceof Primitive || resolved instanceof Contract) return
+            if (
+                resolved instanceof Primitive ||
+                resolved instanceof Contract ||
+                resolved instanceof Field
+            ) {
+                return
+            }
 
             // don't need to import same file
             if (resolved.file.uri === file.uri) return
@@ -28,6 +35,8 @@ export class NotImportedSymbolInspection implements Inspection {
             if (file.alreadyImport(importPath)) return
             // some files like stubs or stdlib imported implicitly
             if (resolved.file.isImportedImplicitly()) return
+            // guard for multi projects
+            if (index.hasSeveralDeclarations(resolved.name())) return
 
             diagnostics.push({
                 severity: lsp.DiagnosticSeverity.Error,
