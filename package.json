@@ -60,6 +60,9 @@
                 "configuration": "./language-configuration.json"
             },
             {
+                "id": "tact-markdown-injection"
+            },
+            {
                 "id": "fift",
                 "aliases": [
                     "Fift"
@@ -84,6 +87,17 @@
                 "language": "fift",
                 "scopeName": "source.fift",
                 "path": "./syntaxes/fift.tmLanguage.json"
+            },
+            {
+                "language": "tact-markdown-injection",
+                "scopeName": "markdown.tact.codeblock",
+                "path": "./syntaxes/tact-markdown-injection.json",
+                "injectTo": [
+                    "text.html.markdown"
+                ],
+                "embeddedLanguages": {
+                    "meta.embedded.block.tact": "tact"
+                }
             }
         ],
         "snippets": [],
