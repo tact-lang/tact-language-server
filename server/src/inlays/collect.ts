@@ -21,6 +21,11 @@ function processParameterHints(
         const arg = args[i]
         const paramName = param.name()
 
+        if (paramName.length === 1) {
+            // don't show hints for single letter parameters
+            continue
+        }
+
         if (arg.text === paramName || arg.text.endsWith(`.${paramName}`)) {
             // no need to add hint for `takeFoo(foo)` or `takeFoo(val.foo)`
             continue
@@ -92,6 +97,10 @@ export function collect(
 
             const expr = decl.value()
             if (!expr) return true
+
+            // don't show hint for:
+            // let params = SomeParams{}
+            if (expr.node.type === "instance_expression") return true
 
             const name = decl.nameIdentifier()
             if (!name) return true
