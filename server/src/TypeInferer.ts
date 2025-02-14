@@ -44,7 +44,12 @@ export class TypeInferer {
         if (node.node.type === "type_identifier") {
             const resolved = Reference.resolve(new NamedNode(node.node, node.file))
             if (resolved === null) {
-                if (node.node.text === "K" || node.node.text === "V") {
+                if (
+                    node.node.text === "K" ||
+                    node.node.text === "V" ||
+                    node.node.text === "S" ||
+                    node.node.text === "M"
+                ) {
                     return new PlaceholderTy(node.node.text, new NamedNode(node.node, node.file))
                 }
                 return null
@@ -224,11 +229,22 @@ export class TypeInferer {
             const resolved = Reference.resolve(element)
             if (resolved === null) return null
             if (!(resolved instanceof Fun)) return null
+            const calledName = resolved.name()
 
             const returnType = resolved.returnType()
             if (returnType === null) return null
             const type = this.inferTypeMaybeOption(returnType.node, returnType)
             if (!type) return null
+
+            const qualifier = node.node.childForFieldName("object")
+
+            // Handle `Struct.fromCell()` calls
+            if (
+                qualifier &&
+                (calledName.startsWith("AnyStruct_") || calledName.startsWith("AnyMessage_"))
+            ) {
+                return new Expression(qualifier, node.file).type()
+            }
 
             // following code is completely garbage, we need to replace it with actual generics
             if (

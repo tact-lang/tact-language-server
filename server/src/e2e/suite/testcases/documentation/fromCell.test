@@ -1,0 +1,35 @@
+========================================================================
+fromCell/fromSlice for Struct
+========================================================================
+primitive Int;
+
+fun AnyStruct_fromCell(cell: Cell): S {}
+fun AnyStruct_fromSlice(slice: Slice): S {}
+
+struct Foo {}
+
+fun test() {
+    Foo.<caret>fromCell();
+}
+------------------------------------------------------------------------
+```tact
+fun fromCell(cell: Cell): S
+```
+
+========================================================================
+fromCell/fromSlice for message
+========================================================================
+primitive Int;
+
+fun AnyMessage_fromCell(cell: Cell): M {}
+fun AnyMessage_fromSlice(slice: Slice): M {}
+
+message Foo {}
+
+fun test() {
+    Foo.<caret>fromSlice();
+}
+------------------------------------------------------------------------
+```tact
+fun fromSlice(slice: Slice): M
+```

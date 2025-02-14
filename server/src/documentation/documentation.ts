@@ -44,8 +44,10 @@ export function generateDocFor(node: NamedNode): string | null {
             const func = new Fun(astNode, node.file)
             const doc = extractCommentsDoc(node)
 
+            const name = trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyStruct_")
+
             return defaultResult(
-                `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}`,
+                `${func.modifiers()}fun ${name}${func.signaturePresentation()}`,
                 doc,
             )
         }

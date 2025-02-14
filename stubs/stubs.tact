@@ -131,6 +131,12 @@ primitive AnyStruct;
 /// Pseudo-type that represents any Message.
 primitive AnyMessage;
 
+fun AnyStruct_fromCell(cell: Cell): S {}
+fun AnyStruct_fromSlice(slice: Slice): S {}
+
+fun AnyMessage_fromCell(cell: Cell): M {}
+fun AnyMessage_fromSlice(slice: Slice): M {}
+
 /// Extension function for any Struct.
 ///
 /// Converts the Struct to a `Cell` and returns it.
