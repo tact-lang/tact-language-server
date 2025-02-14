@@ -190,6 +190,29 @@ export class GlobalIndex {
         }
         return null
     }
+
+    public hasSeveralDeclarations(name: string): boolean {
+        let seen = false
+        for (const value of this.files.values()) {
+            const element =
+                value.elementByName(IndexKey.Funs, name) ??
+                value.elementByName(IndexKey.Contracts, name) ??
+                value.elementByName(IndexKey.Constants, name) ??
+                value.elementByName(IndexKey.Structs, name) ??
+                value.elementByName(IndexKey.Messages, name) ??
+                value.elementByName(IndexKey.Traits, name) ??
+                value.elementByName(IndexKey.Primitives, name)
+
+            if (element && seen) {
+                return true
+            }
+
+            if (element) {
+                seen = true
+            }
+        }
+        return false
+    }
 }
 
 export const index = new GlobalIndex()
