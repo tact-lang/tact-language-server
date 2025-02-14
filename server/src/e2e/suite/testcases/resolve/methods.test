@@ -15,6 +15,73 @@ fun test() {
 8:6 -> 2:12 resolved
 
 ========================================================================
+Extends method resolve on T? with non Option qualifier
+========================================================================
+primitive Int;
+
+extends fun add(self: Int?, other: Int): Int {
+    return self + other;
+}
+
+fun test() {
+    let x: Int = 5;
+    x.<caret>add(3);
+}
+------------------------------------------------------------------------
+8:6 -> 2:12 resolved
+
+========================================================================
+Extends method resolve on T? with Option qualifier
+========================================================================
+primitive Int;
+
+extends fun add(self: Int?, other: Int): Int {
+    return self + other;
+}
+
+fun test() {
+    let x: Int? = 5;
+    x.<caret>add(3);
+}
+------------------------------------------------------------------------
+8:6 -> 2:12 resolved
+
+========================================================================
+Extends method resolve on T and T? with the same name
+========================================================================
+primitive Int;
+
+struct SomeStruct {}
+
+extends fun equal(self: SomeStruct?, other: SomeStruct?): Bool {
+    if (self == null && other == null) { return true }
+    if (self == null || other == null) { return false }
+    return self!!.i == other!!.i && self!!.b == other!!.b;
+}
+
+extends fun equal(self: SomeStruct, other: SomeStruct): Bool {
+    return self.i == other.i && self.b == other.b;
+}
+
+contract Test {
+    receive() {}
+
+    get fun test1(): Bool {
+        let s1 = SomeStruct { i: 42, b: true };
+        return s1.<caret>equal(s1)
+    }
+
+    get fun test2(): Bool {
+        let s2 = SomeStruct { i: 42, b: false };
+        let s3: SomeStruct? = null;
+        return !s3.<caret>equal(s2);
+    }
+}
+------------------------------------------------------------------------
+19:18 -> 10:12 resolved
+25:19 -> 4:12 resolved
+
+========================================================================
 Contract method resolve
 ========================================================================
 contract Counter {

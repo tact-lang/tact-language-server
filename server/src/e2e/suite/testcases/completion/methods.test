@@ -1,0 +1,21 @@
+========================================================================
+Completion for method on T?
+========================================================================
+primitive Int;
+
+extends fun foo(self: Int) {}
+extends fun fooOpt(self: Int?) {}
+
+fun test() {
+    let a = 10;
+    a.<caret>;
+}
+------------------------------------------------------------------------
+2  foo(self: Int)
+2  fooOpt(self: Int?)
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop
