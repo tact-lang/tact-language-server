@@ -68,7 +68,7 @@ contract Counter {
 }
 
 ========================================================================
-initOf with one parameter single letter parameter
+initOf with single letter parameter
 ========================================================================
 primitive Int;
 
