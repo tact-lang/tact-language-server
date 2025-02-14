@@ -1,0 +1,68 @@
+========================================================================
+initOf without parameters
+========================================================================
+primitive Int;
+
+contract Counter {
+    init() {}
+
+    fun test() {
+        initOf Counter();
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Counter {
+    init() {}
+
+    fun test() {
+        initOf Counter();
+    }
+}
+
+========================================================================
+initOf with one parameter
+========================================================================
+primitive Int;
+
+contract Counter {
+    init(some: Int) {}
+
+    fun test() {
+        initOf Counter(10);
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Counter {
+    init(some: Int) {}
+
+    fun test() {
+        initOf Counter(/* some: */10);
+    }
+}
+
+========================================================================
+initOf with two parameters
+========================================================================
+primitive Int;
+
+contract Counter {
+    init(some: Int, other: String) {}
+
+    fun test() {
+        initOf Counter(10, "hello");
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Counter {
+    init(some: Int, other: String) {}
+
+    fun test() {
+        initOf Counter(/* some: */10, /* other: */"hello");
+    }
+}

@@ -3,11 +3,44 @@ import {RecursiveVisitor} from "@server/psi/visitor"
 import type {File} from "@server/psi/File"
 import {TypeInferer} from "@server/TypeInferer"
 import {Reference} from "@server/psi/Reference"
-import {Field, Fun} from "@server/psi/Decls"
-import {CallLike, Expression, VarDeclaration} from "@server/psi/Node"
+import {Field, Fun, InitFunction} from "@server/psi/Decls"
+import {CallLike, Expression, NamedNode, VarDeclaration} from "@server/psi/Node"
 import {MapTy} from "@server/types/BaseTy"
 import {findInstruction} from "@server/completion/data/types"
 import {createHash} from "node:crypto"
+import type {Node as SyntaxNode} from "web-tree-sitter"
+
+function processParameterHints(
+    shift: number,
+    params: NamedNode[],
+    args: SyntaxNode[],
+    result: InlayHint[],
+): void {
+    for (let i = 0; i < Math.min(params.length - shift, args.length); i++) {
+        const param = params[i + shift]
+        const arg = args[i]
+        const paramName = param.name()
+
+        if (arg.text === paramName || arg.text.endsWith(`.${paramName}`)) {
+            // no need to add hint for `takeFoo(foo)` or `takeFoo(val.foo)`
+            continue
+        }
+
+        if (arg.children[0]?.type === "instance_expression") {
+            // no need to add hint for `takeFoo(Foo{})`
+            continue
+        }
+
+        result.push({
+            kind: InlayHintKind.Parameter,
+            label: `${paramName}:`,
+            position: {
+                line: arg.startPosition.row,
+                character: arg.startPosition.column,
+            },
+        })
+    }
+}
 
 export function collect(
     file: File,
@@ -131,7 +164,7 @@ export function collect(
             const call = new CallLike(n, file)
             const rawArgs = call.rawArguments()
             const args = rawArgs.filter(value => value.type === "argument")
-            if (args.length === 0) return true // no parameters, no need to resolve anything
+            if (args.length === 0) return true // no arguments, no need to resolve anything
 
             const res = Reference.resolve(call.nameNode())
             if (!(res instanceof Fun)) return true
@@ -168,30 +201,35 @@ export function collect(
             // skip self parameter
             const shift = type === "method_call_expression" && res.withSelf() ? 1 : 0
 
-            for (let i = 0; i < Math.min(params.length - shift, args.length); i++) {
-                const param = params[i + shift]
-                const arg = args[i]
-                const paramName = param.name()
+            processParameterHints(shift, params, args, result)
+            return true
+        }
 
-                if (arg.text === paramName || arg.text.endsWith(`.${paramName}`)) {
-                    // no need to add hint for `takeFoo(foo)` or `takeFoo(val.foo)`
-                    continue
-                }
+        if (type === "initOf" && n.text !== "initOf" && hints.parameters) {
+            const call = new CallLike(n, file)
+            const rawArgs = call.rawArguments()
+            const args = rawArgs.filter(value => value.type === "argument")
+            if (args.length === 0) return true // no arguments, no need to resolve anything
 
-                if (arg.children[0]?.type === "instance_expression") {
-                    // no need to add hint for `takeFoo(Foo{})`
-                    continue
-                }
+            // initOf Contract(10)
+            // ^^^^^^
+            const initOfToken = n.firstChild
+            if (!initOfToken) return true
 
-                result.push({
-                    kind: InlayHintKind.Parameter,
-                    label: `${paramName}:`,
-                    position: {
-                        line: arg.startPosition.row,
-                        character: arg.startPosition.column,
-                    },
-                })
-            }
+            // init(some: Int)
+            // ^^^^
+            const res = Reference.resolve(new NamedNode(initOfToken, file))
+            if (res?.node.type !== "init") return true
+
+            // init(some: Int)
+            // ^^^^^^^^^^^^^^^
+            const parent = res.node.parent
+            if (!parent) return true
+
+            const init = new InitFunction(parent, file)
+            const params = init.parameters()
+
+            processParameterHints(0, params, args, result)
             return true
         }
 
