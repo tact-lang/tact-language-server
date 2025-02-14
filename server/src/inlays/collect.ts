@@ -110,25 +110,48 @@ export function collect(
             return true
         }
 
-        if (type === "field" || type === "storage_variable") {
+        if ((type === "field" || type === "storage_variable") && hints.showExplicitTLBIntType) {
             const field = new Field(n, file)
             const typeNode = field.typeNode()
             if (!typeNode) return true
             const type = typeNode.type()
+            if (!type) return true
 
-            if (
-                type?.name() === "Int" &&
-                field.tlbType() === null &&
-                hints.showExplicitTLBIntType
-            ) {
+            const fieldTlb = field.tlbType()
+            if (fieldTlb !== null) return true
+
+            const addHint = (node: SyntaxNode): void => {
                 result.push({
                     kind: InlayHintKind.Type,
                     label: ` as int257`,
                     position: {
-                        line: typeNode.node.endPosition.row,
-                        character: typeNode.node.endPosition.column,
+                        line: node.endPosition.row,
+                        character: node.endPosition.column,
                     },
                 })
+            }
+
+            if (type.name() === "Int") {
+                addHint(typeNode.node)
+            }
+
+            if (type instanceof MapTy) {
+                const tlbKey = typeNode.node.childForFieldName("tlb_key")
+                const tlbValue = typeNode.node.childForFieldName("tlb_value")
+
+                if (tlbKey === null) {
+                    const key = typeNode.node.childForFieldName("key")
+                    if (key?.text === "Int") {
+                        addHint(key)
+                    }
+                }
+
+                if (tlbValue === null) {
+                    const value = typeNode.node.childForFieldName("value")
+                    if (value?.text === "Int") {
+                        addHint(value)
+                    }
+                }
             }
         }
 
