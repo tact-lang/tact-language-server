@@ -19,11 +19,13 @@ suite("Inlay Hints Test Suite", () => {
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Hint: ${testCase.name}`, async () => {
-                const initialHints = await this.getHints(testCase.input)
+                const hints = await this.getHints(testCase.input)
                 const expected = testCase.expected.split("\n").filter((line: string) => line !== "")
                 await this.replaceDocumentText(testCase.input)
 
-                for (const hint of initialHints) {
+                for (let x = 0; x < hints.length; x++) {
+                    const hint = hints[x]
+
                     await this.editor.edit(editBuilder => {
                         if (typeof hint.label === "string") {
                             editBuilder.insert(hint.position, `/* ${hint.label} */`)
@@ -31,10 +33,11 @@ suite("Inlay Hints Test Suite", () => {
                     })
 
                     const updatedHints = await this.getHints(this.document.getText())
-
-                    initialHints.forEach((h, index) => {
-                        h.position = updatedHints[index].position
-                    })
+                    if (x + 1 < hints.length) {
+                        if (x + 1 < updatedHints.length) {
+                            hints[x + 1].position = updatedHints[x + 1].position
+                        }
+                    }
                 }
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
@@ -44,7 +47,7 @@ suite("Inlay Hints Test Suite", () => {
                         actual: this.document.getText(),
                     })
                 } else {
-                    assert.deepStrictEqual(initialHints, expected)
+                    assert.deepStrictEqual(hints, expected)
                 }
             })
         }
