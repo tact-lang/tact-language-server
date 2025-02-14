@@ -111,7 +111,6 @@ import {
     WrapSelectedToTryCatch,
 } from "@server/intentions/WrapSelected"
 import {PostfixCompletionProvider} from "@server/completion/providers/PostfixCompletionProvider"
-import {MistiInspection} from "@server/inspections/MistInspection"
 
 /**
  * Whenever LS is initialized.
@@ -330,10 +329,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         }
 
         // const compilerInspection = new CompilerInspection()
-        // diagnostics.push(...await compilerInspection.inspect(file))
-
-        // const compilerInspection = new 
-()
         // diagnostics.push(...await compilerInspection.inspect(file))
 
         await connection.sendDiagnostics({uri, diagnostics})

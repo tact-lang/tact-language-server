@@ -4,7 +4,7 @@ import {URI} from "vscode-uri"
 import {MistiAnalyzer} from "@server/compiler/MistiAnalyzer"
 
 export class MistiInspection {
-    async inspect(file: File): Promise<lsp.Diagnostic[]> {
+    public async inspect(file: File): Promise<lsp.Diagnostic[]> {
         if (file.fromStdlib) return []
 
         try {
@@ -27,7 +27,7 @@ export class MistiInspection {
                 source: "tact-compiler",
                 code: "compiler-error",
             }))
-        } catch (error) {
+        } catch {
             return []
         }
     }

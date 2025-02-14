@@ -1,13 +1,11 @@
-import * as cp from "child_process"
-import * as path from "path"
-import {Logger} from "@server/utils/logger"
+import * as cp from "node:child_process"
 
 export enum Severity {
     INFO = 1,
-    LOW,
-    MEDIUM,
-    HIGH,
-    CRITICAL,
+    LOW = 2,
+    MEDIUM = 3,
+    HIGH = 4,
+    CRITICAL = 5,
 }
 
 export interface CompilerError {
@@ -46,7 +44,7 @@ export class MistiAnalyzer {
             return MistiAnalyzer.parseTactCompilerOutput(output)
         }
 
-        const jsonString = output.substring(jsonStart)
+        const jsonString = output.slice(jsonStart)
         try {
             const jsonData = JSON.parse(jsonString) as MistiJsonOutput
             for (const projectWarning of jsonData.warnings) {
@@ -66,20 +64,21 @@ export class MistiAnalyzer {
                         console.info(
                             `[MistiAnalyzer] Parsed warning from JSON: ${JSON.stringify(errorObj)}`,
                         )
-                    } catch (innerError) {
+                    } catch {
                         console.error(`Failed to parse internal warning: ${warningStr}`)
                     }
                 }
             }
             return errors
-        } catch (e) {
-            console.error(`Failed to parse JSON output: ${e}`)
+        } catch (error: unknown) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            console.error(`Failed to parse JSON output: ${error}`)
         }
 
         return MistiAnalyzer.parseTactCompilerOutput(output)
     }
 
-    static parseTactCompilerOutput(output: string): CompilerError[] {
+    private static parseTactCompilerOutput(output: string): CompilerError[] {
         const errors: CompilerError[] = []
         const lines = output.split("\n")
         for (let i = 0; i < lines.length; i++) {
@@ -112,8 +111,8 @@ export class MistiAnalyzer {
             }
             const error: CompilerError = {
                 file,
-                line: parseInt(lineNum, 10) - 1,
-                character: parseInt(char, 10) - 1,
+                line: Number.parseInt(lineNum, 10) - 1,
+                character: Number.parseInt(char, 10) - 1,
                 message: fullMessage.trim(),
                 severity: Severity.HIGH,
             }
@@ -130,22 +129,28 @@ export class MistiAnalyzer {
 
     private static mapSeverity(sev: string): Severity {
         switch (sev.toUpperCase()) {
-            case "INFO":
+            case "INFO": {
                 return Severity.INFO
-            case "LOW":
+            }
+            case "LOW": {
                 return Severity.LOW
-            case "MEDIUM":
+            }
+            case "MEDIUM": {
                 return Severity.MEDIUM
-            case "HIGH":
+            }
+            case "HIGH": {
                 return Severity.HIGH
-            case "CRITICAL":
+            }
+            case "CRITICAL": {
                 return Severity.CRITICAL
-            default:
+            }
+            default: {
                 return Severity.HIGH
+            }
         }
     }
 
-    static async analyze(_filePath: string): Promise<CompilerError[]> {
+    public static async analyze(_filePath: string): Promise<CompilerError[]> {
         return new Promise((resolve, reject) => {
             const process = cp.exec(
                 `npx misti ./tact.config.json --output-format json`,
