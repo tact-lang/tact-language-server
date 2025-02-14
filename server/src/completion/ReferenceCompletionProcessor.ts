@@ -58,7 +58,9 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
         const prefix = state.get("prefix") ?? ""
         const name = node.name()
-        if (name.endsWith("DummyIdentifier") || name === "AnyStruct") return true
+        if (name.endsWith("DummyIdentifier") || name === "AnyStruct" || name === "AnyMessage") {
+            return true
+        }
 
         if (!this.allowedInContext(node)) {
             return true

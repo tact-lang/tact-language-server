@@ -1,0 +1,81 @@
+========================================================================
+Simple Contract
+========================================================================
+primitive Int;
+
+contract Foo {
+    Bar: Int;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    Bar: Int/*  as int257 */;
+}
+
+========================================================================
+Contract with some optionals
+========================================================================
+primitive Int;
+
+contract Foo {
+    Bar: Int;
+    Baz: Int?;
+    balance: uint32 as coins;
+    Start: Int = 0;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    Bar: Int/*  as int257 */;
+    Baz: Int?;
+    balance: uint32 as coins;
+    Start: Int/*  as int257 */ = 0;
+}
+
+========================================================================
+Show method ID in contract
+========================================================================
+primitive Int;
+
+contract Foo {
+    get fun bar(){
+        const a: Int;
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    get/* (0x1ab79) */ fun bar(){
+        const a: Int;
+    }
+}
+
+========================================================================
+Exit codes
+========================================================================
+primitive Int;
+
+contract Foo {
+    receive(msg: "OK") {
+        try {
+            const Bar: Int;
+        } catch (exitCode) {
+            // something more
+        }
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    receive(msg: "OK") {
+        try {
+            const Bar: Int;
+        } catch (exitCode/* : Int */) {
+            // something more
+        }
+    }
+}
