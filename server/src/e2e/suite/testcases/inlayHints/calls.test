@@ -40,7 +40,7 @@ fun foo(bar: Int) {}
 struct Bar { bar: Int/*  as int257 */ }
 
 fun test() {
-    let instance/* : Bar */ = Bar { bar: 10 };
+    let instance = Bar { bar: 10 };
     foo(instance.bar); // no hint here
 }
 

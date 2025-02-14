@@ -66,3 +66,26 @@ contract Counter {
         initOf Counter(/* some: */10, /* other: */"hello");
     }
 }
+
+========================================================================
+initOf with one parameter single letter parameter
+========================================================================
+primitive Int;
+
+contract Counter {
+    init(s: Int) {}
+
+    fun test() {
+        initOf Counter(10);
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Counter {
+    init(s: Int) {}
+
+    fun test() {
+        initOf Counter(10);
+    }
+}

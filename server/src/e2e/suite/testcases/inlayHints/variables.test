@@ -31,3 +31,22 @@ fun foo() {
     let a: map<Int, String> = emptyMap();
     foreach (key/* : Int */, value/* : String */ in a) {}
 }
+
+========================================================================
+Local variable initialized with struct init
+========================================================================
+primitive Int;
+
+struct Foo { value: Int }
+
+fun foo() {
+    let a = Foo { value: 10 };
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Foo { value: Int/*  as int257 */ }
+
+fun foo() {
+    let a = Foo { value: 10 };
+}
