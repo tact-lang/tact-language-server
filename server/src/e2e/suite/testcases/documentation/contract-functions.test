@@ -1,0 +1,106 @@
+========================================================================
+init function without documentation
+========================================================================
+contract Foo {
+    <caret>init() {}
+}
+------------------------------------------------------------------------
+```tact
+init() {}
+```
+Constructor function `init()` runs on deployment of the contract.
+If a contract has any persistent state variables without default values specified, it must initialize them in this function.
+
+Learn more in documentation: https://docs.tact-lang.org/book/contracts/#init-function
+
+========================================================================
+init function with documentation
+========================================================================
+contract Foo {
+    /// some cool documentation here
+    <caret>init() {}
+}
+------------------------------------------------------------------------
+```tact
+init() {}
+```
+some cool documentation here
+
+----
+Constructor function `init()` runs on deployment of the contract.
+If a contract has any persistent state variables without default values specified, it must initialize them in this function.
+
+Learn more in documentation: https://docs.tact-lang.org/book/contracts/#init-function
+
+========================================================================
+receive function without parameters
+========================================================================
+contract Foo {
+    <caret>receive() {}
+}
+------------------------------------------------------------------------
+```tact
+receive() {}
+```
+Called when an empty message is sent to the contract
+
+Learn more in documentation: https://docs.tact-lang.org/book/receive/
+
+========================================================================
+receive function with string
+========================================================================
+contract Foo {
+    <caret>receive("hello") {}
+}
+------------------------------------------------------------------------
+```tact
+receive("hello") {}
+```
+Called when a text message "hello" is sent to the contract (maximum "message" length is 123 bytes)
+
+Learn more in documentation: https://docs.tact-lang.org/book/receive/
+
+========================================================================
+receive function with Slice
+========================================================================
+contract Foo {
+    <caret>receive(s: Slice) {}
+}
+------------------------------------------------------------------------
+no documentation
+
+========================================================================
+receive function with Message
+========================================================================
+message Msg { value: Int }
+
+contract Foo {
+    <caret>receive(s: Msg) {}
+}
+------------------------------------------------------------------------
+```tact
+receive(s: Msg) {}
+```
+Called when a binary message of type `Msg` is sent to the contract
+
+Learn more in documentation: https://docs.tact-lang.org/book/receive/
+
+========================================================================
+receive function with Message and documentation
+========================================================================
+message Msg { value: Int }
+
+contract Foo {
+    /// some cool documentation here
+    <caret>receive(s: Msg) {}
+}
+------------------------------------------------------------------------
+```tact
+receive(s: Msg) {}
+```
+some cool documentation here
+
+----
+Called when a binary message of type `Msg` is sent to the contract
+
+Learn more in documentation: https://docs.tact-lang.org/book/receive/
