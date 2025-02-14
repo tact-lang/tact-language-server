@@ -6,6 +6,7 @@ import {trimPrefix} from "@server/utils/strings"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
+export const tactCodeBlock = (s: string): string => `${CODE_FENCE}tact\n${s}\n${CODE_FENCE}`
 
 /**
  * Returns the documentation for the given symbol in Markdown format, or null
