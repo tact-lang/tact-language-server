@@ -195,12 +195,16 @@ export class Reference {
             return this.processType(qualifier, qualifierType.innerTy, proc, state)
         }
 
+        if (!this.processType(qualifier, qualifierType, proc, state)) return false
+
+        // process unwrapped T? later to correctly resolve in case of same name method for T and T?
         if (qualifierType instanceof OptionTy) {
             // show completion and resolve without explicit unwrapping
             return this.processType(qualifier, qualifierType.innerTy, proc, state)
         }
 
-        return this.processType(qualifier, qualifierType, proc, state)
+        // last resort, trying to find methods of T?
+        return this.processType(qualifier, new OptionTy(qualifierType), proc, state)
     }
 
     private processType(
