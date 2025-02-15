@@ -13,17 +13,6 @@ export class ImportPathCompletionProvider implements CompletionProvider {
         return ctx.insideImport
     }
 
-    private addFile(name: string, result: CompletionResult): void {
-        result.add({
-            label: name,
-            kind: CompletionItemKind.File,
-            labelDetails: {
-                detail: ".tact",
-            },
-            weight: CompletionWeight.CONTEXT_ELEMENT,
-        })
-    }
-
     public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
         const file = ctx.element.file
         const currentDir = path.dirname(file.path)
@@ -64,6 +53,17 @@ export class ImportPathCompletionProvider implements CompletionProvider {
                 kind: CompletionItemKind.Folder,
                 weight: CompletionWeight.CONTEXT_ELEMENT,
             })
+        })
+    }
+
+    private addFile(name: string, result: CompletionResult): void {
+        result.add({
+            label: name,
+            kind: CompletionItemKind.File,
+            labelDetails: {
+                detail: ".tact",
+            },
+            weight: CompletionWeight.CONTEXT_ELEMENT,
         })
     }
 
