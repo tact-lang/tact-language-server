@@ -53,10 +53,7 @@ function getStackPresentation(rawStack: string | undefined): string {
     const prefix = trimmedStack.startsWith("-") ? "∅ " : ""
     const suffix = trimmedStack.endsWith("-") ? " ∅" : ""
     const stack = prefix + rawStack.replace("-", "→") + suffix
-    if (stack !== "") {
-        return `(${stack})`
-    }
-    return ""
+    return `(${stack})`
 }
 
 function instructionPresentation(
