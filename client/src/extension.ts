@@ -15,6 +15,8 @@ import {
     GetTypeAtPositionParams,
     GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
+    SetToolchainVersionNotification,
+    SetToolchainVersionParams,
 } from "@shared/shared-msgtypes"
 import type {Location, Position} from "vscode-languageclient"
 import type {ClientOptions} from "@shared/config-scheme"
@@ -79,6 +81,26 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     await client.start()
 
     registerCommands(disposables)
+
+    const langStatusBar = vscode.window.createStatusBarItem(
+        "Tact",
+        vscode.StatusBarAlignment.Left,
+        60,
+    )
+
+    langStatusBar.text = "Tact"
+
+    client.onNotification(SetToolchainVersionNotification, (version: SetToolchainVersionParams) => {
+        const settings = vscode.workspace.getConfiguration("tact")
+        const hash =
+            settings.get<boolean>("toolchain.showShortCommitInStatusBar") &&
+            version.version.commit.length > 8
+                ? ` (${version.version.commit.slice(-8)})`
+                : ""
+
+        langStatusBar.text = `Tact ${version.version.number}${hash}`
+        langStatusBar.show()
+    })
 
     return new vscode.Disposable(() => {
         disposables.forEach(d => void d.dispose())

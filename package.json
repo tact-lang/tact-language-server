@@ -131,6 +131,16 @@
                     "default": null,
                     "description": "Path to Tact standard library. If empty, will try to find in node_modules"
                 },
+                "tact.toolchain.compilerPath": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to Tact compiler executable. If empty, will try to find in node_modules"
+                },
+                "tact.toolchain.showShortCommitInStatusBar": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Add short commit hash after Tact version in status bar"
+                },
                 "tact.hints.types": {
                     "type": "boolean",
                     "default": true,

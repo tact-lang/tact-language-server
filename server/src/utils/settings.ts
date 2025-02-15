@@ -6,6 +6,10 @@ export interface TactSettings {
     stdlib: {
         path: string | null
     }
+    toolchain: {
+        compilerPath: string
+        showShortCommitInStatusBar: boolean
+    }
     findUsages: {
         scope: FindUsagesScope
     }
@@ -53,6 +57,10 @@ export interface TactSettings {
 const defaultSettings: TactSettings = {
     stdlib: {
         path: null,
+    },
+    toolchain: {
+        compilerPath: "",
+        showShortCommitInStatusBar: false,
     },
     findUsages: {
         scope: "workspace",
@@ -104,6 +112,13 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
     return {
         stdlib: {
             path: vsSettings.stdlib?.path ?? defaultSettings.stdlib.path,
+        },
+        toolchain: {
+            compilerPath:
+                vsSettings.toolchain?.compilerPath ?? defaultSettings.toolchain.compilerPath,
+            showShortCommitInStatusBar:
+                vsSettings.toolchain?.showShortCommitInStatusBar ??
+                defaultSettings.toolchain.showShortCommitInStatusBar,
         },
         findUsages: {
             scope: vsSettings.findUsages?.scope ?? defaultSettings.findUsages.scope,
