@@ -25,6 +25,8 @@ import {
     GetTypeAtPositionParams,
     GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
+    SetToolchainVersionNotification,
+    SetToolchainVersionParams,
 } from "@shared/shared-msgtypes"
 import {KeywordsCompletionProvider} from "./completion/providers/KeywordsCompletionProvider"
 import type {CompletionProvider} from "./completion/CompletionProvider"
@@ -111,6 +113,7 @@ import {
     WrapSelectedToTryCatch,
 } from "@server/intentions/WrapSelected"
 import {PostfixCompletionProvider} from "@server/completion/providers/PostfixCompletionProvider"
+import {Toolchain, InvalidToolchainError, fallbackToolchain} from "@server/toolchain/toolchain"
 
 /**
  * Whenever LS is initialized.
@@ -119,6 +122,8 @@ import {PostfixCompletionProvider} from "@server/completion/providers/PostfixCom
  * @see initializeFallback
  */
 let initialized = false
+
+let toolchain: Toolchain = fallbackToolchain
 
 let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
 
@@ -183,6 +188,23 @@ async function initialize(): Promise<void> {
     const rootDir = rootUri.slice(7)
 
     const settings = await getDocumentSettings(rootUri)
+
+    try {
+        toolchain =
+            settings.toolchain.compilerPath === ""
+                ? Toolchain.autoDetect(rootDir)
+                : Toolchain.fromPath(settings.toolchain.compilerPath)
+        console.info(`using toolchain ${toolchain.toString()}`)
+
+        await connection.sendNotification(SetToolchainVersionNotification, {
+            version: toolchain.version,
+        } satisfies SetToolchainVersionParams)
+    } catch (error) {
+        if (error instanceof InvalidToolchainError) {
+            console.info(`toolchain is invalid ${error.message}`)
+            showErrorMessage(error.message)
+        }
+    }
 
     const stdlibPath = findStdlib(settings, rootDir)
     if (stdlibPath !== null) {
