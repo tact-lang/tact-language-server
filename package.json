@@ -205,7 +205,7 @@
                 "tact.hints.gasFormat": {
                     "type": "string",
                     "default": ": {gas}",
-                    "description": "Format string for gas consumption hints. Use {gas} as placeholder for the gas value",
+                    "description": "Format string for gas consumption hints. Use {gas} as placeholder for the gas value and {stack} for the stack info",
                     "examples": [
                         "💨 {gas}",
                         "Gas: {gas}",

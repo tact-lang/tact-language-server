@@ -47,11 +47,24 @@ function processParameterHints(
     }
 }
 
-function getGasPresentation(gas: string | undefined, format: string): string {
+function getStackPresentation(rawStack: string | undefined): string {
+    if (!rawStack) return ""
+    const trimmedStack = rawStack.trim()
+    const prefix = trimmedStack.startsWith("-") ? "∅ " : ""
+    const suffix = trimmedStack.endsWith("-") ? " ∅" : ""
+    const stack = prefix + rawStack.replace("-", "→") + suffix
+    return `(${stack})`
+}
+
+function instructionPresentation(
+    gas: string | undefined,
+    stack: string | undefined,
+    format: string,
+): string {
     if (!gas || gas === "") {
         return ": no data"
     }
-    return format.replace("{gas}", gas)
+    return format.replace("{gas}", gas).replace("{stack}", getStackPresentation(stack))
 }
 
 function calculatePushcontGas(instr: AsmInstr, file: File): GasConsumption | null {
@@ -293,7 +306,7 @@ export function collect(
 
                 result.push({
                     kind: InlayHintKind.Type,
-                    label: getGasPresentation(gas.value.toString(), hints.gasFormat),
+                    label: instructionPresentation(gas.value.toString(), "", hints.gasFormat),
                     position: {
                         line: openBrace.endPosition.row,
                         character: openBrace.endPosition.column,
@@ -302,11 +315,15 @@ export function collect(
                 })
             }
 
-            const gasPresentation = getGasPresentation(info?.doc.gas, hints.gasFormat)
+            const presentation = instructionPresentation(
+                info?.doc.gas,
+                info?.doc.stack,
+                hints.gasFormat,
+            )
 
             result.push({
                 kind: InlayHintKind.Type,
-                label: gasPresentation,
+                label: presentation,
                 position: {
                     line: n.endPosition.row,
                     character: n.endPosition.column,
