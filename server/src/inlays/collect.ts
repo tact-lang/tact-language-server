@@ -49,8 +49,10 @@ function processParameterHints(
 
 function getStackPresentation(rawStack: string | undefined): string {
     if (!rawStack) return ""
-    const prefix = rawStack.startsWith("-") ? "∅ " : ""
-    const stack = prefix + rawStack.replace("-", "→")
+    const trimmedStack = rawStack.trim()
+    const prefix = trimmedStack.startsWith("-") ? "∅ " : ""
+    const suffix = trimmedStack.endsWith("-") ? " ∅" : ""
+    const stack = prefix + rawStack.replace("-", "→") + suffix
     if (stack !== "") {
         return `(${stack})`
     }
