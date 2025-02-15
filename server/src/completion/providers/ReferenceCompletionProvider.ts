@@ -21,6 +21,7 @@ export class ReferenceCompletionProvider implements CompletionProvider {
             !ctx.topLevel &&
             !ctx.inTlbSerialization &&
             !ctx.afterFieldType &&
+            !ctx.insideImport &&
             !ctx.inParameter
         )
     }
