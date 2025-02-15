@@ -108,6 +108,12 @@
                 "category": "tact"
             },
             {
+                "command": "tact.build",
+                "title": "Build Project",
+                "category": "Tact",
+                "icon": "$(gear)"
+            },
+            {
                 "command": "tact/getTypeAtPosition",
                 "title": "Get Type At Position",
                 "category": "tact"
@@ -120,6 +126,18 @@
             {
                 "command": "tact/executeGetScopeProvider",
                 "title": "Get Scope Information"
+            },
+            {
+                "command": "tact.build",
+                "title": "Build Tact Project",
+                "category": "tact"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "tact.build",
+                "key": "f5",
+                "when": "editorTextFocus && editorLangId == 'tact'"
             }
         ],
         "configuration": {
