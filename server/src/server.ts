@@ -407,7 +407,10 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         return file.rootNode.descendantForPosition(cursorPosition)
     }
 
-    function provideDocumentation(uri: string, params: lsp.HoverParams): lsp.Hover | null {
+    async function provideDocumentation(
+        uri: string,
+        params: lsp.HoverParams,
+    ): Promise<lsp.Hover | null> {
         if (uri.endsWith(".fif")) {
             const file = findFiftFile(uri)
             const hoverNode = nodeAtPosition(params, file)
@@ -535,7 +538,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
         }
 
-        const doc = docs.generateDocFor(res)
+        const doc = await docs.generateDocFor(res, hoverNode)
         if (doc === null) return null
 
         return {
@@ -547,10 +550,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         }
     }
 
-    connection.onRequest(lsp.HoverRequest.type, (params: lsp.HoverParams): lsp.Hover | null => {
-        const uri = params.textDocument.uri
-        return provideDocumentation(uri, params)
-    })
+    connection.onRequest(
+        lsp.HoverRequest.type,
+        async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
+            const uri = params.textDocument.uri
+            return provideDocumentation(uri, params)
+        },
+    )
 
     connection.onRequest(
         lsp.DefinitionRequest.type,
@@ -1363,7 +1369,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         GetDocumentationAtPositionRequest,
-        (params: GetTypeAtPositionParams): GetDocumentationAtPositionResponse | null => {
+        async (
+            params: GetTypeAtPositionParams,
+        ): Promise<GetDocumentationAtPositionResponse | null> => {
             const uri = params.textDocument.uri
             return provideDocumentation(uri, params)
         },
