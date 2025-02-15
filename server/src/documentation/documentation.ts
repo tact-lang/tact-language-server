@@ -3,6 +3,9 @@ import {TypeInferer} from "@server/TypeInferer"
 import {Constant, Contract, Field, Fun, Message, Struct, Trait} from "@server/psi/Decls"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {trimPrefix} from "@server/utils/strings"
+import * as compiler from "@server/compiler/utils"
+import {getDocumentSettings, TactSettings} from "@server/utils/settings"
+import {File} from "@server/psi/File"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -12,8 +15,10 @@ export const tactCodeBlock = (s: string): string => `${CODE_FENCE}tact\n${s}\n${
  * Returns the documentation for the given symbol in Markdown format, or null
  * if there is no documentation for the element.
  * @param node for which we need documentation
+ * @param place where symbol is used
  */
-export function generateDocFor(node: NamedNode): string | null {
+export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promise<string | null> {
+    const settings = await getDocumentSettings(node.file.uri)
     const astNode = node.node
 
     function renderOwnerPresentation(symbol: Fun | Constant | Field): string | null {
@@ -44,11 +49,14 @@ export function generateDocFor(node: NamedNode): string | null {
             const func = new Fun(astNode, node.file)
             const doc = extractCommentsDoc(node)
 
+            const extraDoc =
+                func.name() === "require" ? requireFunctionDoc(place, node.file, settings) : ""
+
             const name = trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyStruct_")
 
             return defaultResult(
                 `${func.modifiers()}fun ${name}${func.signaturePresentation()}`,
-                doc,
+                extraDoc + doc,
             )
         }
         case "storage_function": {
@@ -285,6 +293,15 @@ export function extractCommentsDoc(node: Node): string {
     }
 
     return result.trimEnd()
+}
+
+function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSettings): string | null {
+    const callNode = place.parent
+    if (!callNode) return null
+
+    const exitCode = compiler.requireFunctionExitCode(callNode, file, settings.hints.exitCodeFormat)
+    if (!exitCode) return ""
+    return `Edit code: **${exitCode.value}**\n\n`
 }
 
 function defaultResult(signature: string, documentation: string = ""): string {

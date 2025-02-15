@@ -1,0 +1,16 @@
+========================================================================
+Require call
+========================================================================
+primitive Bool;
+primitive String;
+
+fun require(that: Bool, msg: String) {}
+
+fun foo() {
+    <caret>require(true, "hello world");
+}
+------------------------------------------------------------------------
+```tact
+fun require(that: Bool, msg: String)
+```
+Edit code: **44401**

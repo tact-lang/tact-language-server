@@ -6,9 +6,9 @@ import {Reference} from "@server/psi/Reference"
 import {Field, Fun, InitFunction} from "@server/psi/Decls"
 import {AsmInstr, CallLike, Expression, NamedNode, VarDeclaration} from "@server/psi/Node"
 import {MapTy} from "@server/types/BaseTy"
-import {createHash} from "node:crypto"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {computeGasConsumption, GasConsumption} from "@server/asm/gas"
+import * as compiler from "@server/compiler/utils"
 
 function processParameterHints(
     shift: number,
@@ -232,23 +232,14 @@ export function collect(
             // =>
             // require(true, "message" exit code: 999)
             if (call.name() === "require") {
-                const message = args.at(-1)
-                if (message && args.length > 1) {
-                    const content = message.text.slice(1, -1)
-                    const buff = createHash("sha256").update(content).digest()
-                    const code = (buff.readUInt32BE(0) % 63_000) + 1000
-
-                    const codeStr =
-                        hints.exitCodeFormat === "hex"
-                            ? `0x${code.toString(16).toUpperCase()}`
-                            : code.toString()
-
+                const exitCode = compiler.requireFunctionExitCode(n, file, hints.exitCodeFormat)
+                if (exitCode !== null) {
                     result.push({
                         kind: InlayHintKind.Parameter,
-                        label: ` exit code: ${codeStr}`,
+                        label: ` exit code: ${exitCode.value}`,
                         position: {
-                            line: message.endPosition.row,
-                            character: message.endPosition.column,
+                            line: exitCode.node.endPosition.row,
+                            character: exitCode.node.endPosition.column,
                         },
                     })
                 }
