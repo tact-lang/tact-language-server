@@ -32,6 +32,10 @@ export class File {
         return this.uri.slice(7)
     }
 
+    public get name(): string {
+        return path.basename(this.path, ".tact")
+    }
+
     public isImportedImplicitly(): boolean {
         if (this.fromStubs) return true
         if (!this.fromStdlib) return false

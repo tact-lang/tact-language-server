@@ -93,4 +93,10 @@ export class Toolchain {
     }
 }
 
+export let projectStdlibPath: string | null = null
+
+export function setProjectStdlibPath(path: string | null): void {
+    projectStdlibPath = path
+}
+
 export const fallbackToolchain = new Toolchain("fallback-toolchain")

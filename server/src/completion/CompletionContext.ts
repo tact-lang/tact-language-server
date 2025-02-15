@@ -31,6 +31,7 @@ export class CompletionContext {
     public isBouncedMessage: boolean = false
     public isInitOfName: boolean = false
     public afterFieldType: boolean = false
+    public insideImport: boolean = false
 
     public contextTy: Ty | null = null
 
@@ -65,6 +66,11 @@ export class CompletionContext {
 
         if (parent.type !== "expression_statement" && parent.type !== "field_access_expression") {
             this.isExpression = true
+        }
+
+        if (element.node.type === "string") {
+            this.isExpression = false
+            this.isStatement = false
         }
 
         if (
@@ -163,6 +169,10 @@ export class CompletionContext {
             this.inTlbSerialization = true
             this.isExpression = false
             this.isStatement = false
+        }
+
+        if (parent.type === "import") {
+            this.insideImport = true
         }
 
         if (
@@ -287,6 +297,7 @@ export class CompletionContext {
             !this.inTraitList &&
             !this.inParameter &&
             !this.afterFieldType &&
+            !this.insideImport &&
             !this.isInitOfName
         )
     }

@@ -113,7 +113,13 @@ import {
     WrapSelectedToTryCatch,
 } from "@server/intentions/WrapSelected"
 import {PostfixCompletionProvider} from "@server/completion/providers/PostfixCompletionProvider"
-import {Toolchain, InvalidToolchainError, fallbackToolchain} from "@server/toolchain/toolchain"
+import {
+    Toolchain,
+    InvalidToolchainError,
+    fallbackToolchain,
+    setProjectStdlibPath,
+} from "@server/toolchain/toolchain"
+import {ImportPathCompletionProvider} from "@server/completion/providers/ImportPathCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -212,6 +218,8 @@ async function initialize(): Promise<void> {
         const stdlibRoot = new IndexRoot(`file://${stdlibPath}`, IndexRootKind.Stdlib)
         await stdlibRoot.index()
     }
+
+    setProjectStdlibPath(stdlibPath)
 
     reporter.report(55, "Indexing: (2/3) Stubs")
     const stubsPath = path.join(__dirname, "stubs")
@@ -578,12 +586,22 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                     end: {line: 0, character: 0},
                 }
 
+                const hoverRange = asLspRange(hoverNode)
                 return [
                     {
-                        targetUri: importedFile.uri,
+                        targetUri: `file://${importedFile}`,
                         targetRange: startOfFile,
                         targetSelectionRange: startOfFile,
-                        originSelectionRange: asLspRange(hoverNode),
+                        originSelectionRange: {
+                            start: {
+                                line: hoverRange.start.line,
+                                character: hoverRange.start.character + 1,
+                            },
+                            end: {
+                                line: hoverRange.end.line,
+                                character: hoverRange.end.character - 1,
+                            },
+                        },
                     } as lsp.LocationLink,
                 ]
             }
@@ -716,6 +734,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 cursorNode === null ||
                 (cursorNode.type !== "identifier" &&
                     cursorNode.type !== "type_identifier" &&
+                    cursorNode.type !== "string" &&
                     cursorNode.type !== "tvm_instruction")
             ) {
                 return []
@@ -737,6 +756,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 new SnippetsCompletionProvider(),
                 new KeywordsCompletionProvider(),
                 new AsKeywordCompletionProvider(),
+                new ImportPathCompletionProvider(),
                 new MapTypeCompletionProvider(),
                 new BouncedTypeCompletionProvider(),
                 new ContractDeclCompletionProvider(),

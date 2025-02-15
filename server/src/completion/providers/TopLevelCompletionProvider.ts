@@ -10,6 +10,17 @@ export class TopLevelCompletionProvider implements CompletionProvider {
 
     public addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
         result.add({
+            label: `import`,
+            labelDetails: {
+                detail: ` "";`,
+            },
+            kind: CompletionItemKind.Keyword,
+            insertText: `import "$1";$0`,
+            insertTextFormat: InsertTextFormat.Snippet,
+            weight: CompletionWeight.KEYWORD,
+        })
+
+        result.add({
             label: `struct`,
             labelDetails: {
                 detail: " Name {}",

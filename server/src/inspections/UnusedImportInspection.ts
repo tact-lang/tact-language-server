@@ -29,7 +29,7 @@ export class UnusedImportInspection implements Inspection {
             if (!pathNode) return
 
             const importPath = pathNode.text.slice(1, -1)
-            const importedFile = ImportResolver.resolveNode(file, pathNode)
+            const importedFile = ImportResolver.resolveAsFile(file, pathNode)
             if (!importedFile) return
 
             const decls = importedFile.getDecls()
