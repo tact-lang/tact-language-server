@@ -20,11 +20,13 @@ import {
 } from "@shared/shared-msgtypes"
 import type {Location, Position} from "vscode-languageclient"
 import type {ClientOptions} from "@shared/config-scheme"
+import {registerBuildTasks} from "./build-system"
 
 let client: LanguageClient | null = null
 
 export function activate(context: vscode.ExtensionContext): void {
     startServer(context).catch(consoleError)
+    registerBuildTasks(context)
 }
 
 export function deactivate(): Thenable<void> | undefined {
