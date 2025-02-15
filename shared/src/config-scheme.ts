@@ -9,4 +9,5 @@ export interface ClientOptions {
     treeSitterWasmUri: string
     tactLangWasmUri: string
     fiftLangWasmUri: string
+    tlbLangWasmUri: string
 }

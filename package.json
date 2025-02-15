@@ -14,7 +14,8 @@
     },
     "icon": "logo.png",
     "activationEvents": [
-        "onLanguage:tact"
+        "onLanguage:tact",
+        "onLanguage:tlb"
     ],
     "categories": [
         "Programming Languages"
@@ -33,9 +34,10 @@
         "lint": "eslint --cache .",
         "fmt": "prettier --write -l --cache .",
         "fmt:check": "prettier --check --cache .",
-        "grammar:wasm": "yarn grammar:tact:wasm && yarn grammar:fift:wasm",
+        "grammar:wasm": "yarn grammar:tact:wasm && yarn grammar:fift:wasm && yarn grammar:tlb:wasm",
         "grammar:tact:wasm": "cd tree-sitter-tact && tree-sitter generate && tree-sitter build --wasm",
         "grammar:fift:wasm": "cd tree-sitter-fift && tree-sitter generate && tree-sitter build --wasm",
+        "grammar:tlb:wasm": "cd tree-sitter-tlb && tree-sitter generate && tree-sitter build --wasm",
         "watch": "webpack --watch",
         "test:e2e": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts",
         "test:e2e:coverage": "yarn test:e2e:compile && c8 ts-node server/src/e2e/runTest.ts",
@@ -75,6 +77,16 @@
                     "dark": "./dist/icons/ton-icon.svg"
                 },
                 "configuration": "./fift-language-configuration.json"
+            },
+            {
+                "id": "tlb",
+                "aliases": [
+                    "TL-B"
+                ],
+                "extensions": [
+                    ".tlb"
+                ],
+                "configuration": "./tlb-language-configuration.json"
             }
         ],
         "grammars": [
@@ -98,6 +110,11 @@
                 "embeddedLanguages": {
                     "meta.embedded.block.tact": "tact"
                 }
+            },
+            {
+                "language": "tlb",
+                "scopeName": "source.tlb",
+                "path": "./syntaxes/tlb.tmLanguage.json"
             }
         ],
         "snippets": [],
