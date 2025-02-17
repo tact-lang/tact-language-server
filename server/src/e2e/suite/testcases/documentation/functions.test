@@ -158,8 +158,26 @@ fun example() {
 ```
  See:
 
+
 * https://docs.tact-lang.org/ref/core-advanced#getoriginalfwdfee
 
 * https://docs.tact-lang.org/ref/core-advanced#getforwardfee
 
 * https://docs.tact-lang.org/ref/core-advanced#contextreadforwardfee
+
+========================================================================
+Function documentation with list
+========================================================================
+/// Some interesting list
+/// - Point 1
+///   with other line
+/// - Point 2
+fun <caret>foo(): Int {}
+------------------------------------------------------------------------
+```tact
+fun foo(): Int
+```
+Some interesting list 
+- Point 1
+  with other line 
+- Point 2
