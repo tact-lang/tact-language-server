@@ -1,0 +1,279 @@
+========================================================================
+Basic Function with Multiple Parameters
+========================================================================
+primitive Int;
+primitive String;
+
+struct User {
+    first_name: String;
+    last_name: String;
+    age: Int;
+}
+
+contract Foo {
+
+    fun bar(a: Int, b: String, c: User) {
+        return a + 42;
+    }
+
+    init() {
+        self.bar(1000, <caret>);
+    }
+}
+------------------------------------------------------------------------
+b: String
+fun bar(a: Int, b: String, c: User)
+
+========================================================================
+Basic Function with Multiple Parameters - 2
+========================================================================
+primitive Int;
+primitive String;
+
+struct User {
+    name: String;
+    age: Int;
+}
+
+contract Foo {
+    fun baz(user: User, action: String, value: Int) {
+        // ...
+    }
+
+    init() {
+        self.baz(user, "update", <caret>);
+    }
+}
+------------------------------------------------------------------------
+value: Int
+fun baz(user: User, action: String, value: Int)
+
+========================================================================
+Function Overloading
+========================================================================
+primitive Int;
+primitive String;
+
+contract Foo {
+    fun add(a: Int, b: Int): Int {
+        return a + b;
+    }
+
+    fun add(a: String, b: String): String {
+        return a + b;
+    }
+
+    init() {
+        self.add("hello", <caret>);
+    }
+}
+------------------------------------------------------------------------
+b: Int
+fun add(a: Int, b: Int)
+
+========================================================================
+Nested Function Calls
+========================================================================
+primitive Int;
+primitive String;
+
+contract Foo {
+    fun multiply(a: Int, b: Int): Int {
+        return a * b;
+    }
+
+    fun calculate(x: Int, y: Int, z: Int): Int {
+        return x + self.multiply(y, z);
+    }
+
+    init() {
+        self.calculate(10, <caret>);
+    }
+}
+------------------------------------------------------------------------
+y: Int
+fun calculate(x: Int, y: Int, z: Int)
+
+========================================================================
+Function with Optional Parameters
+========================================================================
+primitive Int;
+
+contract Foo {
+    fun sum(a: Int, b: Int = 10, c: Int = 20): Int {
+        return a + b + c;
+    }
+
+    init() {
+        self.sum(5, <caret>);
+    }
+}
+------------------------------------------------------------------------
+b: Int
+fun sum(a: Int, b: Int, c: Int)
+
+========================================================================
+Default Parameter Values
+========================================================================
+primitive Int;
+
+contract Foo {
+    fun configure(a: Int, b: Int = 42, c: Int = 100): Int {
+        return a + b + c;
+    }
+
+    init() {
+        self.configure(10, <caret>);
+    }
+}
+------------------------------------------------------------------------
+b: Int
+fun configure(a: Int, b: Int, c: Int)
+
+========================================================================
+Chained Function Calls
+========================================================================
+primitive Int;
+
+contract Foo {
+    fun double(x: Int): Int {
+        return x * 2;
+    }
+
+    fun triple(x: Int): Int {
+        return x * 3;
+    }
+
+    init() {
+        self.double(self.triple(<caret>));
+    }
+}
+------------------------------------------------------------------------
+x: Int
+fun triple(x: Int)
+
+========================================================================
+Promt first arg while second is filled
+========================================================================
+primitive Int;
+
+contract Foo {
+    fun add(a: Int, b: Int): Int {
+        return a + b;
+    }
+
+    init() {
+        self.add(<caret>, 2);
+    }
+}
+------------------------------------------------------------------------
+a: Int
+fun add(a: Int, b: Int)
+
+========================================================================
+Map with Complex Key Types
+========================================================================
+primitive Int;
+primitive String;
+
+struct Key {
+    id: Int;
+    name: String;
+}
+
+contract Foo {
+    fun processComplexMap(map: Map<Key, Int>) {
+        // ...
+    }
+
+    init() {
+        let key = Key { id: 1, name: "Test" };
+        let map = emptyMap();
+        self.processComplexMap(<caret>);
+    }
+}
+------------------------------------------------------------------------
+map: Map
+fun processComplexMap(map: Map)
+
+========================================================================
+Set Map (Key)
+========================================================================
+primitive Int;
+extends mutates fun set(self: map<K, V>, key: K, val: V);
+
+contract A {
+    init() {
+        let fizz: map<Int, Int> = emptyMap();
+
+        fizz.set(<caret>)
+    }
+}
+------------------------------------------------------------------------
+key: K
+fun set(self: map<K, V>, key: K, val: V)
+
+========================================================================
+Set Map (Value)
+========================================================================
+primitive Int;
+extends mutates fun set(self: map<K, V>, key: K, val: V);
+
+contract A {
+    init() {
+        let fizz: map<Int, Int> = emptyMap();
+
+        fizz.set(42, <caret>)
+    }
+}
+------------------------------------------------------------------------
+val: V
+fun set(self: map<K, V>, key: K, val: V)
+
+========================================================================
+Get value from Map
+========================================================================
+primitive Int;
+extends fun get(self: map<K, V>, key: K): V?;
+contract A {
+    init() {
+        let fizz: map<Int, Int> = emptyMap();
+
+        fizz.get(<caret>);
+    }
+}
+------------------------------------------------------------------------
+key: K
+fun get(self: map<K, V>, key: K)
+
+========================================================================
+Replace value map by key (caret on key)
+========================================================================
+primitive Int;
+extends mutates fun replace(self: map<K, V>, key: K, val: V): Bool;
+contract A {
+    init() {
+        let fizz: map<Int, Int> = emptyMap();
+
+        fizz.replace(<caret>)
+    }
+}
+------------------------------------------------------------------------
+key: K
+fun replace(self: map<K, V>, key: K, val: V)
+
+========================================================================
+Replace value map by key (caret on value)
+========================================================================
+primitive Int;
+extends mutates fun replace(self: map<K, V>, key: K, val: V): Bool;
+contract A {
+    init() {
+        let fizz: map<Int, Int> = emptyMap();
+
+        fizz.replace(42, <caret>)
+    }
+}
+------------------------------------------------------------------------
+val: V
+fun replace(self: map<K, V>, key: K, val: V)
