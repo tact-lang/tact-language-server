@@ -137,6 +137,24 @@ fun globalFunc(map: Map)
 ========================================================================
 Global function with String
 ========================================================================
+primitive String;
+
+fun globalFunc(input: String): String {
+    return input;
+}
+
+contract A {
+    init() {
+        globalFunc(<caret>)
+    }
+}
+------------------------------------------------------------------------
+input: String
+fun globalFunc(input: String)
+
+========================================================================
+Global function with Int
+========================================================================
 primitive Int;
 
 fun globalFunc(input: Int): Int {
