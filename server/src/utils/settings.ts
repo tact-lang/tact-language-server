@@ -47,6 +47,7 @@ export interface TactSettings {
     }
     completion: {
         typeAware: boolean
+        addImports: boolean
     }
     documentSymbols: {
         showStructFields: boolean
@@ -99,6 +100,7 @@ const defaultSettings: TactSettings = {
     },
     completion: {
         typeAware: true,
+        addImports: true,
     },
     documentSymbols: {
         showStructFields: false,
@@ -177,6 +179,7 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
         },
         completion: {
             typeAware: vsSettings.completion?.typeAware ?? defaultSettings.completion.typeAware,
+            addImports: vsSettings.completion?.addImports ?? defaultSettings.completion.addImports,
         },
         documentSymbols: {
             showStructFields:

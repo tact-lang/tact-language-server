@@ -120,6 +120,8 @@ import {
     setProjectStdlibPath,
 } from "@server/toolchain/toolchain"
 import {ImportPathCompletionProvider} from "@server/completion/providers/ImportPathCompletionProvider"
+import {FileDiff} from "@server/utils/FileDiff"
+import {CompletionItemAdditionalInformation} from "@server/completion/ReferenceCompletionProcessor"
 
 /**
  * Whenever LS is initialized.
@@ -688,6 +690,46 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
 
             return []
+        },
+    )
+
+    connection.onRequest(
+        lsp.CompletionResolveRequest.type,
+        async (item: lsp.CompletionItem): Promise<lsp.CompletionItem> => {
+            const data = item.data as CompletionItemAdditionalInformation
+            if (
+                data.file === undefined ||
+                data.elementFile === undefined ||
+                data.name === undefined
+            ) {
+                return item
+            }
+
+            const settings = await getDocumentSettings(data.file.uri)
+            if (!settings.completion.addImports) return item
+
+            const file = findFile(data.file.uri)
+            const elementFile = findFile(data.elementFile.uri)
+
+            const importPath = elementFile.importPath(file)
+            // already imported
+            if (file.alreadyImport(importPath)) return item
+            // some files like stubs or stdlib imported implicitly
+            if (elementFile.isImportedImplicitly()) return item
+            // guard for multi projects
+            if (index.hasSeveralDeclarations(data.name)) return item
+
+            const positionToInsert = file.positionForNextImport()
+
+            const extraLine = positionToInsert.line === 0 && file.imports().length === 0 ? "\n" : ""
+
+            const diff = FileDiff.forFile(elementFile.uri)
+            diff.appendAsPrevLine(positionToInsert.line, `import "${importPath}";${extraLine}`)
+
+            return {
+                ...item,
+                additionalTextEdits: diff.toTextEdits(),
+            }
         },
     )
 
@@ -1586,6 +1628,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             foldingRangeProvider: true,
             implementationProvider: true,
             completionProvider: {
+                resolveProvider: true,
                 triggerCharacters: ["."],
             },
             signatureHelpProvider: {
