@@ -253,3 +253,23 @@ contract A {
 ------------------------------------------------------------------------
 input: Int
 fun globalFunc(input: Int)
+
+========================================================================
+Struct Key
+========================================================================
+primitive Int;
+primitive String;
+
+struct Person {
+    age: Int;
+    name: String;
+}
+
+contract Foo {
+    init() {
+        const userA = Person{age:<caret>,}
+    }
+}
+------------------------------------------------------------------------
+age: Int
+Person{ age: Int, name: String }

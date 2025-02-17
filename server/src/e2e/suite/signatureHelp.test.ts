@@ -18,8 +18,6 @@ suite("Signatures Test Suite", () => {
             this.editor.selection = new vscode.Selection(position, position)
             this.editor.revealRange(new vscode.Range(position, position))
 
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
             return vscode.commands.executeCommand<vscode.SignatureHelp>(
                 "vscode.executeSignatureHelpProvider",
                 this.document.uri,
