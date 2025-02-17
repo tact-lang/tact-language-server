@@ -28,6 +28,8 @@ suite("Signatures Test Suite", () => {
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Signature: ${testCase.name}`, async () => {
                 const signature = await this.getSignature(testCase.input)
+                console.log("signature")
+                console.log(JSON.stringify(signature))
                 const items = signature.signatures.map(item => {
                     const label = item.label
                     if (item.activeParameter !== undefined) {

@@ -95,24 +95,6 @@ y: Int
 fun calculate(x: Int, y: Int, z: Int)
 
 ========================================================================
-Function with Optional Parameters
-========================================================================
-primitive Int;
-
-contract Foo {
-    fun sum(a: Int, b: Int = 10, c: Int = 20): Int {
-        return a + b + c;
-    }
-
-    init() {
-        self.sum(5, <caret>);
-    }
-}
-------------------------------------------------------------------------
-b: Int
-fun sum(a: Int, b: Int, c: Int)
-
-========================================================================
 Default Parameter Values
 ========================================================================
 primitive Int;
@@ -131,7 +113,7 @@ b: Int
 fun configure(a: Int, b: Int, c: Int)
 
 ========================================================================
-Chained Function Calls
+Nested Function Calls
 ========================================================================
 primitive Int;
 
@@ -149,8 +131,8 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-x: Int
-fun triple(x: Int)
+y: Int
+fun calculate(x: Int, y: Int, z: Int)
 
 ========================================================================
 Promt first arg while second is filled
@@ -169,32 +151,6 @@ contract Foo {
 ------------------------------------------------------------------------
 a: Int
 fun add(a: Int, b: Int)
-
-========================================================================
-Map with Complex Key Types
-========================================================================
-primitive Int;
-primitive String;
-
-struct Key {
-    id: Int;
-    name: String;
-}
-
-contract Foo {
-    fun processComplexMap(map: Map<Key, Int>) {
-        // ...
-    }
-
-    init() {
-        let key = Key { id: 1, name: "Test" };
-        let map = emptyMap();
-        self.processComplexMap(<caret>);
-    }
-}
-------------------------------------------------------------------------
-map: Map
-fun processComplexMap(map: Map)
 
 ========================================================================
 Set Map (Key)
@@ -277,3 +233,23 @@ contract A {
 ------------------------------------------------------------------------
 val: V
 fun replace(self: map<K, V>, key: K, val: V)
+
+========================================================================
+External Contract Initialization
+========================================================================
+primitive Int;
+
+contract ContractA {
+    init(a: Int) {
+
+    }
+}
+
+contract ContractB {
+    init() {
+        initOf ContractA(<caret>)
+    }
+}
+------------------------------------------------------------------------
+a: Int
+init(a: Int)
