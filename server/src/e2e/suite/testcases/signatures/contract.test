@@ -5,32 +5,6 @@ primitive Int;
 primitive String;
 
 struct User {
-    first_name: String;
-    last_name: String;
-    age: Int;
-}
-
-contract Foo {
-
-    fun bar(a: Int, b: String, c: User) {
-        return a + 42;
-    }
-
-    init() {
-        self.bar(1000, <caret>);
-    }
-}
-------------------------------------------------------------------------
-b: String
-fun bar(a: Int, b: String, c: User)
-
-========================================================================
-Basic Function with Multiple Parameters - 2
-========================================================================
-primitive Int;
-primitive String;
-
-struct User {
     name: String;
     age: Int;
 }
@@ -93,24 +67,6 @@ contract Foo {
 ------------------------------------------------------------------------
 y: Int
 fun calculate(x: Int, y: Int, z: Int)
-
-========================================================================
-Default Parameter Values
-========================================================================
-primitive Int;
-
-contract Foo {
-    fun configure(a: Int, b: Int = 42, c: Int = 100): Int {
-        return a + b + c;
-    }
-
-    init() {
-        self.configure(10, <caret>);
-    }
-}
-------------------------------------------------------------------------
-b: Int
-fun configure(a: Int, b: Int, c: Int)
 
 ========================================================================
 Nested Function Calls
@@ -253,3 +209,47 @@ contract ContractB {
 ------------------------------------------------------------------------
 a: Int
 init(a: Int)
+
+========================================================================
+Global function with Map
+========================================================================
+primitive Int;
+primitive String;
+
+struct Key {
+    id: Int;
+    name: String;
+}
+
+get fun globalFunc(map: Map<Key, Int>) {
+    // ...
+}
+
+contract Foo {
+    init() {
+        let key = Key { id: 1, name: "Test" };
+        let map = emptyMap();
+        globalFunc(<caret>)
+    }
+}
+------------------------------------------------------------------------
+map: Map
+fun globalFunc(map: Map)
+
+========================================================================
+Global function with String
+========================================================================
+primitive Int;
+
+fun globalFunc(input: Int): Int {
+    return input;
+}
+
+contract A {
+    init() {
+        globalFunc(<caret>)
+    }
+}
+------------------------------------------------------------------------
+input: Int
+fun globalFunc(input: Int)
