@@ -1,21 +1,14 @@
 /// Checks the condition and throws an error with an exit code generated from
 /// the error message if the condition is false. Does nothing otherwise.
 ///
-/// The algorithm for generating the exit code works as follows:
-/// * First, the SHA-256 hash of `error` message String is obtained.
-/// * Then, its value is read as a 32-bit big-endian number modulo 63000 plus 1000,
-///   in that order.
-/// * Finally, it's put into the `.md` compilation report file, which resides with
-///   other compilation artifacts in your project's `outputs/` or `build/` directories.
-///
 /// The generated exit code is guaranteed to be outside the common 0−255 range reserved
 /// for TVM and Tact contract errors, which makes it possible to distinguish exit codes
 /// from `require()` and any other standard exit codes.
 ///
 /// ```tact
 /// fun examples() {
-///     // now() has to return a value greater than 1000, otherwise an error message
-///     // will be thrown
+///     // now() has to return a value greater than 1000,
+///     // otherwise an error message will be thrown
 ///     require(now() > 1000, "We're in the first 1000 seconds of 1 January 1970!");
 ///
 ///     try {
@@ -108,8 +101,134 @@ fun sha256(data: Slice): Int;
 ///
 fun sha256(data: String): Int;
 
-/// A compile-time function that converts the given Toncoins `value`
-/// from a human-readable format `String` to the nanoToncoin `Int` format.
+/// Compile-time function.
+///
+/// Converts a `String` with an address into the `Address` type
+/// and embeds it into the contract.
+///
+/// ```tact
+/// contract Example {
+///     // Persistent state variables
+///     addr: Address =
+///         // Works at compile-time!
+///         address("EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N");
+/// }
+/// ```
+///
+/// See: https://docs.tact-lang.org/ref/core-comptime/#address
+///
+fun address(s: String): Address;
+
+/// Compile-time function.
+///
+/// Embeds a base64-encoded BoC `bocBase64` as a `Cell` into the contract.
+///
+/// ```tact
+/// contract Example {
+///     // Persistent state variables
+///     stored: Cell =
+///         // Init package for Wallet V3R1 as a base64-encoded BoC
+///         cell("te6cckEBAQEAYgAAwP8AIN0gggFMl7qXMO1E0NcLH+Ck8mCDCNcYINMf0x/TH/gjE7vyY+1E0NMf0x/T/9FRMrryoVFEuvKiBPkBVBBV+RDyo/gAkyDXSpbTB9QC+wDo0QGkyMsfyx/L/8ntVD++buA="); // works at compile-time!
+/// }
+/// ```
+///
+/// See: https://docs.tact-lang.org/ref/core-comptime/#cell
+///
+fun cell(bocBase64: String): Cell;
+
+/// Compile-time function. Available since Tact 1.5.0.
+///
+/// Embeds a base64-encoded BoC `bocBase64` as a `Slice` into the contract.
+///
+/// ```tact
+/// contract Example {
+///     // Persistent state variables
+///     stored: Slice =
+///         // Works at compile-time!
+///         slice("te6cckEBAQEADgAAGEhlbGxvIHdvcmxkIXgtxbw="); // Hello world!
+/// }
+/// ```
+///
+/// See: https://docs.tact-lang.org/ref/core-comptime/#slice
+///
+fun slice(bocBase64: String): Slice;
+
+/// Compile-time function. Available since Tact 1.5.0.
+///
+/// Converts `hex` `String` with hex-encoded and optionally bit-padded
+/// contents as a `Slice` and embeds it into the contract.
+///
+/// Contents are bit-padded if there's an underscore `_` at the very end of
+/// `String`. The padding removes all the trailing zeros and the
+/// last 1 bit before them:
+///
+/// ```tact
+/// fun padding() {
+///     // Not bit-padded
+///     rawSlice("4a").loadUint(8); // 74, or 1001010 in binary
+///
+///     // Bit-padded
+///     rawSlice("4a_").loadUint(6); // 18, or 10010 in binary
+/// }
+/// ```
+///
+/// Note that this function is limited and only allows to specify up to 1023 bits.
+///
+/// ```tact
+/// contract Example {
+///     // Persistent state variables
+///     stored: Slice =
+///         rawSlice("000DEADBEEF000");  // CS{Cell{03f...430} bits: 588..644; refs: 1..1}
+///     bitPadded: Slice =
+///         rawSlice("000DEADBEEF000_"); // CS{Cell{03f...e14} bits: 36..79; refs: 0..0}
+/// }
+/// ```
+///
+/// See: https://docs.tact-lang.org/ref/core-comptime/#rawslice
+///
+fun rawSlice(hex: String): Slice;
+
+/// Compile-time function. Available since Tact 1.5.0.
+///
+/// Concatenates the hexadecimal values of the characters in `str` into one
+/// and embeds the resulting `Int` into the contract. Only works for
+/// strings that occupy up to 32 bytes, which allows to represent
+/// up to 32 ASCII codes or up to 8 4-byte Unicode code points.
+///
+/// ```tact
+/// contract Example {
+///     // Persistent state variables
+///     a: Int = ascii("a");            // 97 or 0x61, one byte in total
+///     zap: Int = ascii("⚡");         // 14850721 or 0xE29AA1, 3 bytes in total
+///     doubleZap: Int = ascii("⚡⚡"); // 249153768823457 or 0xE29AA1E29AA1,
+//                                      // 6 bytes in total
+/// }
+/// ```
+///
+/// See: https://docs.tact-lang.org/ref/core-comptime/#ascii
+///
+fun ascii(str: String): Int;
+
+/// Compile-time function. Available since Tact 1.5.0.
+///
+/// Computes a checksum using CRC-32 algorithm and embeds
+/// the resulting `Int` value into the contract.
+///
+/// ```tact
+/// contract Example {
+///     // Persistent state variables
+///     checksum: Int = crc32("000DEADBEEF000"); // 1821923098
+/// }
+/// ```
+///
+/// See: https://docs.tact-lang.org/ref/core-comptime/#crc32
+///
+fun crc32(str: String): Int;
+
+/// Compile-time function.
+///
+/// Converts the given Toncoins `value` from a human-readable
+/// format `String` to the nanoToncoin `Int` format.
 ///
 /// ```tact
 /// contract Example {
