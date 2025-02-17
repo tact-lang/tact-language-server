@@ -263,6 +263,11 @@
                     "default": true,
                     "description": "Sort completion items by relevance to the current context type"
                 },
+                "tact.completion.addImports": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically add necessary imports for symbols from other files"
+                },
                 "tact.inspections.disabled": {
                     "type": "array",
                     "items": {

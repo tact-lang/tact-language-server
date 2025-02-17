@@ -12,6 +12,12 @@ import {
 import {StructTy} from "@server/types/BaseTy"
 import {tactCodeBlock} from "@server/documentation/documentation"
 import {trimPrefix} from "@server/utils/strings"
+import {File} from "@server/psi/File"
+
+export interface CompletionItemAdditionalInformation {
+    readonly file: File | undefined
+    readonly elementFile: File | undefined
+}
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {
     public constructor(private readonly ctx: CompletionContext) {}
@@ -68,17 +74,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             return true
         }
 
-        // const includes = this.ctx.element.file.includesFile(node.file.path)
-        //
-        // const lastImport = this.ctx.element.file.rootNode.children
-        //     .filter(it => it?.type === "import")
-        //     .at(-1)
-        //
-        // const diff = FileDiff.forFile(this.ctx.element.file.uri)
-        //     .appendAsNextLine(lastImport!.endPosition.row, `import "${node.file.uri}";`)
-        //     .toTextEdits()
-        //
-        // const finalDiff = !includes ? diff : []
+        const additionalData = {
+            elementFile: node.file,
+            file: this.ctx.element.file,
+        }
 
         if (node instanceof Fun) {
             // don't add `self.` prefix for global functions
@@ -109,7 +108,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                     CompletionWeight.FUNCTION,
                     this.ctx.matchContextTy(() => node.returnType()?.type()),
                 ),
-                // additionalTextEdits: finalDiff,
+                data: additionalData,
             })
         } else if (node instanceof Struct || node instanceof Message) {
             // we don't want to add `{}` for type completion
@@ -128,6 +127,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                     CompletionWeight.STRUCT,
                     this.ctx.matchContextTy(() => new StructTy(node.name(), node)),
                 ),
+                data: additionalData,
             })
         } else if (node instanceof Trait) {
             this.addItem({
@@ -136,6 +136,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 insertText: `${name}$0`,
                 insertTextFormat: InsertTextFormat.Snippet,
                 weight: CompletionWeight.TRAIT,
+                data: additionalData,
             })
         } else if (node instanceof Contract) {
             const suffix = this.ctx.isInitOfName ? "()" : ""
@@ -154,6 +155,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 insertText: `${name}${insertSuffix}$0`,
                 insertTextFormat: InsertTextFormat.Snippet,
                 weight: CompletionWeight.CONTRACT,
+                data: additionalData,
             })
         } else if (node instanceof Primitive) {
             this.addItem({
@@ -162,6 +164,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 insertText: name,
                 insertTextFormat: InsertTextFormat.Snippet,
                 weight: CompletionWeight.PRIMITIVE,
+                data: additionalData,
             })
         } else if (node instanceof Constant) {
             // don't add `self.` prefix for global constants
@@ -182,6 +185,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                     CompletionWeight.CONSTANT,
                     this.ctx.matchContextTy(() => typeNode?.type()),
                 ),
+                data: additionalData,
             })
         } else if (node instanceof Field) {
             const owner = node.dataOwner()?.name() ?? ""
@@ -209,6 +213,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                     CompletionWeight.FIELD,
                     this.ctx.matchContextTy(() => node.typeNode()?.type()),
                 ),
+                data: additionalData,
             })
         } else if (node.node.type === "identifier") {
             const parent = node.node.parent
@@ -234,6 +239,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                         CompletionWeight.VARIABLE,
                         this.ctx.matchContextTy(() => type),
                     ),
+                    data: additionalData,
                 })
             }
         } else if (node.node.type === "parameter") {
@@ -255,6 +261,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                     CompletionWeight.PARAM,
                     this.ctx.matchContextTy(() => type),
                 ),
+                data: additionalData,
             })
         } else {
             this.addItem({
