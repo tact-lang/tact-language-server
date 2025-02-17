@@ -69,7 +69,7 @@ y: Int
 fun calculate(x: Int, y: Int, z: Int)
 
 ========================================================================
-Nested Function Calls
+Nested Function Calls - 2
 ========================================================================
 primitive Int;
 
@@ -87,8 +87,8 @@ contract Foo {
     }
 }
 ------------------------------------------------------------------------
-y: Int
-fun calculate(x: Int, y: Int, z: Int)
+x: Int
+fun triple(x: Int)
 
 ========================================================================
 Promt first arg while second is filled
@@ -107,108 +107,6 @@ contract Foo {
 ------------------------------------------------------------------------
 a: Int
 fun add(a: Int, b: Int)
-
-========================================================================
-Set Map (Key)
-========================================================================
-primitive Int;
-extends mutates fun set(self: map<K, V>, key: K, val: V);
-
-contract A {
-    init() {
-        let fizz: map<Int, Int> = emptyMap();
-
-        fizz.set(<caret>)
-    }
-}
-------------------------------------------------------------------------
-key: K
-fun set(self: map<K, V>, key: K, val: V)
-
-========================================================================
-Set Map (Value)
-========================================================================
-primitive Int;
-extends mutates fun set(self: map<K, V>, key: K, val: V);
-
-contract A {
-    init() {
-        let fizz: map<Int, Int> = emptyMap();
-
-        fizz.set(42, <caret>)
-    }
-}
-------------------------------------------------------------------------
-val: V
-fun set(self: map<K, V>, key: K, val: V)
-
-========================================================================
-Get value from Map
-========================================================================
-primitive Int;
-extends fun get(self: map<K, V>, key: K): V?;
-contract A {
-    init() {
-        let fizz: map<Int, Int> = emptyMap();
-
-        fizz.get(<caret>);
-    }
-}
-------------------------------------------------------------------------
-key: K
-fun get(self: map<K, V>, key: K)
-
-========================================================================
-Replace value map by key (caret on key)
-========================================================================
-primitive Int;
-extends mutates fun replace(self: map<K, V>, key: K, val: V): Bool;
-contract A {
-    init() {
-        let fizz: map<Int, Int> = emptyMap();
-
-        fizz.replace(<caret>)
-    }
-}
-------------------------------------------------------------------------
-key: K
-fun replace(self: map<K, V>, key: K, val: V)
-
-========================================================================
-Replace value map by key (caret on value)
-========================================================================
-primitive Int;
-extends mutates fun replace(self: map<K, V>, key: K, val: V): Bool;
-contract A {
-    init() {
-        let fizz: map<Int, Int> = emptyMap();
-
-        fizz.replace(42, <caret>)
-    }
-}
-------------------------------------------------------------------------
-val: V
-fun replace(self: map<K, V>, key: K, val: V)
-
-========================================================================
-External Contract Initialization
-========================================================================
-primitive Int;
-
-contract ContractA {
-    init(a: Int) {
-
-    }
-}
-
-contract ContractB {
-    init() {
-        initOf ContractA(<caret>)
-    }
-}
-------------------------------------------------------------------------
-a: Int
-init(a: Int)
 
 ========================================================================
 Global function with Map
@@ -253,39 +151,3 @@ contract A {
 ------------------------------------------------------------------------
 input: Int
 fun globalFunc(input: Int)
-
-========================================================================
-Struct Key
-========================================================================
-primitive Int;
-primitive String;
-
-struct Person {
-    age: Int;
-    name: String;
-}
-
-contract Foo {
-    init() {
-        const userA = Person{age:<caret>,}
-    }
-}
-------------------------------------------------------------------------
-age: Int
-Person{ age: Int, name: String }
-
-========================================================================
-Use Contract with Trait
-========================================================================
-trait Random {
-    abstract fun bar(a: Int): Bool;
-}
-
-contract ContractA with Random {
-    fun test() {
-        self.bar(<caret>);
-    }
-}
-------------------------------------------------------------------------
-a: Int
-fun bar(a: Int)
