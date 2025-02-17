@@ -6,22 +6,38 @@ import type {TestCase} from "./TestParser"
 suite("Signatures Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
         public async getSignature(input: string): Promise<vscode.SignatureHelp> {
-            const textWithoutCaret = input.replace("<caret>", "")
-            await this.replaceDocumentText(textWithoutCaret)
+            await this.editor.edit(builder => {
+                const fullRange = new vscode.Range(
+                    this.document.lineAt(0).range.start,
+                    this.document.lineAt(this.document.lineCount - 1).range.end,
+                )
+                builder.delete(fullRange)
+                builder.insert(this.document.positionAt(0), input)
+            })
 
-            const caretIndex = input.indexOf("<caret>")
+            const editorText = this.document.getText()
+            const caretIndex = editorText.indexOf("<caret>")
+
             if (caretIndex === -1) {
                 throw new Error("No <caret> marker found in input")
             }
 
-            const position = this.document.positionAt(caretIndex)
-            this.editor.selection = new vscode.Selection(position, position)
-            this.editor.revealRange(new vscode.Range(position, position))
+            const caretPosition = this.document.positionAt(caretIndex)
+
+            await this.editor.edit(builder => {
+                const caretRange = this.document.getWordRangeAtPosition(caretPosition, /<caret>/)
+                if (caretRange) {
+                    builder.delete(caretRange)
+                }
+            })
+
+            this.editor.selection = new vscode.Selection(caretPosition, caretPosition)
+            this.editor.revealRange(new vscode.Range(caretPosition, caretPosition))
 
             return vscode.commands.executeCommand<vscode.SignatureHelp>(
                 "vscode.executeSignatureHelpProvider",
                 this.document.uri,
-                position,
+                caretPosition,
             )
         }
 
