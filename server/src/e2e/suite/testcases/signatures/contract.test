@@ -273,3 +273,19 @@ contract Foo {
 ------------------------------------------------------------------------
 age: Int
 Person{ age: Int, name: String }
+
+========================================================================
+Use Contract with Trait
+========================================================================
+trait Random {
+    abstract fun bar(a: Int): Bool;
+}
+
+contract ContractA with Random {
+    fun test() {
+        self.bar(<caret>);
+    }
+}
+------------------------------------------------------------------------
+a: Int
+fun bar(a: Int)
