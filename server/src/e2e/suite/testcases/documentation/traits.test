@@ -1,6 +1,9 @@
 ========================================================================
 Trait documentation
 ========================================================================
+primitive String;
+primitive Int;
+
 /// Some cool trait
 trait <caret>Foo {
     name: String;
@@ -8,13 +11,19 @@ trait <caret>Foo {
 }
 ------------------------------------------------------------------------
 ```tact
-trait Foo
+trait Foo {
+    name: String;
+    value: Int;
+}
 ```
 Some cool trait
 
 ========================================================================
 Trait with inheritance documentation
 ========================================================================
+primitive String;
+primitive Int;
+
 trait Other {}
 
 /// Some cool trait
@@ -24,7 +33,10 @@ trait <caret>Foo with Other {
 }
 ------------------------------------------------------------------------
 ```tact
-trait Foo with Other
+trait Foo with Other {
+    name: String;
+    value: Int;
+}
 ```
 Some cool trait
 
@@ -41,3 +53,62 @@ trait Foo {
 trait Foo
 field: Int
 ```
+
+========================================================================
+Trait with method documentation
+========================================================================
+/// Some cool trait
+trait <caret>Foo {
+    fun foo() {}
+}
+------------------------------------------------------------------------
+```tact
+trait Foo {
+    fun foo();
+}
+```
+Some cool trait
+
+========================================================================
+Trait with constant documentation
+========================================================================
+primitive Int;
+
+/// Some cool trait
+trait <caret>Foo {
+    const FOO: Int = 100;
+}
+------------------------------------------------------------------------
+```tact
+trait Foo {
+    const FOO: Int = 100;
+}
+```
+Some cool trait
+
+========================================================================
+Trait with all members documentation
+========================================================================
+primitive Int;
+
+/// Some cool trait
+trait <caret>Foo {
+    const FOO: Int = 100;
+
+    foo: Int;
+
+    abstract fun bar();
+    fun foo() {}
+}
+------------------------------------------------------------------------
+```tact
+trait Foo {
+    const FOO: Int = 100;
+
+    foo: Int;
+
+    abstract fun bar();
+    fun foo();
+}
+```
+Some cool trait

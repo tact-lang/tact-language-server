@@ -134,7 +134,7 @@ contract <caret>Foo {
 }
 ------------------------------------------------------------------------
 ```tact
-contract Foo
+contract Foo {}
 ```
 And this is documentation comment
 
@@ -148,7 +148,7 @@ contract <caret>Foo {
 }
 ------------------------------------------------------------------------
 ```tact
-contract Foo
+contract Foo {}
 ```
 Some comment. And other!
 
