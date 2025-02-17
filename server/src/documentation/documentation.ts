@@ -275,15 +275,19 @@ export function extractCommentsDoc(node: Node): string {
             result += "\n"
         }
 
-        result += line
-
-        if (insideCodeBlock || isCodeBlock || isTable) {
+        if (isList) {
             result += "\n"
         }
 
-        if ((isEndOfSentence || isList || isHeader) && !insideCodeBlock) {
+        result += line
+
+        if (insideCodeBlock || isCodeBlock || isTable || isList) {
+            result += "\n"
+        }
+
+        if ((isEndOfSentence || isHeader) && !insideCodeBlock) {
             result += "\n\n"
-        } else if (!insideCodeBlock && !isCodeBlock) {
+        } else if (!insideCodeBlock && !isCodeBlock && !isList) {
             result += " "
         }
 
