@@ -1,0 +1,47 @@
+========================================================================
+Use Contract with Trait (1 argument)
+========================================================================
+trait Random {
+    abstract fun bar(a: Int): Bool;
+}
+
+contract ContractA with Random {
+    fun test() {
+        self.bar(<caret>);
+    }
+}
+------------------------------------------------------------------------
+a: Int
+fun bar(a: Int)
+
+========================================================================
+Use Contract with Trait (2 argument)
+========================================================================
+trait Random {
+    abstract fun bar(a: Int, b: Int): Bool;
+}
+
+contract ContractA with Random {
+    fun test() {
+        self.bar(<caret>);
+    }
+}
+------------------------------------------------------------------------
+a: Int
+fun bar(a: Int, b: Int)
+
+========================================================================
+Use Contract with Trait (2 argument, first filled)
+========================================================================
+trait Random {
+    abstract fun bar(a: Int, b: Int): Bool;
+}
+
+contract ContractA with Random {
+    fun test() {
+        self.bar(42, <caret>);
+    }
+}
+------------------------------------------------------------------------
+b: Int
+fun bar(a: Int, b: Int)

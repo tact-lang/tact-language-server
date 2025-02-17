@@ -1,0 +1,171 @@
+========================================================================
+Basic Function with Multiple Parameters
+========================================================================
+primitive Int;
+primitive String;
+
+struct User {
+    name: String;
+    age: Int;
+}
+
+contract Foo {
+    fun baz(user: User, action: String, value: Int) {
+        // ...
+    }
+
+    init() {
+        self.baz(user, "update", <caret>);
+    }
+}
+------------------------------------------------------------------------
+value: Int
+fun baz(user: User, action: String, value: Int)
+
+========================================================================
+Function Overloading
+========================================================================
+primitive Int;
+primitive String;
+
+contract Foo {
+    fun add(a: Int, b: Int): Int {
+        return a + b;
+    }
+
+    fun add(a: String, b: String): String {
+        return a + b;
+    }
+
+    init() {
+        self.add("hello", <caret>);
+    }
+}
+------------------------------------------------------------------------
+b: Int
+fun add(a: Int, b: Int)
+
+========================================================================
+Nested Function Calls
+========================================================================
+primitive Int;
+primitive String;
+
+contract Foo {
+    fun multiply(a: Int, b: Int): Int {
+        return a * b;
+    }
+
+    fun calculate(x: Int, y: Int, z: Int): Int {
+        return x + self.multiply(y, z);
+    }
+
+    init() {
+        self.calculate(10, <caret>);
+    }
+}
+------------------------------------------------------------------------
+y: Int
+fun calculate(x: Int, y: Int, z: Int)
+
+========================================================================
+Nested Function Calls - 2
+========================================================================
+primitive Int;
+
+contract Foo {
+    fun double(x: Int): Int {
+        return x * 2;
+    }
+
+    fun triple(x: Int): Int {
+        return x * 3;
+    }
+
+    init() {
+        self.double(self.triple(<caret>));
+    }
+}
+------------------------------------------------------------------------
+x: Int
+fun triple(x: Int)
+
+========================================================================
+Promt first arg while second is filled
+========================================================================
+primitive Int;
+
+contract Foo {
+    fun add(a: Int, b: Int): Int {
+        return a + b;
+    }
+
+    init() {
+        self.add(<caret>, 2);
+    }
+}
+------------------------------------------------------------------------
+a: Int
+fun add(a: Int, b: Int)
+
+========================================================================
+Global function with Map
+========================================================================
+primitive Int;
+primitive String;
+
+struct Key {
+    id: Int;
+    name: String;
+}
+
+get fun globalFunc(map: Map<Key, Int>) {
+    // ...
+}
+
+contract Foo {
+    init() {
+        let key = Key { id: 1, name: "Test" };
+        let map = emptyMap();
+        globalFunc(<caret>)
+    }
+}
+------------------------------------------------------------------------
+map: Map
+fun globalFunc(map: Map)
+
+========================================================================
+Global function with String
+========================================================================
+primitive String;
+
+fun globalFunc(input: String): String {
+    return input;
+}
+
+contract A {
+    init() {
+        globalFunc(<caret>)
+    }
+}
+------------------------------------------------------------------------
+input: String
+fun globalFunc(input: String)
+
+========================================================================
+Global function with Int
+========================================================================
+primitive Int;
+
+fun globalFunc(input: Int): Int {
+    return input;
+}
+
+contract A {
+    init() {
+        globalFunc(<caret>)
+    }
+}
+------------------------------------------------------------------------
+input: Int
+fun globalFunc(input: Int)

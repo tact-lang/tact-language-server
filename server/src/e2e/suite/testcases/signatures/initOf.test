@@ -1,0 +1,59 @@
+========================================================================
+initOf with one argument
+========================================================================
+primitive Int;
+
+contract ContractA {
+    init(a: Int) {
+
+    }
+}
+
+contract ContractB {
+    init() {
+        initOf ContractA(<caret>)
+    }
+}
+------------------------------------------------------------------------
+a: Int
+init(a: Int)
+
+========================================================================
+initOf with many arguments
+========================================================================
+primitive Int;
+
+contract ContractA {
+    init(a: Int, b: Int, c: Int) {
+        // ...
+    }
+}
+
+contract ContractB {
+    init() {
+        initOf ContractA(<caret>)
+    }
+}
+------------------------------------------------------------------------
+a: Int
+init(a: Int, b: Int, c: Int)
+
+========================================================================
+initOf with many arguments (first is filled)
+========================================================================
+primitive Int;
+
+contract ContractA {
+    init(a: Int, b: Int, c: Int) {
+        // ...
+    }
+}
+
+contract ContractB {
+    init() {
+        initOf ContractA(42, <caret>)
+    }
+}
+------------------------------------------------------------------------
+b: Int
+init(a: Int, b: Int, c: Int)
