@@ -1,20 +1,68 @@
 ========================================================================
+Empty contract documentation
+========================================================================
+primitive String;
+primitive Int;
+
+/// Some cool contract
+contract <caret>Foo {}
+------------------------------------------------------------------------
+```tact
+contract Foo {}
+```
+Some cool contract
+
+========================================================================
 Contract documentation
 ========================================================================
+primitive String;
+primitive Int;
+
+message Some {}
+
 /// Some cool contract
 contract <caret>Foo {
     name: String;
     value: Int;
+
+    init(name: String, value: Int) {
+        self.name = name;
+        self.value = value;
+    }
+
+    receive("hello") {}
+    receive(msg: Some) {}
+    external(msg: Slice) {}
+    bounced(msg: bounced<Some>) {}
+
+    get fun counter(): Int {
+        return self.value;
+    }
 }
 ------------------------------------------------------------------------
 ```tact
-contract Foo
+contract Foo {
+    name: String;
+    value: Int;
+
+    init(name: String, value: Int);
+
+    receive("hello");
+    receive(msg: Some);
+    external(msg: Slice);
+    bounced(msg: bounced<Some>);
+
+    get fun counter(): Int;
+}
 ```
 Some cool contract
 
 ========================================================================
 Contract with inheritance documentation
 ========================================================================
+primitive String;
+primitive Int;
+
 trait Other {}
 
 /// Some cool contract
@@ -24,7 +72,10 @@ contract <caret>Foo with Other {
 }
 ------------------------------------------------------------------------
 ```tact
-contract Foo with Other
+contract Foo with Other {
+    name: String;
+    value: Int;
+}
 ```
 Some cool contract
 

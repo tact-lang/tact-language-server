@@ -1,6 +1,16 @@
 import {NamedNode, Node} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
-import {Constant, Contract, Field, Fun, Message, Struct, Trait} from "@server/psi/Decls"
+import {
+    Constant,
+    Contract,
+    Field,
+    Fun,
+    InitFunction,
+    Message,
+    MessageFunction,
+    Struct,
+    Trait,
+} from "@server/psi/Decls"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {trimPrefix} from "@server/utils/strings"
 import * as compiler from "@server/compiler/utils"
@@ -100,7 +110,18 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const inheritedString = inherited.length > 0 ? ` with ${inherited}` : ``
             const doc = extractCommentsDoc(node)
 
-            return defaultResult(`contract ${node.name()}${inheritedString}`, doc)
+            const init = contract.initFunction()
+
+            const members = generateMembers([
+                contract.ownFields(),
+                init === null ? [] : [init],
+                contract.messageFunctions(),
+                contract.ownMethods().filter(it => it.isGetMethod),
+            ])
+
+            const body = members === "" ? "{}" : `{\n${members}\n}`
+
+            return defaultResult(`contract ${node.name()}${inheritedString} ${body}`, doc)
         }
         case "trait": {
             const trait = new Trait(astNode, node.file)
@@ -112,7 +133,14 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const inheritedString = inherited.length > 0 ? ` with ${inherited}` : ``
             const doc = extractCommentsDoc(node)
 
-            return defaultResult(`trait ${node.name()}${inheritedString}`, doc)
+            const members = generateMembers([
+                trait.ownConstants(),
+                trait.ownFields(),
+                trait.ownMethods(),
+            ])
+
+            const body = members === "" ? "{}" : `{\n${members}\n}`
+            return defaultResult(`trait ${node.name()}${inheritedString} ${body}`, doc)
         }
         case "struct": {
             const doc = extractCommentsDoc(node)
@@ -224,6 +252,54 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const type = TypeInferer.inferType(node)
             const typeName = type?.qualifiedName() ?? "unknown"
             return defaultResult(`${node.name()}: ${typeName}`)
+        }
+    }
+
+    return null
+}
+
+function generateMembers(nodes: Node[][]): string {
+    const parts = nodes
+        .map(nodesPars => nodesPars.map(it => "    " + generateMemberDocFor(it)).join("\n"))
+        .filter(it => it !== "")
+    return parts.join("\n\n")
+}
+
+function generateMemberDocFor(node: Node): string | null {
+    const astNode = node.node
+    switch (astNode.type) {
+        case "storage_function": {
+            const func = new Fun(astNode, node.file)
+            return `${func.modifiers()}fun ${func.name()}${func.signaturePresentation()};`
+        }
+        case "storage_constant": {
+            const constant = new Constant(astNode, node.file)
+            const type = constant.typeNode()?.type()?.qualifiedName() ?? "unknown"
+            if (!type) return null
+
+            const value = constant.value()
+            if (!value) return null
+
+            return `${constant.modifiers()}const ${constant.name()}: ${type} = ${value.node.text};`
+        }
+        case "storage_variable": {
+            const name = astNode.childForFieldName("name")
+            if (!name) return null
+
+            const field = new Field(name, node.file)
+            const type = TypeInferer.inferType(field)?.qualifiedName() ?? "unknown"
+
+            return `${field.name()}: ${type}${field.defaultValuePresentation()};`
+        }
+        case "init_function": {
+            const func = new InitFunction(astNode, node.file)
+            return func.nameLike() + ";"
+        }
+        case "receive_function":
+        case "external_function":
+        case "bounced_function": {
+            const func = new MessageFunction(astNode, node.file)
+            return func.nameLike() + ";"
         }
     }
 
