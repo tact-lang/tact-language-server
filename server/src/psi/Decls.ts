@@ -162,6 +162,12 @@ export class InitFunction extends Node {
         return `init${parametersNode.text}`
     }
 
+    public parametersPresentation(): string {
+        const parametersNode = this.node.childForFieldName("parameters")
+        if (!parametersNode) return "()"
+        return parametersNode.text
+    }
+
     public endParen(): SyntaxNode | null {
         const parametersNode = this.node.childForFieldName("parameters")
         if (!parametersNode) return null
