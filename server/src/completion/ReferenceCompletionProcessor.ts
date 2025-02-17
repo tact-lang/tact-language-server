@@ -15,6 +15,7 @@ import {trimPrefix} from "@server/utils/strings"
 import {File} from "@server/psi/File"
 
 export interface CompletionItemAdditionalInformation {
+    readonly name: string | undefined
     readonly file: File | undefined
     readonly elementFile: File | undefined
 }
@@ -77,6 +78,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         const additionalData = {
             elementFile: node.file,
             file: this.ctx.element.file,
+            name: name,
         }
 
         if (node instanceof Fun) {

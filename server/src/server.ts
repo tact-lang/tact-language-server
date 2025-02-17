@@ -697,7 +697,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.CompletionResolveRequest.type,
         async (item: lsp.CompletionItem): Promise<lsp.CompletionItem> => {
             const data = item.data as CompletionItemAdditionalInformation
-            if (data.file === undefined || data.elementFile === undefined) return item
+            if (
+                data.file === undefined ||
+                data.elementFile === undefined ||
+                data.name === undefined
+            ) {
+                return item
+            }
 
             const settings = await getDocumentSettings(data.file.uri)
             if (!settings.completion.addImports) return item
@@ -711,7 +717,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             // some files like stubs or stdlib imported implicitly
             if (elementFile.isImportedImplicitly()) return item
             // guard for multi projects
-            if (index.hasSeveralDeclarations(item.label)) return item
+            if (index.hasSeveralDeclarations(data.name)) return item
 
             const positionToInsert = file.positionForNextImport()
 
