@@ -141,7 +141,8 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 data: additionalData,
             })
         } else if (node instanceof Contract) {
-            const suffix = this.ctx.isInitOfName ? "()" : ""
+            const parameters = node.initFunction()?.parametersPresentation() ?? "()"
+            const suffix = this.ctx.isInitOfName ? parameters : ""
             const initFunction = node.initFunction()
             const needParens = this.ctx.isInitOfName && !this.ctx.beforeParen
             const hasParameters = initFunction !== null && initFunction.parameters().length > 0

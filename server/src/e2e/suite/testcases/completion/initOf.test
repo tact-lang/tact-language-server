@@ -54,3 +54,29 @@ fun test() {
 ------------------------------------------------------------------------
 3  Bar()
 3  Foo()
+
+========================================================================
+initOf contract name completion with parens and init function
+========================================================================
+contract Foo {
+    init(age: Int, value: String) {}
+}
+
+contract Bar {
+    init(age: Int) {}
+}
+
+contract Baz {
+    init() {}
+}
+
+trait Some {}
+trait Some2 {}
+
+fun test() {
+    initOf <caret>()
+}
+------------------------------------------------------------------------
+3  Bar(age: Int)
+3  Baz()
+3  Foo(age: Int, value: String)
