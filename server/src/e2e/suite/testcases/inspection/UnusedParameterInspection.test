@@ -64,7 +64,17 @@ primitive Int;
 
 asm fun foo(a: Int) { DROP }
 ------------------------------------------------------------------------
-3 2:12 to 2:13 Parameter 'a' is never used (tact)
+no issues
+
+========================================================================
+Unused parameter inspection in native function
+========================================================================
+primitive Int;
+
+@name(__foo)
+native foo(a: Int);
+------------------------------------------------------------------------
+no issues
 
 ========================================================================
 Unused parameter inspection for function declaration
