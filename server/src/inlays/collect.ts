@@ -16,6 +16,13 @@ function processParameterHints(
     args: SyntaxNode[],
     result: InlayHint[],
 ): void {
+    if (params.length === 0) return
+
+    if (params.length === 1 && params[0].file.fromStubs) {
+        // don't add extra noise for unary functions from stubs
+        return
+    }
+
     for (let i = 0; i < Math.min(params.length - shift, args.length); i++) {
         const param = params[i + shift]
         const arg = args[i]
