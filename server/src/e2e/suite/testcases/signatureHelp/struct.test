@@ -1,0 +1,225 @@
+========================================================================
+Struct Key
+========================================================================
+primitive Int;
+primitive String;
+
+struct Person {
+    age: Int;
+    name: String;
+}
+
+contract Foo {
+    init() {
+        const userA = Person{age:<caret>,}
+    }
+}
+------------------------------------------------------------------------
+age: Int
+Person{ age: Int, name: String }
+
+========================================================================
+Struct Key (second value)
+========================================================================
+primitive Int;
+primitive String;
+
+struct Person {
+    age: Int;
+    name: String;
+}
+
+contract Foo {
+    init() {
+        const userA = Person{age:42, name: <caret>}
+    }
+}
+------------------------------------------------------------------------
+name: String
+Person{ age: Int, name: String }
+
+========================================================================
+Struct Multiline
+========================================================================
+primitive Int;
+primitive String;
+
+struct Person {
+    age: Int;
+    name: String;
+}
+
+contract Foo {
+    init() {
+        const userA = Person{
+            age:<caret>,
+            name: "A"
+        }
+    }
+}
+------------------------------------------------------------------------
+age: Int
+Person{ age: Int, name: String }
+
+========================================================================
+Struct init inside function call, on name
+========================================================================
+primitive Int;
+primitive Bool;
+primitive String;
+
+struct Config {
+    name: String;
+    version: Int;
+    active: Bool;
+}
+
+contract Foo {
+    fun setup(config: Config) {}
+
+    init() {
+        self.setup(Con<caret>fig{name: "A", version: 2, active: 1 });
+    }
+}
+------------------------------------------------------------------------
+config: Config
+fun setup(config: Config)
+
+========================================================================
+Struct init inside function call, on open brace
+========================================================================
+primitive Int;
+primitive Bool;
+primitive String;
+
+struct Config {
+    name: String;
+    version: Int;
+    active: Bool;
+}
+
+contract Foo {
+    fun setup(config: Config) {}
+
+    init() {
+        self.setup(Config<caret>{name: "A", version: 2, active: 1 });
+    }
+}
+------------------------------------------------------------------------
+no signature help
+
+========================================================================
+Struct init inside function call, on field
+========================================================================
+primitive Int;
+primitive Bool;
+primitive String;
+
+struct Config {
+    name: String;
+    version: Int;
+    active: Bool;
+}
+
+contract Foo {
+    fun setup(config: Config) {}
+
+    init() {
+        self.setup(Config{<caret>name: "A", version: 2, active: 1 });
+    }
+}
+------------------------------------------------------------------------
+name: String
+Config{ name: String, version: Int, active: Bool }
+
+========================================================================
+Struct init inside function call, on last field
+========================================================================
+primitive Int;
+primitive Bool;
+primitive String;
+
+struct Config {
+    name: String;
+    version: Int;
+    active: Bool;
+}
+
+contract Foo {
+    fun setup(config: Config) {}
+
+    init() {
+        self.setup(Config{name: "A", version: 2, <caret>active: 1 });
+    }
+}
+------------------------------------------------------------------------
+active: Bool
+Config{ name: String, version: Int, active: Bool }
+
+========================================================================
+Nested struct init inside function call, on first field
+========================================================================
+primitive Int;
+primitive Bool;
+primitive String;
+
+struct Config {
+    name: String;
+    version: Int;
+    data: Data;
+}
+
+struct Data {
+    active: Bool;
+}
+
+contract Foo {
+    fun setup(config: Config) {}
+
+    init() {
+        self.setup(Config{
+            name: "A",
+            version: 2,
+            data: Data{
+                <caret>active: 10,
+            },
+        });
+    }
+}
+------------------------------------------------------------------------
+active: Bool
+Data{ active: Bool }
+
+========================================================================
+Nested struct init inside function call, after last field
+========================================================================
+primitive Int;
+primitive Bool;
+primitive String;
+
+struct Config {
+    name: String;
+    version: Int;
+    data: Data;
+}
+
+struct Data {
+    active: Bool;
+}
+
+contract Foo {
+    fun setup(config: Config) {}
+
+    init() {
+        self.setup(Config{
+            name: "A",
+            version: 2,
+            data: Data{
+                active: 10,
+            }<caret>,
+        });
+    }
+}
+------------------------------------------------------------------------
+data: Data
+Config{ name: String, version: Int, data: Data }
