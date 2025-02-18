@@ -10,6 +10,12 @@ import {Reference, ResolveState, ScopeProcessor} from "@server/psi/Reference"
 import {File} from "@server/psi/File"
 import {CompletionContext} from "./completion/CompletionContext"
 import * as lsp from "vscode-languageserver"
+import {
+    DidChangeWatchedFilesParams,
+    FileChangeType,
+    ParameterInformation,
+    SymbolKind,
+} from "vscode-languageserver"
 import * as docs from "./documentation/documentation"
 import * as inlays from "./inlays/collect"
 import * as foldings from "./foldings/collect"
@@ -55,12 +61,6 @@ import {MessageMethodCompletionProvider} from "./completion/providers/MessageMet
 import {MemberFunctionCompletionProvider} from "./completion/providers/MemberFunctionCompletionProvider"
 import {TopLevelFunctionCompletionProvider} from "./completion/providers/TopLevelFunctionCompletionProvider"
 import {measureTime, parentOfType} from "@server/psi/utils"
-import {
-    DidChangeWatchedFilesParams,
-    FileChangeType,
-    ParameterInformation,
-    SymbolKind,
-} from "vscode-languageserver"
 import {Logger} from "@server/utils/logger"
 import {MapTypeCompletionProvider} from "./completion/providers/MapTypeCompletionProvider"
 import {UnusedParameterInspection} from "./inspections/UnusedParameterInspection"
@@ -68,12 +68,12 @@ import {EmptyBlockInspection} from "./inspections/EmptyBlockInspection"
 import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
 import {CACHE} from "./cache"
 import {
-    findFile,
+    FIFT_PARSED_FILES_CACHE,
     findFiftFile,
+    findFile,
     IndexRoot,
     IndexRootKind,
     PARSED_FILES_CACHE,
-    FIFT_PARSED_FILES_CACHE,
 } from "./index-root"
 import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
 import {AsmInstructionCompletionProvider} from "./completion/providers/AsmInstructionCompletionProvider"
@@ -114,10 +114,10 @@ import {
 } from "@server/intentions/WrapSelected"
 import {PostfixCompletionProvider} from "@server/completion/providers/PostfixCompletionProvider"
 import {
-    Toolchain,
-    InvalidToolchainError,
     fallbackToolchain,
+    InvalidToolchainError,
     setProjectStdlibPath,
+    Toolchain,
 } from "@server/toolchain/toolchain"
 import {ImportPathCompletionProvider} from "@server/completion/providers/ImportPathCompletionProvider"
 import {FileDiff} from "@server/utils/FileDiff"
@@ -1055,18 +1055,42 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             return element.node.childForFieldName("parameters")
         }
 
-        const callNode = parentOfType(
-            hoverNode,
-            "static_call_expression",
-            "method_call_expression",
-            "initOf",
-            "instance_expression",
-            "instance_argument",
-            "instance_argument_list",
-        )
-        if (!callNode) return null
+        const findSignatureHelpNode = (node: SyntaxNode): SyntaxNode | null => {
+            const targetNodes = [
+                "static_call_expression",
+                "method_call_expression",
+                "initOf",
+                "instance_expression",
+                "instance_argument",
+                "instance_argument_list",
+            ]
+            const callNode = parentOfType(node, ...targetNodes)
+            if (!callNode) return null
 
-        if (callNode.type === "instance_expression") return null // don't show any signature helps
+            // Foo { some: 10 }
+            //     ^ this
+            const isOpenBrace =
+                callNode.type === "instance_argument_list" && callNode.firstChild?.equals(node)
+
+            // Foo { some: 10 }
+            // ^^^ this
+            const isInstanceName =
+                callNode.type === "instance_expression" &&
+                callNode.childForFieldName("name")?.equals(node)
+
+            // Search for parent call for the following case
+            // ```
+            // foo(Fo<caret>o { value: 10 })
+            // ```
+            if (isInstanceName || isOpenBrace) {
+                return findSignatureHelpNode(callNode)
+            }
+
+            return callNode
+        }
+
+        const callNode = findSignatureHelpNode(hoverNode)
+        if (!callNode) return null
 
         if (callNode.type === "instance_argument_list" || callNode.type === "instance_argument") {
             let name =
