@@ -8,7 +8,7 @@ asm fun foo() { 10 <caret>PUSHINT }
 ```
 PUSHINT_4 (const_int)
 ```
-- Stack: `- x`
+- Stack (top is on the right): `(∅ → x)`
 - Gas: `18`
 
 Pushes integer `x` into the stack. `-5 <= x <= 10`.
@@ -24,7 +24,7 @@ asm fun foo() { <caret>ENDC }
 ```
 ENDC (cell_build)
 ```
-- Stack: `b - c`
+- Stack (top is on the right): `(b → c)`
 - Gas: `518`
 
 Converts a _Builder_ into an ordinary _Cell_.
