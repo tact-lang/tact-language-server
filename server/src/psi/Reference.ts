@@ -315,21 +315,25 @@ export class Reference {
             }
         }
 
-        // inside a trait/contract, when we write `foo`, we want to automatically complete it
-        // with `self.foo` if there are any methods/fields/constants with the same name
-        const ownerNode = parentOfType(this.element.node, "contract_body", "trait_body")
-        if (ownerNode !== null && state.get("completion")) {
-            const constructor = ownerNode.type === "contract_body" ? Contract : Trait
-            const parent = ownerNode.parent
-            if (!parent) return true
+        if (state.get("completion")) {
+            const ownerNode = parentOfType(
+                this.element.node,
+                "contract_body",
+                "trait_body",
+                "global_function",
+            )
 
-            const owner = new constructor(parent, this.element.file)
-            const typeConstructor = ownerNode.type === "contract_body" ? ContractTy : TraitTy
-            const ownerTy = new typeConstructor(owner.name(), owner)
-            const expr = new Expression(this.element.node, this.element.file)
+            // inside a trait/contract, when we write `foo`, we want to automatically complete it
+            // with `self.foo` if there are any methods/fields/constants with the same name
+            if (ownerNode?.type === "contract_body" || ownerNode?.type === "trait_body") {
+                if (!this.processContractTraitSelfCompletion(ownerNode, state, proc)) return false
+            }
 
-            const newState = state.withValue("prefix", "self.")
-            if (!this.processType(expr, ownerTy, proc, newState)) return false
+            // inside extends function, when we write `foo`, we want to automatically complete it
+            // with `self.foo` if there are any methods/fields/constants with the same name
+            if (ownerNode?.type === "global_function") {
+                if (!this.processExtendsMethodSelfCompletion(ownerNode, state, proc)) return false
+            }
         }
 
         if (this.element.node.type === "tvm_instruction") {
@@ -367,6 +371,41 @@ export class Reference {
         if (!this.processBlock(proc, state)) return false
 
         return this.processAllEntities(proc, state)
+    }
+
+    private processContractTraitSelfCompletion(
+        ownerNode: SyntaxNode,
+        state: ResolveState,
+        proc: ScopeProcessor,
+    ): boolean {
+        const constructor = ownerNode.type === "contract_body" ? Contract : Trait
+        const parent = ownerNode.parent
+        if (!parent) return true
+
+        const owner = new constructor(parent, this.element.file)
+        const typeConstructor = ownerNode.type === "contract_body" ? ContractTy : TraitTy
+        const ownerTy = new typeConstructor(owner.name(), owner)
+        const expr = new Expression(this.element.node, this.element.file)
+
+        const newState = state.withValue("prefix", "self.")
+        return this.processType(expr, ownerTy, proc, newState)
+    }
+
+    private processExtendsMethodSelfCompletion(
+        ownerNode: SyntaxNode,
+        state: ResolveState,
+        proc: ScopeProcessor,
+    ): boolean {
+        const func = new Fun(ownerNode, this.element.file)
+        const selfParam = func.selfParam()
+        if (selfParam === null) return true // skip if we are not in extends function
+
+        const selfTy = TypeInferer.inferType(selfParam)
+        if (!selfTy) return true
+        const expr = new Expression(this.element.node, this.element.file)
+
+        const newState = state.withValue("prefix", "self.")
+        return this.processType(expr, selfTy, proc, newState)
     }
 
     private resolveInstanceInitField(
