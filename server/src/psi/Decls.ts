@@ -291,6 +291,14 @@ export class Fun extends NamedNode {
         return first.name() === "self"
     }
 
+    public selfParam(): NamedNode | null {
+        const params = this.parameters()
+        if (params.length === 0) return null
+        const first = params[0]
+        if (first.name() !== "self") return null
+        return first
+    }
+
     public signaturePresentation(): string {
         const parametersNode = this.node.childForFieldName("parameters")
         if (!parametersNode) return ""

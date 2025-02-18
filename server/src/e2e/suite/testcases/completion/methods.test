@@ -19,3 +19,50 @@ fun test() {
 14 let  Create variable
 14 not  Negate expression
 14 repeat  Create repeat loop
+
+========================================================================
+Completion of struct field of self type
+========================================================================
+primitive Int;
+
+struct Data {
+    active: Bool;
+}
+
+extends fun some(self: Data) {
+    return <caret>
+}
+------------------------------------------------------------------------
+5  self   Data
+9  self.active:    of Data
+13 false
+13 initOf Contract(params)   StateInit
+13 null
+13 true
+2  some(self: Data)
+21 Data{}
+
+========================================================================
+Completion of struct method of self type
+========================================================================
+primitive Int;
+
+struct Data {
+    active: Bool;
+}
+
+extends fun other(self: Data) {}
+
+extends fun some(self: Data) {
+    return <caret>
+}
+------------------------------------------------------------------------
+5  self   Data
+9  self.active:    of Data
+13 false
+13 initOf Contract(params)   StateInit
+13 null
+13 true
+2  other(self: Data)
+2  some(self: Data)
+21 Data{}
