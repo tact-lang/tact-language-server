@@ -236,7 +236,8 @@ export class MessageFunction extends Node {
 export class Fun extends NamedNode {
     public hasBody(): boolean {
         if (this.isAbstract()) return false
-        return this.node.type !== "native_function" && this.node.type !== "asm_function"
+        if (this.node.type === "asm_function" || this.node.type === "native_function") return false
+        return this.node.childForFieldName("body") !== null
     }
 
     public get bodyPresentation(): string {
