@@ -9,6 +9,7 @@ import {MapTy} from "@server/types/BaseTy"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {computeGasConsumption, GasConsumption} from "@server/asm/gas"
 import * as compiler from "@server/compiler/utils"
+import {getStackPresentation} from "@server/completion/data/types"
 
 function processParameterHints(
     shift: number,
@@ -52,15 +53,6 @@ function processParameterHints(
             },
         })
     }
-}
-
-function getStackPresentation(rawStack: string | undefined): string {
-    if (!rawStack) return ""
-    const trimmedStack = rawStack.trim()
-    const prefix = trimmedStack.startsWith("-") ? "∅ " : ""
-    const suffix = trimmedStack.endsWith("-") ? " ∅" : ""
-    const stack = prefix + rawStack.replace("-", "→") + suffix
-    return `(${stack})`
 }
 
 function instructionPresentation(

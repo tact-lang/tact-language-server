@@ -1,7 +1,7 @@
 import type {CompletionProvider} from "@server/completion/CompletionProvider"
 import {CompletionItemKind} from "vscode-languageserver-types"
 import type {CompletionContext} from "@server/completion/CompletionContext"
-import {asmData} from "@server/completion/data/types"
+import {asmData, getStackPresentation} from "@server/completion/data/types"
 import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCompletionItem"
 
 export class AsmInstructionCompletionProvider implements CompletionProvider {
@@ -14,24 +14,26 @@ export class AsmInstructionCompletionProvider implements CompletionProvider {
 
         for (const instruction of data.instructions) {
             const name = this.adjustName(instruction.mnemonic)
+            const stack = getStackPresentation(instruction.doc.stack)
 
             result.add({
                 label: name,
                 kind: CompletionItemKind.Function,
                 labelDetails: {
-                    detail: " " + instruction.doc.stack,
+                    detail: " " + stack,
                     description: ` ${instruction.doc.gas}`,
                 },
-                detail: instruction.doc.stack,
+                detail: stack,
                 weight: CompletionWeight.CONTEXT_ELEMENT,
             })
         }
 
         for (const alias of data.aliases) {
+            const stack = alias.doc_stack ? getStackPresentation(alias.doc_stack) : undefined
             result.add({
                 label: alias.mnemonic,
                 kind: CompletionItemKind.Function,
-                detail: alias.doc_stack ?? `Alias of ${alias.alias_of}`,
+                detail: stack ?? `Alias of ${alias.alias_of}`,
                 weight: CompletionWeight.CONTEXT_ELEMENT,
             })
         }

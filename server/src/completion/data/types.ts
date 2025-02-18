@@ -97,3 +97,12 @@ function adjustName(name: string, args: SyntaxNode[]): string {
 
     return name
 }
+
+export function getStackPresentation(rawStack: string | undefined): string {
+    if (!rawStack) return ""
+    const trimmedStack = rawStack.trim()
+    const prefix = trimmedStack.startsWith("-") ? "∅ " : ""
+    const suffix = trimmedStack.endsWith("-") ? " ∅" : ""
+    const stack = prefix + rawStack.replace("-", "→") + suffix
+    return `(${stack})`
+}

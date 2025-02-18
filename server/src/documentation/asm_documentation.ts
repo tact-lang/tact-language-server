@@ -1,4 +1,4 @@
-import {asmData} from "@server/completion/data/types"
+import {asmData, getStackPresentation} from "@server/completion/data/types"
 
 function formatOperands(operands: Record<string, number | string>): string {
     return Object.entries(operands)
@@ -12,7 +12,9 @@ export function generateAsmDoc(word: string): string | null {
 
     const instruction = data.instructions.find(i => i.mnemonic === upperWord)
     if (instruction) {
-        const stackInfo = instruction.doc.stack ? `- Stack: \`${instruction.doc.stack}\`` : ""
+        const stackInfo = instruction.doc.stack
+            ? `- Stack (top is on the right): \`${getStackPresentation(instruction.doc.stack)}\``
+            : ""
 
         const gas = instruction.doc.gas.length > 0 ? instruction.doc.gas : `unknown`
         return [
@@ -33,7 +35,9 @@ export function generateAsmDoc(word: string): string | null {
 
     const alias = data.aliases.find(a => a.mnemonic === upperWord)
     if (alias) {
-        const stackInfo = alias.doc_stack ? `- Stack: \`${alias.doc_stack}\`` : ""
+        const stackInfo = alias.doc_stack
+            ? `- Stack (top is on the right): \`${getStackPresentation(alias.doc_stack)}\``
+            : ""
 
         const operandsStr = formatOperands(alias.operands)
         return [
