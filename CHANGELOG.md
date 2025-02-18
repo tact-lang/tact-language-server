@@ -14,7 +14,6 @@ All notable changes to this project will be documented in this file.
 - feat(vscode): initial support for Blueprint and Tact Template build systems in https://github.com/tact-lang/tact-language-server/pull/237
 - feat(documentation): add missing functions to `stubs/` and adjust the format to match the rest of other stdlib doc `///` comments by @novusnota in https://github.com/tact-lang/tact-language-server/pull/189
 - feat(documentation): show use documentation for receiver and init functions in https://github.com/tact-lang/tact-language-server/pull/227
-- feat(documentation): add installation instructions for Vim 8+ by @novusnota in https://github.com/tact-lang/tact-language-server/pull/231
 - feat(documentation): show exit code in hover documentation of `require()` in https://github.com/tact-lang/tact-language-server/pull/243
 - feat(documentation): add missing comptime functions to `stubs.tact` by @novusnota in https://github.com/tact-lang/tact-language-server/pull/248
 - feat(documentation): show members of trait and contract in hover documentation in https://github.com/tact-lang/tact-language-server/pull/256
@@ -53,6 +52,7 @@ All notable changes to this project will be documented in this file.
 - more strict `typescript-eslint` rules by @Danil42Russia in https://github.com/tact-lang/tact-language-server/pull/194
 - updated the nightly build by @Danil42Russia in https://github.com/tact-lang/tact-language-server/pull/195
 - chore: add mention of Open VSX Registry in https://github.com/tact-lang/tact-language-server/pull/213
+- feat(documentation): add installation instructions for Vim 8+ by @novusnota in https://github.com/tact-lang/tact-language-server/pull/231
 
 ### New Contributors
 
