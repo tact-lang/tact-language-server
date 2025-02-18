@@ -11,6 +11,7 @@ export const InspectionIds = {
     UNUSED_IMPORT: "unused-import",
     MISSED_FIELD_IN_CONTRACT: "missed-field-in-contract",
     NOT_IMPORTED_SYMBOL: "not-imported-symbol",
+    MISTI: "misti",
 } as const
 
 export type InspectionId = (typeof InspectionIds)[keyof typeof InspectionIds]

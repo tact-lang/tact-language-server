@@ -113,15 +113,13 @@ import {
     WrapSelectedToTryCatch,
 } from "@server/intentions/WrapSelected"
 import {PostfixCompletionProvider} from "@server/completion/providers/PostfixCompletionProvider"
-import {
-    fallbackToolchain,
-    InvalidToolchainError,
-    setProjectStdlibPath,
-    Toolchain,
-} from "@server/toolchain/toolchain"
+import {InvalidToolchainError, setProjectStdlibPath, Toolchain} from "@server/toolchain/toolchain"
 import {ImportPathCompletionProvider} from "@server/completion/providers/ImportPathCompletionProvider"
 import {FileDiff} from "@server/utils/FileDiff"
 import {CompletionItemAdditionalInformation} from "@server/completion/ReferenceCompletionProcessor"
+import {CompilerInspection} from "@server/inspections/CompilerInspection"
+import {setToolchain, toolchain} from "@server/toolchain"
+import {MistiInspection} from "@server/inspections/MistInspection"
 
 /**
  * Whenever LS is initialized.
@@ -130,8 +128,6 @@ import {CompletionItemAdditionalInformation} from "@server/completion/ReferenceC
  * @see initializeFallback
  */
 let initialized = false
-
-let toolchain: Toolchain = fallbackToolchain
 
 let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
 
@@ -198,10 +194,11 @@ async function initialize(): Promise<void> {
     const settings = await getDocumentSettings(rootUri)
 
     try {
-        toolchain =
+        setToolchain(
             settings.toolchain.compilerPath === ""
                 ? Toolchain.autoDetect(rootDir)
-                : Toolchain.fromPath(settings.toolchain.compilerPath)
+                : Toolchain.fromPath(settings.toolchain.compilerPath),
+        )
         console.info(`using toolchain ${toolchain.toString()}`)
 
         await connection.sendNotification(SetToolchainVersionNotification, {
@@ -291,6 +288,47 @@ async function initializeFallback(uri: string): Promise<void> {
     await initialize()
 }
 
+async function runInspections(uri: string, file: File): Promise<void> {
+    const inspections = [
+        new UnusedParameterInspection(),
+        new EmptyBlockInspection(),
+        new UnusedVariableInspection(),
+        new StructInitializationInspection(),
+        new UnusedContractMembersInspection(),
+        new UnusedImportInspection(),
+        new MissedFieldInContractInspection(),
+        new NotImportedSymbolInspection(),
+    ]
+
+    const settings = await getDocumentSettings(uri)
+    const diagnostics: lsp.Diagnostic[] = []
+
+    for (const inspection of inspections) {
+        if (settings.inspections.disabled.includes(inspection.id)) {
+            continue
+        }
+        diagnostics.push(...inspection.inspect(file))
+    }
+
+    const asyncInspections = [
+        new CompilerInspection(),
+        ...(settings.linters.misti.enable ? [new MistiInspection()] : []),
+    ]
+
+    for (const inspection of asyncInspections) {
+        if (settings.inspections.disabled.includes(inspection.id)) {
+            continue
+        }
+        diagnostics.push(...(await inspection.inspect(file)))
+
+        // inspection.inspect(file).then(diagnostics => {
+        //     connection.sendDiagnostics({uri, diagnostics}).then()
+        // })
+    }
+
+    await connection.sendDiagnostics({uri, diagnostics})
+}
+
 connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
     console.info("Started new session")
     console.info("Running in", initParams.clientInfo?.name)
@@ -319,6 +357,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
         const file = findFile(uri)
         index.addFile(uri, file)
+
+        await runInspections(uri, file)
     })
 
     documents.onDidChangeContent(async event => {
@@ -339,31 +379,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const file = findFile(uri, event.document.getText(), true)
         index.addFile(uri, file, false)
 
-        const inspections = [
-            new UnusedParameterInspection(),
-            new EmptyBlockInspection(),
-            new UnusedVariableInspection(),
-            new StructInitializationInspection(),
-            new UnusedContractMembersInspection(),
-            new UnusedImportInspection(),
-            new MissedFieldInContractInspection(),
-            new NotImportedSymbolInspection(),
-        ]
-
-        const settings = await getDocumentSettings(uri)
-        const diagnostics: lsp.Diagnostic[] = []
-
-        for (const inspection of inspections) {
-            if (settings.inspections.disabled.includes(inspection.id)) {
-                continue
-            }
-            diagnostics.push(...inspection.inspect(file))
-        }
-
-        // const compilerInspection = new CompilerInspection()
-        // diagnostics.push(...await compilerInspection.inspect(file))
-
-        await connection.sendDiagnostics({uri, diagnostics})
+        await runInspections(uri, file)
     })
 
     connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams) => {

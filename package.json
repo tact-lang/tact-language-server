@@ -319,6 +319,16 @@
                     ],
                     "default": "workspace",
                     "description": "Where to search when using Find Usages"
+                },
+                "tact.linters.misti.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable Misti static analyzer"
+                },
+                "tact.linters.misti.binPath": {
+                    "type": "string",
+                    "default": "npx misti",
+                    "description": "Path to Misti binary/command to run Misti"
                 }
             }
         },
