@@ -5,7 +5,7 @@ This language server/extension provides support for the [Tact programming langua
 ## Features
 
 - Semantic syntax highlighting
-- Code completion, postfix completion, snippets
+- Code completion with auto import, postfix completion, snippets, paths completion
 - Go to definition, implementation, type definition
 - Find all references, workspace symbol search, symbol renaming
 - Types and documentation on hover
@@ -13,6 +13,7 @@ This language server/extension provides support for the [Tact programming langua
 - On-the-fly inspections with quick fixes
 - Signature help inside calls, `initOf` and struct initialization
 - Lenses with implementation/reference counts
+- Building projects with Blueprint and Tact Template
 
 ## Quick start
 
