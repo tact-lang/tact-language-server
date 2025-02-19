@@ -120,6 +120,8 @@ import {CompletionItemAdditionalInformation} from "@server/completion/ReferenceC
 import {CompilerInspection} from "@server/inspections/CompilerInspection"
 import {setToolchain, toolchain} from "@server/toolchain"
 import {MistiInspection} from "@server/inspections/MistInspection"
+import {GetterCompletionProvider} from "@server/completion/providers/GetterCompletionProvider"
+import {TypeTlbSerializationCompletionProvider} from "@server/completion/providers/TypeTlbSerializationCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -310,21 +312,21 @@ async function runInspections(uri: string, file: File): Promise<void> {
         diagnostics.push(...inspection.inspect(file))
     }
 
-    const asyncInspections = [
-        new CompilerInspection(),
-        ...(settings.linters.misti.enable ? [new MistiInspection()] : []),
-    ]
-
-    for (const inspection of asyncInspections) {
-        if (settings.inspections.disabled.includes(inspection.id)) {
-            continue
-        }
-        diagnostics.push(...(await inspection.inspect(file)))
-
-        // inspection.inspect(file).then(diagnostics => {
-        //     connection.sendDiagnostics({uri, diagnostics}).then()
-        // })
-    }
+    // const asyncInspections = [
+    //     new CompilerInspection(),
+    //     ...(settings.linters.misti.enable ? [new MistiInspection()] : []),
+    // ]
+    //
+    // for (const inspection of asyncInspections) {
+    //     if (settings.inspections.disabled.includes(inspection.id)) {
+    //         continue
+    //     }
+    //     diagnostics.push(...(await inspection.inspect(file)))
+    //
+    //     // inspection.inspect(file).then(diagnostics => {
+    //     //     connection.sendDiagnostics({uri, diagnostics}).then()
+    //     // })
+    // }
 
     await connection.sendDiagnostics({uri, diagnostics})
 }
@@ -727,6 +729,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const file = findFile(data.file.uri)
             const elementFile = findFile(data.elementFile.uri)
 
+            if (file.uri === elementFile.uri) return item
             const importPath = elementFile.importPath(file)
             // already imported
             if (file.alreadyImport(importPath)) return item
@@ -820,6 +823,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 new SnippetsCompletionProvider(),
                 new KeywordsCompletionProvider(),
                 new AsKeywordCompletionProvider(),
+                new GetterCompletionProvider(),
                 new ImportPathCompletionProvider(),
                 new MapTypeCompletionProvider(),
                 new BouncedTypeCompletionProvider(),
@@ -829,6 +833,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 new MemberFunctionCompletionProvider(),
                 new MessageMethodCompletionProvider(),
                 new TlbSerializationCompletionProvider(),
+                new TypeTlbSerializationCompletionProvider(),
                 new OverrideCompletionProvider(),
                 new TraitOrContractFieldsCompletionProvider(),
                 new TraitOrContractConstantsCompletionProvider(),
