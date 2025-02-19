@@ -4,11 +4,16 @@ import type {File} from "@server/psi/File"
 import {TypeInferer} from "@server/TypeInferer"
 import {Reference} from "@server/psi/Reference"
 import {Field, Fun, InitFunction} from "@server/psi/Decls"
-import {AsmInstr, CallLike, Expression, NamedNode, VarDeclaration} from "@server/psi/Node"
-import {MapTy} from "@server/types/BaseTy"
+import {AsmInstr, CallLike, Expression, NamedNode, Node, VarDeclaration} from "@server/psi/Node"
+import {BaseTy, BouncedTy, MapTy, OptionTy, PrimitiveTy, Ty} from "@server/types/BaseTy"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {computeGasConsumption, GasConsumption, instructionPresentation} from "@server/asm/gas"
+import {calculatePushcontGas, instructionPresentation} from "@server/asm/gas"
 import * as compiler from "@server/compiler/utils"
+import {FileDiff} from "@server/utils/FileDiff"
+import {InlayHintLabelPart, MarkupKind} from "vscode-languageserver"
+import {Location} from "vscode-languageclient"
+import {asLspRange} from "@server/utils/position"
+import {URI} from "vscode-uri"
 
 function processParameterHints(
     shift: number,
@@ -45,28 +50,21 @@ function processParameterHints(
 
         result.push({
             kind: InlayHintKind.Parameter,
-            label: `${paramName}:`,
+            label: [
+                {
+                    value: paramName,
+                    location: toLocation(param.nameNode()),
+                },
+                {
+                    value: ":",
+                },
+            ],
             position: {
                 line: arg.startPosition.row,
                 character: arg.startPosition.column,
             },
         })
     }
-}
-
-function calculatePushcontGas(instr: AsmInstr, file: File): GasConsumption | null {
-    const args = instr.arguments()
-    if (args.length === 0) return null
-
-    const arg = args[0]
-    if (arg.type !== "asm_sequence") return null
-
-    const instructions = arg.children
-        .filter(it => it?.type === "asm_expression")
-        .filter(it => it !== null)
-        .map(it => new AsmInstr(it, file))
-
-    return computeGasConsumption(instructions)
 }
 
 export function collect(
@@ -108,13 +106,20 @@ export function collect(
             const type = TypeInferer.inferType(expr)
             if (!type) return true
 
+            const position = {
+                line: name.endPosition.row,
+                character: name.endPosition.column,
+            }
+            const hintText = `: ${type.qualifiedName()}`
+
+            const diff = FileDiff.forFile(file.uri)
+            diff.appendTo(position, hintText)
+
             result.push({
                 kind: InlayHintKind.Type,
-                label: `: ${type.qualifiedName()}`,
-                position: {
-                    line: name.endPosition.row,
-                    character: name.endPosition.column,
-                },
+                label: typeHintParts(type),
+                position: position,
+                textEdits: diff.toTextEdits(),
             })
             return true
         }
@@ -130,13 +135,24 @@ export function collect(
             if (fieldTlb !== null) return true
 
             const addHint = (node: SyntaxNode): void => {
+                const position = {
+                    line: node.endPosition.row,
+                    character: node.endPosition.column,
+                }
+                const hintText = ` as int257`
+
+                const diff = FileDiff.forFile(file.uri)
+                diff.appendTo(position, hintText)
+
                 result.push({
                     kind: InlayHintKind.Type,
-                    label: ` as int257`,
-                    position: {
-                        line: node.endPosition.row,
-                        character: node.endPosition.column,
+                    label: hintText,
+                    position: position,
+                    tooltip: {
+                        kind: MarkupKind.Markdown,
+                        value: "Default TL-B serialization type for Int type.\n\nLearn more in documentation: https://docs.tact-lang.org/book/integers/#common-serialization-types",
                     },
+                    textEdits: diff.toTextEdits(),
                 })
             }
 
@@ -174,7 +190,7 @@ export function collect(
             if (key) {
                 result.push({
                     kind: InlayHintKind.Type,
-                    label: `: ${exprTy.keyTy.qualifiedName()}`,
+                    label: typeHintParts(exprTy.keyTy),
                     position: {
                         line: key.endPosition.row,
                         character: key.endPosition.column,
@@ -186,7 +202,7 @@ export function collect(
             if (value) {
                 result.push({
                     kind: InlayHintKind.Type,
-                    label: `: ${exprTy.valueTy.qualifiedName()}`,
+                    label: typeHintParts(exprTy.valueTy),
                     position: {
                         line: value.endPosition.row,
                         character: value.endPosition.column,
@@ -204,7 +220,7 @@ export function collect(
 
             result.push({
                 kind: InlayHintKind.Type,
-                label: `: ${exprTy.qualifiedName()}`,
+                label: typeHintParts(exprTy),
                 position: {
                     line: name.endPosition.row,
                     character: name.endPosition.column,
@@ -370,4 +386,74 @@ export function collect(
     }
 
     return null
+}
+
+function typeHintParts(ty: Ty): InlayHintLabelPart[] {
+    return [
+        {
+            value: ": ",
+        },
+        ...renderTypeToParts(ty),
+    ]
+}
+
+function renderTypeToParts(ty: Ty): InlayHintLabelPart[] {
+    if (ty instanceof PrimitiveTy) {
+        return [
+            {
+                value: ty.name(),
+                tooltip: "",
+                location: toLocation(ty.anchor?.nameNode()),
+            },
+        ]
+    }
+
+    if (ty instanceof OptionTy) {
+        return [
+            ...renderTypeToParts(ty.innerTy),
+            {
+                value: "?",
+            },
+        ]
+    }
+
+    if (ty instanceof BouncedTy) {
+        return [{value: "bounced<"}, ...renderTypeToParts(ty.innerTy), {value: ">"}]
+    }
+
+    if (ty instanceof MapTy) {
+        return [
+            {value: "map<"},
+            ...renderTypeToParts(ty.keyTy),
+            {value: ", "},
+            ...renderTypeToParts(ty.valueTy),
+            {value: ">"},
+        ]
+    }
+
+    if (ty instanceof BaseTy) {
+        return [
+            {
+                value: ty.name(),
+                location: toLocation((ty.anchor as NamedNode | undefined)?.nameNode()),
+                tooltip: "",
+            },
+        ]
+    }
+
+    return [
+        {
+            value: ty.name(),
+            tooltip: "",
+        },
+    ]
+}
+
+function toLocation(node: Node | null | undefined): Location | undefined {
+    if (!node) return undefined
+
+    return {
+        uri: URI.parse(node.file.uri).toString(true),
+        range: asLspRange(node.node),
+    }
 }

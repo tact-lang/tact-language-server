@@ -832,7 +832,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    connection.languages.inlayHint.on(
+    connection.onRequest(
+        lsp.InlayHintRequest.type,
         async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
             const uri = params.textDocument.uri
             if (uri.endsWith(".fif")) {
