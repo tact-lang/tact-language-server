@@ -1,0 +1,383 @@
+========================================================================
+Local variable completion
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+fun test() {
+    let myInt: Int = 0;
+    let myAddress: Address = address("0");
+    let myString: String = "hello";
+
+    <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive String;
+
+fun test() {
+    let myInt: Int = 0;
+    let myAddress: Address = address("0");
+    let myString: String = "hello";
+
+    myAddress
+}
+
+========================================================================
+Fun parameter completion
+========================================================================
+primitive Int;
+primitive Address;
+
+fun test(amount: Int, to: Address) {
+    <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+fun test(amount: Int, to: Address) {
+    amount
+}
+
+========================================================================
+Extends function parameter completion
+========================================================================
+primitive Int;
+struct Point {}
+
+extends fun move(self: Point, x: Int, y: Int) {
+    <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+struct Point {}
+
+extends fun move(self: Point, x: Int, y: Int) {
+    self
+}
+
+========================================================================
+Extends function with local variables
+========================================================================
+primitive Int;
+struct Point {}
+
+extends fun scale(self: Point, factor: Int) {
+    let temp = factor * 2;
+    <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+struct Point {}
+
+extends fun scale(self: Point, factor: Int) {
+    let temp = factor * 2;
+    temp
+}
+
+========================================================================
+Nested scope completion
+========================================================================
+primitive Int;
+
+fun test() {
+    let outer: Int = 1;
+
+    if (true) {
+        let inner: Int = 2;
+        <caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let outer: Int = 1;
+
+    if (true) {
+        let inner: Int = 2;
+        inner
+    }
+}
+
+========================================================================
+Multiple scopes completion
+========================================================================
+primitive Int;
+
+fun test() {
+    let a: Int = 1;
+    {
+        let b: Int = 2;
+        {
+            let c: Int = 3;
+            <caret>
+        }
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let a: Int = 1;
+    {
+        let b: Int = 2;
+        {
+            let c: Int = 3;
+            a
+        }
+    }
+}
+
+========================================================================
+Loop variable completion
+========================================================================
+primitive Int;
+
+fun test() {
+    let items: map<Int, Int> = emptyMap();
+
+    foreach(key, value in items) {
+        <caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let items: map<Int, Int> = emptyMap();
+
+    foreach(key, value in items) {
+        items
+    }
+}
+
+========================================================================
+Try-catch variable completion in try
+========================================================================
+primitive Int;
+
+fun test() {
+    let value: Int = 0;
+    try {
+        let result: Int = value + 1;
+        <caret>
+    } catch(error) {
+        // ...
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let value: Int = 0;
+    try {
+        let result: Int = value + 1;
+        result
+    } catch(error) {
+        // ...
+    }
+}
+
+========================================================================
+Try-catch variable completion in catch
+========================================================================
+primitive Int;
+
+fun test() {
+    let value: Int = 0;
+    try {
+        let result: Int = value + 1;
+    } catch(error) {
+        <caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let value: Int = 0;
+    try {
+        let result: Int = value + 1;
+    } catch(error) {
+        error
+    }
+}
+
+========================================================================
+Variable shadowing
+========================================================================
+primitive Int;
+
+fun test() {
+    let value: Int = 1;
+    {
+        let value: Int = 2;
+        <caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let value: Int = 1;
+    {
+        let value: Int = 2;
+        value
+    }
+}
+
+========================================================================
+Fun parameter and local variable
+========================================================================
+primitive Int;
+
+fun test(param: Int) {
+    let local: Int = 2;
+    <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test(param: Int) {
+    let local: Int = 2;
+    local
+}
+
+========================================================================
+Variable not accessible before declaration // TODO
+========================================================================
+primitive Int;
+
+fun test() {
+    <caret>
+    let variable: Int = 1;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    false
+    let variable: Int = 1;
+}
+
+========================================================================
+Variable accessible after declaration
+========================================================================
+primitive Int;
+
+fun test() {
+    let variable: Int = 1;
+    <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let variable: Int = 1;
+    variable
+}
+
+========================================================================
+Multiple variables declaration order // TODO
+========================================================================
+primitive Int;
+
+fun test() {
+    <caret>
+    let first = 1;
+    let second = 2;
+    {
+        let third = 3;
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    false
+    let first = 1;
+    let second = 2;
+    {
+        let third = 3;
+    }
+}
+
+========================================================================
+Multiple variables after declarations
+========================================================================
+primitive Int;
+
+fun test() {
+    let first = 1;
+    let second = 2;
+    {
+        let third = 3;
+        <caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let first = 1;
+    let second = 2;
+    {
+        let third = 3;
+        first
+    }
+}
+
+========================================================================
+Completion in variable name
+========================================================================
+primitive Int;
+
+fun test() {
+    let <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let let
+}
+
+========================================================================
+Completion in variable name 2
+========================================================================
+primitive Int;
+
+fun test() {
+    let <caret> = 10;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun test() {
+    let let = 10;
+}
+
+========================================================================
+Variable and function with the same name
+========================================================================
+primitive Int;
+
+fun first() {}
+
+fun test() {
+    let first = 1;
+    <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun first() {}
+
+fun test() {
+    let first = 1;
+    first
+}

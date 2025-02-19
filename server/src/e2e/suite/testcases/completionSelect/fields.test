@@ -1,0 +1,344 @@
+========================================================================
+Message fields completion
+========================================================================
+primitive Int;
+primitive Address;
+
+message Transfer {
+    amount: Int;
+    to: Address;
+}
+
+fun test(msg: Transfer) {
+    msg.<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+message Transfer {
+    amount: Int;
+    to: Address;
+}
+
+fun test(msg: Transfer) {
+    msg.amount
+}
+
+========================================================================
+Struct fields completion
+========================================================================
+primitive Int;
+
+struct Point {
+    x: Int;
+    y: Int as uint32;
+    z: Int?;
+}
+
+fun test(p: Point) {
+    p.<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Point {
+    x: Int;
+    y: Int as uint32;
+    z: Int?;
+}
+
+fun test(p: Point) {
+    p.x
+}
+
+========================================================================
+Contract fields completion
+========================================================================
+primitive Int;
+primitive Address;
+
+contract Counter {
+    val: Int;
+    owner: Address;
+
+    init(owner: Address) {
+        self.owner = owner;
+        self.val = 0;
+    }
+}
+
+fun test(c: Counter) {
+    c.<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+contract Counter {
+    val: Int;
+    owner: Address;
+
+    init(owner: Address) {
+        self.owner = owner;
+        self.val = 0;
+    }
+}
+
+fun test(c: Counter) {
+    c.owner
+}
+
+========================================================================
+Map fields completion
+========================================================================
+primitive Int;
+primitive Address;
+
+struct Storage {
+    balances: map<Address, Int>;
+    allowances: map<Address, map<Address, Int>>;
+}
+
+fun test(s: Storage) {
+    s.<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+struct Storage {
+    balances: map<Address, Int>;
+    allowances: map<Address, map<Address, Int>>;
+}
+
+fun test(s: Storage) {
+    s.allowances
+}
+
+========================================================================
+Optional fields completion
+========================================================================
+primitive Int;
+primitive Address;
+
+struct User {
+    name: String;
+    age: Int?;
+    address: Address?;
+}
+
+fun test(u: User?) {
+    u.<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+struct User {
+    name: String;
+    age: Int?;
+    address: Address?;
+}
+
+fun test(u: User?) {
+    u.address
+}
+
+========================================================================
+Nested fields completion
+========================================================================
+primitive Int;
+primitive Address;
+
+struct Inner {
+    value: Int;
+}
+
+struct Outer {
+    inner: Inner;
+}
+
+fun test(o: Outer) {
+    o.inner.<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+struct Inner {
+    value: Int;
+}
+
+struct Outer {
+    inner: Inner;
+}
+
+fun test(o: Outer) {
+    o.inner.value
+}
+
+========================================================================
+Message with TLB fields completion
+========================================================================
+primitive Int;
+primitive Address;
+
+message TokenTransfer {
+    queryId: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+    to: Address;
+    responseDestination: Address?;
+}
+
+fun test(msg: TokenTransfer) {
+    msg.<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+message TokenTransfer {
+    queryId: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+    to: Address;
+    responseDestination: Address?;
+}
+
+fun test(msg: TokenTransfer) {
+    msg.amount
+}
+
+========================================================================
+Field of bounced<struct>
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct User {
+    name: String;
+    age: Int?;
+    address: Address?;
+}
+
+contract Foo {
+    receive(b: bounced<User>) {
+        b.<caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive String;
+
+struct User {
+    name: String;
+    age: Int?;
+    address: Address?;
+}
+
+contract Foo {
+    receive(b: bounced<User>) {
+        b.address
+    }
+}
+
+========================================================================
+Field of option struct without unwrapping
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct User {
+    name: String;
+    age: Int?;
+    address: Address?;
+}
+
+fun foo(f: User?) {
+    f.<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive String;
+
+struct User {
+    name: String;
+    age: Int?;
+    address: Address?;
+}
+
+fun foo(f: User?) {
+    f.address
+}
+
+========================================================================
+Field of option struct with unwrapping
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct User {
+    name: String;
+    age: Int?;
+    address: Address?;
+}
+
+fun foo(f: User?) {
+    f!!.<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive String;
+
+struct User {
+    name: String;
+    age: Int?;
+    address: Address?;
+}
+
+fun foo(f: User?) {
+    f!!.address
+}
+
+========================================================================
+Field with same name method
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+trait Foo {
+    name: String;
+
+    fun name(): String {
+        return self.name;
+    }
+
+    fun bar() {
+        return self.<caret>;
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive String;
+
+trait Foo {
+    name: String;
+
+    fun name(): String {
+        return self.name;
+    }
+
+    fun bar() {
+        return self.name;
+    }
+}

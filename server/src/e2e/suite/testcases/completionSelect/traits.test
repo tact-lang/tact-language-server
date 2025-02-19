@@ -1,0 +1,199 @@
+========================================================================
+Completion of override methods in trait
+========================================================================
+trait Parent {
+    fun foo(): Int {}
+}
+
+trait Child with Parent {
+    <caret>
+}
+------------------------------------------------------------------------
+trait Parent {
+    fun foo(): Int {}
+}
+
+trait Child with Parent {
+    abstract fun ();
+}
+
+========================================================================
+Completion of override methods in trait with deep inheritance
+========================================================================
+trait Grand {
+    fun bar(name: String): Bool {}
+}
+
+trait Parent with Grand {
+    fun foo(): Int {}
+}
+
+trait Child with Parent {
+    <caret>
+}
+------------------------------------------------------------------------
+trait Grand {
+    fun bar(name: String): Bool {}
+}
+
+trait Parent with Grand {
+    fun foo(): Int {}
+}
+
+trait Child with Parent {
+    abstract fun ();
+}
+
+========================================================================
+Completion of override methods in trait with method
+========================================================================
+trait Parent {
+    fun foo(): Int {}
+    fun bar(): Int {}
+}
+
+trait Child with Parent {
+    override fun foo(): Int {}
+    <caret>
+}
+------------------------------------------------------------------------
+trait Parent {
+    fun foo(): Int {}
+    fun bar(): Int {}
+}
+
+trait Child with Parent {
+    override fun foo(): Int {}
+    abstract fun ();
+}
+
+========================================================================
+Completion of fields in trait
+========================================================================
+primitive String;
+
+trait Parent {
+    name: String;
+}
+
+trait Child with Parent {
+    <caret>
+}
+------------------------------------------------------------------------
+primitive String;
+
+trait Parent {
+    name: String;
+}
+
+trait Child with Parent {
+    name: String;
+}
+
+========================================================================
+Completion of fields in trait with deep inheritance
+========================================================================
+primitive String;
+primitive Int;
+
+trait Grand {
+    age: Int;
+}
+
+trait Parent with Grand {
+    name: String;
+}
+
+trait Child with Parent {
+    <caret>
+}
+------------------------------------------------------------------------
+primitive String;
+primitive Int;
+
+trait Grand {
+    age: Int;
+}
+
+trait Parent with Grand {
+    name: String;
+}
+
+trait Child with Parent {
+    age: Int;
+}
+
+========================================================================
+Completion of fields in trait with field
+========================================================================
+primitive String;
+primitive Int;
+
+trait Parent {
+    age: Int;
+    name: String;
+}
+
+trait Child with Parent {
+    name: String;
+    <caret>
+}
+------------------------------------------------------------------------
+primitive String;
+primitive Int;
+
+trait Parent {
+    age: Int;
+    name: String;
+}
+
+trait Child with Parent {
+    name: String;
+    age: Int;
+}
+
+========================================================================
+Completion of methods and fields without self
+========================================================================
+primitive Int;
+
+trait Child with Parent {
+    field: Int;
+
+    fun foo(): Int {}
+
+    fun bar(): Int {
+        <caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+trait Child with Parent {
+    field: Int;
+
+    fun foo(): Int {}
+
+    fun bar(): Int {
+        self.field
+    }
+}
+
+========================================================================
+Completion of traits to override
+========================================================================
+primitive Int;
+
+trait A1 {}
+trait A2 {}
+trait A3 {}
+
+trait Child with <caret> {}
+------------------------------------------------------------------------
+primitive Int;
+
+trait A1 {}
+trait A2 {}
+trait A3 {}
+
+trait Child with A1 {}

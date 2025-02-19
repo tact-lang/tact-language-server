@@ -1,0 +1,97 @@
+========================================================================
+initOf completion
+========================================================================
+fun test() {
+    init<caret>
+}
+------------------------------------------------------------------------
+fun test() {
+    initOf ()
+}
+
+========================================================================
+initOf contract name completion
+========================================================================
+contract Foo {}
+contract Bar {}
+
+trait Some {}
+trait Some2 {}
+
+fun test() {
+    initOf <caret>
+}
+------------------------------------------------------------------------
+contract Foo {}
+contract Bar {}
+
+trait Some {}
+trait Some2 {}
+
+fun test() {
+    initOf Bar()
+}
+
+========================================================================
+initOf contract name completion with parens
+========================================================================
+contract Foo {}
+contract Bar {}
+
+trait Some {}
+trait Some2 {}
+
+fun test() {
+    initOf <caret>()
+}
+------------------------------------------------------------------------
+contract Foo {}
+contract Bar {}
+
+trait Some {}
+trait Some2 {}
+
+fun test() {
+    initOf Bar()
+}
+
+========================================================================
+initOf contract name completion with parens and init function
+========================================================================
+contract Foo {
+    init(age: Int, value: String) {}
+}
+
+contract Bar {
+    init(age: Int) {}
+}
+
+contract Baz {
+    init() {}
+}
+
+trait Some {}
+trait Some2 {}
+
+fun test() {
+    initOf <caret>()
+}
+------------------------------------------------------------------------
+contract Foo {
+    init(age: Int, value: String) {}
+}
+
+contract Bar {
+    init(age: Int) {}
+}
+
+contract Baz {
+    init() {}
+}
+
+trait Some {}
+trait Some2 {}
+
+fun test() {
+    initOf Bar()
+}

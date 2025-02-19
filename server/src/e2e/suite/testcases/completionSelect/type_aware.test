@@ -1,0 +1,179 @@
+========================================================================
+Type aware completion for boolean in assign
+========================================================================
+primitive Bool;
+primitive Int;
+
+fun bar(): Bool { return true; }
+fun foo(): Int { return 0; }
+
+fun test() {
+    let value = true;
+    value = <caret>
+}
+------------------------------------------------------------------------
+primitive Bool;
+primitive Int;
+
+fun bar(): Bool { return true; }
+fun foo(): Int { return 0; }
+
+fun test() {
+    let value = true;
+    value = value
+}
+
+========================================================================
+Type aware completion for boolean in struct init
+========================================================================
+primitive Bool;
+primitive Int;
+
+fun bar(): Bool { return true; }
+fun foo(): Int { return 0; }
+
+struct Some {
+    value: Bool;
+}
+
+fun test() {
+    Some{ value: <caret> };
+}
+------------------------------------------------------------------------
+primitive Bool;
+primitive Int;
+
+fun bar(): Bool { return true; }
+fun foo(): Int { return 0; }
+
+struct Some {
+    value: Bool;
+}
+
+fun test() {
+    Some{ value: false };
+}
+
+========================================================================
+Type aware completion for Option in assign
+========================================================================
+primitive Bool;
+primitive Int;
+
+fun bar(): Int? { return null; }
+fun foo(): Int { return 0; }
+fun zoo(): Bool { return true; }
+
+fun test() {
+    let someValue = 10;
+    let someBool = false;
+    let value: Int? = null;
+    value = <caret>
+}
+------------------------------------------------------------------------
+primitive Bool;
+primitive Int;
+
+fun bar(): Int? { return null; }
+fun foo(): Int { return 0; }
+fun zoo(): Bool { return true; }
+
+fun test() {
+    let someValue = 10;
+    let someBool = false;
+    let value: Int? = null;
+    value = someValue
+}
+
+========================================================================
+Type aware completion for Option in var declaration
+========================================================================
+primitive Bool;
+primitive Int;
+
+fun bar(): Int? { return null; }
+fun foo(): Int { return 0; }
+fun zoo(): Bool { return true; }
+
+fun test() {
+    let someValue = 10;
+    let someBool = false;
+    let value: Int? = <caret>;
+}
+------------------------------------------------------------------------
+primitive Bool;
+primitive Int;
+
+fun bar(): Int? { return null; }
+fun foo(): Int { return 0; }
+fun zoo(): Bool { return true; }
+
+fun test() {
+    let someValue = 10;
+    let someBool = false;
+    let value: Int? = someValue;
+}
+
+========================================================================
+Type aware completion for Option in var declaration without typehint
+========================================================================
+primitive Bool;
+primitive Int;
+
+fun bar(): Int? { return null; }
+fun foo(): Int { return 0; }
+fun zoo(): Bool { return true; }
+
+fun test() {
+    let someValue = 10;
+    let someBool = false;
+    let value = <caret>;
+}
+------------------------------------------------------------------------
+primitive Bool;
+primitive Int;
+
+fun bar(): Int? { return null; }
+fun foo(): Int { return 0; }
+fun zoo(): Bool { return true; }
+
+fun test() {
+    let someValue = 10;
+    let someBool = false;
+    let value = someBool;
+}
+
+========================================================================
+Type aware completion for struct in var declaration
+========================================================================
+primitive Bool;
+primitive Int;
+
+struct MyStruct { value: Int; }
+
+fun bar(): MyStruct? { return null; }
+fun foo(): MyStruct { return MyStruct{}; }
+fun zoo(): Bool { return true; }
+
+fun test() {
+    let someValue = 10;
+    let someBool = false;
+    let someStruct = MyStruct{};
+    let value: MyStruct = <caret>;
+}
+------------------------------------------------------------------------
+primitive Bool;
+primitive Int;
+
+struct MyStruct { value: Int; }
+
+fun bar(): MyStruct? { return null; }
+fun foo(): MyStruct { return MyStruct{}; }
+fun zoo(): Bool { return true; }
+
+fun test() {
+    let someValue = 10;
+    let someBool = false;
+    let someStruct = MyStruct{};
+    let value: MyStruct = someStruct;
+}

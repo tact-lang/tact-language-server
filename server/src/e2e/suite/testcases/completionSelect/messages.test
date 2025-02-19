@@ -1,0 +1,107 @@
+========================================================================
+Completion in receive function
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    receive(msg: <caret>) {}
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    receive(msg: Bar) {}
+}
+
+========================================================================
+Completion in bounced function
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    bounced(msg: bounced<<caret>>) {}
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    bounced(msg: bounced<Bar>) {}
+}
+
+========================================================================
+Completion in bounced function 2
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    bounced(msg: <caret>) {}
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    bounced(msg: bounced<>) {}
+}
+
+========================================================================
+Completion in external function
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    external(msg: <caret>) {}
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive String;
+
+struct Foo {}
+message Bar {}
+trait Var {}
+
+contract Foo {
+    external(msg: Bar) {}
+}

@@ -1,0 +1,72 @@
+========================================================================
+Completion for method on T?
+========================================================================
+primitive Int;
+
+extends fun foo(self: Int) {}
+extends fun fooOpt(self: Int?) {}
+
+fun test() {
+    let a = 10;
+    a.cal<caret>;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+extends fun foo(self: Int) {}
+extends fun fooOpt(self: Int?) {}
+
+fun test() {
+    let a = 10;
+    a.foo();
+}
+
+========================================================================
+Completion of struct field of self type
+========================================================================
+primitive Int;
+
+struct Data {
+    active: Bool;
+}
+
+extends fun some(self: Data) {
+    return <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Data {
+    active: Bool;
+}
+
+extends fun some(self: Data) {
+    return self
+}
+
+========================================================================
+Completion of struct method of self type
+========================================================================
+primitive Int;
+
+struct Data {
+    active: Bool;
+}
+
+extends fun other(self: Data) {}
+
+extends fun some(self: Data) {
+    return <caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Data {
+    active: Bool;
+}
+
+extends fun other(self: Data) {}
+
+extends fun some(self: Data) {
+    return self
+}
