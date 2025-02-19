@@ -915,6 +915,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scaleton/func-debug-symbols@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "@scaleton/func-debug-symbols@npm:0.1.5"
+  dependencies:
+    "@scaleton/tree-sitter-func": "npm:^1.0.1"
+    buffer-crc32: "npm:^0.2.13"
+    web-tree-sitter: "npm:^0.20.8"
+  peerDependencies:
+    "@ton-community/func-js": ^0.6.2
+    "@ton-community/func-js-bin": ^0.4.4
+  checksum: 10c0/fc18aa118d9ab660182b9b5dab0abe942416bf35c98d0fde8a10f70f2863c6574463b758148f5ffe4e0a212ae369c2595c0ebd8d4f249a00ad3460cd041c45ff
+  languageName: node
+  linkType: hard
+
+"@scaleton/tree-sitter-func@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@scaleton/tree-sitter-func@npm:1.0.1"
+  peerDependencies:
+    web-tree-sitter: ">=0.20.0"
+  checksum: 10c0/6f919826fdcf45504b08f22ea7624b41ffcaa89d2d6ac9149fa55ced60d3e4cc9de3d450b06e0836d36ef83676cd93bf5a780c1334174c2c6cc03045a8436e46
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.27.8":
   version: 0.27.8
   resolution: "@sinclair/typebox@npm:0.27.8"
@@ -944,6 +967,47 @@ __metadata:
   dependencies:
     "@sinonjs/commons": "npm:^3.0.0"
   checksum: 10c0/2e2fb6cc57f227912814085b7b01fede050cd4746ea8d49a1e44d5a0e56a804663b0340ae2f11af7559ea9bf4d087a11f2f646197a660ea3cb04e19efc04aa63
+  languageName: node
+  linkType: hard
+
+"@tact-lang/opcode@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@tact-lang/opcode@npm:0.1.0"
+  dependencies:
+    "@ton/core": "npm:^0.60.0"
+    "@ton/crypto": "npm:^3.3.0"
+  checksum: 10c0/a17dfe8c24b8c1139e0b3b514f45e37147bf7b0d71770fe911d0dce2a544ff540ed91e10b52f4cc2f9b8f011df7c7f7219b61d627230aff346a29dc2228e199f
+  languageName: node
+  linkType: hard
+
+"@ton/core@npm:^0.60.0":
+  version: 0.60.0
+  resolution: "@ton/core@npm:0.60.0"
+  dependencies:
+    symbol.inspect: "npm:1.0.1"
+  peerDependencies:
+    "@ton/crypto": ">=3.2.0"
+  checksum: 10c0/8ae680f31cfede8fffed768190d530e89291ccdfcb1c76cf4de46dd6f506d33a4b41500032c1b0bbdae71c7aef4125e8c2d0b7c7898cd40a38ea618315b70f88
+  languageName: node
+  linkType: hard
+
+"@ton/crypto-primitives@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@ton/crypto-primitives@npm:2.1.0"
+  dependencies:
+    jssha: "npm:3.2.0"
+  checksum: 10c0/9869a393297930ae8dfd784b0c2c4f3c9eff6341b82c75b103990281855392fbf01780251e32d8afd86a82f3eaa388bfe35b9634a0b64d7f05d65c658855870b
+  languageName: node
+  linkType: hard
+
+"@ton/crypto@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "@ton/crypto@npm:3.3.0"
+  dependencies:
+    "@ton/crypto-primitives": "npm:2.1.0"
+    jssha: "npm:3.2.0"
+    tweetnacl: "npm:1.0.3"
+  checksum: 10c0/2fc008d4ada55f483ef7aba63a0690e09a307be340876ed95e7202253d8373daa1d07253dc031889067c578c95f0d08073903fdbc9cce643106d5ccd68095000
   languageName: node
   linkType: hard
 
@@ -1896,7 +1960,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer-crc32@npm:~0.2.3":
+"buffer-crc32@npm:^0.2.13, buffer-crc32@npm:~0.2.3":
   version: 0.2.13
   resolution: "buffer-crc32@npm:0.2.13"
   checksum: 10c0/cb0a8ddf5cf4f766466db63279e47761eb825693eeba6a5a95ee4ec8cb8f81ede70aa7f9d8aeec083e781d47154290eb5d4d26b3f7a465ec57fb9e7d59c47150
@@ -4421,6 +4485,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jssha@npm:3.2.0":
+  version: 3.2.0
+  resolution: "jssha@npm:3.2.0"
+  checksum: 10c0/eba7fb986a6ed12238d57b959c522fae90ff25a9e427d70aeffaf698d4ffadc7a994af7cb28e121139b1a54e38e0bd9b08f2da4ea7979c72653ccba2fb558924
+  languageName: node
+  linkType: hard
+
 "jszip@npm:^3.10.1":
   version: 3.10.1
   resolution: "jszip@npm:3.10.1"
@@ -6213,6 +6284,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"symbol.inspect@npm:1.0.1":
+  version: 1.0.1
+  resolution: "symbol.inspect@npm:1.0.1"
+  checksum: 10c0/7ed8636838ede2740293b09175964aef7d65d4ed14b4ffa197785f9b66bd8f964a05979be3d87c021c1a90a25c01262b0528211c97b14ffe64b2acdb941ad214
+  languageName: node
+  linkType: hard
+
 "tapable@npm:^2.1.1, tapable@npm:^2.2.0, tapable@npm:^2.2.1":
   version: 2.2.1
   resolution: "tapable@npm:2.2.1"
@@ -6485,6 +6563,13 @@ __metadata:
   version: 0.0.6
   resolution: "tunnel@npm:0.0.6"
   checksum: 10c0/e27e7e896f2426c1c747325b5f54efebc1a004647d853fad892b46d64e37591ccd0b97439470795e5262b5c0748d22beb4489a04a0a448029636670bfd801b75
+  languageName: node
+  linkType: hard
+
+"tweetnacl@npm:1.0.3":
+  version: 1.0.3
+  resolution: "tweetnacl@npm:1.0.3"
+  checksum: 10c0/069d9df51e8ad4a89fbe6f9806c68e06c65be3c7d42f0701cc43dba5f0d6064686b238bbff206c5addef8854e3ce00c643bff59432ea2f2c639feab0ee1a93f9
   languageName: node
   linkType: hard
 
@@ -6775,6 +6860,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vscode-tact@workspace:."
   dependencies:
+    "@scaleton/func-debug-symbols": "npm:^0.1.5"
+    "@tact-lang/opcode": "npm:^0.1.0"
     "@types/jest": "npm:^29.5.12"
     "@types/mocha": "npm:^10.0.6"
     "@types/node": "npm:^22.2.0"
@@ -6837,6 +6924,13 @@ __metadata:
     glob-to-regexp: "npm:^0.4.1"
     graceful-fs: "npm:^4.1.2"
   checksum: 10c0/ec60a5f0e9efaeca0102fd9126346b3b2d523e01c34030d3fddf5813a7125765121ebdc2552981136dcd2c852deb1af0b39340f2fcc235f292db5399d0283577
+  languageName: node
+  linkType: hard
+
+"web-tree-sitter@npm:^0.20.8":
+  version: 0.20.8
+  resolution: "web-tree-sitter@npm:0.20.8"
+  checksum: 10c0/e11570f47c39abc5f5d9130f9e138d5a8250ba875a84d899b4f3613fc3bf9a1e680848196e8333e0adbf91a1785dec62975e82053823bdab14cde57b3754a10a
   languageName: node
   linkType: hard
 

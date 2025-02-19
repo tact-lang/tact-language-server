@@ -1,4 +1,5 @@
 import {AsmInstr} from "@server/psi/Node"
+import {getStackPresentation} from "@server/completion/data/types"
 
 export interface GasConsumption {
     value: number
@@ -40,4 +41,15 @@ export function computeGasConsumption(instructions: AsmInstr[]): GasConsumption 
         exact,
         singleInstr: singleInstructionBody,
     }
+}
+
+export function instructionPresentation(
+    gas: string | undefined,
+    stack: string | undefined,
+    format: string,
+): string {
+    if (!gas || gas === "") {
+        return ": no data"
+    }
+    return format.replace("{gas}", gas).replace("{stack}", getStackPresentation(stack))
 }

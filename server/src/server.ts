@@ -838,7 +838,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
                 const settings = await getDocumentSettings(uri)
-                return collectFiftInlays(file, settings.fift.hints)
+                return collectFiftInlays(file, settings.hints.gasFormat, settings.fift.hints)
             }
 
             const file = findFile(uri)
