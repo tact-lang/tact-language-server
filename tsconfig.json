@@ -6,7 +6,6 @@
         "sourceMap": true,
         "strict": true,
         "allowUnreachableCode": true,
-        "exactOptionalPropertyTypes": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitOverride": true,
         "noImplicitReturns": true,

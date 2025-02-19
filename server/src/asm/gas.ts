@@ -1,5 +1,6 @@
 import {AsmInstr} from "@server/psi/Node"
 import {getStackPresentation} from "@server/completion/data/types"
+import type {File} from "@server/psi/File"
 
 export interface GasConsumption {
     value: number
@@ -41,6 +42,21 @@ export function computeGasConsumption(instructions: AsmInstr[]): GasConsumption 
         exact,
         singleInstr: singleInstructionBody,
     }
+}
+
+export function calculatePushcontGas(instr: AsmInstr, file: File): GasConsumption | null {
+    const args = instr.arguments()
+    if (args.length === 0) return null
+
+    const arg = args[0]
+    if (arg.type !== "asm_sequence") return null
+
+    const instructions = arg.children
+        .filter(it => it?.type === "asm_expression")
+        .filter(it => it !== null)
+        .map(it => new AsmInstr(it, file))
+
+    return computeGasConsumption(instructions)
 }
 
 export function instructionPresentation(
