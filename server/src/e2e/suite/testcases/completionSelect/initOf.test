@@ -1,73 +1,68 @@
 ========================================================================
-Struct completion
+initOf completion
 ========================================================================
 primitive Int;
 
-struct Foo {
-    age: Int;
-}
+contract Foo {
+    value: Int;
 
-fun test() {
-    <caret>
+    fun foo() {
+        initO<caret>
+    }
 }
 ------------------------------------------------------------------------
-13 false
-13 initOf Contract(params)   StateInit
-13 null
-13 return;
-13 true
-2  test()
-21 Foo{}
-14 do
-14 foreach
-14 if
-14 ife
-14 let
-14 lett
-14 repeat
-14 try
-14 try-catch
-14 until
-14 while
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initOf <caret>()
+    }
+}
 
 ========================================================================
-Message completion
+initOf name completion before ()
 ========================================================================
 primitive Int;
 
-message Foo {
-    age: Int;
-}
+contract Foo {
+    value: Int;
 
-fun test() {
-    <caret>
+    fun foo() {
+        initOf <caret>
+    }
 }
 ------------------------------------------------------------------------
-13 false
-13 initOf Contract(params)   StateInit
-13 null
-13 return;
-13 true
-2  test()
-21 Foo{}
-14 do
-14 foreach
-14 if
-14 ife
-14 let
-14 lett
-14 repeat
-14 try
-14 try-catch
-14 until
-14 while
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initOf Foo()<caret>
+    }
+}
 
 ========================================================================
-Completion in struct
+initOf name completion before ()
 ========================================================================
-struct Foo {
-    <caret>
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initOf <caret>()
+    }
 }
 ------------------------------------------------------------------------
-0  Foo
-0  struct
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initOf Foo()<caret>
+    }
+}

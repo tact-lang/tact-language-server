@@ -21,8 +21,12 @@ export abstract class BaseTestSuite {
         await activate()
     }
 
+    public workingDir(): string {
+        return path.join(__dirname, "../../../test-workspace/")
+    }
+
     public async setup(): Promise<void> {
-        this.testFilePath = path.join(__dirname, "../../../test-workspace/test.tact")
+        this.testFilePath = path.join(this.workingDir(), "test.tact")
         const testDir = path.dirname(this.testFilePath)
         await fs.promises.mkdir(testDir, {recursive: true})
         await fs.promises.writeFile(this.testFilePath, "")
