@@ -7,7 +7,7 @@ Language Server provides several types of completion.
 Simple type of autocompletion that offers a list of possible completions for the current context, for example,
 all local variables, parameters, global functions, and so on.
 
-<video src="../assets/completion.mp4"></video>
+![]("../assets/completion.mp4")
 
 ### Auto-import
 
