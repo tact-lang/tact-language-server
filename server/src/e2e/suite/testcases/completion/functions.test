@@ -190,6 +190,9 @@ fun <caret>(a: Int, b: Int): Int {
 0  Int
 0  primitive
 0  return
+0  ToImport
+0  trait
+0  WithSeveralDeclaration
 
 ========================================================================
 Completion in function name 2
@@ -209,7 +212,9 @@ trait Foo {
 0  Int
 0  primitive
 0  return
+0  ToImport
 0  trait
+0  WithSeveralDeclaration
 
 ========================================================================
 Completion in function name 3
@@ -230,6 +235,9 @@ contract Foo {
 0  Int
 0  primitive
 0  return
+0  ToImport
+0  trait
+0  WithSeveralDeclaration
 
 ========================================================================
 Completion of function return type
@@ -247,3 +255,5 @@ fun multiply(x: Int, y: Int): <caret> {
 9  Int
 21 Bar
 21 Baz
+24 ToImport
+24 WithSeveralDeclaration

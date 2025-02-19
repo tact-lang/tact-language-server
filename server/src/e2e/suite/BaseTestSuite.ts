@@ -3,6 +3,8 @@ import * as path from "node:path"
 import * as fs from "node:fs"
 import * as glob from "glob"
 import {TestCase, TestParser} from "./TestParser"
+import {existsSync} from "node:fs"
+import {TextDocument} from "vscode"
 
 export interface TestUpdate {
     filePath: string
@@ -16,6 +18,7 @@ export abstract class BaseTestSuite {
     protected editor!: vscode.TextEditor
     protected testFilePath!: string
     protected updates: TestUpdate[] = []
+    protected additionalFiles: TextDocument[] = []
 
     public async suiteSetup(): Promise<void> {
         await activate()
@@ -43,6 +46,35 @@ export abstract class BaseTestSuite {
         } catch (error) {
             console.warn("Failed to delete test file:", error)
         }
+    }
+
+    protected async openFile(name: string, content: string): Promise<void> {
+        const filePath = path.join(this.workingDir(), name)
+        await fs.promises.writeFile(filePath, content)
+
+        const additionalFile = await vscode.workspace.openTextDocument(filePath)
+        await vscode.languages.setTextDocumentLanguage(additionalFile, "tact")
+
+        this.additionalFiles.push(additionalFile)
+    }
+
+    protected async closeFile(name: string): Promise<void> {
+        const filePath = path.join(this.workingDir(), name)
+
+        const document = this.additionalFiles.find(item => item.uri.fsPath === filePath)
+        if (!document) return
+
+        await vscode.window.showTextDocument(document, {
+            preview: true,
+            preserveFocus: false,
+        })
+        await vscode.commands.executeCommand("workbench.action.closeActiveEditor")
+
+        if (!existsSync(filePath)) {
+            return
+        }
+
+        await fs.promises.rm(filePath)
     }
 
     protected calculatePosition(text: string, caretIndex: number): vscode.Position {

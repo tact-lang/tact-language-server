@@ -61,6 +61,9 @@ contract Foo {
 0  contract
 0  Foo
 0  receive
+0  ToImport
+0  trait
+0  WithSeveralDeclaration
 
 ========================================================================
 Completion inside `external()` parameters
@@ -72,6 +75,9 @@ contract Foo {
 0  contract
 0  external
 0  Foo
+0  ToImport
+0  trait
+0  WithSeveralDeclaration
 
 ========================================================================
 Completion inside `fun()` parameters
@@ -84,3 +90,6 @@ contract Foo {
 0  Foo
 0  foo
 0  fun
+0  ToImport
+0  trait
+0  WithSeveralDeclaration

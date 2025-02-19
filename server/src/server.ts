@@ -103,7 +103,7 @@ import type {Intention, IntentionArguments, IntentionContext} from "@server/inte
 import {AddExplicitType} from "@server/intentions/AddExplicitType"
 import {AddImport} from "@server/intentions/AddImport"
 import {NotImportedSymbolInspection} from "@server/inspections/NotImportedSymbolInspection"
-import {FillAllStructInit, FillRequiredStructInit} from "@server/intentions/FillAllStructInit"
+import {FillFieldsStructInit, FillRequiredStructInit} from "@server/intentions/FillFieldsStructInit"
 import {generateInitDoc, generateReceiverDoc} from "@server/documentation/receivers_documentation"
 import {AsKeywordCompletionProvider} from "@server/completion/providers/AsKeywordCompletionProvider"
 import {AddFieldInitialization} from "@server/intentions/AddFieldInitialization"
@@ -1304,7 +1304,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     const intentions: Intention[] = [
         new AddExplicitType(),
         new AddImport(),
-        new FillAllStructInit(),
+        new FillFieldsStructInit(),
         new FillRequiredStructInit(),
         new AddFieldInitialization(),
         new WrapSelectedToTry(),
