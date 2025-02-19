@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
+import {CompletionItem, Position} from "vscode"
 import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import type {TestCase} from "./TestParser"
-import {CompletionItem} from "vscode"
 
 suite("Completion Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
@@ -25,20 +25,20 @@ suite("Completion Test Suite", () => {
                 position,
             )
 
-            const line = this.document.lineAt(position.line)
-            const textBeforeCursor = line.text.slice(0, position.character)
+            const textBeforeCursor = this.findWordBeforeCursor(position)
+
             // Filtering items to match better completion for this test
-            let items = completions.items.filter(item => {
+            const items = completions.items.filter(item => {
                 const label = typeof item.label === "object" ? item.label.label : item.label
                 return label.includes(textBeforeCursor.trim())
             })
 
-            if (completions.items.length <= 0) {
+            if (completions.items.length === 0) {
                 throw new Error("No completions available for this test")
             }
 
             if (items.length <= 0) {
-                items = completions.items
+                return completions.items[0]
             }
 
             return items[0]
@@ -76,19 +76,50 @@ suite("Completion Test Suite", () => {
             test(`Completion Select: ${testCase.name}`, async () => {
                 const completion = await this.getFilteredCompletion(testCase.input)
                 await this.applyCompletionItem(completion)
+
+                const cursor = this.editor.selection.active
                 const editorText = this.document.getText()
+                const editorTextWithCursor = this.insertCursor(editorText, cursor)
+
                 const expected = testCase.expected
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({
                         filePath: testFile,
                         testName: testCase.name,
-                        actual: editorText,
+                        actual: editorTextWithCursor,
                     })
                 } else {
-                    assert.deepStrictEqual(editorText, expected)
+                    assert.deepStrictEqual(editorTextWithCursor, expected)
                 }
             })
+        }
+
+        protected findWordBeforeCursor(position: Position): string {
+            const line = this.document.lineAt(position.line)
+            const textBeforeCursor = line.text.slice(0, position.character)
+
+            const letterRe = new RegExp(/[a-z]/i)
+
+            for (let i = textBeforeCursor.length; i >= 0; i--) {
+                const symbol = textBeforeCursor[i]
+                if (!letterRe.test(symbol)) {
+                    return textBeforeCursor.slice(i + 1, line.text.length)
+                }
+            }
+
+            return line.text
+        }
+
+        protected insertCursor(text: string, position: Position): string {
+            const lines = text.split(/\r?\n/)
+            if (position.line >= lines.length) return text
+
+            const line = lines[position.line]
+            lines[position.line] =
+                line.slice(0, position.character) + "<caret>" + line.slice(position.character)
+
+            return lines.join("\n")
         }
     })()
 

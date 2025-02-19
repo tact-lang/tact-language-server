@@ -1,0 +1,97 @@
+========================================================================
+Struct as type
+========================================================================
+primitive Int;
+
+struct Value {
+    value: Int;
+}
+
+fun test(): Val<caret> {
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Value {
+    value: Int;
+}
+
+fun test(): Value<caret> {
+}
+
+========================================================================
+Struct init
+========================================================================
+primitive Int;
+
+struct Value {
+    value: Int;
+}
+
+fun test() {
+    Value<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Value {
+    value: Int;
+}
+
+fun test() {
+    Value{<caret>}
+}
+
+========================================================================
+Field in struct init
+========================================================================
+primitive Int;
+
+struct Value {
+    value: Int;
+}
+
+fun test() {
+    Value{val<caret>}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Value {
+    value: Int;
+}
+
+fun test() {
+    Value{value: <caret>}
+}
+
+========================================================================
+Field in struct init 2
+========================================================================
+primitive Int;
+
+struct Value {
+    value: Int;
+    other: Int;
+}
+
+fun test() {
+    Value{
+        value: 10,
+        oth<caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Value {
+    value: Int;
+    other: Int;
+}
+
+fun test() {
+    Value{
+        value: 10,
+        other: <caret>,
+    }
+}

@@ -3,6 +3,8 @@ import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import type {TestCase} from "./TestParser"
 import {CompletionItem} from "vscode"
+import * as path from "node:path"
+import * as fs from "node:fs"
 
 suite("Completion Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
@@ -36,6 +38,14 @@ suite("Completion Test Suite", () => {
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Completion: ${testCase.name}`, async () => {
+                if (testFile.includes("import")) {
+                    const filePath = path.join(this.workingDir(), "other.tact")
+                    await fs.promises.writeFile(filePath, "")
+
+                    const additionalDoc = await vscode.workspace.openTextDocument(filePath)
+                    await vscode.languages.setTextDocumentLanguage(additionalDoc, "tact")
+                }
+
                 const completions = await this.getCompletions(testCase.input, ".")
 
                 const items = completions.map(item => {
