@@ -57,6 +57,7 @@ module.exports = grammar({
                 $.hex_literal,
                 $.stack_ref,
                 $.stack_op,
+                $.instruction_block,
             ),
 
         if_statement: $ =>
@@ -78,6 +79,8 @@ module.exports = grammar({
 
         proc_call: $ => seq($.identifier, choice("CALLDICT", "INLINECALLDICT")),
 
+        instruction_block: $ => seq("<{", repeat($.instruction), "}>"),
+
         slice_literal: () =>
             choice(
                 seq("b{", /[01]+/, "}"),
@@ -87,7 +90,7 @@ module.exports = grammar({
 
         hex_literal: () => /0[xX][0-9a-fA-F]+/,
 
-        identifier: () => /[a-zA-Z$_%][a-zA-Z0-9$_]*/,
+        identifier: () => /[a-zA-Z$_%?][a-zA-Z0-9$_?]*/,
 
         negative_identifier: $ => seq("-", $.identifier),
 

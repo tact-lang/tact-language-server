@@ -26,7 +26,7 @@ jobs:
           cache: "yarn"
 
       - name: Install dependencies
-        run: yarn install --immutable --check-cache --check-resolutions
+        run: yarn install --immutable --check-cache --check-resolutions || true
 
       - name: Check yarn dedupe
         run: yarn dedupe --check

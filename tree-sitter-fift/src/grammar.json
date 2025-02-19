@@ -342,6 +342,10 @@
                 {
                     "type": "SYMBOL",
                     "name": "stack_op"
+                },
+                {
+                    "type": "SYMBOL",
+                    "name": "instruction_block"
                 }
             ]
         },
@@ -506,6 +510,26 @@
                 }
             ]
         },
+        "instruction_block": {
+            "type": "SEQ",
+            "members": [
+                {
+                    "type": "STRING",
+                    "value": "<{"
+                },
+                {
+                    "type": "REPEAT",
+                    "content": {
+                        "type": "SYMBOL",
+                        "name": "instruction"
+                    }
+                },
+                {
+                    "type": "STRING",
+                    "value": "}>"
+                }
+            ]
+        },
         "slice_literal": {
             "type": "CHOICE",
             "members": [
@@ -568,7 +592,7 @@
         },
         "identifier": {
             "type": "PATTERN",
-            "value": "[a-zA-Z$_%][a-zA-Z0-9$_]*"
+            "value": "[a-zA-Z$_%?][a-zA-Z0-9$_?]*"
         },
         "negative_identifier": {
             "type": "SEQ",

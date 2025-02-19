@@ -75,6 +75,15 @@
                     "dark": "./dist/icons/ton-icon.svg"
                 },
                 "configuration": "./fift-language-configuration.json"
+            },
+            {
+                "id": "boc",
+                "extensions": [
+                    ".boc"
+                ],
+                "aliases": [
+                    "TON BoC"
+                ]
             }
         ],
         "grammars": [
@@ -131,6 +140,16 @@
                 "command": "tact.build",
                 "title": "Build Tact Project",
                 "category": "tact"
+            },
+            {
+                "command": "tact.openBocFile",
+                "title": "Open decompiled BoC file",
+                "category": "tact"
+            },
+            {
+                "command": "tact.saveBocDecompiled",
+                "title": "Decompile BoC to Fift assembly file",
+                "category": "Tact"
             }
         ],
         "keybindings": [
@@ -140,6 +159,20 @@
                 "when": "editorTextFocus && editorLangId == 'tact'"
             }
         ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "when": "resourceExtname == .boc",
+                    "command": "tact.openBocFile",
+                    "group": "navigation"
+                },
+                {
+                    "when": "resourceExtname == '.boc'",
+                    "command": "tact.saveBocDecompiled",
+                    "group": "navigation"
+                }
+            ]
+        },
         "configuration": {
             "title": "Tact",
             "type": "object",
@@ -319,6 +352,11 @@
                     ],
                     "default": "workspace",
                     "description": "Where to search when using Find Usages"
+                },
+                "tact.boc.openDecompiledOnOpen": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically open decompiled Fift assembly when opening BoC files"
                 }
             }
         },
@@ -329,9 +367,22 @@
                 ],
                 "url": "https://raw.githubusercontent.com/tact-lang/tact/refs/heads/main/src/config/configSchema.json"
             }
+        ],
+        "customEditors": [
+            {
+                "viewType": "boc.editor",
+                "displayName": "BOC Editor",
+                "selector": [
+                    {
+                        "filenamePattern": "*.boc"
+                    }
+                ],
+                "priority": "default"
+            }
         ]
     },
     "dependencies": {
+        "@tact-lang/opcode": "^0.1.0",
         "glob": "^11.0.1",
         "vscode-languageclient": "^8.0.2",
         "vscode-languageserver": "^8.0.2",
@@ -340,6 +391,7 @@
         "web-tree-sitter": "^0.25.0"
     },
     "devDependencies": {
+        "@scaleton/func-debug-symbols": "^0.1.5",
         "@types/jest": "^29.5.12",
         "@types/mocha": "^10.0.6",
         "@types/node": "^22.2.0",

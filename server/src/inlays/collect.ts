@@ -7,9 +7,8 @@ import {Field, Fun, InitFunction} from "@server/psi/Decls"
 import {AsmInstr, CallLike, Expression, NamedNode, VarDeclaration} from "@server/psi/Node"
 import {MapTy} from "@server/types/BaseTy"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {computeGasConsumption, GasConsumption} from "@server/asm/gas"
+import {computeGasConsumption, GasConsumption, instructionPresentation} from "@server/asm/gas"
 import * as compiler from "@server/compiler/utils"
-import {getStackPresentation} from "@server/completion/data/types"
 
 function processParameterHints(
     shift: number,
@@ -53,17 +52,6 @@ function processParameterHints(
             },
         })
     }
-}
-
-function instructionPresentation(
-    gas: string | undefined,
-    stack: string | undefined,
-    format: string,
-): string {
-    if (!gas || gas === "") {
-        return ": no data"
-    }
-    return format.replace("{gas}", gas).replace("{stack}", getStackPresentation(stack))
 }
 
 function calculatePushcontGas(instr: AsmInstr, file: File): GasConsumption | null {
