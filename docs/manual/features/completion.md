@@ -7,20 +7,20 @@ Language Server provides several types of completion.
 Simple type of autocompletion that offers a list of possible completions for the current context, for example,
 all local variables, parameters, global functions, and so on.
 
-<video src="../assets/completion.mov"></video>
+<video src="../assets/completion.mp4"></video>
 
 ### Auto-import
 
 When autocompleting a symbol that is defined in another file or in stdlib, LS will automatically add the import of the
 required file:
 
-<video src="../assets/auto-import.mov"></video>
+<video src="../assets/auto-import.mp4"></video>
 
 ## Imports completion
 
 When you want to import another file, LS will help you find it:
 
-<video src="../assets/import-completion.mov"></video>
+<video src="../assets/import-completion.mp4"></video>
 
 ## Postfix completion
 
@@ -34,7 +34,7 @@ completion:
 - `expr.not` -> `!expr`
 - `expr.call` -> `(expr)`
 
-<video src="../assets/postfix-completion.mov"></video>
+<video src="../assets/postfix-completion.mp4"></video>
 
 ## Smart completion
 
@@ -50,21 +50,21 @@ LS provides autocompletion that can expand into entire constructs based on the c
 If a contract or trait inherits from another trait that defines a method, LS will add a completion variant that will
 expand into a full description:
 
-<video src="../assets/override-completion.mov"></video>
+<video src="../assets/override-completion.mp4"></video>
 
 ### Implement field completion
 
 If a contract or trait inherits from another trait that defines a certain field, LS will add an auto-completion option
 that will expand into a full description:
 
-<video src="../assets/field-completion.mov"></video>
+<video src="../assets/field-completion.mp4"></video>
 
 ## `self.X` completion
 
 If you are in a contract/trait or in a type method, you need to use `self` to access a field, LS will automatically
 insert `self.` if needed:
 
-<video src="../assets/self-completion.mov"></video>
+<video src="../assets/self-completion.mp4"></video>
 
 ## Function call completion
 
@@ -72,4 +72,4 @@ LS knows that if a function has no arguments, it should put the caret after the 
 caret inside. LS will also add `;` if that's correct. If you're replacing the name of the function being called, LS
 won't add extra parentheses.
 
-<video src="../assets/call-completion.mov"></video>
+<video src="../assets/call-completion.mp4"></video>
