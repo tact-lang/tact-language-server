@@ -38,7 +38,10 @@ struct Transfer {
 0  owner
 0  primitive
 0  struct
+0  ToImport
+0  trait
 0  Transfer
+0  WithSeveralDeclaration
 
 ========================================================================
 TL-B serialization types for Slice completion

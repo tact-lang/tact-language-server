@@ -1,0 +1,32 @@
+========================================================================
+Add import for trait from other file
+========================================================================
+contract Test with <caret>ToImport {
+}
+------------------------------------------------------------------------
+import "./other";
+
+contract Test with ToImport {
+}
+
+========================================================================
+Add import for trait from other file with other imports
+========================================================================
+import "@stdlib/deploy"
+
+contract Test with <caret>ToImport {
+}
+------------------------------------------------------------------------
+import "@stdlib/deploy"
+import "./other";
+
+contract Test with ToImport {
+}
+
+========================================================================
+Add import for trait with several declarations from other file
+========================================================================
+contract Test with <caret>WithSeveralDeclaration {
+}
+------------------------------------------------------------------------
+No intentions

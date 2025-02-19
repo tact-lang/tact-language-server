@@ -186,7 +186,7 @@ export class FillStructInitBase implements Intention {
     }
 }
 
-export class FillAllStructInit extends FillStructInitBase {
+export class FillFieldsStructInit extends FillStructInitBase {
     public override readonly id: string = "tact.fill-struct-init"
     public override readonly name: string = "Fill all fields..."
 

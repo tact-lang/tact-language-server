@@ -1,0 +1,377 @@
+========================================================================
+@intention Fill all fields...
+Fill all fields for struct with no fields
+========================================================================
+struct Foo {}
+
+fun foo() {
+    Foo{<caret>};
+}
+------------------------------------------------------------------------
+struct Foo {}
+
+fun foo() {
+    Foo{};
+}
+
+========================================================================
+@intention Fill all fields...
+Fill all fields for struct with single field
+========================================================================
+primitive Int;
+
+struct Foo {
+    value: Int;
+}
+
+fun foo() {
+    Foo{<caret>};
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Foo {
+    value: Int;
+}
+
+fun foo() {
+    Foo{
+        value: 0,
+    };
+}
+
+========================================================================
+@intention Fill all fields...
+Fill all fields for struct with several fields
+========================================================================
+primitive Int;
+primitive String;
+
+struct Foo {
+    value: Int;
+    other: String;
+    opt: String?
+}
+
+fun foo() {
+    Foo{<caret>};
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+struct Foo {
+    value: Int;
+    other: String;
+    opt: String?
+}
+
+fun foo() {
+    Foo{
+        value: 0,
+        other: "",
+        opt: null,
+    };
+}
+
+========================================================================
+@intention Fill all fields...
+Fill all fields for struct with single field in deep nested blocks
+========================================================================
+primitive Int;
+
+struct Foo {
+    value: Int;
+}
+
+fun foo() {
+    {
+        {
+            {
+                Foo{<caret>};
+            }
+        }
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Foo {
+    value: Int;
+}
+
+fun foo() {
+    {
+        {
+            {
+                Foo{
+                    value: 0,
+                };
+            }
+        }
+    }
+}
+
+========================================================================
+@intention Fill all fields...
+Fill all fields for struct with several fields and empty line
+========================================================================
+primitive Int;
+primitive String;
+
+struct Foo {
+    value: Int;
+    other: String;
+    opt: String?
+}
+
+fun foo() {
+    Foo{<caret>
+    };
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+struct Foo {
+    value: Int;
+    other: String;
+    opt: String?
+}
+
+fun foo() {
+    Foo{
+        value: 0,
+        other: "",
+        opt: null,    
+    };
+}
+
+========================================================================
+@intention Fill all fields...
+Fill all fields for struct with several fields and empty line 2
+========================================================================
+primitive Int;
+primitive String;
+
+struct Foo {
+    value: Int;
+    other: String;
+    opt: String?
+}
+
+fun foo() {
+    Foo{
+        <caret>
+    };
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+struct Foo {
+    value: Int;
+    other: String;
+    opt: String?
+}
+
+fun foo() {
+    Foo{
+        value: 0,
+        other: "",
+        opt: null,    
+        
+    };
+}
+
+========================================================================
+@intention Fill all fields...
+Fill all fields for struct with all types fields
+========================================================================
+primitive Int;
+primitive String;
+primitive Bool;
+primitive Address;
+primitive Cell;
+primitive Builder;
+primitive Slice;
+primitive StringBuilder;
+
+struct Other {}
+message Message {}
+
+struct Foo {
+    mp: map<Int, Int>;
+    opt: String?;
+    int: Int;
+    bool: Bool;
+    address: Address;
+    builder: Builder;
+    slice: Slice;
+    cell: Cell;
+    string: String;
+    string_builder: StringBuilder;
+    other: Other;
+    msg: Message;
+}
+
+fun foo() {
+    Foo{<caret>};
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+primitive Bool;
+primitive Address;
+primitive Cell;
+primitive Builder;
+primitive Slice;
+primitive StringBuilder;
+
+struct Other {}
+message Message {}
+
+struct Foo {
+    mp: map<Int, Int>;
+    opt: String?;
+    int: Int;
+    bool: Bool;
+    address: Address;
+    builder: Builder;
+    slice: Slice;
+    cell: Cell;
+    string: String;
+    string_builder: StringBuilder;
+    other: Other;
+    msg: Message;
+}
+
+fun foo() {
+    Foo{
+        mp: emptyMap(),
+        opt: null,
+        int: 0,
+        bool: false,
+        address: sender(),
+        builder: beginCell(),
+        slice: emptySlice(),
+        cell: emptyCell(),
+        string: "",
+        string_builder: beginString(),
+        other: Other{},
+        msg: Message{},
+    };
+}
+
+========================================================================
+@intention Fill required fields...
+Fill only required fields for struct with single required field
+========================================================================
+primitive Int;
+
+struct Foo {
+    value: Int;
+}
+
+fun foo() {
+    Foo{<caret>};
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Foo {
+    value: Int;
+}
+
+fun foo() {
+    Foo{
+        value: 0,
+    };
+}
+
+========================================================================
+@intention Fill required fields...
+Fill only required fields for struct with no required field
+========================================================================
+primitive Int;
+
+struct Foo {
+    value: Int = 0;
+}
+
+fun foo() {
+    Foo{<caret>};
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Foo {
+    value: Int = 0;
+}
+
+fun foo() {
+    Foo{};
+}
+
+========================================================================
+@intention Fill required fields...
+Fill only required fields for struct with single required and single not required field
+========================================================================
+primitive Int;
+
+struct Foo {
+    value: Int = 0;
+    other: Int;
+}
+
+fun foo() {
+    Foo{<caret>};
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Foo {
+    value: Int = 0;
+    other: Int;
+}
+
+fun foo() {
+    Foo{
+        other: 0,
+    };
+}
+
+========================================================================
+@intention Fill required fields...
+Fill only required fields for struct with several required and several not required field
+========================================================================
+primitive Int;
+primitive Cell;
+
+struct Foo {
+    value: Int = 0;
+    other: Int;
+    age: Int;
+    data: Cell? = null;
+}
+
+fun foo() {
+    Foo{<caret>};
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Cell;
+
+struct Foo {
+    value: Int = 0;
+    other: Int;
+    age: Int;
+    data: Cell? = null;
+}
+
+fun foo() {
+    Foo{
+        other: 0,
+        age: 0,
+    };
+}
