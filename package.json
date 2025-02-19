@@ -427,7 +427,9 @@
         }
     },
     "dependenciesMeta": {
-        "tree-sitter-cli": {}
+        "tree-sitter-cli": {
+            "built": true
+        }
     },
     "packageManager": "yarn@4.6.0",
     "prettier": {

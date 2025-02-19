@@ -6895,6 +6895,9 @@ __metadata:
     webpack-cli: "npm:^5.1.4"
   peerDependencies:
     tree-sitter: ^0.21.1
+  dependenciesMeta:
+    tree-sitter-cli:
+      built: true
   peerDependenciesMeta:
     tree-sitter:
       optional: true
