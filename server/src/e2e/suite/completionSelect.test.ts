@@ -93,7 +93,7 @@ suite("Completion Test Suite", () => {
     })()
 
     suiteSetup(async function () {
-        this.timeout(60_000)
+        this.timeout(10_000)
         await testSuite.suiteSetup()
     })
 
