@@ -99,13 +99,14 @@ export class File {
         }
 
         const relativeTo = path.dirname(inFile.path)
-        if (filePath.startsWith(relativeTo)) {
-            const relative = filePath.slice(relativeTo.length + 1)
-            const withoutTactExt = trimSuffix(relative, ".tact")
+        const relative = path.relative(relativeTo, filePath).replace(/\\/g, "/")
+        const withoutTactExt = trimSuffix(relative, ".tact")
+
+        if (!withoutTactExt.startsWith("../") && !withoutTactExt.startsWith("./")) {
             return `./${withoutTactExt}`
         }
 
-        return filePath
+        return withoutTactExt
     }
 
     public getDecls(): NamedNode[] {

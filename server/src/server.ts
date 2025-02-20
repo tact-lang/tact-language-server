@@ -711,6 +711,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const file = findFile(data.file.uri)
             const elementFile = findFile(data.elementFile.uri)
 
+            // skip the same file element
+            if (file.uri === elementFile.uri) return item
             const importPath = elementFile.importPath(file)
             // already imported
             if (file.alreadyImport(importPath)) return item
