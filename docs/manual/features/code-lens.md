@@ -1,4 +1,4 @@
-# Inlay Hints
+# Code lenses
 
 Language Server provides several locations where special clickable links with information are displayed.
 
