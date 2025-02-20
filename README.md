@@ -5,15 +5,21 @@ This language server/extension provides support for the [Tact programming langua
 ## Features
 
 - Semantic syntax highlighting
-- Code completion with auto import, postfix completion, snippets, paths completion
+- [Code completion] with [auto import], [postfix completion], snippets, [imports completion]
 - Go to definition, implementation, type definition
 - Find all references, workspace symbol search, symbol renaming
 - Types and documentation on hover
 - Inlay hints for types and parameter names
 - On-the-fly inspections with quick fixes
 - Signature help inside calls, `initOf` and struct initialization
-- Lenses with implementation/reference counts
+- [Lenses] with implementation/reference counts
 - Building projects with Blueprint and Tact Template
+
+[Code completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md
+[auto import]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#auto-import
+[postfix completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#postfix-completion
+[imports completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#imports-completion
+[Lenses]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/code-lenses.md
 
 ## Quick start
 
