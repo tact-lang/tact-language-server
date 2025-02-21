@@ -64,6 +64,8 @@ https://github.com/user-attachments/assets/47e77029-d933-474f-a4b0-787357d319f8
 If a contract or trait has fields, then by entering their name in the body of the contract/trait,
 you can generate a getter:
 
+https://github.com/user-attachments/assets/e877d275-3602-4526-91ba-b913e32844f7
+
 Using the `state` you can generate a getter for the entire contract state at once.
 
 ## `self.X` completion
