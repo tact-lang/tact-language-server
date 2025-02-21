@@ -309,7 +309,7 @@ function generateMemberDocFor(node: Node): string | null {
 }
 
 export function extractCommentsDocContent(node: Node): {
-    content: string
+    lines: string[]
     startPosition: Position
 } | null {
     const prevSibling = node.node.previousSibling
@@ -334,12 +334,10 @@ export function extractCommentsDocContent(node: Node): {
 
     const finalComments = comments.reverse()
 
-    const content = finalComments
-        .map(c => trimPrefix(trimPrefix(trimPrefix(c.text, "///"), "//"), " ").trimEnd())
-        .join("\n")
-
     return {
-        content,
+        lines: finalComments.map(c =>
+            trimPrefix(trimPrefix(trimPrefix(c.text, "///"), "//"), " ").trimEnd(),
+        ),
         startPosition: asLspPosition(comments[0].startPosition),
     }
 }
@@ -348,7 +346,7 @@ export function extractCommentsDoc(node: Node): string {
     const content = extractCommentsDocContent(node)
     if (!content) return ""
 
-    const lines = content.content.split("\n")
+    const lines = content.lines
 
     let result = ""
     let insideCodeBlock = false

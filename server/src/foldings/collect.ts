@@ -3,6 +3,9 @@ import {RecursiveVisitor} from "@server/psi/visitor"
 import type {File} from "@server/psi/File"
 import type {Point} from "web-tree-sitter"
 import type * as lsp from "vscode-languageserver"
+import {isDocCommentOwner} from "@server/psi/utils"
+import {extractCommentsDocContent} from "@server/documentation/documentation"
+import {Node} from "@server/psi/Node"
 
 export function collect(file: File): FoldingRange[] {
     const result: FoldingRange[] = []
@@ -33,6 +36,18 @@ export function collect(file: File): FoldingRange[] {
             if (!openBrace || !closeBrace) return true
 
             result.push(genericFolding(openBrace.endPosition, closeBrace.startPosition))
+        }
+
+        if (isDocCommentOwner(n)) {
+            const node = new Node(n, file)
+            const comment = extractCommentsDocContent(node)
+            if (!comment) return true
+
+            result.push({
+                kind: FoldingRangeKind.Comment,
+                startLine: comment.startPosition.line,
+                endLine: comment.startPosition.line + comment.lines.length - 1,
+            })
         }
 
         return true
