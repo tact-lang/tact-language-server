@@ -13,11 +13,13 @@ import {StructTy} from "@server/types/BaseTy"
 import {tactCodeBlock} from "@server/documentation/documentation"
 import {trimPrefix} from "@server/utils/strings"
 import {File} from "@server/psi/File"
+import {Position} from "vscode-languageserver"
 
 export interface CompletionItemAdditionalInformation {
     readonly name: string | undefined
     readonly file: File | undefined
     readonly elementFile: File | undefined
+    readonly position: Position | undefined
 }
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {
@@ -53,7 +55,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             )
         }
 
-        // for non types context things like traits and primitives are prohibited
+        // for non-types context things like traits and primitives are prohibited
         if (node instanceof Trait || node instanceof Primitive) return false
         // but since structs and messages can be created like `Foo{}` we allow them
         if (node instanceof Struct || node instanceof Message) return true
@@ -75,10 +77,11 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             return true
         }
 
-        const additionalData = {
+        const additionalData: CompletionItemAdditionalInformation = {
             elementFile: node.file,
             file: this.ctx.element.file,
             name: name,
+            position: this.ctx.position,
         }
 
         if (node instanceof Fun) {

@@ -124,6 +124,10 @@ export class StorageMembersOwner extends NamedNode {
         return [...own, ...inherited]
     }
 
+    public hasParentTraits(): boolean {
+        return this.node.childForFieldName("traits") !== null
+    }
+
     public inheritTraits(): Trait[] {
         if (this.name() === "BaseTrait") {
             return []
@@ -148,6 +152,42 @@ export class StorageMembersOwner extends NamedNode {
             .map(node => (node instanceof Trait ? node : new Trait(node.node, node.file)))
 
         return [...inheritTraits, ...baseTraitOrEmpty]
+    }
+
+    public positionForNextField(): Position | null {
+        const fields = this.ownFields()
+        if (fields.length === 0) {
+            const body = this.node.childForFieldName("body")
+            if (!body) return null
+
+            return {
+                line: body.startPosition.row + 1,
+                character: 0,
+            }
+        }
+
+        const lastField = fields.at(-1)
+        if (!lastField) return null
+
+        return {
+            line: lastField.node.startPosition.row + 1,
+            character: 0,
+        }
+    }
+
+    public positionForNextMethod(): Position | null {
+        const methods = this.ownMethods()
+        if (methods.length === 0) {
+            return this.positionForNextField()
+        }
+
+        const lastMethod = methods.at(-1)
+        if (!lastMethod) return null
+
+        return {
+            line: lastMethod.node.startPosition.row + 1,
+            character: 0,
+        }
     }
 }
 
@@ -394,6 +434,12 @@ export class Field extends NamedNode {
         const type = tlb.childForFieldName("type")
         if (!type) return "" // return "" here to show that type has incomplete `as`
         return type.text
+    }
+
+    public presentation(): string {
+        const typeNode = this.typeNode()?.node
+        const type = typeNode?.text ?? "unknown"
+        return `${this.name()}: ${type};`
     }
 
     public defaultValuePresentation(): string {

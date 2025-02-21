@@ -121,6 +121,7 @@ import {GetterCompletionProvider} from "@server/completion/providers/GetterCompl
 import {CompilerInspection} from "@server/inspections/CompilerInspection"
 import {setToolchain, toolchain} from "@server/toolchain"
 import {MistiInspection} from "@server/inspections/MistInspection"
+import {ImplementMembers} from "@server/intentions/ImplementMembers"
 
 /**
  * Whenever LS is initialized.
@@ -720,7 +721,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (
                 data.file === undefined ||
                 data.elementFile === undefined ||
-                data.name === undefined
+                data.name === undefined ||
+                data.position === undefined
             ) {
                 return item
             }
@@ -1335,6 +1337,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         new WrapSelectedToTry(),
         new WrapSelectedToTryCatch(),
         new WrapSelectedToRepeat(),
+        new ImplementMembers(),
     ]
 
     connection.onRequest(
