@@ -218,22 +218,7 @@ Setup steps:
 
 ## Troubleshooting
 
-Common issues:
-
-- Path to the language server is incorrect
-- Node.js is not installed
-- Language server wasn't built properly
-
-### Logs Location
-
-The language server generates logs that can help diagnose issues:
-
-- For standalone server: logs are written to `dist/tact-language-server.log` in the language server directory
-- For VS Code extension: logs can be found in:
-    - Windows: `%USERPROFILE%\.vscode\extensions\tact-[version]\dist\tact-language-server.log`
-    - macOS/Linux: `~/.vscode/extensions/tact-[version]/dist/tact-language-server.log`
-
-For more help, please [open an issue](https://github.com/tact-lang/tact-language-server/issues).
+See [TROUBLESHOOTING.md](./docs/manual/troubleshooting.md).
 
 # License
 
