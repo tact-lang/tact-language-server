@@ -6,7 +6,7 @@ This language server/extension provides support for the [Tact programming langua
 
 - [Semantic syntax highlighting]
 - [Code completion] with [auto import], [postfix completion], snippets, [imports completion]
-- Go to definition, implementation, type definition
+- Go to [definition], implementation, [type definition]
 - Find all references, workspace symbol search, symbol renaming
 - Types and documentation on hover
 - Inlay hints for types and parameter names
@@ -21,6 +21,8 @@ This language server/extension provides support for the [Tact programming langua
 [auto import]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#auto-import
 [postfix completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#postfix-completion
 [imports completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#imports-completion
+[definition]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/navigation.md#go-to-definition
+[type definition]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/navigation.md#go-to-type-definition
 [Lenses]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/code-lenses.md
 
 ## Quick start
