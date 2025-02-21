@@ -150,12 +150,12 @@ function processNode(
 export function processDocComment(
     tokens: Tokens,
     comment: {
-        content: string
+        lines: string[]
         startPosition: Position
     },
     parser: Parser,
 ): void {
-    const ast = parse(comment.content)
+    const ast = parse(comment.lines.join("\n"))
     ast.children.forEach(node => {
         if (node.type === "Paragraph") {
             node.children.forEach(child => {
