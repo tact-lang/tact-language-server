@@ -10,6 +10,9 @@ export interface TactSettings {
         compilerPath: string
         showShortCommitInStatusBar: boolean
     }
+    highlighting: {
+        highlightCodeInComments: boolean
+    }
     findUsages: {
         scope: FindUsagesScope
     }
@@ -58,6 +61,9 @@ export interface TactSettings {
 const defaultSettings: TactSettings = {
     stdlib: {
         path: null,
+    },
+    highlighting: {
+        highlightCodeInComments: true,
     },
     toolchain: {
         compilerPath: "",
@@ -114,6 +120,11 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
     return {
         stdlib: {
             path: vsSettings.stdlib?.path ?? defaultSettings.stdlib.path,
+        },
+        highlighting: {
+            highlightCodeInComments:
+                vsSettings.highlighting?.highlightCodeInComments ??
+                defaultSettings.highlighting.highlightCodeInComments,
         },
         toolchain: {
             compilerPath:
