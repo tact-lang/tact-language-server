@@ -387,8 +387,8 @@
         ]
     },
     "dependencies": {
-        "@textlint/markdown-to-ast": "^14.4.2",
         "@tact-lang/opcode": "^0.2.0",
+        "@textlint/markdown-to-ast": "^14.4.2",
         "glob": "^11.0.1",
         "vscode-languageclient": "^8.0.2",
         "vscode-languageserver": "^8.0.2",
