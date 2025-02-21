@@ -34,15 +34,17 @@ export class GetterCompletionProvider implements CompletionProvider {
             })
         })
 
-        result.add({
-            label: "state",
-            labelDetails: {
-                description: `generate getter for all contract state`,
-            },
-            kind: CompletionItemKind.Keyword,
-            insertText: `get fun contractState(): ${owner.name()} {\n\treturn self;\n}`,
-            insertTextFormat: InsertTextFormat.Snippet,
-            weight: CompletionWeight.CONTEXT_ELEMENT,
-        })
+        if (owner.node.type === "contract") {
+            result.add({
+                label: "state",
+                labelDetails: {
+                    description: `generate getter for all contract state`,
+                },
+                kind: CompletionItemKind.Keyword,
+                insertText: `get fun contractState(): ${owner.name()} {\n\treturn self;\n}`,
+                insertTextFormat: InsertTextFormat.Snippet,
+                weight: CompletionWeight.CONTEXT_ELEMENT,
+            })
+        }
     }
 }
