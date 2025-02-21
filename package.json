@@ -173,198 +173,244 @@
                 }
             ]
         },
-        "configuration": {
-            "title": "Tact",
-            "type": "object",
-            "properties": {
-                "tact.stdlib.path": {
-                    "type": "string",
-                    "default": null,
-                    "description": "Path to Tact standard library. If empty, will try to find in node_modules"
-                },
-                "tact.highlighting.highlightCodeInComments": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Highlight code in documentation comments"
-                },
-                "tact.toolchain.compilerPath": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Path to Tact compiler executable. If empty, will try to find in node_modules"
-                },
-                "tact.toolchain.showShortCommitInStatusBar": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Add short commit hash after Tact version in status bar"
-                },
-                "tact.hints.types": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show type hints for variables and expressions"
-                },
-                "tact.hints.parameters": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show parameter name hints in function calls"
-                },
-                "tact.hints.exitCodeFormat": {
-                    "type": "string",
-                    "enum": [
-                        "decimal",
-                        "hex"
-                    ],
-                    "default": "decimal",
-                    "description": "Format of exit codes in require() hints",
-                    "enumDescriptions": [
-                        "Show exit codes in decimal format (e.g. 1234)",
-                        "Show exit codes in hexadecimal format (e.g. 0x4D2)"
-                    ]
-                },
-                "tact.hints.showMethodId": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show method ID hints for contract functions"
-                },
-                "tact.hints.showGasConsumption": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show gas consumption hints for asm functions"
-                },
-                "tact.hints.showAsmInstructionGas": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show gas consumption hints for assembly instructions"
-                },
-                "tact.hints.showPushcontGas": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show gas consumption hints for PUSHCONT blocks"
-                },
-                "tact.hints.gasFormat": {
-                    "type": "string",
-                    "default": ": {gas}",
-                    "description": "Format string for gas consumption hints. Use {gas} as placeholder for the gas value and {stack} for the stack info",
-                    "examples": [
-                        "💨 {gas}",
-                        "Gas: {gas}",
-                        "⛽ {gas}",
-                        "{gas} gas units"
-                    ]
-                },
-                "tact.hints.showExitCodes": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show exit codes in require() call"
-                },
-                "tact.hints.showExplicitTLBIntType": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show explicit TL-B type hints (as int257) for Int fields"
-                },
-                "tact.codeLens.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable/disable all code lens"
-                },
-                "tact.codeLens.showUsages": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show number of usages for traits, structs, messages, constants and functions"
-                },
-                "tact.codeLens.showOverrides": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show number of overrides for virtual functions"
-                },
-                "tact.codeLens.showTraitImplementations": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show number of implementations for traits"
-                },
-                "tact.codeLens.showFunctionImplementations": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show number of implementations for abstract functions"
-                },
-                "tact.codeLens.showParentTraitFields": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show 'Go to parent' lens for fields inherited from traits"
-                },
-                "tact.codeLens.showParentTraitFunctions": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show 'Go to parent' lens for functions inherited from traits"
-                },
-                "tact.completion.typeAware": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Sort completion items by relevance to the current context type"
-                },
-                "tact.completion.addImports": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Automatically add necessary imports for symbols from other files"
-                },
-                "tact.inspections.disabled": {
-                    "type": "array",
-                    "items": {
+        "configuration": [
+            {
+                "title": "General",
+                "properties": {
+                    "tact.stdlib.path": {
+                        "type": "string",
+                        "default": null,
+                        "description": "Path to Tact standard library. If empty, will try to find in node_modules"
+                    }
+                }
+            },
+            {
+                "title": "Toolchain",
+                "properties": {
+                    "tact.toolchain.compilerPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Path to Tact compiler executable. If empty, will try to find in node_modules"
+                    },
+                    "tact.toolchain.showShortCommitInStatusBar": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Add short commit hash after Tact version in status bar"
+                    }
+                }
+            },
+            {
+                "title": "Editor › Hints",
+                "properties": {
+                    "tact.editor.hints.types": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show type hints for variables and expressions"
+                    },
+                    "tact.editor.hints.parameters": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show parameter name hints in function calls"
+                    },
+                    "tact.editor.hints.showExitCodes": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show exit codes in require() call"
+                    },
+                    "tact.editor.hints.exitCodeFormat": {
                         "type": "string",
                         "enum": [
-                            "tact-compiler-errors",
-                            "unused-parameter",
-                            "empty-block",
-                            "unused-variable",
-                            "struct-initialization",
-                            "unused-contract-members",
-                            "unused-import",
-                            "missed-field-in-contract",
-                            "not-imported-symbol"
+                            "decimal",
+                            "hex"
+                        ],
+                        "default": "decimal",
+                        "description": "Format of exit codes in require() calls",
+                        "enumDescriptions": [
+                            "Show exit codes in decimal format (e.g. 1234)",
+                            "Show exit codes in hexadecimal format (e.g. 0x4D2)"
                         ]
                     },
-                    "default": [],
-                    "description": "List of disabled code inspections. All inspections are enabled by default."
-                },
-                "tact.fift.hints.showGasConsumption": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show gas consumption hints for Fift instructions"
-                },
-                "tact.fift.semanticHighlighting.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable/disable semantic highlighting for Fift files"
-                },
-                "tact.documentSymbols.showStructFields": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show struct fields in document outline"
-                },
-                "tact.documentSymbols.showMessageFields": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show message fields in document outline"
-                },
-                "tact.findUsages.scope": {
-                    "type": "string",
-                    "enum": [
-                        "workspace",
-                        "everywhere"
-                    ],
-                    "enumDescriptions": [
-                        "Search only in workspace files (default)",
-                        "Search everywhere including standard library"
-                    ],
-                    "default": "workspace",
-                    "description": "Where to search when using Find Usages"
-                },
-                "tact.boc.openDecompiledOnOpen": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Automatically open decompiled Fift assembly when opening BoC files"
+                    "tact.editor.hints.showMethodId": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show method ID hints for contract functions"
+                    },
+                    "tact.editor.hints.showExplicitTLBIntType": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show explicit TL-B type hints (as int257) for Int fields"
+                    }
+                }
+            },
+            {
+                "title": "Editor › Gas Hints",
+                "properties": {
+                    "tact.editor.gasHints.showGasConsumption": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show gas consumption hints for asm functions"
+                    },
+                    "tact.editor.gasHints.showAsmInstructionGas": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show gas consumption hints for assembly instructions"
+                    },
+                    "tact.editor.gasHints.showPushcontGas": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show gas consumption hints for PUSHCONT blocks"
+                    },
+                    "tact.editor.gasHints.gasFormat": {
+                        "type": "string",
+                        "default": ": {gas}",
+                        "description": "Format string for gas consumption hints. Use {gas} as placeholder for the gas value and {stack} for the stack info",
+                        "examples": [
+                            "💨 {gas}",
+                            "Gas: {gas}",
+                            "⛽ {gas}",
+                            "{gas} gas units"
+                        ]
+                    }
+                }
+            },
+            {
+                "title": "Editor › Code Lenses",
+                "properties": {
+                    "tact.editor.codeLens.enabled": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable/disable all code lens"
+                    },
+                    "tact.editor.codeLens.showUsages": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show number of usages for traits, structs, messages, constants and functions"
+                    },
+                    "tact.editor.codeLens.showOverrides": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show number of overrides for virtual functions"
+                    },
+                    "tact.editor.codeLens.showTraitImplementations": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show number of implementations for traits"
+                    },
+                    "tact.editor.codeLens.showFunctionImplementations": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show number of implementations for abstract functions"
+                    },
+                    "tact.editor.codeLens.showParentTraitFields": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show 'Go to parent' lens for fields inherited from traits"
+                    },
+                    "tact.editor.codeLens.showParentTraitFunctions": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show 'Go to parent' lens for functions inherited from traits"
+                    }
+                }
+            },
+            {
+                "title": "Editor › Completion",
+                "properties": {
+                    "tact.editor.completion.typeAware": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Sort completion items by relevance to the current context type"
+                    },
+                    "tact.editor.completion.addImports": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Automatically add necessary imports for symbols from other files"
+                    }
+                }
+            },
+            {
+                "title": "Editor › Document",
+                "properties": {
+                    "tact.editor.document.showStructFields": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show struct fields in document outline"
+                    },
+                    "tact.editor.document.showMessageFields": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show message fields in document outline"
+                    }
+                }
+            },
+            {
+                "title": "Editor › Inspections",
+                "properties": {
+                    "tact.editor.inspections.disabled": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "tact-compiler-errors",
+                                "unused-parameter",
+                                "empty-block",
+                                "unused-variable",
+                                "struct-initialization",
+                                "unused-contract-members",
+                                "unused-import",
+                                "missed-field-in-contract",
+                                "not-imported-symbol"
+                            ]
+                        },
+                        "default": [],
+                        "description": "List of disabled code inspections. All inspections are enabled by default."
+                    }
+                }
+            },
+            {
+                "title": "Find Usages",
+                "properties": {
+                    "tact.findUsages.scope": {
+                        "type": "string",
+                        "enum": [
+                            "workspace",
+                            "everywhere"
+                        ],
+                        "enumDescriptions": [
+                            "Search only in workspace files (default)",
+                            "Search everywhere including standard library"
+                        ],
+                        "default": "workspace",
+                        "description": "Where to search when using Find Usages"
+                    }
+                }
+            },
+            {
+                "title": "Fift",
+                "properties": {
+                    "tact.fift.hints.showGasConsumption": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show gas consumption hints for Fift instructions"
+                    },
+                    "tact.fift.semanticHighlighting.enabled": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable/disable semantic highlighting for Fift files"
+                    }
+                }
+            },
+            {
+                "title": "BoC",
+                "properties": {
+                    "tact.boc.openDecompiledOnOpen": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Automatically open decompiled Fift assembly when opening BoC files"
+                    }
                 }
             }
-        },
+        ],
         "jsonValidation": [
             {
                 "fileMatch": [
