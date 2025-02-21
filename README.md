@@ -4,7 +4,7 @@ This language server/extension provides support for the [Tact programming langua
 
 ## Features
 
-- Semantic syntax highlighting
+- [Semantic syntax highlighting]
 - [Code completion] with [auto import], [postfix completion], snippets, [imports completion]
 - Go to definition, implementation, type definition
 - Find all references, workspace symbol search, symbol renaming
@@ -16,6 +16,7 @@ This language server/extension provides support for the [Tact programming langua
 - Building projects with Blueprint and Tact Template
 - Integration with Tact compiler and Misti static analyzer
 
+[Semantic syntax highlighting]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/highlighting.md
 [Code completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md
 [auto import]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#auto-import
 [postfix completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#postfix-completion
