@@ -67,11 +67,6 @@ export class TactCompiler {
     }
 
     public static async checkProject(): Promise<CompilerError[]> {
-        // if (existsSync("./tact.config.json")) {
-        //     console.warn("Tact config not found")
-        //     return []
-        // }
-
         return new Promise((resolve, reject) => {
             const process = cp.exec(
                 `${toolchain.compilerPath} --check --config ./tact.config.json`,

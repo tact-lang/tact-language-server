@@ -72,11 +72,6 @@ export class MistiAnalyzer {
     }
 
     public static async analyze(filePath: string): Promise<CompilerError[]> {
-        // if (existsSync("./tact.config.json")) {
-        //     console.warn("Tact config not found")
-        //     return []
-        // }
-
         const settings = await getDocumentSettings(`file://${filePath}`)
 
         return new Promise((resolve, reject) => {
