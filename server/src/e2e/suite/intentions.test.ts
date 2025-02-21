@@ -41,6 +41,23 @@ suite("Intentions Test Suite", () => {
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Intention: ${testCase.name}`, async () => {
+                if (testFile.includes("Import")) {
+                    await this.openFile(
+                        "other.tact",
+                        `
+                            trait ToImport {}
+
+                            trait WithSeveralDeclaration {}
+                        `,
+                    )
+                    await this.openFile(
+                        "other2.tact",
+                        `
+                            trait WithSeveralDeclaration {}
+                        `,
+                    )
+                }
+
                 const actions = await this.getCodeActions(testCase.input)
 
                 if (actions.length === 0) {
@@ -89,6 +106,11 @@ suite("Intentions Test Suite", () => {
                     })
                 } else {
                     assert.strictEqual(resultText.trim(), expected)
+                }
+
+                if (testFile.includes("Import")) {
+                    await this.closeFile("other.tact")
+                    await this.closeFile("other2.tact")
                 }
             })
         }

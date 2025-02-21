@@ -21,12 +21,41 @@ import {
 import type {Location, Position} from "vscode-languageclient"
 import type {ClientOptions} from "@shared/config-scheme"
 import {registerBuildTasks} from "./build-system"
+import {registerOpenBocCommand} from "./commands/openBocCommand"
+import {BocEditorProvider} from "./providers/BocEditorProvider"
+import {BocFileSystemProvider} from "./providers/BocFileSystemProvider"
+import {BocDecompilerProvider} from "./providers/BocDecompilerProvider"
+import {registerSaveBocDecompiledCommand} from "./commands/saveBocDecompiledCommand"
 
 let client: LanguageClient | null = null
 
 export function activate(context: vscode.ExtensionContext): void {
     startServer(context).catch(consoleError)
     registerBuildTasks(context)
+    registerOpenBocCommand(context)
+    registerSaveBocDecompiledCommand(context)
+
+    const config = vscode.workspace.getConfiguration("tact")
+    const openDecompiled = config.get<boolean>("boc.openDecompiledOnOpen")
+    if (openDecompiled) {
+        BocEditorProvider.register()
+
+        const bocFsProvider = new BocFileSystemProvider()
+        context.subscriptions.push(
+            vscode.workspace.registerFileSystemProvider("boc", bocFsProvider, {
+                isCaseSensitive: true,
+                isReadonly: false,
+            }),
+        )
+    }
+
+    const bocDecompilerProvider = new BocDecompilerProvider()
+    context.subscriptions.push(
+        vscode.workspace.registerTextDocumentContentProvider(
+            BocDecompilerProvider.scheme,
+            bocDecompilerProvider,
+        ),
+    )
 }
 
 export function deactivate(): Thenable<void> | undefined {

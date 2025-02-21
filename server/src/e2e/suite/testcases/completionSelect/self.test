@@ -1,0 +1,22 @@
+========================================================================
+Completion for contract field
+========================================================================
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        value<caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        self.value<caret>
+    }
+}

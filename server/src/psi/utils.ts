@@ -31,6 +31,27 @@ export function isNamedFunNode(node: SyntaxNode): boolean {
     )
 }
 
+export function isDocCommentOwner(node: SyntaxNode): boolean {
+    return (
+        node.type === "primitive" ||
+        node.type === "global_constant" ||
+        node.type === "native_function" ||
+        node.type === "asm_function" ||
+        node.type === "global_function" ||
+        node.type === "struct" ||
+        node.type === "message" ||
+        node.type === "contract" ||
+        node.type === "trait" ||
+        node.type === "trait" ||
+        node.type === "init_function" ||
+        node.type === "receive_function" ||
+        node.type === "bounced_function" ||
+        node.type === "external_function" ||
+        node.type === "storage_variable" ||
+        node.type === "storage_constant"
+    )
+}
+
 export function funNodesTypes(): string[] {
     return ["global_function", "asm_function", "native_function", "storage_function"]
 }

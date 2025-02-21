@@ -16,6 +16,8 @@ import {trimPrefix} from "@server/utils/strings"
 import * as compiler from "@server/compiler/utils"
 import {getDocumentSettings, TactSettings} from "@server/utils/settings"
 import {File} from "@server/psi/File"
+import {Position} from "vscode-languageclient"
+import {asLspPosition} from "@server/utils/position"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -306,14 +308,18 @@ function generateMemberDocFor(node: Node): string | null {
     return null
 }
 
-export function extractCommentsDoc(node: Node): string {
+export function extractCommentsDocContent(node: Node): {
+    lines: string[]
+    startPosition: Position
+} | null {
     const prevSibling = node.node.previousSibling
-    if (!prevSibling || prevSibling.type !== "comment") return ""
+    if (!prevSibling || prevSibling.type !== "comment") return null
+
+    const nodeStartLine = node.node.startPosition.row
 
     const comments: SyntaxNode[] = []
     let comment: SyntaxNode | null = prevSibling
     while (comment?.type === "comment") {
-        const nodeStartLine = node.node.startPosition.row
         const commentStartLine = comment.startPosition.row
 
         if (commentStartLine + 1 + comments.length != nodeStartLine) {
@@ -324,11 +330,23 @@ export function extractCommentsDoc(node: Node): string {
         comment = comment.previousSibling
     }
 
+    if (comments.length === 0) return null
+
     const finalComments = comments.reverse()
 
-    const lines = finalComments.map(c =>
-        trimPrefix(trimPrefix(trimPrefix(c.text, "///"), "//"), " ").trimEnd(),
-    )
+    return {
+        lines: finalComments.map(c =>
+            trimPrefix(trimPrefix(trimPrefix(c.text, "///"), "//"), " ").trimEnd(),
+        ),
+        startPosition: asLspPosition(comments[0].startPosition),
+    }
+}
+
+export function extractCommentsDoc(node: Node): string {
+    const content = extractCommentsDocContent(node)
+    if (!content) return ""
+
+    const lines = content.lines
 
     let result = ""
     let insideCodeBlock = false

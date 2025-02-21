@@ -503,6 +503,9 @@ fun test() {
 0  let
 0  primitive
 0  test
+0  ToImport
+0  trait
+0  WithSeveralDeclaration
 
 ========================================================================
 Completion in variable name 2
@@ -518,6 +521,9 @@ fun test() {
 0  let
 0  primitive
 0  test
+0  ToImport
+0  trait
+0  WithSeveralDeclaration
 
 ========================================================================
 Variable and function with the same name

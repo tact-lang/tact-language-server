@@ -103,7 +103,7 @@ import type {Intention, IntentionArguments, IntentionContext} from "@server/inte
 import {AddExplicitType} from "@server/intentions/AddExplicitType"
 import {AddImport} from "@server/intentions/AddImport"
 import {NotImportedSymbolInspection} from "@server/inspections/NotImportedSymbolInspection"
-import {FillAllStructInit, FillRequiredStructInit} from "@server/intentions/FillAllStructInit"
+import {FillFieldsStructInit, FillRequiredStructInit} from "@server/intentions/FillFieldsStructInit"
 import {generateInitDoc, generateReceiverDoc} from "@server/documentation/receivers_documentation"
 import {AsKeywordCompletionProvider} from "@server/completion/providers/AsKeywordCompletionProvider"
 import {AddFieldInitialization} from "@server/intentions/AddFieldInitialization"
@@ -117,6 +117,7 @@ import {InvalidToolchainError, setProjectStdlibPath, Toolchain} from "@server/to
 import {ImportPathCompletionProvider} from "@server/completion/providers/ImportPathCompletionProvider"
 import {FileDiff} from "@server/utils/FileDiff"
 import {CompletionItemAdditionalInformation} from "@server/completion/ReferenceCompletionProcessor"
+import {GetterCompletionProvider} from "@server/completion/providers/GetterCompletionProvider"
 import {CompilerInspection} from "@server/inspections/CompilerInspection"
 import {setToolchain, toolchain} from "@server/toolchain"
 import {MistiInspection} from "@server/inspections/MistInspection"
@@ -712,6 +713,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     connection.onRequest(
         lsp.CompletionResolveRequest.type,
         async (item: lsp.CompletionItem): Promise<lsp.CompletionItem> => {
+            if (!item.data) return item
             const data = item.data as CompletionItemAdditionalInformation
             if (
                 data.file === undefined ||
@@ -727,6 +729,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const file = findFile(data.file.uri)
             const elementFile = findFile(data.elementFile.uri)
 
+            // skip the same file element
+            if (file.uri === elementFile.uri) return item
             const importPath = elementFile.importPath(file)
             // already imported
             if (file.alreadyImport(importPath)) return item
@@ -823,6 +827,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 new ImportPathCompletionProvider(),
                 new MapTypeCompletionProvider(),
                 new BouncedTypeCompletionProvider(),
+                new GetterCompletionProvider(),
                 new ContractDeclCompletionProvider(),
                 new TopLevelFunctionCompletionProvider(),
                 new TopLevelCompletionProvider(),
@@ -848,13 +853,14 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    connection.languages.inlayHint.on(
+    connection.onRequest(
+        lsp.InlayHintRequest.type,
         async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
             const uri = params.textDocument.uri
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
                 const settings = await getDocumentSettings(uri)
-                return collectFiftInlays(file, settings.fift.hints)
+                return collectFiftInlays(file, settings.hints.gasFormat, settings.fift.hints)
             }
 
             const file = findFile(uri)
@@ -1296,14 +1302,15 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.SemanticTokensRequest.type,
         async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
             const uri = params.textDocument.uri
+            const settings = await getDocumentSettings(uri)
+
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
-                const settings = await getDocumentSettings(uri)
                 return collectFiftSemanticTokens(file, settings.fift.semanticHighlighting)
             }
 
             const file = findFile(uri)
-            return semantic.collect(file)
+            return semantic.collect(file, settings.highlighting)
         },
     )
 
@@ -1320,7 +1327,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     const intentions: Intention[] = [
         new AddExplicitType(),
         new AddImport(),
-        new FillAllStructInit(),
+        new FillFieldsStructInit(),
         new FillRequiredStructInit(),
         new AddFieldInitialization(),
         new WrapSelectedToTry(),

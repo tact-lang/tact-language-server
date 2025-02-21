@@ -1,0 +1,85 @@
+========================================================================
+Getter for Int field in contract
+========================================================================
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    val<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    get fun value(): Int {
+        return self.value;
+    }<caret>
+}
+
+========================================================================
+Getter for map field in contract
+========================================================================
+primitive Int;
+
+contract Foo {
+    value: map<Int, Int>;
+
+    val<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    value: map<Int, Int>;
+
+    get fun value(): map<Int, Int> {
+        return self.value;
+    }<caret>
+}
+
+========================================================================
+Getter for all state in contract
+========================================================================
+primitive Int;
+
+contract Foo {
+    value: Int;
+    other: Int;
+
+    state<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    value: Int;
+    other: Int;
+
+    get fun contractState(): Foo {
+        return self;
+    }<caret>
+}
+
+========================================================================
+Getter for Int field in trait
+========================================================================
+primitive Int;
+
+trait Foo {
+    value: Int;
+
+    val<caret>
+}
+------------------------------------------------------------------------
+primitive Int;
+
+trait Foo {
+    value: Int;
+
+    get fun value(): Int {
+        return self.value;
+    }<caret>
+}

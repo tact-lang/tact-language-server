@@ -1,0 +1,68 @@
+========================================================================
+initOf completion
+========================================================================
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initO<caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initOf <caret>()
+    }
+}
+
+========================================================================
+initOf name completion before ()
+========================================================================
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initOf <caret>
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initOf Foo()<caret>
+    }
+}
+
+========================================================================
+initOf name completion before ()
+========================================================================
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initOf <caret>()
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    value: Int;
+
+    fun foo() {
+        initOf Foo()<caret>
+    }
+}

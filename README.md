@@ -5,16 +5,22 @@ This language server/extension provides support for the [Tact programming langua
 ## Features
 
 - Semantic syntax highlighting
-- Code completion with auto import, postfix completion, snippets, paths completion
+- [Code completion] with [auto import], [postfix completion], snippets, [imports completion]
 - Go to definition, implementation, type definition
 - Find all references, workspace symbol search, symbol renaming
 - Types and documentation on hover
 - Inlay hints for types and parameter names
 - On-the-fly inspections with quick fixes
 - Signature help inside calls, `initOf` and struct initialization
-- Lenses with implementation/reference counts
+- [Lenses] with implementation/reference counts
 - Building projects with Blueprint and Tact Template
 - Integration with Tact compiler and Misti static analyzer
+
+[Code completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md
+[auto import]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#auto-import
+[postfix completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#postfix-completion
+[imports completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#imports-completion
+[Lenses]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/code-lenses.md
 
 ## Quick start
 
@@ -65,23 +71,31 @@ yarn package
 
 ## Editor Setup
 
-### Helix
+### Sublime Text
 
-1. Make sure you have Helix installed and configured
-2. Add the following configuration to your `~/.config/helix/languages.toml`:
+1. Install [LSP](https://packagecontrol.io/packages/LSP) package:
 
-    ```toml
-    [[language]]
-    name = "tact"
-    language-servers = ["tact-language-server"]
+    - Open Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
+    - Select "Package Control: Install Package"
+    - Search for and select "LSP"
 
-    [language-server.tact-language-server]
-    command = "node"
-    args = ["path/to/language-server/dist/server.js", "--stdio"]
+2. Install the `Tact` package via Package Control for syntax highlighting
+
+3. Add the following configuration to your LSP settings (`Preferences > Package Settings > LSP > Settings`):
+
+    ```json
+    {
+        "clients": {
+            "tact": {
+                "enabled": true,
+                "command": ["node", "path/to/language-server/dist/server.js", "--stdio"],
+                "selector": "source.tact"
+            }
+        }
+    }
     ```
 
-3. Replace `path/to/language-server` with the actual path where you cloned the repository
-4. Restart Helix for changes to take effect
+4. Create a new file with `.tact` extension to verify the setup
 
 ### Neovim
 
@@ -162,7 +176,8 @@ Setup steps:
         let g:lsp_format_sync_timeout = 1000
         autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
 
-        " refer to doc to add more commands
+        " Refer to doc to add more commands:
+        " https://github.com/prabirshrestha/vim-lsp#supported-commands
     endfunction
 
     augroup lsp_install
@@ -184,50 +199,27 @@ Setup steps:
     endif
     ```
 
-### Sublime Text
+### Helix
 
-1. Install [LSP](https://packagecontrol.io/packages/LSP) package:
+1. Make sure you have Helix installed and configured
+2. Add the following configuration to your `~/.config/helix/languages.toml`:
 
-    - Open Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
-    - Select "Package Control: Install Package"
-    - Search for and select "LSP"
+    ```toml
+    [[language]]
+    name = "tact"
+    language-servers = ["tact-language-server"]
 
-2. Install the `Tact` package via Package Control for syntax highlighting
-
-3. Add the following configuration to your LSP settings (`Preferences > Package Settings > LSP > Settings`):
-
-    ```json
-    {
-        "clients": {
-            "tact": {
-                "enabled": true,
-                "command": ["node", "path/to/language-server/dist/server.js", "--stdio"],
-                "selector": "source.tact"
-            }
-        }
-    }
+    [language-server.tact-language-server]
+    command = "node"
+    args = ["path/to/language-server/dist/server.js", "--stdio"]
     ```
 
-4. Create a new file with `.tact` extension to verify the setup
+3. Replace `path/to/language-server` with the actual path where you cloned the repository
+4. Restart Helix for changes to take effect
 
 ## Troubleshooting
 
-Common issues:
-
-- Path to the language server is incorrect
-- Node.js is not installed
-- Language server wasn't built properly
-
-### Logs Location
-
-The language server generates logs that can help diagnose issues:
-
-- For standalone server: logs are written to `dist/tact-language-server.log` in the language server directory
-- For VS Code extension: logs can be found in:
-    - Windows: `%USERPROFILE%\.vscode\extensions\tact-[version]\dist\tact-language-server.log`
-    - macOS/Linux: `~/.vscode/extensions/tact-[version]/dist/tact-language-server.log`
-
-For more help, please [open an issue](https://github.com/tact-lang/tact-language-server/issues).
+See [TROUBLESHOOTING.md](./docs/manual/troubleshooting.md).
 
 # License
 

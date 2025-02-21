@@ -8,6 +8,7 @@ import {FileDiff} from "@server/utils/FileDiff"
 import {Reference} from "@server/psi/Reference"
 import {Contract, Primitive} from "@server/psi/Decls"
 import type {Node as SyntaxNode} from "web-tree-sitter"
+import {index} from "@server/indexes"
 
 export class AddImport implements Intention {
     public readonly id: string = "tact.add-import"
@@ -30,7 +31,11 @@ export class AddImport implements Intention {
         if (resolved.file.uri === ctx.file.uri) return false
 
         const importPath = resolved.file.importPath(ctx.file)
-        return !ctx.file.alreadyImport(importPath) && !resolved.file.isImportedImplicitly()
+        return (
+            !ctx.file.alreadyImport(importPath) &&
+            !resolved.file.isImportedImplicitly() &&
+            !index.hasSeveralDeclarations(resolved.name())
+        )
     }
 
     public invoke(ctx: IntentionContext): WorkspaceEdit | null {

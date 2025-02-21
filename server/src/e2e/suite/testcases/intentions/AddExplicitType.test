@@ -1,0 +1,52 @@
+========================================================================
+Add variable type
+========================================================================
+primitive Int;
+
+fun foo() {
+    let <caret>a = 100;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun foo() {
+    let a: Int = 100;
+}
+
+========================================================================
+Add variable type with option type
+========================================================================
+primitive Int;
+
+fun getData(): Int? { return null; }
+
+fun foo() {
+    let <caret>a = getData();
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun getData(): Int? { return null; }
+
+fun foo() {
+    let a: Int? = getData();
+}
+
+========================================================================
+Add variable type with map type
+========================================================================
+primitive Int;
+
+fun getData(): map<Int, Int?> { return emptyMap(); }
+
+fun foo() {
+    let <caret>a = getData();
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun getData(): map<Int, Int?> { return emptyMap(); }
+
+fun foo() {
+    let a: map<Int, Int?> = getData();
+}

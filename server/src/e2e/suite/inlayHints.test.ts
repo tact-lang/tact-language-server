@@ -27,9 +27,12 @@ suite("Inlay Hints Test Suite", () => {
                     const hint = hints[x]
 
                     await this.editor.edit(editBuilder => {
-                        if (typeof hint.label === "string") {
-                            editBuilder.insert(hint.position, `/* ${hint.label} */`)
-                        }
+                        const label =
+                            typeof hint.label === "string"
+                                ? hint.label
+                                : hint.label.map(p => p.value).join("")
+
+                        editBuilder.insert(hint.position, `/* ${label} */`)
                     })
 
                     const updatedHints = await this.getHints(this.document.getText())
