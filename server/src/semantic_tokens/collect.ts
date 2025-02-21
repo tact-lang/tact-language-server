@@ -1,24 +1,24 @@
 import {RecursiveVisitor} from "@server/psi/visitor"
 import type {File} from "@server/psi/File"
 import {Reference} from "@server/psi/Reference"
-import type {Node as SyntaxNode} from "web-tree-sitter"
-import {NamedNode} from "@server/psi/Node"
+import {NamedNode, Node} from "@server/psi/Node"
 import * as lsp from "vscode-languageserver"
 import type {SemanticTokens} from "vscode-languageserver"
-import {isNamedFunNode} from "@server/psi/utils"
+import {isDocCommentOwner, isNamedFunNode} from "@server/psi/utils"
+import {createTactParser} from "@server/parser"
+import {extractCommentsDocContent} from "@server/documentation/documentation"
+import {processDocComment} from "@server/semantic_tokens/comments"
+import {Tokens} from "@server/semantic_tokens/tokens"
 
-export function collect(file: File): SemanticTokens {
-    const builder = new lsp.SemanticTokensBuilder()
+export function collect(
+    file: File,
+    highlighting: {
+        highlightCodeInComments: boolean
+    },
+): SemanticTokens {
+    const tokens = new Tokens()
 
-    function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes): void {
-        builder.push(
-            n.startPosition.row,
-            n.startPosition.column,
-            n.endPosition.column - n.startPosition.column,
-            Object.keys(lsp.SemanticTokenTypes).indexOf(tokenType),
-            0,
-        )
-    }
+    const parser = createTactParser()
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
         const type = n.type
@@ -26,61 +26,61 @@ export function collect(file: File): SemanticTokens {
         // asm fun foo() {}
         // ^^^ this
         if (type === "asm" && n.parent?.type === "asm_function") {
-            pushToken(n, lsp.SemanticTokenTypes.keyword)
+            tokens.node(n, lsp.SemanticTokenTypes.keyword)
             return true
         }
 
         if (type === "global_constant") {
             const name = n.childForFieldName("name")
             if (!name) return true
-            pushToken(name, lsp.SemanticTokenTypes.property)
+            tokens.node(name, lsp.SemanticTokenTypes.property)
             return true
         }
 
         if (type === "storage_function") {
             const name = n.childForFieldName("name")
             if (!name) return true
-            pushToken(name, lsp.SemanticTokenTypes.function)
+            tokens.node(name, lsp.SemanticTokenTypes.function)
             return true
         }
 
         if (type === "parameter") {
             const name = n.childForFieldName("name")
             if (!name) return true
-            pushToken(name, lsp.SemanticTokenTypes.parameter)
+            tokens.node(name, lsp.SemanticTokenTypes.parameter)
             return true
         }
 
         if (type === "let_statement") {
             const name = n.childForFieldName("name")
             if (!name) return true
-            pushToken(name, lsp.SemanticTokenTypes.variable)
+            tokens.node(name, lsp.SemanticTokenTypes.variable)
             return true
         }
 
         if (type === "field" || type === "storage_variable") {
             const name = n.childForFieldName("name")
             if (!name) return true
-            pushToken(name, lsp.SemanticTokenTypes.property)
+            tokens.node(name, lsp.SemanticTokenTypes.property)
             return true
         }
 
         if (type === "constant" || type === "storage_constant") {
             const name = n.childForFieldName("name")
             if (!name) return true
-            pushToken(name, lsp.SemanticTokenTypes.enumMember)
+            tokens.node(name, lsp.SemanticTokenTypes.enumMember)
             return true
         }
 
         // asm fun foo() { ONE }
         //                 ^^^ this
         if (type === "tvm_instruction") {
-            pushToken(n, lsp.SemanticTokenTypes.macro)
+            tokens.node(n, lsp.SemanticTokenTypes.macro)
             return true
         }
 
         if (type === "asm_stack_register") {
-            pushToken(n, lsp.SemanticTokenTypes.parameter)
+            tokens.node(n, lsp.SemanticTokenTypes.parameter)
             return true
         }
 
@@ -92,31 +92,43 @@ export function collect(file: File): SemanticTokens {
 
             switch (resolvedType) {
                 case "parameter": {
-                    pushToken(n, lsp.SemanticTokenTypes.parameter)
+                    tokens.node(n, lsp.SemanticTokenTypes.parameter)
                     break
                 }
                 case "field":
                 case "storage_variable": {
-                    pushToken(n, lsp.SemanticTokenTypes.property)
+                    tokens.node(n, lsp.SemanticTokenTypes.property)
                     break
                 }
                 case "constant":
                 case "storage_constant": {
-                    pushToken(n, lsp.SemanticTokenTypes.enumMember)
+                    tokens.node(n, lsp.SemanticTokenTypes.enumMember)
                     break
                 }
                 default: {
                     if (isNamedFunNode(resolved.node)) {
-                        pushToken(n, lsp.SemanticTokenTypes.function)
+                        tokens.node(n, lsp.SemanticTokenTypes.function)
                     } else if (resolved.node.parent?.type === "let_statement") {
-                        pushToken(n, lsp.SemanticTokenTypes.variable)
+                        tokens.node(n, lsp.SemanticTokenTypes.variable)
                     }
                 }
             }
         }
 
+        if (highlighting.highlightCodeInComments && isDocCommentOwner(n)) {
+            const node = new Node(n, file)
+
+            const comment = extractCommentsDocContent(node)
+            if (!comment) return true
+
+            processDocComment(tokens, comment, parser)
+        }
+
         return true
     })
 
-    return builder.build()
+    return {
+        resultId: Date.now().toString(),
+        data: tokens.result(),
+    }
 }

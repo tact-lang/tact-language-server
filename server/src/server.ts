@@ -696,6 +696,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     connection.onRequest(
         lsp.CompletionResolveRequest.type,
         async (item: lsp.CompletionItem): Promise<lsp.CompletionItem> => {
+            if (!item.data) return item
             const data = item.data as CompletionItemAdditionalInformation
             if (
                 data.file === undefined ||
@@ -1283,14 +1284,15 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.SemanticTokensRequest.type,
         async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
             const uri = params.textDocument.uri
+            const settings = await getDocumentSettings(uri)
+
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
-                const settings = await getDocumentSettings(uri)
                 return collectFiftSemanticTokens(file, settings.fift.semanticHighlighting)
             }
 
             const file = findFile(uri)
-            return semantic.collect(file)
+            return semantic.collect(file, settings.highlighting)
         },
     )
 

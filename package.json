@@ -182,6 +182,11 @@
                     "default": null,
                     "description": "Path to Tact standard library. If empty, will try to find in node_modules"
                 },
+                "tact.highlighting.highlightCodeInComments": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Highlight code in documentation comments"
+                },
                 "tact.toolchain.compilerPath": {
                     "type": "string",
                     "default": "",
@@ -383,6 +388,7 @@
     },
     "dependencies": {
         "@tact-lang/opcode": "^0.2.0",
+        "@textlint/markdown-to-ast": "^14.4.2",
         "glob": "^11.0.1",
         "vscode-languageclient": "^8.0.2",
         "vscode-languageserver": "^8.0.2",
