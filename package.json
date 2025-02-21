@@ -409,6 +409,26 @@
                         "description": "Automatically open decompiled Fift assembly when opening BoC files"
                     }
                 }
+            },
+            {
+                "title": "Linters",
+                "properties": {
+                    "tact.linters.compiler.enable": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable Tact compiler analysis"
+                    },
+                    "tact.linters.misti.enable": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable Misti static analyzer"
+                    },
+                    "tact.linters.misti.binPath": {
+                        "type": "string",
+                        "default": "npx misti",
+                        "description": "Path to Misti binary/command to run Misti"
+                    }
+                }
             }
         ],
         "jsonValidation": [

@@ -1,71 +1,54 @@
 import * as cp from "node:child_process"
+import {CompilerError, Severity, TactCompiler} from "@server/compiler/TactCompiler"
+import {getDocumentSettings} from "@server/utils/settings"
 
-export enum Severity {
-    INFO = 1,
-    LOW = 2,
-    MEDIUM = 3,
-    HIGH = 4,
-    CRITICAL = 5,
+export interface MistiJsonOutput {
+    readonly kind: "warnings"
+    readonly warnings: MistiProjectWarning[]
 }
 
-export interface CompilerError {
-    severity: Severity
-    line: number
-    character: number
-    message: string
-    file: string
-    length?: number
+export interface MistiProjectWarning {
+    readonly projectName?: string
+    readonly warnings: string[]
 }
 
-interface MistiJsonOutput {
-    kind: "warnings"
-    warnings: MistiProjectWarning[]
-}
-
-interface MistiProjectWarning {
-    projectName?: string
-    warnings: string[]
-}
-
-interface MistiWarning {
-    file: string
-    line: number | string
-    col: number | string
-    detectorId?: string
-    severity: string
-    message: string
+export interface MistiWarning {
+    readonly file: string
+    readonly line: number | string
+    readonly col: number | string
+    readonly detectorId?: string
+    readonly severity: string
+    readonly message: string
 }
 
 export class MistiAnalyzer {
     private static parseCompilerOutput(output: string): CompilerError[] {
         const errors: CompilerError[] = []
         const jsonStart = output.indexOf("{")
-        if (jsonStart === -1) {
-            return MistiAnalyzer.parseTactCompilerOutput(output)
+        const jsonEnd = output.lastIndexOf("}")
+        if (jsonStart === -1 || jsonEnd === -1) {
+            return TactCompiler.parseCompilerOutput(output)
         }
 
-        const jsonString = output.slice(jsonStart)
+        const jsonString = output.slice(jsonStart, jsonEnd + 1)
         try {
             const jsonData = JSON.parse(jsonString) as MistiJsonOutput
             for (const projectWarning of jsonData.warnings) {
                 if (!Array.isArray(projectWarning.warnings)) continue
 
-                for (const warningStr of projectWarning.warnings) {
+                for (const warningJSON of projectWarning.warnings) {
                     try {
-                        const warning = JSON.parse(warningStr) as MistiWarning
-                        const errorObj: CompilerError = {
-                            file: warning.file,
+                        const warning = JSON.parse(warningJSON) as MistiWarning
+                        errors.push({
+                            file: warning.file.trim(),
                             line: Number(warning.line) - 1,
                             character: Number(warning.col) - 1,
-                            message: `[${warning.severity.toUpperCase()}] ${warning.detectorId ? warning.detectorId + ": " : ""}${warning.message}`,
+                            message: `[${warning.severity.toUpperCase()}] ${warning.message}`,
+                            id: warning.detectorId ?? "",
                             severity: MistiAnalyzer.mapSeverity(warning.severity),
-                        }
-                        errors.push(errorObj)
-                        console.info(
-                            `[MistiAnalyzer] Parsed warning from JSON: ${JSON.stringify(errorObj)}`,
-                        )
+                        })
                     } catch {
-                        console.error(`Failed to parse internal warning: ${warningStr}`)
+                        console.error(`Failed to parse internal warning: ${warningJSON}`)
                     }
                 }
             }
@@ -75,85 +58,25 @@ export class MistiAnalyzer {
             console.error(`Failed to parse JSON output: ${error}`)
         }
 
-        return MistiAnalyzer.parseTactCompilerOutput(output)
-    }
-
-    private static parseTactCompilerOutput(output: string): CompilerError[] {
-        const errors: CompilerError[] = []
-        const lines = output.split("\n")
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i]
-            const match =
-                /^(Compilation error:|Syntax error:|Error:)\s*([^:]+):(\d+):(\d+):\s*(.+)$/.exec(
-                    line,
-                )
-            if (!match) continue
-            const prefix = match[1]
-            const file = match[2]
-            const lineNum = match[3]
-            const char = match[4]
-            const rawMessage = match[5]
-            let fullMessage = `${prefix} ${file}:${lineNum}:${char}: ${rawMessage}\n`
-            let contextFound = false
-            for (let j = i + 1; j < lines.length; j++) {
-                const nextLine = lines[j]
-                if (
-                    nextLine.startsWith("Compilation error:") ||
-                    nextLine.startsWith("Syntax error:") ||
-                    nextLine.startsWith("Error:")
-                )
-                    break
-                if (nextLine.includes("Line") || nextLine.includes("|") || nextLine.includes("^")) {
-                    contextFound = true
-                    fullMessage += nextLine + "\n"
-                    i = j
-                }
-            }
-            const error: CompilerError = {
-                file,
-                line: Number.parseInt(lineNum, 10) - 1,
-                character: Number.parseInt(char, 10) - 1,
-                message: fullMessage.trim(),
-                severity: Severity.HIGH,
-            }
-
-            if (contextFound) {
-                const caretLine = fullMessage.split("\n").find(l => l.includes("^"))
-                if (caretLine) error.length = caretLine.trim().length
-            }
-            errors.push(error)
-            console.info(`[MistiAnalyzer] Parsed error: ${JSON.stringify(error)}`)
-        }
-        return errors
+        return TactCompiler.parseCompilerOutput(output)
     }
 
     private static mapSeverity(sev: string): Severity {
-        switch (sev.toUpperCase()) {
-            case "INFO": {
-                return Severity.INFO
-            }
-            case "LOW": {
-                return Severity.LOW
-            }
-            case "MEDIUM": {
-                return Severity.MEDIUM
-            }
-            case "HIGH": {
-                return Severity.HIGH
-            }
-            case "CRITICAL": {
-                return Severity.CRITICAL
-            }
-            default: {
-                return Severity.HIGH
-            }
-        }
+        const s = sev.toUpperCase()
+        if (s === "INFO") return Severity.INFO
+        if (s === "LOW") return Severity.LOW
+        if (s === "MEDIUM") return Severity.MEDIUM
+        if (s === "HIGH") return Severity.HIGH
+        if (s === "CRITICAL") return Severity.CRITICAL
+        return Severity.HIGH
     }
 
-    public static async analyze(_filePath: string): Promise<CompilerError[]> {
+    public static async analyze(filePath: string): Promise<CompilerError[]> {
+        const settings = await getDocumentSettings(`file://${filePath}`)
+
         return new Promise((resolve, reject) => {
             const process = cp.exec(
-                `npx misti ./tact.config.json --output-format json`,
+                `${settings.linters.misti.binPath} ./tact.config.json --output-format json`,
                 (_error, stdout, stderr) => {
                     const output = stdout + "\n" + stderr
                     const errors = this.parseCompilerOutput(output)

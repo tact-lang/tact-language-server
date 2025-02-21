@@ -56,6 +56,15 @@ export interface TactSettings {
         showStructFields: boolean
         showMessageFields: boolean
     }
+    linters: {
+        compiler: {
+            enable: boolean
+        }
+        misti: {
+            enable: boolean
+            binPath: string
+        }
+    }
 }
 
 const defaultSettings: TactSettings = {
@@ -111,6 +120,15 @@ const defaultSettings: TactSettings = {
     documentSymbols: {
         showStructFields: false,
         showMessageFields: false,
+    },
+    linters: {
+        compiler: {
+            enable: false,
+        },
+        misti: {
+            enable: false,
+            binPath: "npx misti",
+        },
     },
 }
 
@@ -199,6 +217,16 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             showMessageFields:
                 vsSettings.documentSymbols?.showMessageFields ??
                 defaultSettings.documentSymbols.showMessageFields,
+        },
+        linters: {
+            compiler: {
+                enable:
+                    vsSettings.linters?.compiler.enable ?? defaultSettings.linters.compiler.enable,
+            },
+            misti: {
+                enable: vsSettings.linters?.misti.enable ?? defaultSettings.linters.misti.enable,
+                binPath: vsSettings.linters?.misti.binPath ?? defaultSettings.linters.misti.binPath,
+            },
         },
     }
 }

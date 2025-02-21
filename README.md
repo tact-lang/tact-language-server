@@ -14,6 +14,7 @@ This language server/extension provides support for the [Tact programming langua
 - Signature help inside calls, `initOf` and struct initialization
 - [Lenses] with implementation/reference counts
 - Building projects with Blueprint and Tact Template
+- Integration with Tact compiler and Misti static analyzer
 
 [Code completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md
 [auto import]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#auto-import

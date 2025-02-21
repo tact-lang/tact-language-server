@@ -1,65 +1,76 @@
 import * as cp from "node:child_process"
-import * as path from "node:path"
+import {toolchain} from "@server/toolchain"
 
-interface CompilerError {
-    line: number
-    character: number
-    message: string
-    file: string
-    length?: number
+export enum Severity {
+    INFO = 1,
+    LOW = 2,
+    MEDIUM = 3,
+    HIGH = 4,
+    CRITICAL = 5,
+}
+
+export interface CompilerError {
+    readonly line: number
+    readonly character: number
+    readonly message: string
+    readonly file: string
+    readonly length?: number
+    readonly id: string
+    readonly severity: Severity
 }
 
 export class TactCompiler {
-    private static parseCompilerOutput(output: string): CompilerError[] {
+    public static parseCompilerOutput(output: string): CompilerError[] {
         const errors: CompilerError[] = []
         const lines = output.split("\n")
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i]
-            const match = /^Error: ([^:]+):(\d+):(\d+): (.+)$/.exec(line)
+            const match =
+                /^(Compilation error:|Syntax error:|Error:)([^:]+):(\d+):(\d+): (.+)$/.exec(line)
             if (!match) continue
 
-            console.info(`[TactCompiler] Found error line: ${line}`)
-            const [, file, lineNum, char, rawMessage] = match
-            let fullMessage = `${file}:${lineNum}:${char}: ${rawMessage}\n`
-            let contextFound = false
+            const [, _, file, lineNum, char, message] = match
+
+            let length = 0
 
             for (let j = i + 1; j < lines.length; j++) {
                 const nextLine = lines[j]
-                if (nextLine.startsWith("Error:")) break
+                if (
+                    nextLine.startsWith("Compilation error:") ||
+                    nextLine.startsWith("Syntax error:") ||
+                    nextLine.startsWith("Error:")
+                ) {
+                    break
+                }
                 if (nextLine.includes("Line") || nextLine.includes("|") || nextLine.includes("^")) {
-                    contextFound = true
-                    fullMessage += nextLine + "\n"
                     i = j
+                }
+
+                if (nextLine.includes("^")) {
+                    length = nextLine.trim().length
                 }
             }
 
-            const error: CompilerError = {
-                file,
+            errors.push({
+                file: file.trim(),
                 line: Number.parseInt(lineNum, 10) - 1,
                 character: Number.parseInt(char, 10) - 1,
-                message: contextFound ? fullMessage.trim() : rawMessage,
-            }
-
-            if (contextFound) {
-                const caretLine = fullMessage.split("\n").find(l => l.includes("^"))
-                if (caretLine) error.length = caretLine.trim().length
-            }
-
-            errors.push(error)
-            console.info(`[TactCompiler] Parsed error: ${JSON.stringify(error)}`)
+                message,
+                length,
+                id: "",
+                severity: Severity.CRITICAL,
+            } satisfies CompilerError)
         }
 
         return errors
     }
 
-    public static async compile(_filePath: string): Promise<CompilerError[]> {
+    public static async checkProject(): Promise<CompilerError[]> {
         return new Promise((resolve, reject) => {
-            const tactPath = path.join(__dirname, "../node_modules/.bin/tact")
-
             const process = cp.exec(
-                `${tactPath} --check --config ./tact.config.json`,
-                (_1, _2, stderr) => {
+                `${toolchain.compilerPath} --check --config ./tact.config.json`,
+                (_error, _stdout, stderr) => {
                     const errors = this.parseCompilerOutput(stderr)
                     resolve(errors)
                 },
