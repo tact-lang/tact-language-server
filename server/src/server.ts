@@ -312,7 +312,7 @@ async function runInspections(uri: string, file: File): Promise<void> {
     }
 
     const asyncInspections = [
-        new CompilerInspection(),
+        ...(settings.linters.compiler.enable ? [new CompilerInspection()] : []),
         ...(settings.linters.misti.enable ? [new MistiInspection()] : []),
     ]
 
@@ -320,11 +320,13 @@ async function runInspections(uri: string, file: File): Promise<void> {
         if (settings.inspections.disabled.includes(inspection.id)) {
             continue
         }
-        diagnostics.push(...(await inspection.inspect(file)))
 
-        // inspection.inspect(file).then(diagnostics => {
-        //     connection.sendDiagnostics({uri, diagnostics}).then()
-        // })
+        const allDiagnostics = diagnostics
+
+        void inspection.inspect(file).then(diagnostics => {
+            allDiagnostics.push(...diagnostics)
+            void connection.sendDiagnostics({uri, diagnostics: allDiagnostics})
+        })
     }
 
     await connection.sendDiagnostics({uri, diagnostics})
