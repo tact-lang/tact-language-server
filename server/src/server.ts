@@ -122,6 +122,7 @@ import {
 import {ImportPathCompletionProvider} from "@server/completion/providers/ImportPathCompletionProvider"
 import {FileDiff} from "@server/utils/FileDiff"
 import {CompletionItemAdditionalInformation} from "@server/completion/ReferenceCompletionProcessor"
+import {GetterCompletionProvider} from "@server/completion/providers/GetterCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -810,6 +811,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 new ImportPathCompletionProvider(),
                 new MapTypeCompletionProvider(),
                 new BouncedTypeCompletionProvider(),
+                new GetterCompletionProvider(),
                 new ContractDeclCompletionProvider(),
                 new TopLevelFunctionCompletionProvider(),
                 new TopLevelCompletionProvider(),
