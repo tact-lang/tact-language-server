@@ -119,7 +119,7 @@ import {FileDiff} from "@server/utils/FileDiff"
 import {CompletionItemAdditionalInformation} from "@server/completion/ReferenceCompletionProcessor"
 import {GetterCompletionProvider} from "@server/completion/providers/GetterCompletionProvider"
 import {CompilerInspection} from "@server/inspections/CompilerInspection"
-import {setToolchain, toolchain} from "@server/toolchain"
+import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
 import {MistiInspection} from "@server/inspections/MistInspection"
 
 /**
@@ -184,6 +184,7 @@ async function initialize(): Promise<void> {
         // use fallback later, see `initializeFallback`
         return
     }
+    initialized = true
 
     const reporter = await connection.window.createWorkDoneProgress()
 
@@ -191,6 +192,8 @@ async function initialize(): Promise<void> {
 
     const rootUri = workspaceFolders[0].uri
     const rootDir = rootUri.slice(7)
+
+    setWorkspaceRoot(rootDir)
 
     const settings = await getDocumentSettings(rootUri)
 
@@ -243,8 +246,6 @@ async function initialize(): Promise<void> {
     CACHE.clear()
 
     reporter.done()
-
-    initialized = true
 }
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises

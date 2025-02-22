@@ -3,6 +3,9 @@ import type {File} from "@server/psi/File"
 import {TactCompiler} from "@server/compiler/TactCompiler"
 import {Inspection, InspectionIds} from "./Inspection"
 import {URI} from "vscode-uri"
+import {workspaceRoot} from "@server/toolchain"
+import * as path from "node:path"
+import {existsSync} from "node:fs"
 
 export class CompilerInspection implements Inspection {
     public readonly id: "tact-compiler-errors" = InspectionIds.COMPILER
@@ -10,9 +13,15 @@ export class CompilerInspection implements Inspection {
     public async inspect(file: File): Promise<lsp.Diagnostic[]> {
         if (file.fromStdlib) return []
 
+        const configPath = path.join(workspaceRoot, "tact.config.json")
+        const hasConfig = existsSync(configPath)
+
         try {
             const filePath = URI.parse(file.uri).fsPath
-            const errors = await TactCompiler.checkProject()
+
+            const errors = hasConfig
+                ? await TactCompiler.checkProject()
+                : await TactCompiler.checkFile(filePath)
 
             return errors
                 .filter(error => filePath.endsWith(error.file))

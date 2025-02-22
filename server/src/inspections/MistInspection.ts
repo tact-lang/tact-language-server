@@ -4,6 +4,10 @@ import {URI} from "vscode-uri"
 import {MistiAnalyzer} from "@server/compiler/MistiAnalyzer"
 import {Severity} from "@server/compiler/TactCompiler"
 import {Inspection, InspectionIds} from "@server/inspections/Inspection"
+import * as path from "node:path"
+import {workspaceRoot} from "@server/toolchain"
+import {existsSync} from "node:fs"
+import {getDocumentSettings} from "@server/utils/settings"
 
 export class MistiInspection implements Inspection {
     public readonly id: "misti" = InspectionIds.MISTI
@@ -11,9 +15,17 @@ export class MistiInspection implements Inspection {
     public async inspect(file: File): Promise<lsp.Diagnostic[]> {
         if (file.fromStdlib) return []
 
+        const configPath = path.join(workspaceRoot, "tact.config.json")
+        const hasConfig = existsSync(configPath)
+
+        const settings = await getDocumentSettings(file.uri)
+
         try {
             const filePath = URI.parse(file.uri).fsPath
-            const errors = await MistiAnalyzer.analyze(filePath)
+
+            const errors = hasConfig
+                ? await MistiAnalyzer.checkProject(settings)
+                : await MistiAnalyzer.checkFile(settings, filePath)
 
             return errors
                 .filter(error => filePath.endsWith(error.file))

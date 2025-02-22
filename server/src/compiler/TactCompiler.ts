@@ -66,15 +66,25 @@ export class TactCompiler {
         return errors
     }
 
+    public static async checkFile(path: string): Promise<CompilerError[]> {
+        return this.runCompilerCommand(toolchain.compilerPath, "--check", path)
+    }
+
     public static async checkProject(): Promise<CompilerError[]> {
+        return this.runCompilerCommand(
+            toolchain.compilerPath,
+            "--check",
+            "--config",
+            "./tact.config.json",
+        )
+    }
+
+    private static async runCompilerCommand(...args: string[]): Promise<CompilerError[]> {
         return new Promise((resolve, reject) => {
-            const process = cp.exec(
-                `${toolchain.compilerPath} --check --config ./tact.config.json`,
-                (_error, _stdout, stderr) => {
-                    const errors = this.parseCompilerOutput(stderr)
-                    resolve(errors)
-                },
-            )
+            const process = cp.exec(args.join(" "), (_error, _stdout, stderr) => {
+                const errors = this.parseCompilerOutput(stderr)
+                resolve(errors)
+            })
 
             process.on("error", error => {
                 console.error(`Failed to start compiler: ${error}`)
