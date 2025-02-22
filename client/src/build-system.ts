@@ -13,11 +13,13 @@ interface TaskProviderBase extends vscode.TaskProvider {
 
 export class BlueprintTaskProvider implements TaskProviderBase {
     public readonly taskType: string
+    public readonly name: string
     public readonly command: string
     public readonly group: vscode.TaskGroup
 
-    public constructor(command: string, group: vscode.TaskGroup) {
-        this.taskType = `blueprint-${command}`
+    public constructor(id: string, name: string, command: string, group: vscode.TaskGroup) {
+        this.taskType = `blueprint-${id}`
+        this.name = name
         this.command = command
         this.group = group
     }
@@ -45,11 +47,11 @@ export class BlueprintTaskProvider implements TaskProviderBase {
             type: this.taskType,
         }
 
-        const execution = new vscode.ShellExecution(`npx blueprint ${this.command}`)
+        const execution = new vscode.ShellExecution(this.command)
         const task = new vscode.Task(
             definition,
             vscode.TaskScope.Workspace,
-            this.command,
+            this.name,
             "Blueprint",
             execution,
         )
@@ -66,11 +68,13 @@ export class BlueprintTaskProvider implements TaskProviderBase {
 
 export class TactTemplateTaskProvider implements TaskProviderBase {
     public readonly taskType: string
+    public readonly name: string
     public readonly command: string
     public readonly group: vscode.TaskGroup
 
-    public constructor(command: string, group: vscode.TaskGroup) {
-        this.taskType = `tact-template-${command}`
+    public constructor(id: string, name: string, command: string, group: vscode.TaskGroup) {
+        this.taskType = `tact-template-${id}`
+        this.name = name
         this.command = command
         this.group = group
     }
@@ -98,11 +102,11 @@ export class TactTemplateTaskProvider implements TaskProviderBase {
             type: this.taskType,
         }
 
-        const execution = new vscode.ShellExecution(`yarn ${this.command}`)
+        const execution = new vscode.ShellExecution(this.command)
         const task = new vscode.Task(
             definition,
             vscode.TaskScope.Workspace,
-            this.command,
+            this.name,
             "Tact Template",
             execution,
         )
@@ -126,10 +130,49 @@ function registerTaskProvider(context: vscode.ExtensionContext, provider: TaskPr
 }
 
 export function registerBuildTasks(context: vscode.ExtensionContext): void {
-    registerTaskProvider(context, new BlueprintTaskProvider("build", vscode.TaskGroup.Build))
-    registerTaskProvider(context, new BlueprintTaskProvider("test", vscode.TaskGroup.Test))
-    registerTaskProvider(context, new TactTemplateTaskProvider("build", vscode.TaskGroup.Build))
-    registerTaskProvider(context, new TactTemplateTaskProvider("test", vscode.TaskGroup.Test))
+    registerTaskProvider(
+        context,
+        new BlueprintTaskProvider("build", "build", "npx blueprint build", vscode.TaskGroup.Build),
+    )
+    registerTaskProvider(
+        context,
+        new BlueprintTaskProvider(
+            "build-all",
+            "build all contracts",
+            "npx blueprint build --all",
+            vscode.TaskGroup.Build,
+        ),
+    )
+    registerTaskProvider(
+        context,
+        new BlueprintTaskProvider("test", "test", "npx blueprint test", vscode.TaskGroup.Test),
+    )
+    registerTaskProvider(
+        context,
+        new BlueprintTaskProvider(
+            "build-and-test-all",
+            "build and test all contracts",
+            "npx blueprint build --all && npx blueprint test",
+            vscode.TaskGroup.Build,
+        ),
+    )
+    registerTaskProvider(
+        context,
+        new TactTemplateTaskProvider("build", "build", "yarn build", vscode.TaskGroup.Build),
+    )
+    registerTaskProvider(
+        context,
+        new TactTemplateTaskProvider("test", "test", "yarn test", vscode.TaskGroup.Test),
+    )
+    registerTaskProvider(
+        context,
+        new TactTemplateTaskProvider(
+            "build-and-test",
+            "build and test",
+            "yarn build && yarn test",
+            vscode.TaskGroup.Build,
+        ),
+    )
 
     context.subscriptions.push(
         vscode.commands.registerCommand("tact.build", async () => {
