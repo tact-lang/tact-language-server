@@ -84,10 +84,12 @@ jobs:
 
           ${{ env.CHANGELOG }}
 
-          ## VS Code Extension
+          ## Installation
+
+          ### VS Code Extension
           - Download the .vsix file and install it through VS Code
 
-          ## Other Editors
+          ### Other Editors
           - Download tact-language-server-v${VERSION}.tar.gz (Linux/macOS) or tact-language-server-v${VERSION}.zip (Windows)
           - Extract it to a convenient location
           - Configure your editor to use the language server from the extracted folder" \
