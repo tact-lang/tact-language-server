@@ -248,6 +248,16 @@
                 }
             },
             {
+                "title": "Editor › Gas Calculation",
+                "properties": {
+                    "tact.gas.loopGasCoefficient": {
+                        "type": "number",
+                        "default": "5",
+                        "description": "The default number of iterations of loops for gas calculation"
+                    }
+                }
+            },
+            {
                 "title": "Editor › Gas Hints",
                 "properties": {
                     "tact.hints.showGasConsumption": {
@@ -260,10 +270,10 @@
                         "default": true,
                         "description": "Show gas consumption hints for assembly instructions"
                     },
-                    "tact.hints.showPushcontGas": {
+                    "tact.hints.showContinuationGas": {
                         "type": "boolean",
                         "default": true,
-                        "description": "Show gas consumption hints for PUSHCONT blocks"
+                        "description": "Show gas consumption hints for continuation blocks"
                     },
                     "tact.hints.gasFormat": {
                         "type": "string",

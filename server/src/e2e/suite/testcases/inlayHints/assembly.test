@@ -9,7 +9,7 @@ asm fun sum(two: AB): Int {
 ------------------------------------------------------------------------
 primitive Int;
 
-asm fun sum(two: AB): Int {
+asm fun sum(two: AB): Int {/*   18 gas */
     ADD/* : 18 */
 }
 
@@ -40,3 +40,80 @@ asm fun bocchiThe(BOC: Cell): Cell { BOC }
 primitive Int;
 
 asm fun bocchiThe(BOC: Cell): Cell { BOC/* : no data */ }
+
+========================================================================
+Assembly function with IF
+========================================================================
+primitive Int;
+
+asm fun foo() {
+    <{
+        10 PUSHINT
+    }>CONT
+    IF
+}
+------------------------------------------------------------------------
+primitive Int;
+
+asm fun foo() {/*   ~36 gas */
+    <{/* : 18 */
+        10 PUSHINT/* : 18 */
+    }>CONT
+    IF/* : 18 */
+}
+
+========================================================================
+Assembly function with IFELSE
+========================================================================
+primitive Int;
+
+asm fun foo() {
+    <{
+        10 PUSHINT
+    }>CONT
+    <{
+        10 PUSHINT
+        10 PUSHINT
+        10 PUSHINT
+        10 PUSHINT
+        10 PUSHINT
+    }>CONT
+    IFELSE
+}
+------------------------------------------------------------------------
+primitive Int;
+
+asm fun foo() {/*   ~108 gas */
+    <{/* : 18 */
+        10 PUSHINT/* : 18 */
+    }>CONT
+    <{/* : 90 */
+        10 PUSHINT/* : 18 */
+        10 PUSHINT/* : 18 */
+        10 PUSHINT/* : 18 */
+        10 PUSHINT/* : 18 */
+        10 PUSHINT/* : 18 */
+    }>CONT
+    IFELSE/* : 18 */
+}
+
+========================================================================
+Assembly function with UNTIL
+========================================================================
+primitive Int;
+
+asm fun foo() {
+    <{
+        10 PUSHINT
+        10 PUSHINT
+    }>CONT UNTIL
+}
+------------------------------------------------------------------------
+primitive Int;
+
+asm fun foo() {/*   ~198 gas */
+    <{/* : 36 */
+        10 PUSHINT/* : 18 */
+        10 PUSHINT/* : 18 */
+    }>CONT UNTIL/* : 18 */
+}

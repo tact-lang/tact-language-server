@@ -876,7 +876,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             const file = findFile(uri)
             const settings = await getDocumentSettings(uri)
-            return inlays.collect(file, settings.hints)
+            return inlays.collect(file, settings.hints, settings.gas)
         },
     )
 

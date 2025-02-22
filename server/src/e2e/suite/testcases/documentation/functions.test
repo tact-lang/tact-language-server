@@ -141,7 +141,7 @@ asm fun <caret>getOriginalFwdFee(fwdFee: Int, isMasterchain: Bool): Int { GETORI
 ```tact
 asm fun getOriginalFwdFee(fwdFee: Int, isMasterchain: Bool): Int { GETORIGINALFWDFEE }
 ```
-
+Gas: `~0`
 
 Calculates and returns the so-called _original_ forward fee in nanoToncoins `Int` for an outgoing message based on the `fwdFee` obtained from the incoming message. If both the source and the destination addresses are in the basechain, then specify `isMasterchain` as `false`. Otherwise, specify `true`.
 

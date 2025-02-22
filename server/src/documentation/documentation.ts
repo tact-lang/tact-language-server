@@ -93,7 +93,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const doc = extractCommentsDoc(node)
 
             const bodyPresentation = func.hasOneLineBody ? ` ${func.bodyPresentation}` : ""
-            const gas = func.computeGasConsumption()
+            const gas = func.computeGasConsumption(settings.gas)
 
             const presentation = gas.exact ? gas.value.toString() : `~${gas.value}`
             const gasPresentation = gas.unknown ? "" : `Gas: \`${presentation}\``

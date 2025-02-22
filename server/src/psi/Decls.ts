@@ -351,6 +351,12 @@ export class Fun extends NamedNode {
         return body.firstChild
     }
 
+    public closeBrace(): SyntaxNode | null {
+        const body = this.node.childForFieldName("body")
+        if (!body) return null
+        return body.lastChild
+    }
+
     public nameAttribute(): SyntaxNode | null {
         const attr = this.node.childForFieldName("name_attribute")
         if (!attr) return null
@@ -361,14 +367,13 @@ export class Fun extends NamedNode {
         return (crc16(Buffer.from(this.name())) & 0xff_ff) | 0x1_00_00
     }
 
-    public computeGasConsumption(): GasConsumption {
+    public computeGasConsumption(gas: {loopGasCoefficient: number}): GasConsumption {
         const body = this.node.childForFieldName("body")
         if (!body) {
             return {
                 value: 0,
                 unknown: true,
                 exact: false,
-                singleInstr: false,
             }
         }
 
@@ -377,7 +382,7 @@ export class Fun extends NamedNode {
             .filter(it => it !== null)
             .map(it => new AsmInstr(it, this.file))
 
-        return computeGasConsumption(instructions)
+        return computeGasConsumption(instructions, gas)
     }
 }
 
