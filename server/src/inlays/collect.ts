@@ -18,7 +18,7 @@ import type {Node as SyntaxNode} from "web-tree-sitter"
 import {computeSeqGasConsumption, instructionPresentation} from "@server/asm/gas"
 import * as compiler from "@server/compiler/utils"
 import {FileDiff} from "@server/utils/FileDiff"
-import {InlayHintLabelPart, MarkupKind} from "vscode-languageserver"
+import {InlayHintLabelPart, MarkupContent, MarkupKind} from "vscode-languageserver"
 import {Location} from "vscode-languageclient"
 import {asLspRange} from "@server/utils/position"
 import {URI} from "vscode-uri"
@@ -123,6 +123,11 @@ export function collect(
     if (!hints.types && !hints.parameters) return []
 
     const result: InlayHint[] = []
+
+    const gasHintTooltip: MarkupContent = {
+        kind: "markdown",
+        value: "Note that this value is approximate!\n\nLearn more about how LS calculates this: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/gas-calculation.md",
+    }
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
         const type = n.type
@@ -352,6 +357,7 @@ export function collect(
                     line: openBrace.endPosition.row,
                     character: openBrace.endPosition.column,
                 },
+                tooltip: gasHintTooltip,
                 paddingLeft: true,
             })
         }
@@ -400,6 +406,7 @@ export function collect(
                     line: openBrace.endPosition.row,
                     character: openBrace.endPosition.column,
                 },
+                tooltip: gasHintTooltip,
             })
             return true
         }
