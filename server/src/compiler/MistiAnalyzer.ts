@@ -1,6 +1,6 @@
 import * as cp from "node:child_process"
 import {CompilerError, Severity, TactCompiler} from "@server/compiler/TactCompiler"
-import {getDocumentSettings} from "@server/utils/settings"
+import {TactSettings} from "@server/utils/settings"
 
 export interface MistiJsonOutput {
     readonly kind: "warnings"
@@ -71,18 +71,27 @@ export class MistiAnalyzer {
         return Severity.HIGH
     }
 
-    public static async analyze(filePath: string): Promise<CompilerError[]> {
-        const settings = await getDocumentSettings(`file://${filePath}`)
+    public static async checkFile(settings: TactSettings, path: string): Promise<CompilerError[]> {
+        return this.runMistiCommand(settings.linters.misti.binPath, "--output-format", "json", path)
+    }
 
+    public static async checkProject(settings: TactSettings): Promise<CompilerError[]> {
+        return this.runMistiCommand(
+            settings.linters.misti.binPath,
+            "./tact.config.json",
+            "--output-format",
+            "json",
+        )
+    }
+
+    private static async runMistiCommand(...args: string[]): Promise<CompilerError[]> {
         return new Promise((resolve, reject) => {
-            const process = cp.exec(
-                `${settings.linters.misti.binPath} ./tact.config.json --output-format json`,
-                (_error, stdout, stderr) => {
-                    const output = stdout + "\n" + stderr
-                    const errors = this.parseCompilerOutput(output)
-                    resolve(errors)
-                },
-            )
+            const process = cp.exec(args.join(" "), (_error, stdout, stderr) => {
+                const output = stdout + "\n" + stderr
+                const errors = this.parseCompilerOutput(output)
+                resolve(errors)
+            })
+
             process.on("error", error => {
                 console.error(`Failed to start misti: ${error}`)
                 reject(error)
