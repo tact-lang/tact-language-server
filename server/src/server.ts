@@ -273,9 +273,18 @@ function findConfigFileDir(startPath: string, fileName: string): string | null {
 // So we need to find root first and then call initialize.
 async function initializeFallback(uri: string): Promise<void> {
     // let's try to initialize with this way
-    const projectDir = findConfigFileDir(path.dirname(uri.slice(7)), "tact.config.json")
+    const filepath = uri.slice(7)
+    const projectDir = findConfigFileDir(path.dirname(filepath), "tact.config.json")
     if (projectDir === null) {
-        console.info(`project directory not found`)
+        console.info(`project directory not found, use current directory`)
+        const dir = path.basename(filepath)
+        workspaceFolders = [
+            {
+                uri: `file://${dir}`,
+                name: path.basename(dir),
+            },
+        ]
+        await initialize()
         return
     }
 
