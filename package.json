@@ -190,7 +190,7 @@
                     "tact.toolchain.compilerPath": {
                         "type": "string",
                         "default": "",
-                        "description": "Path to Tact compiler executable. If empty, will try to find in node_modules"
+                        "description": "Path of Tact compiler executable. If empty, LS will try to use './node_modules/.bin/tact'"
                     },
                     "tact.toolchain.showShortCommitInStatusBar": {
                         "type": "boolean",
