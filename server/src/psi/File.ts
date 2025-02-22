@@ -71,7 +71,10 @@ export class File {
             .map(node => node.childForFieldName("library"))
             .filter(node => node !== null)
 
-        return imports.some(imp => imp.text.slice(1, -1) === filepath)
+        return imports.some(imp => {
+            const content = imp.text.slice(1, -1)
+            return content === filepath || content === `${filepath}.tact`
+        })
     }
 
     public imports(): SyntaxNode[] {
