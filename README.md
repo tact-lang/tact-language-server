@@ -13,6 +13,7 @@ This language server/extension provides support for the [Tact programming langua
 - On-the-fly inspections with quick fixes
 - Signature help inside calls, `initOf` and struct initialization
 - [Lenses] with implementation/reference counts
+- [Gas estimates] for assembly functions
 - Building projects with Blueprint and Tact Template
 - Integration with Tact compiler and Misti static analyzer
 
@@ -24,6 +25,7 @@ This language server/extension provides support for the [Tact programming langua
 [definition]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/navigation.md#go-to-definition
 [type definition]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/navigation.md#go-to-type-definition
 [Lenses]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/code-lenses.md
+[Gas estimates]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/gas-calculation.md
 
 ## Quick start
 
