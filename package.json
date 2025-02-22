@@ -113,8 +113,8 @@
         "commands": [
             {
                 "command": "tact.showParent",
-                "title": "Show Parent",
-                "category": "tact"
+                "title": "Show Parent Element",
+                "category": "Tact"
             },
             {
                 "command": "tact.build",
@@ -125,12 +125,12 @@
             {
                 "command": "tact/getTypeAtPosition",
                 "title": "Get Type At Position",
-                "category": "tact"
+                "category": "Tact"
             },
             {
                 "command": "tact/executeHoverProvider",
                 "title": "Get Documentation At Position",
-                "category": "tact"
+                "category": "Tact"
             },
             {
                 "command": "tact/executeGetScopeProvider",
@@ -139,16 +139,16 @@
             {
                 "command": "tact.build",
                 "title": "Build Tact Project",
-                "category": "tact"
+                "category": "Tact"
             },
             {
                 "command": "tact.openBocFile",
-                "title": "Open decompiled BoC file",
-                "category": "tact"
+                "title": "Open Decompiled BoC file",
+                "category": "Tact"
             },
             {
                 "command": "tact.saveBocDecompiled",
-                "title": "Decompile BoC to Fift assembly file",
+                "title": "Decompile BoC to Fift Assembly File",
                 "category": "Tact"
             }
         ],
