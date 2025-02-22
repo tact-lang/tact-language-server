@@ -27,6 +27,7 @@ export interface TactSettings {
         showExplicitTLBIntType: boolean
         gasFormat: string
         showPushcontGas: boolean
+        showToCellSize: boolean
     }
     codeLens: {
         enabled: boolean
@@ -92,6 +93,7 @@ const defaultSettings: TactSettings = {
         showExplicitTLBIntType: true,
         gasFormat: ": {gas}",
         showPushcontGas: true,
+        showToCellSize: true,
     },
     codeLens: {
         enabled: true,
@@ -172,6 +174,8 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             gasFormat: vsSettings.hints?.gasFormat ?? defaultSettings.hints.gasFormat,
             showPushcontGas:
                 vsSettings.hints?.showPushcontGas ?? defaultSettings.hints.showPushcontGas,
+            showToCellSize:
+                vsSettings.hints?.showToCellSize ?? defaultSettings.hints.showToCellSize,
         },
         codeLens: {
             enabled: vsSettings.codeLens?.enabled ?? defaultSettings.codeLens.enabled,

@@ -1,0 +1,36 @@
+========================================================================
+toCell call
+========================================================================
+primitive Int;
+primitive Address;
+
+message(0x7362d09c) TokenNotification {
+    query_id: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+}
+
+fun foo() {
+    const cell = TokenNotification{
+        query_id: 10,
+        amount: 20,
+        from: address(""),
+    }.toCell()
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+message(0x7362d09c) TokenNotification {
+    query_id: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+}
+
+fun foo() {
+    const cell = TokenNotification{
+        query_id: 10,
+        amount: 20,
+        from: address(""),
+    }.toCell()/*  Size: 325 bits plus up to 124 bits */
+}

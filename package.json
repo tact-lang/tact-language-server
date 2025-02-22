@@ -235,10 +235,15 @@
                         "default": true,
                         "description": "Show method ID hints for contract functions"
                     },
-                    "tact.hints.showExplicitTLBIntType": {
+                    "tact.hints.showExplicitTLbIntType": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show explicit TL-B type hints (as int257) for Int fields"
+                    },
+                    "tact.hints.showToCellSize": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show size in bits for `toCell()` calls"
                     }
                 }
             },

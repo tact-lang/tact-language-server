@@ -11,12 +11,16 @@ import type {
     InitFunction,
     Field,
 } from "@server/psi/Decls"
-import type {NamedNode} from "@server/psi/Node"
+import {NamedNode} from "@server/psi/Node"
+import {trimPrefix} from "@server/utils/strings"
+import {TypeInferer} from "@server/TypeInferer"
 
 export interface Ty {
     name(): string
 
     qualifiedName(): string
+
+    sizeOf(visited: Map<string, SizeOf>): SizeOf
 }
 
 export abstract class BaseTy<Anchor extends NamedNode> implements Ty {
@@ -35,12 +39,65 @@ export abstract class BaseTy<Anchor extends NamedNode> implements Ty {
     public qualifiedName(): string {
         return this._name
     }
+
+    public abstract sizeOf(_visited: Map<string, SizeOf>): SizeOf
+}
+
+export interface SizeOf {
+    readonly fixed: number
+    readonly floating: number
+}
+
+const CELL_SIZE: SizeOf = {fixed: 0, floating: 1023}
+
+export function sizeOfPresentation(size: SizeOf): string {
+    if (size.floating === 0) {
+        return `${size.fixed} bits`
+    }
+    return `${size.fixed} bits plus up to ${size.floating} bits`
+}
+
+function sizeOf(ty: Ty, visited: Map<string, SizeOf>): SizeOf {
+    const typeName = ty.qualifiedName()
+    const cached = visited.get(typeName)
+    if (cached) {
+        return cached
+    }
+
+    const actual = ty.sizeOf(visited)
+    visited.set(typeName, actual)
+    return actual
+}
+
+function mergeSizes(a: SizeOf, b: SizeOf): SizeOf {
+    if (a.floating === 0 && b.floating === 0) {
+        return {fixed: a.fixed + b.fixed, floating: 0}
+    }
+
+    return {fixed: a.fixed + b.fixed, floating: a.floating + b.floating}
 }
 
 export class FieldsOwnerTy<Anchor extends FieldsOwner> extends BaseTy<Anchor> {
     public fields(): Field[] {
         if (this.anchor === null) return []
         return this.anchor.fields()
+    }
+
+    public override sizeOf(visited: Map<string, SizeOf> = new Map()): SizeOf {
+        let res: SizeOf = {fixed: 0, floating: 0}
+
+        const fields = this.fields()
+        fields.forEach(field => {
+            const nameNode = field.nameNode()
+            if (!nameNode) return
+            const fieldTy = TypeInferer.inferType(nameNode)
+            if (!fieldTy) return
+
+            const size = sizeOf(fieldTy, visited)
+            res = mergeSizes(res, size)
+        })
+
+        return res
     }
 }
 
@@ -58,10 +115,6 @@ export class PrimitiveTy extends BaseTy<Primitive> {
     }
 
     public override name(): string {
-        if (this.tlb !== null) {
-            return `${this._name} as ${this.tlb}`
-        }
-
         return this._name
     }
 
@@ -72,9 +125,54 @@ export class PrimitiveTy extends BaseTy<Primitive> {
 
         return this._name
     }
+
+    public override sizeOf(_visited: Map<string, SizeOf>): SizeOf {
+        switch (this.name()) {
+            case "Int": {
+                if (this.tlb) {
+                    if (
+                        this.tlb === "coins" ||
+                        this.tlb === "varuint16" ||
+                        this.tlb === "varint16"
+                    ) {
+                        return {fixed: 4, floating: 124}
+                    }
+                    if (this.tlb === "varuint32" || this.tlb === "varint32") {
+                        return {fixed: 5, floating: 253}
+                    }
+
+                    const trimmed = trimPrefix(trimPrefix(this.tlb, "uint"), "int")
+                    const size = Number.parseInt(trimmed, 10)
+                    if (!Number.isNaN(size)) {
+                        return {fixed: size, floating: 0}
+                    }
+                }
+
+                return {fixed: 257, floating: 0}
+            }
+            case "Bool": {
+                return {fixed: 1, floating: 0}
+            }
+            case "Address": {
+                return {fixed: 257, floating: 0}
+            }
+            case "Cell":
+            case "Slice":
+            case "Builder":
+            case "String": {
+                return CELL_SIZE
+            }
+        }
+
+        return {fixed: 0, floating: 0}
+    }
 }
 
-export class PlaceholderTy extends BaseTy<NamedNode> {}
+export class PlaceholderTy extends BaseTy<NamedNode> {
+    public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
+        return {fixed: 0, floating: 0}
+    }
+}
 
 export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends BaseTy<Anchor> {
     public ownMethods(): Fun[] {
@@ -111,6 +209,10 @@ export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends B
         if (this.anchor === null) return null
         return this.anchor.initFunction()
     }
+
+    public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
+        return {fixed: 0, floating: 0}
+    }
 }
 
 export class TraitTy extends StorageMembersOwnerTy<Trait> {}
@@ -127,6 +229,10 @@ export class BouncedTy implements Ty {
     public qualifiedName(): string {
         return `bounced<${this.innerTy.qualifiedName()}>`
     }
+
+    public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
+        return this.innerTy.sizeOf(_visited)
+    }
 }
 
 export class OptionTy implements Ty {
@@ -138,6 +244,11 @@ export class OptionTy implements Ty {
 
     public qualifiedName(): string {
         return `${this.innerTy.qualifiedName()}?`
+    }
+
+    public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
+        const innerSizeOf = this.innerTy.sizeOf(_visited)
+        return mergeSizes(innerSizeOf, {fixed: 1, floating: 0}) // 1 bit for null/not-null
     }
 }
 
@@ -154,6 +265,10 @@ export class MapTy implements Ty {
     public qualifiedName(): string {
         return `map<${this.keyTy.qualifiedName()}, ${this.valueTy.qualifiedName()}>`
     }
+
+    public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
+        return CELL_SIZE
+    }
 }
 
 export class NullTy implements Ty {
@@ -163,5 +278,9 @@ export class NullTy implements Ty {
 
     public qualifiedName(): string {
         return "null"
+    }
+
+    public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
+        return {fixed: 0, floating: 0}
     }
 }

@@ -99,6 +99,7 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+13 name  generate getter for "name" field
 9  name: String; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
@@ -133,7 +134,9 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+13 age  generate getter for "age" field
 9  age: Int; of Grand
+13 name  generate getter for "name" field
 9  name: String; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
@@ -166,7 +169,10 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
+13 age  generate getter for "age" field
 9  age: Int; of Parent
+13 name  generate getter for "name" field
+13 name  generate getter for "name" field
 13 abstract fun name();
 13 bounced(msg: <type>) {}
 13 const Foo: <type> = <value>

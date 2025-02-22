@@ -37,7 +37,7 @@ export class AddExplicitType implements Intention {
         if (!inferredType) return null
 
         const diff = FileDiff.forFile(ctx.file.uri)
-        diff.appendTo(asLspPosition(name.endPosition), `: ${inferredType.name()}`)
+        diff.appendTo(asLspPosition(name.endPosition), `: ${inferredType.qualifiedName()}`)
 
         return diff.toWorkspaceEdit()
     }

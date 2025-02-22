@@ -1,6 +1,9 @@
 ========================================================================
 Struct documentation
 ========================================================================
+primitive String;
+primitive Int;
+
 /// Some cool struct
 struct <caret>Foo {
     name: String;
@@ -15,9 +18,14 @@ struct Foo {
 ```
 Some cool struct
 
+**Size**: 257 bits plus up to 1023 bits
+
 ========================================================================
 Message documentation
 ========================================================================
+primitive String;
+primitive Int;
+
 /// Some cool message
 message <caret>Foo {
     name: String;
@@ -32,9 +40,14 @@ message Foo {
 ```
 Some cool message
 
+**Size**: 257 bits plus up to 1023 bits
+
 ========================================================================
 Message with ID documentation
 ========================================================================
+primitive String;
+primitive Int;
+
 /// Some cool message
 message(0x178d4519) <caret>Foo {
     name: String;
@@ -48,6 +61,8 @@ message(0x178d4519) Foo {
 }
 ```
 Some cool message
+
+**Size**: 257 bits plus up to 1023 bits
 
 ========================================================================
 Field declaration

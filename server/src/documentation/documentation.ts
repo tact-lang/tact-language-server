@@ -18,6 +18,7 @@ import {getDocumentSettings, TactSettings} from "@server/utils/settings"
 import {File} from "@server/psi/File"
 import {Position} from "vscode-languageclient"
 import {asLspPosition} from "@server/utils/position"
+import {FieldsOwnerTy, sizeOfPresentation} from "@server/types/BaseTy"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -148,14 +149,16 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const doc = extractCommentsDoc(node)
             const struct = new Struct(node.node, node.file)
             const body = struct.body()?.text ?? ""
-            return defaultResult(`struct ${node.name()} ${body}`, doc)
+            const sizeDoc = documentationSizeOf(struct)
+            return defaultResult(`struct ${node.name()} ${body}`, doc + sizeDoc)
         }
         case "message": {
             const doc = extractCommentsDoc(node)
             const message = new Message(node.node, node.file)
             const body = message.body()?.text ?? ""
             const value = message.value()
-            return defaultResult(`message${value} ${node.name()} ${body}`, doc)
+            const sizeDoc = documentationSizeOf(message)
+            return defaultResult(`message${value} ${node.name()} ${body}`, doc + sizeDoc)
         }
         case "primitive": {
             const doc = extractCommentsDoc(node)
@@ -399,7 +402,14 @@ function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSetting
 
     const exitCode = compiler.requireFunctionExitCode(callNode, file, settings.hints.exitCodeFormat)
     if (!exitCode) return ""
-    return `Edit code: **${exitCode.value}**\n\n`
+    return `Exit code: **${exitCode.value}**\n\n`
+}
+
+function documentationSizeOf(struct: Struct): string {
+    const ty = new FieldsOwnerTy(struct.name(), struct)
+    const sizeOf = ty.sizeOf()
+    const sizeOfPres = sizeOfPresentation(sizeOf)
+    return `\n\n**Size**: ${sizeOfPres}`
 }
 
 function defaultResult(signature: string, documentation: string = ""): string {
