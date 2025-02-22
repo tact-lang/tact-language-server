@@ -277,7 +277,7 @@ async function initializeFallback(uri: string): Promise<void> {
     const projectDir = findConfigFileDir(path.dirname(filepath), "tact.config.json")
     if (projectDir === null) {
         console.info(`project directory not found, use file directory`)
-        const dir = path.basename(filepath)
+        const dir = path.dirname(filepath)
         workspaceFolders = [
             {
                 uri: `file://${dir}`,
