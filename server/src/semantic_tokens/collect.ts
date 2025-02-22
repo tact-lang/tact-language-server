@@ -84,6 +84,11 @@ export function collect(
             return true
         }
 
+        if (type === "asm_hex_bitstring") {
+            tokens.node(n, lsp.SemanticTokenTypes.string)
+            return true
+        }
+
         if (type === "identifier") {
             const element = new NamedNode(n, file)
             const resolved = Reference.resolve(element)

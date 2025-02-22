@@ -31,7 +31,7 @@ asm fun foo() {
 ------------------------------------------------------------------------
 primitive Int;
 
-asm fun foo() {
+asm fun foo() {/*   18 gas */
     10 PUSHINT/* : 18 */
 }
 
@@ -50,7 +50,7 @@ asm fun foo() {
 ------------------------------------------------------------------------
 primitive Int;
 
-asm fun foo() {
+asm fun foo() {/*   80 gas */
     <{/* : 54 */
         DROP2/* : 18 */ // drop `data` and `code`, since either of those is null
         NULL/* : 18 */  // push a single null
@@ -172,7 +172,7 @@ asm fun send(params: SendParameters) {
     SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
 }
 ------------------------------------------------------------------------
-asm fun send(params: SendParameters) {/*   1542 gas */
+asm fun send(params: SendParameters) {/*   ~2274 gas */
     // Instructions are grouped, and the stack states they produce as a group are shown right after.
     // In the end, our message Cell should have the following TL-B structure:
     // message$_ {X:Type}

@@ -103,6 +103,7 @@ export default tseslint.config(
             "unicorn/no-static-only-class": "off",
             "unicorn/no-keyword-prefix": "off",
             "unicorn/prefer-json-parse-buffer": "off",
+            "unicorn/no-array-reduce": "off",
         },
     },
 )

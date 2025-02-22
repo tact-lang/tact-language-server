@@ -15,7 +15,7 @@ import {
     Ty,
 } from "@server/types/BaseTy"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {calculatePushcontGas, instructionPresentation} from "@server/asm/gas"
+import {computeSeqGasConsumption, instructionPresentation} from "@server/asm/gas"
 import * as compiler from "@server/compiler/utils"
 import {FileDiff} from "@server/utils/FileDiff"
 import {InlayHintLabelPart, MarkupKind} from "vscode-languageserver"
@@ -113,8 +113,11 @@ export function collect(
         showExitCodes: boolean
         showExplicitTLBIntType: boolean
         gasFormat: string
-        showPushcontGas: boolean
+        showContinuationGas: boolean
         showToCellSize: boolean
+    },
+    gasSettings: {
+        loopGasCoefficient: number
     },
 ): InlayHint[] | null {
     if (!hints.types && !hints.parameters) return []
@@ -334,27 +337,28 @@ export function collect(
             return true
         }
 
+        if (type === "asm_sequence" && hints.showContinuationGas) {
+            const openBrace = n.firstChild
+            const closeBrace = n.lastChild
+            if (!openBrace || !closeBrace) return true
+            if (openBrace.startPosition.row === closeBrace.startPosition.row) return true
+
+            const gas = computeSeqGasConsumption(n, file, gasSettings)
+
+            result.push({
+                kind: InlayHintKind.Type,
+                label: instructionPresentation(gas.value.toString(), "", hints.gasFormat),
+                position: {
+                    line: openBrace.endPosition.row,
+                    character: openBrace.endPosition.column,
+                },
+                paddingLeft: true,
+            })
+        }
+
         if (type === "asm_expression" && hints.showAsmInstructionGas) {
             const instr = new AsmInstr(n, file)
             const info = instr.info()
-
-            if (instr.name() === "PUSHCONT" && hints.showPushcontGas) {
-                const gas = calculatePushcontGas(instr, file)
-                if (!gas) return true
-
-                const openBrace = instr.arguments()[0].firstChild
-                if (!openBrace) return true
-
-                result.push({
-                    kind: InlayHintKind.Type,
-                    label: instructionPresentation(gas.value.toString(), "", hints.gasFormat),
-                    position: {
-                        line: openBrace.endPosition.row,
-                        character: openBrace.endPosition.column,
-                    },
-                    paddingLeft: true,
-                })
-            }
 
             const presentation = instructionPresentation(
                 info?.doc.gas,
@@ -377,10 +381,15 @@ export function collect(
         if (type === "asm_function" && hints.showGasConsumption) {
             const func = new Fun(n, file)
             const openBrace = func.openBrace()
-            if (!openBrace) return true
+            const closeBrace = func.closeBrace()
+            if (!openBrace || !closeBrace) return true
+            if (openBrace.startPosition.row === closeBrace.startPosition.row) return true
 
-            const gas = func.computeGasConsumption()
-            if (gas.unknown || gas.singleInstr || gas.value === 0) return true
+            const gas = func.computeGasConsumption(gasSettings)
+            if (gas.unknown || gas.value === 0) {
+                console.log("here", gas)
+                return true
+            }
 
             const presentation = gas.exact ? `${gas.value} gas` : `~${gas.value} gas`
 
