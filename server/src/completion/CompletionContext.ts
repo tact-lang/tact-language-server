@@ -263,7 +263,7 @@ export class CompletionContext {
         if (!type) return false
 
         if (this.contextTy instanceof OptionTy && type instanceof OptionTy) {
-            return this.contextTy.innerTy.name() === type.innerTy.name()
+            return this.contextTy.innerTy.qualifiedName() === type.innerTy.qualifiedName()
         }
 
         if (this.contextTy instanceof MapTy && type instanceof MapTy) {
@@ -276,15 +276,15 @@ export class CompletionContext {
 
         if (type instanceof OptionTy) {
             // Int and Int?
-            return type.innerTy.name() === this.contextTy.name()
+            return type.innerTy.qualifiedName() === this.contextTy.qualifiedName()
         }
 
         if (this.contextTy instanceof OptionTy) {
             // Int? and Int
-            return this.contextTy.innerTy.name() === type.name()
+            return this.contextTy.innerTy.qualifiedName() === type.qualifiedName()
         }
 
-        return this.contextTy.name() === type.name()
+        return this.contextTy.qualifiedName() === type.qualifiedName()
     }
 
     public expression(): boolean {

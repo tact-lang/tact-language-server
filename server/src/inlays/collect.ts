@@ -5,7 +5,15 @@ import {TypeInferer} from "@server/TypeInferer"
 import {Reference} from "@server/psi/Reference"
 import {Field, Fun, InitFunction} from "@server/psi/Decls"
 import {AsmInstr, CallLike, Expression, NamedNode, Node, VarDeclaration} from "@server/psi/Node"
-import {BaseTy, BouncedTy, MapTy, OptionTy, PrimitiveTy, Ty} from "@server/types/BaseTy"
+import {
+    BaseTy,
+    BouncedTy,
+    MapTy,
+    OptionTy,
+    PrimitiveTy,
+    sizeOfPresentation,
+    Ty,
+} from "@server/types/BaseTy"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {calculatePushcontGas, instructionPresentation} from "@server/asm/gas"
 import * as compiler from "@server/compiler/utils"
@@ -67,6 +75,32 @@ function processParameterHints(
     }
 }
 
+function processToCellCall(call: CallLike, result: InlayHint[], showToCellSize: boolean): void {
+    if (!showToCellSize) return
+    if (call.node.type !== "method_call_expression" || call.name() !== "toCell") return
+
+    const qualifier = call.node.childForFieldName("object")
+    if (!qualifier) {
+        return
+    }
+
+    const ty = TypeInferer.inferType(new Expression(qualifier, call.file))
+    if (!ty) {
+        return
+    }
+
+    const sizeof = ty.sizeOf(new Map())
+    result.push({
+        kind: InlayHintKind.Parameter,
+        label: " Size: " + sizeOfPresentation(sizeof),
+        position: {
+            line: call.node.endPosition.row,
+            character: call.node.endPosition.column,
+        },
+        paddingLeft: true,
+    })
+}
+
 export function collect(
     file: File,
     hints: {
@@ -80,6 +114,7 @@ export function collect(
         showExplicitTLBIntType: boolean
         gasFormat: string
         showPushcontGas: boolean
+        showToCellSize: boolean
     },
 ): InlayHint[] | null {
     if (!hints.types && !hints.parameters) return []
@@ -234,6 +269,9 @@ export function collect(
             hints.showExitCodes
         ) {
             const call = new CallLike(n, file)
+
+            processToCellCall(call, result, hints.showToCellSize)
+
             const rawArgs = call.rawArguments()
             const args = rawArgs.filter(value => value.type === "argument")
             if (args.length === 0) return true // no arguments, no need to resolve anything

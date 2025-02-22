@@ -1,0 +1,327 @@
+========================================================================
+Simple struct sizeof
+========================================================================
+primitive Int;
+
+struct <caret>Foo {
+    value: Int;
+    value2: Int;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int;
+    value2: Int;
+}
+```
+
+
+**Size**: 514 bits
+
+========================================================================
+Struct with Bool sizeof
+========================================================================
+primitive Int;
+primitive Bool;
+
+struct <caret>Foo {
+    value: Int;
+    value2: Bool;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int;
+    value2: Bool;
+}
+```
+
+
+**Size**: 258 bits
+
+========================================================================
+Struct with coins sizeof
+========================================================================
+primitive Int;
+
+struct <caret>Foo {
+    value: Int as coins;
+    value2: Int;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int as coins;
+    value2: Int;
+}
+```
+
+
+**Size**: 261 bits plus up to 124 bits
+
+========================================================================
+Struct with varuint16 and varuint32 sizeof
+========================================================================
+primitive Int;
+
+struct <caret>Foo {
+    value: Int as varuint16;
+    value2: Int as varuint32;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int as varuint16;
+    value2: Int as varuint32;
+}
+```
+
+
+**Size**: 9 bits plus up to 377 bits
+
+========================================================================
+Struct with varint16 and varint32 sizeof
+========================================================================
+primitive Int;
+
+struct <caret>Foo {
+    value: Int as varint16;
+    value2: Int as varint32;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int as varint16;
+    value2: Int as varint32;
+}
+```
+
+
+**Size**: 9 bits plus up to 377 bits
+
+========================================================================
+Struct with int32 sizeof
+========================================================================
+primitive Int;
+
+struct <caret>Foo {
+    value: Int as int32;
+    value2: Int;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int as int32;
+    value2: Int;
+}
+```
+
+
+**Size**: 289 bits
+
+========================================================================
+Struct with int99 sizeof
+========================================================================
+primitive Int;
+
+struct <caret>Foo {
+    value: Int as int99;
+    value2: Int;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int as int99;
+    value2: Int;
+}
+```
+
+
+**Size**: 356 bits
+
+========================================================================
+Struct with Cell sizeof
+========================================================================
+primitive Int;
+primitive Cell;
+
+struct <caret>Foo {
+    value: Int;
+    value2: Cell;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int;
+    value2: Cell;
+}
+```
+
+
+**Size**: 257 bits plus up to 1023 bits
+
+========================================================================
+Struct with String sizeof
+========================================================================
+primitive Int;
+primitive String;
+
+struct <caret>Foo {
+    value: Int;
+    value2: String;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int;
+    value2: String;
+}
+```
+
+
+**Size**: 257 bits plus up to 1023 bits
+
+========================================================================
+Struct with Address sizeof
+========================================================================
+primitive Int;
+primitive Address;
+
+struct <caret>Foo {
+    value: Int;
+    value2: Address;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int;
+    value2: Address;
+}
+```
+
+
+**Size**: 514 bits
+
+========================================================================
+Struct with Option Cell sizeof
+========================================================================
+primitive Int;
+primitive Cell;
+
+struct <caret>Foo {
+    value: Int;
+    value2: Cell?;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int;
+    value2: Cell?;
+}
+```
+
+
+**Size**: 258 bits plus up to 1023 bits
+
+========================================================================
+Struct with Map sizeof
+========================================================================
+primitive Int;
+primitive Cell;
+
+struct <caret>Foo {
+    value: Int;
+    value2: map<Int, Int>;
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    value: Int;
+    value2: map<Int, Int>;
+}
+```
+
+
+**Size**: 257 bits plus up to 1023 bits
+
+========================================================================
+Real message sizeof
+========================================================================
+primitive Int;
+primitive Address;
+
+message(0x7bdd97de) <caret>TokenBurnNotification {
+    query_id: Int as uint64;
+    amount: Int as coins;
+    sender: Address;
+    response_destination: Address;
+}
+------------------------------------------------------------------------
+```tact
+message(0x7bdd97de) TokenBurnNotification {
+    query_id: Int as uint64;
+    amount: Int as coins;
+    sender: Address;
+    response_destination: Address;
+}
+```
+
+
+**Size**: 582 bits plus up to 124 bits
+
+========================================================================
+Real message sizeof 2
+========================================================================
+primitive Int;
+primitive Address;
+primitive Cell;
+
+message(0xd1735400) <caret>TakeWalletAddress {
+    query_id: Int as uint64;
+    wallet_address: Address;
+    owner_address: Cell?; // It is Maybe ^Address, just encoded it like this
+}
+------------------------------------------------------------------------
+```tact
+message(0xd1735400) TakeWalletAddress {
+    query_id: Int as uint64;
+    wallet_address: Address;
+    owner_address: Cell?; // It is Maybe ^Address, just encoded it like this
+}
+```
+
+
+**Size**: 322 bits plus up to 1023 bits
+
+========================================================================
+Real message sizeof 3
+========================================================================
+primitive Int;
+primitive Address;
+primitive Cell;
+primitive Slice;
+
+message(0xf8a7ea5) <caret>TokenTransfer {
+    query_id: Int as uint64;             // 64
+    amount: Int as coins;                // 4-124
+    destination: Address;                // 257
+    response_destination: Address?;      // 258
+    custom_payload: Cell?;               // 1-1024
+    forward_ton_amount: Int as coins;    // 4-124
+    forward_payload: Slice as remaining; // 0-1023
+}
+------------------------------------------------------------------------
+```tact
+message(0xf8a7ea5) TokenTransfer {
+    query_id: Int as uint64;             // 64
+    amount: Int as coins;                // 4-124
+    destination: Address;                // 257
+    response_destination: Address?;      // 258
+    custom_payload: Cell?;               // 1-1024
+    forward_ton_amount: Int as coins;    // 4-124
+    forward_payload: Slice as remaining; // 0-1023
+}
+```
+
+
+**Size**: 588 bits plus up to 2294 bits

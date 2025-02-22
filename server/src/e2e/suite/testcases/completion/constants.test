@@ -39,6 +39,7 @@ contract Foo {
     const<caret>
 }
 ------------------------------------------------------------------------
+13 state  generate getter for all contract state
 13 bounced(msg: <type>) {}
 13 const Foo: <type> = <value>
 13 external(msg: <type>) {}
