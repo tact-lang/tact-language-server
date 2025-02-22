@@ -72,8 +72,8 @@ export class File {
             .filter(node => node !== null)
 
         return imports.some(imp => {
-            const content = imp.text.slice(1, -1)
-            return content === filepath || content === `${filepath}.tact`
+            const importPath = imp.text.slice(1, -1)
+            return importPath === filepath || importPath === `${filepath}.tact`
         })
     }
 
