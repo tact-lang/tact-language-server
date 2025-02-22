@@ -465,6 +465,24 @@
                 ],
                 "priority": "default"
             }
+        ],
+        "taskDefinitions": [
+            {
+                "type": "blueprint-build",
+                "properties": {}
+            },
+            {
+                "type": "blueprint-test",
+                "properties": {}
+            },
+            {
+                "type": "tact-template-build",
+                "properties": {}
+            },
+            {
+                "type": "tact-template-test",
+                "properties": {}
+            }
         ]
     },
     "dependencies": {
