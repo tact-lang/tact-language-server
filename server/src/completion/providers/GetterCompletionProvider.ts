@@ -20,7 +20,7 @@ export class GetterCompletionProvider implements CompletionProvider {
 
         fields.forEach(field => {
             const type = field.typeNode()?.type()
-            if (!type) return
+            if (!type || field.name() === "DummyIdentifier") return
 
             result.add({
                 label: field.name(),
@@ -30,7 +30,7 @@ export class GetterCompletionProvider implements CompletionProvider {
                 kind: CompletionItemKind.Keyword,
                 insertText: `get fun ${field.name()}(): ${type.qualifiedName()} {\n\treturn self.${field.name()};\n}`,
                 insertTextFormat: InsertTextFormat.Snippet,
-                weight: CompletionWeight.CONTEXT_ELEMENT,
+                weight: CompletionWeight.SNIPPET,
             })
         })
 
@@ -43,7 +43,7 @@ export class GetterCompletionProvider implements CompletionProvider {
                 kind: CompletionItemKind.Keyword,
                 insertText: `get fun contractState(): ${owner.name()} {\n\treturn self;\n}`,
                 insertTextFormat: InsertTextFormat.Snippet,
-                weight: CompletionWeight.CONTEXT_ELEMENT,
+                weight: CompletionWeight.SNIPPET,
             })
         }
     }

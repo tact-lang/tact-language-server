@@ -126,6 +126,17 @@ export class CompletionContext {
         }
 
         if (parent.type === "storage_variable" || parent.type === "field") {
+            if (parent.text.includes("\n")) {
+                // hack for:
+                // contract Foo {
+                //     <caret>
+                //     field: Int;
+                // }
+                this.topLevelInTraitOrContract = true
+                this.isExpression = false
+                this.isStatement = false
+            }
+
             const type = parent.childForFieldName("type")
             if (type) {
                 this.contextTy = TypeInferer.inferType(new Expression(type, this.element.file))
