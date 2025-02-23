@@ -3,7 +3,7 @@ import * as path from "node:path"
 import {PARSED_FILES_CACHE} from "@server/index-root"
 import type {File} from "./File"
 import {existsSync} from "node:fs"
-import {trimPrefix} from "@server/utils/strings"
+import {trimPrefix, trimSuffix} from "@server/utils/strings"
 import {projectStdlibPath} from "@server/toolchain/toolchain"
 
 export class ImportResolver {
@@ -20,8 +20,11 @@ export class ImportResolver {
     }
 
     private static resolveLocalPath(file: File, localPath: string): string | null {
+        if (localPath.endsWith(".fc") || localPath.endsWith(".func")) return null
+
+        const withoutExt = trimSuffix(localPath, ".tact")
         const dir = path.dirname(file.path)
-        const targetPath = path.join(dir, localPath) + ".tact"
+        const targetPath = path.join(dir, withoutExt) + ".tact"
         return this.checkFile(targetPath)
     }
 
