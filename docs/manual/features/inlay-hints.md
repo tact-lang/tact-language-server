@@ -12,7 +12,7 @@ Shows inferred types for variables and expressions where type isn't explicitly s
 These hints are shown for:
 
 - Variable declarations (`let x = ...`)
-- Map iteration variables (`for (k, v) in map)`)
+- Foreach variables (`foreach (k, v in map)`)
 - Catch clause variables
 
 Type hints are not shown when the type is obvious:
