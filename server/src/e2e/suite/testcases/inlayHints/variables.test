@@ -50,3 +50,22 @@ struct Foo { value: Int/*  as int257 */ }
 fun foo() {
     let a = Foo { value: 10 };
 }
+
+========================================================================
+Local variable initialized with fromCell call
+========================================================================
+primitive Int;
+
+struct Foo { value: Int }
+
+fun foo() {
+    let a = Foo.fromCell(emptyCell());
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Foo { value: Int/*  as int257 */ }
+
+fun foo() {
+    let a = Foo.fromCell(emptyCell());
+}

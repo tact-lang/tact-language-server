@@ -101,6 +101,23 @@ function processToCellCall(call: CallLike, result: InlayHint[], showToCellSize: 
     })
 }
 
+function hasObviousType(expr: SyntaxNode): boolean {
+    // don't show a hint for:
+    // let params = SomeParams{}
+    if (expr.type === "instance_expression") return true
+
+    // don't show a hint for:
+    // let foo = Foo.fromCell(cell)
+    if (expr.type === "method_call_expression") {
+        const name = expr.childForFieldName("name")
+        if (name?.text === "fromCell") {
+            return true
+        }
+    }
+
+    return false
+}
+
 export function collect(
     file: File,
     hints: {
@@ -139,9 +156,7 @@ export function collect(
             const expr = decl.value()
             if (!expr) return true
 
-            // don't show hint for:
-            // let params = SomeParams{}
-            if (expr.node.type === "instance_expression") return true
+            if (hasObviousType(expr.node)) return true
 
             const name = decl.nameIdentifier()
             if (!name) return true
