@@ -72,4 +72,4 @@ All hint types can be configured or disabled in VS Code settings:
 
 Click any hint that references a definition (like type hints or parameter names) to navigate to its declaration.
 
-[hint-navigation.mov](../assets/hint-navigation.mov)
+https://github.com/user-attachments/assets/d4b26194-ff89-4901-a6a0-70546ee12921
