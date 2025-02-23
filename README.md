@@ -71,10 +71,20 @@ yarn install
 yarn build
 ```
 
-For VS Code extension, additionally run:
+To obtain the `.vsix` package with the VS Code extension, additionally run:
 
 ```shell
 yarn package
+```
+
+And then run either of those to install the extension from the `.vsix` package:
+
+```shell
+# VSCode
+code --install-extension vscode-tact-*.vsix
+
+# VSCodium
+codium --install-extension vscode-tact-*.vsix
 ```
 
 ## Editor Setup
@@ -99,7 +109,8 @@ yarn package
                 "command": ["node", "path/to/language-server/dist/server.js", "--stdio"],
                 "selector": "source.tact"
             }
-        }
+        },
+        "inhibit_snippet_completions": true
     }
     ```
 
