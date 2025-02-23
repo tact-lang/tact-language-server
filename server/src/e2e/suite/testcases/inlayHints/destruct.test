@@ -1,0 +1,53 @@
+========================================================================
+Simple destruct with single variable
+========================================================================
+primitive Int;
+
+struct Example {
+    number: Int = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { number } = get42();
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Example {
+    number: Int/*  as int257 */ = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { number/* : Int */ } = get42();
+}
+
+========================================================================
+Simple destruct with single renamed variable
+========================================================================
+primitive Int;
+
+struct Example {
+    number: Int = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { number: other } = get42();
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct Example {
+    number: Int/*  as int257 */ = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { number: other/* : Int */ } = get42();
+}

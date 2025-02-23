@@ -194,12 +194,15 @@ export function collect(
             const type = TypeInferer.inferType(fieldName)
             if (!type) return true
 
+            const target = n.childForFieldName("bind") ?? n.childForFieldName("name")
+            if (!target) return true
+
             result.push({
                 kind: InlayHintKind.Type,
                 label: typeHintParts(type),
                 position: {
-                    line: name.endPosition.row,
-                    character: name.endPosition.column,
+                    line: target.endPosition.row,
+                    character: target.endPosition.column,
                 },
             })
             return true
