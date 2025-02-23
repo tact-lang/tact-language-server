@@ -194,6 +194,11 @@ export function collect(
             const type = TypeInferer.inferType(fieldName)
             if (!type) return true
 
+            // let Foo { name: otherName } = foo()
+            //                 ^^^^^^^^^
+            // or
+            // let Foo { name } = foo()
+            //           ^^^^
             const target = n.childForFieldName("bind") ?? n.childForFieldName("name")
             if (!target) return true
 
