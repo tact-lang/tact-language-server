@@ -499,9 +499,6 @@ export class Reference {
     }
 
     public static findDestructField(bindNode: SyntaxNode, file: File, name: string): Field | null {
-        // resolving `let Foo { name } = foo()`
-        //                      ^^^^ this
-
         // `let Foo { name } = foo()`
         //  ^^^^^^^^^^^^^^^^^^^^^^^^ this
         const destructStatement = bindNode.parent?.parent
