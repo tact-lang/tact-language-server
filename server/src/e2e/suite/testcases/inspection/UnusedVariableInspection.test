@@ -53,3 +53,78 @@ fun foo() {
 3 1:8 to 1:9 Variable 'x' is never used (tact)
 3 2:8 to 2:9 Variable 'y' is never used (tact)
 3 4:8 to 4:9 Variable 'w' is never used (tact)
+
+========================================================================
+Unused variable from destruct inspection
+========================================================================
+primitive Int;
+
+struct Example {
+    number: Int = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { number } = get42();
+}
+------------------------------------------------------------------------
+3 9:18 to 9:24 Variable 'number' is never used (tact)
+
+========================================================================
+Unused variables from destruct inspection
+========================================================================
+primitive Int;
+
+struct Example {
+    number: Int = 0;
+    other: Int = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { number, other } = get42();
+}
+------------------------------------------------------------------------
+3 10:18 to 10:24 Variable 'number' is never used (tact)
+3 10:26 to 10:31 Variable 'other' is never used (tact)
+
+========================================================================
+Unused variables from destruct inspection 2
+========================================================================
+primitive Int;
+
+struct Example {
+    number: Int = 0;
+    other: Int = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { number, other } = get42();
+    dump(number);
+}
+------------------------------------------------------------------------
+3 10:26 to 10:31 Variable 'other' is never used (tact)
+
+========================================================================
+Unused variables from destruct inspection ok
+========================================================================
+primitive Int;
+
+struct Example {
+    number: Int = 0;
+    other: Int = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { number, other } = get42();
+    dump(number);
+    dump(other);
+}
+------------------------------------------------------------------------
+no issues

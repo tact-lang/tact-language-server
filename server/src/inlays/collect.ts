@@ -182,6 +182,37 @@ export function collect(
             return true
         }
 
+        if (type === "destruct_bind" && hints.types) {
+            const name = n.childForFieldName("name")
+            if (!name) return true
+
+            const field = Reference.findDestructField(n, file, name.text)
+            if (!field) return true
+
+            const fieldName = field.nameNode()
+            if (!fieldName) return true
+            const type = TypeInferer.inferType(fieldName)
+            if (!type) return true
+
+            // let Foo { name: otherName } = foo()
+            //                 ^^^^^^^^^
+            // or
+            // let Foo { name } = foo()
+            //           ^^^^
+            const target = n.childForFieldName("bind") ?? n.childForFieldName("name")
+            if (!target) return true
+
+            result.push({
+                kind: InlayHintKind.Type,
+                label: typeHintParts(type),
+                position: {
+                    line: target.endPosition.row,
+                    character: target.endPosition.column,
+                },
+            })
+            return true
+        }
+
         if ((type === "field" || type === "storage_variable") && hints.showExplicitTLBIntType) {
             const field = new Field(n, file)
             const typeNode = field.typeNode()

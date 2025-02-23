@@ -32,7 +32,7 @@ export class ReferenceCompletionProvider implements CompletionProvider {
 
         const kind = this.processFields(processor, state, ctx)
 
-        // process usual autocompletion for only non instance expressions
+        // process usual autocompletion for only non-instance expressions
         if (kind === CompletionKind.ALL) {
             this.ref.processResolveVariants(processor, state.withValue("completion", "true"))
         }

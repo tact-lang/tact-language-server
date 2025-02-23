@@ -53,6 +53,10 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             )
         }
 
+        if (this.ctx.inDestruct) {
+            return node instanceof Field
+        }
+
         // for non types context things like traits and primitives are prohibited
         if (node instanceof Trait || node instanceof Primitive) return false
         // but since structs and messages can be created like `Foo{}` we allow them

@@ -14,7 +14,7 @@ import {
 import {index, IndexKey} from "@server/indexes"
 import {Expression, NamedNode, Node} from "./Node"
 import type {File} from "./File"
-import {Contract, Field, Fun, Message, Struct, Trait} from "./Decls"
+import {Contract, Field, FieldsOwner, Fun, Message, Struct, Trait} from "./Decls"
 import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "@server/cache"
 import {TypeInferer} from "@server/TypeInferer"
@@ -347,6 +347,11 @@ export class Reference {
             //        ^^^^^^^^ this
             if (!this.resolveInstanceInitField(parent, proc, state)) return false
         }
+        if (parent?.type === "destruct_bind") {
+            // `let Foo { name } = foo()`
+            //            ^^^^ this
+            if (!this.resolveDestructField(parent, proc, state)) return false
+        }
 
         if (this.element.node.type === "initOf" && this.element.node.text === "initOf") {
             const resolved = Reference.resolveInitOf(this.element.node, this.element.file)
@@ -443,17 +448,78 @@ export class Reference {
         if (!typeExpr) return true
 
         const resolvedType = Reference.resolve(new NamedNode(typeExpr, this.element.file))
-        if (resolvedType === null) return true
+        if (!resolvedType) return true
+        if (!(resolvedType instanceof FieldsOwner)) return true
 
-        const body = resolvedType.node.childForFieldName("body")
-        if (!body) return true
-        const fields = body.children.slice(1, -1)
-
-        for (const field of fields) {
-            if (!field) continue
-            if (!proc.execute(new Field(field, resolvedType.file), state)) return false
+        for (const field of resolvedType.fields()) {
+            if (!proc.execute(field, state)) return false
         }
         return true
+    }
+
+    private resolveDestructField(
+        parent: SyntaxNode,
+        proc: ScopeProcessor,
+        state: ResolveState,
+    ): boolean {
+        // resolving `let Foo { name } = foo()`
+        //                      ^^^^ this
+
+        const name = parent.childForFieldName("name")
+        if (!name) return true
+
+        // `let Foo { name } = foo()`
+        //  ^^^^^^^^^^^^^^^^^^^^^^^^ this
+        const destructStatement = parent.parent?.parent
+        if (!destructStatement) return true
+
+        // `let Foo { name } = foo()`
+        //      ^^^ this
+        const typeExpr = destructStatement.childForFieldName("name")
+        if (!typeExpr) return true
+
+        // `let Foo { name: bindName } = foo()`
+        //                  ^^^^^^^^ this
+        const bindName = parent.childForFieldName("bind")
+
+        // `let Foo { name: bindName } = foo()`
+        //            ^^^^^ resolve this as field
+        if ((bindName && name.equals(this.element.node)) || state.get("completion")) {
+            const resolvedType = Reference.resolve(new NamedNode(typeExpr, this.element.file))
+            if (!resolvedType) return true
+            if (!(resolvedType instanceof FieldsOwner)) return true
+
+            for (const field of resolvedType.fields()) {
+                if (!proc.execute(field, state)) return false
+            }
+            return true
+        }
+
+        return true
+    }
+
+    public static findDestructField(bindNode: SyntaxNode, file: File, name: string): Field | null {
+        // `let Foo { name } = foo()`
+        //  ^^^^^^^^^^^^^^^^^^^^^^^^ this
+        const destructStatement = bindNode.parent?.parent
+        if (!destructStatement) return null
+
+        // `let Foo { name } = foo()`
+        //      ^^^ this
+        const typeExpr = destructStatement.childForFieldName("name")
+        if (!typeExpr) return null
+
+        const resolvedType = Reference.resolve(new NamedNode(typeExpr, file))
+        if (!resolvedType) return null
+        if (!(resolvedType instanceof FieldsOwner)) return null
+
+        for (const field of resolvedType.fields()) {
+            if (field.name() === name) {
+                return field
+            }
+        }
+
+        return null
     }
 
     private resolveAsmArrangementArgs(
@@ -532,6 +598,36 @@ export class Reference {
                         const name = stmt.childForFieldName("name")
                         if (name === null) break
                         if (!proc.execute(new NamedNode(name, file), state)) return false
+                    }
+
+                    if (stmt.type === "destruct_statement") {
+                        // let Foo { name, other: value } = foo()
+                        //         ^^^^^^^^^^^^^^^^^^^^^^ this
+                        const bindList = stmt.childForFieldName("binds")
+                        if (!bindList) break
+
+                        // let Foo { name, other: value } = foo()
+                        //           ^^^^^ ^^^^^^^^^^^^ this
+                        const bindings = bindList.children
+                            .filter(it => it?.type === "destruct_bind")
+                            .filter(it => it !== null)
+
+                        for (const bind of bindings) {
+                            // let Foo { name, other: value } = foo()
+                            //                        ^^^^^
+                            // or
+                            // let Foo { name, other: value } = foo()
+                            //           ^^^^
+                            const actualName =
+                                bind.childForFieldName("bind") ?? bind.childForFieldName("name")
+
+                            if (
+                                actualName &&
+                                !proc.execute(new NamedNode(actualName, file), state)
+                            ) {
+                                return false
+                            }
+                        }
                     }
                 }
             }
