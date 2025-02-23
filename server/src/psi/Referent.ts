@@ -161,6 +161,12 @@ export class Referent {
             if (parent.type === "primitive" && parent.childForFieldName("type")?.equals(node)) {
                 return true
             }
+            if (parent.type === "destruct_bind") {
+                const target = parent.childForFieldName("bind") ?? parent.childForFieldName("name")
+                if (target && target.equals(node)) {
+                    return true
+                }
+            }
             // prettier-ignore
             if ((
                 parent.type === "let_statement" ||
@@ -233,6 +239,15 @@ export class Referent {
         if (parent === null) return null
 
         if (parent.type === "let_statement") {
+            // search only in outer block/function
+            return Referent.localSearchScope(
+                parentOfType(parent, "function_body", "block_statement"),
+            )
+        }
+
+        // let Foo { name, other: value } = foo()
+        //           ^^^^  ^^^^^^^^^^^^^
+        if (parent.type === "destruct_bind") {
             // search only in outer block/function
             return Referent.localSearchScope(
                 parentOfType(parent, "function_body", "block_statement"),

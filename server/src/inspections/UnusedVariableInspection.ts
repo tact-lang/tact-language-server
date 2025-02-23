@@ -9,6 +9,20 @@ export class UnusedVariableInspection extends UnusedInspection implements Inspec
 
     protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
         RecursiveVisitor.visit(file.rootNode, node => {
+            if (node.type === "destruct_bind") {
+                // let Foo { name: otherName } = foo()
+                //                 ^^^^^^^^^
+                // or
+                // let Foo { name } = foo()
+                //           ^^^^
+                const target = node.childForFieldName("bind") ?? node.childForFieldName("name")
+                this.checkUnused(target, file, diagnostics, {
+                    kind: "Variable",
+                    code: "unused-variable",
+                })
+                return
+            }
+
             if (node.type !== "let_statement") {
                 return
             }

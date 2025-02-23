@@ -32,6 +32,7 @@ export class CompletionContext {
     public isInitOfName: boolean = false
     public afterFieldType: boolean = false
     public insideImport: boolean = false
+    public inDestruct: boolean = false
 
     public contextTy: Ty | null = null
 
@@ -184,6 +185,12 @@ export class CompletionContext {
 
         if (parent.type === "import") {
             this.insideImport = true
+        }
+
+        if (parent.type === "destruct_bind") {
+            this.inDestruct = true
+            this.isExpression = false
+            this.isStatement = false
         }
 
         if (

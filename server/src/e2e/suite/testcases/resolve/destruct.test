@@ -1,0 +1,39 @@
+========================================================================
+Simple destruct with single variable
+========================================================================
+primitive Int;
+
+struct Example {
+    number: Int = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { <caret>number } = get42();
+    <caret>number;
+}
+------------------------------------------------------------------------
+9:18 -> 9:18 resolved
+10:4 -> 9:18 resolved
+
+========================================================================
+Simple destruct with single renamed variable
+========================================================================
+primitive Int;
+
+struct Example {
+    number: Int = 0;
+}
+
+fun get42(): Example { return Example{} }
+
+fun foo() {
+    let Example { <caret>number: other } = get42();
+    <caret>number;
+    <caret>other;
+}
+------------------------------------------------------------------------
+9:18 -> 3:4 resolved
+10:4 unresolved
+11:4 -> 9:26 resolved
