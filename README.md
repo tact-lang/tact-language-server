@@ -80,11 +80,11 @@ yarn package
 And then run either of those to install the extension from the `.vsix` package:
 
 ```shell
-# VSCode
-code --install-extension vscode-tact-*.vsix
+# VSCode, replace VERSION with actual version from package.json
+code --install-extension vscode-tact-VERSION.vsix
 
-# VSCodium
-codium --install-extension vscode-tact-*.vsix
+# VSCodium, replace VERSION with actual version from package.json
+codium --install-extension vscode-tact-VERSION.vsix
 ```
 
 ## Editor Setup
