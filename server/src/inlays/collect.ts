@@ -101,7 +101,7 @@ function processToCellCall(call: CallLike, result: InlayHint[], showToCellSize: 
     })
 }
 
-function isObviousType(expr: SyntaxNode): boolean {
+function hasObviousType(expr: SyntaxNode): boolean {
     // don't show a hint for:
     // let params = SomeParams{}
     if (expr.type === "instance_expression") return true
@@ -156,7 +156,7 @@ export function collect(
             const expr = decl.value()
             if (!expr) return true
 
-            if (isObviousType(expr.node)) return true
+            if (hasObviousType(expr.node)) return true
 
             const name = decl.nameIdentifier()
             if (!name) return true
