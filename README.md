@@ -9,7 +9,7 @@ This language server/extension provides support for the [Tact programming langua
 - Go to [definition], implementation, [type definition]
 - Find all references, workspace symbol search, symbol renaming
 - Types and documentation on hover
-- Inlay hints for types and parameter names
+- Inlay hints [for types], [parameter names] and [more]
 - On-the-fly inspections with quick fixes
 - Signature help inside calls, `initOf` and struct initialization
 - [Lenses] with implementation/reference counts
@@ -24,6 +24,9 @@ This language server/extension provides support for the [Tact programming langua
 [imports completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md#imports-completion
 [definition]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/navigation.md#go-to-definition
 [type definition]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/navigation.md#go-to-type-definition
+[for types]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/inlay-hints.md#type-hints
+[parameter names]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/inlay-hints.md#parameter-hints
+[more]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/inlay-hints.md#additional-hints
 [Lenses]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/code-lenses.md
 [Gas estimates]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/gas-calculation.md
 
