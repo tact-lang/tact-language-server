@@ -218,6 +218,18 @@ module.exports = grammar({
     asm_arrangement_rets: ($) =>
       seq("->", repeat1(alias($._decimal_integer, $.integer))),
 
+    // NOTE:
+    // The following asm-related pieces intentionally differ from the grammar.gg.
+    // This is done to provide a better API for the language server.
+    //
+    // There's no catch because there's no well-defined Tact assembly syntax
+    // that we've agreed upon — the current parser in the compiler
+    // simply produces a large string to be passed as-is to the rest of the pipeline.
+    //
+    // Therefore, most of the things below would be internally refactored and/or removed completely once there's a proper definition of the Tact assembly.
+    // (That does NOT require Fift removal, a first step might be just
+    //  converting our syntax to bits of the Fift syntax seen below)
+    //
     asm_function_body: ($) => seq("{", repeat($.asm_expression), "}"),
 
     // Zero or more arguments, followed by a TVM instruction
@@ -379,7 +391,7 @@ module.exports = grammar({
         field("body", alias($.struct_body, $.message_body)),
       ),
 
-    message_value: ($) => seq("(", $.integer, ")"),
+    message_value: ($) => seq("(", $._expression, ")"),
 
     struct_body: ($) => seq("{", semicolonSepWithTrailing($.field), "}"),
 
@@ -602,7 +614,20 @@ module.exports = grammar({
           field("left", $._path_expression),
           field(
             "operator",
-            choice("+=", "-=", "*=", "/=", "%=", "&=", "|=", "^="),
+            choice(
+              "+=",
+              "-=",
+              "*=",
+              "/=",
+              "%=",
+              "&=",
+              "|=",
+              "^=",
+              "||=",
+              "&&=",
+              ">>=",
+              "<<=",
+            ),
           ),
           field("right", $._expression),
         ),
