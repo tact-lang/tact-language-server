@@ -87,13 +87,10 @@ jobs:
           # Delete local tag if it exists
           git tag -d nightly 2>/dev/null || true
 
-          echo "Creating new nightly release..."
-          # Create new release with tag
-          gh release create nightly \
-            --title "Nightly Build v${VERSION}" \
-            --notes "🌙 This is an automated nightly build from the master branch.
+          # Create release notes
+          RELEASE_NOTES="🌙 This is an automated nightly build from the master branch.
 
-          ${{ env.CHANGELOG }}
+          ${CHANGELOG}
 
           ## Installation
 
@@ -103,7 +100,15 @@ jobs:
           ### Other Editors
           - Download tact-language-server-v${VERSION}.tar.gz (Linux/macOS) or tact-language-server-v${VERSION}.zip (Windows)
           - Extract it to a convenient location
-          - Configure your editor to use the language server from the extracted folder" \
+          - Configure your editor to use the language server from the extracted folder"
+
+          echo "Creating new nightly release..."
+          echo "$RELEASE_NOTES" > release_notes.md
+
+          # Create new release with tag
+          gh release create nightly \
+            --title "Nightly Build v${VERSION}" \
+            --notes-file release_notes.md \
             --prerelease \
             --target master \
             *.vsix "tact-language-server-v${VERSION}.tar.gz" "tact-language-server-v${VERSION}.zip"
