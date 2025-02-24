@@ -460,16 +460,16 @@ export function collect(
         if (type === "storage_function" && hints.showMethodId) {
             const func = new Fun(n, file)
             if (!func.isGetMethod) return true
+            if (func.hasExplicitMethodId) return true
 
             const modifiers = n.childForFieldName("attributes")
             if (!modifiers) return true
 
             const actualId = func.computeMethodId()
-            const actualIdHex = actualId.toString(16)
 
             result.push({
                 kind: InlayHintKind.Type,
-                label: `(0x${actualIdHex})`,
+                label: `(${actualId})`,
                 position: {
                     line: modifiers.endPosition.row,
                     character: modifiers.endPosition.column,

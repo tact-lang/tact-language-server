@@ -79,7 +79,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             if (!ownerPresentation) return null // not possible in correct code
 
             const actualId = func.computeMethodId()
-            const actualIdPresentation = `Method ID: \`0x${actualId.toString(16)}\`\n\n`
+            const actualIdPresentation = `Method ID: \`${actualId}\`\n\n`
 
             const idPresentation = func.isGetMethod ? actualIdPresentation : ""
 

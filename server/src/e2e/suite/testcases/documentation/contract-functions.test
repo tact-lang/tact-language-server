@@ -104,3 +104,57 @@ some cool documentation here
 Called when a binary message of type `Msg` is sent to the contract
 
 Learn more in documentation: https://docs.tact-lang.org/book/receive/
+
+========================================================================
+get function without method ID
+========================================================================
+contract Foo {
+    get fun <caret>foo() {}
+}
+------------------------------------------------------------------------
+```tact
+contract Foo
+get fun foo()
+```
+Method ID: `0x103fc`
+
+========================================================================
+get function with method ID
+========================================================================
+contract Foo {
+    get(0x10000) fun <caret>foo() {}
+}
+------------------------------------------------------------------------
+```tact
+contract Foo
+get(0x10000) fun foo()
+```
+Method ID: `0x10000`
+
+========================================================================
+get function with complex method ID
+========================================================================
+contract Foo {
+    get(0x10000 + 10 * 10) fun <caret>foo() {}
+}
+------------------------------------------------------------------------
+```tact
+contract Foo
+get(0x10000 + 10 * 10) fun foo()
+```
+Method ID: `0x10000 + 10 * 10`
+
+========================================================================
+get function with constant method ID
+========================================================================
+const METHOD_ID: Int = 100;
+
+contract Foo {
+    get(METHOD_ID) fun <caret>foo() {}
+}
+------------------------------------------------------------------------
+```tact
+contract Foo
+get(METHOD_ID) fun foo()
+```
+Method ID: `METHOD_ID`

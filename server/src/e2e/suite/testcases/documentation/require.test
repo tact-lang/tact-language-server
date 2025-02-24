@@ -19,7 +19,7 @@ Checks the condition and throws an error with an exit code generated from the er
 
  The generated exit code is guaranteed to be outside the common 0−255 range reserved for TVM and Tact contract errors, which makes it possible to distinguish exit codes from `require()` and any other standard exit codes.
 
-
+ 
 ```tact
 fun examples() {
     // now() has to return a value greater than 1000,

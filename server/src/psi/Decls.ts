@@ -261,6 +261,28 @@ export class Fun extends NamedNode {
         return this.modifiers().includes("get")
     }
 
+    public get hasExplicitMethodId(): boolean {
+        // check for
+        // get(0x1000) fun foo() {}
+        //    ^^^^^^^^ this
+        const attributes = this.node.childForFieldName("attributes")
+        if (!attributes) return false
+        const getAttrs = attributes.children.find(attr => attr?.type === "get_attribute")
+        if (!getAttrs) return false
+        return getAttrs.children.some(it => it?.text === "(")
+    }
+
+    public get getExplicitMethodId(): SyntaxNode | null {
+        // find
+        // get(0x1000) fun foo() {}
+        //     ^^^^^^ this
+        const attributes = this.node.childForFieldName("attributes")
+        if (!attributes) return null
+        const getAttrs = attributes.children.find(attr => attr?.type === "get_attribute")
+        if (!getAttrs) return null
+        return getAttrs.childForFieldName("value")
+    }
+
     public returnType(): Expression | null {
         const result = this.node.childForFieldName("result")
         if (!result) return null
@@ -363,8 +385,13 @@ export class Fun extends NamedNode {
         return attr
     }
 
-    public computeMethodId(): number {
-        return (crc16(Buffer.from(this.name())) & 0xff_ff) | 0x1_00_00
+    public computeMethodId(): string {
+        const explicitId = this.getExplicitMethodId
+        if (explicitId) {
+            return explicitId.text
+        }
+
+        return "0x" + ((crc16(Buffer.from(this.name())) & 0xff_ff) | 0x1_00_00).toString(16)
     }
 
     public computeGasConsumption(gas: {loopGasCoefficient: number}): GasConsumption {
