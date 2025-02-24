@@ -2,6 +2,69 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2025-02-24
+
+### Improvements
+
+- feat(all): initial support for a destruct statement in https://github.com/tact-lang/tact-language-server/pull/355
+- feat(all): initial support for `codeOf` in https://github.com/tact-lang/tact-language-server/pull/356
+- feat(all): add support for `get` methods with explicit ID in https://github.com/tact-lang/tact-language-server/pull/358
+- feat(grammar): port remaining grammar changes for 1.6.0 in https://github.com/tact-lang/tact-language-server/pull/359
+
+- feat(vscode): integrate BoC decompiler in https://github.com/tact-lang/tact-language-server/pull/281
+- feat(vscode): split settings to groups in https://github.com/tact-lang/tact-language-server/pull/312
+- feat(vscode): port the latest version of TextMate grammar in https://github.com/tact-lang/tact-language-server/pull/353
+- feat(inlay-hints): improve type hints in https://github.com/tact-lang/tact-language-server/pull/286
+- feat(inlay-hints): don't show an obvious type hint for variable initialized with `Foo.fromCell()` in https://github.com/tact-lang/tact-language-server/pull/347
+- feat(documentation/inlay-hints): show type for struct, messages and `toCell()` calls in https://github.com/tact-lang/tact-language-server/pull/318
+- feat(highlighting): highlight code in doc comments in https://github.com/tact-lang/tact-language-server/pull/309
+- feat(completion): add completion for getters in https://github.com/tact-lang/tact-language-server/pull/310
+- feat(foldings): folding of doc comments in https://github.com/tact-lang/tact-language-server/pull/311
+- feat(linters): run compiler and Misti checks on files in https://github.com/tact-lang/tact-language-server/pull/267
+- feat(gas): take branching into account for gas calculation in https://github.com/tact-lang/tact-language-server/pull/321
+- feat(build-system): add a Test task for Blueprint and Tact Template in https://github.com/tact-lang/tact-language-server/pull/335
+- feat(build-system): add "build all contracts", "build and test all contracts" commands in https://github.com/tact-lang/tact-language-server/pull/336
+
+### Manual
+
+- manual: add initial completion page in https://github.com/tact-lang/tact-language-server/pull/289
+- manual: add troubleshooting.md in https://github.com/tact-lang/tact-language-server/pull/314
+- manual: add code lenses in https://github.com/tact-lang/tact-language-server/pull/305
+- manual: add highlighting in https://github.com/tact-lang/tact-language-server/pull/315
+- manual: add initial navigation in https://github.com/tact-lang/tact-language-server/pull/316
+- manual: add gas-calculation page in https://github.com/tact-lang/tact-language-server/pull/322
+- manual: add inlay hints in https://github.com/tact-lang/tact-language-server/pull/350
+
+### Fixed
+
+- fix(vscode): use flat settings keys in https://github.com/tact-lang/tact-language-server/pull/313
+- fix(vscode): fix LS run on workspace without an open folder and on non-saved buffers in https://github.com/tact-lang/tact-language-server/pull/320
+- fix(vscode): better wording for `compiler path` setting in https://github.com/tact-lang/tact-language-server/pull/328
+- fix(imports): check for `name.tact` as well in https://github.com/tact-lang/tact-language-server/pull/323
+- fix(linters): run compiler and Misti even for projects without `tact.config.json` in https://github.com/tact-lang/tact-language-server/pull/333
+- fix(vscode): make command names uniform in https://github.com/tact-lang/tact-language-server/pull/334
+- fix(completion): for contract/trait top-level in https://github.com/tact-lang/tact-language-server/pull/348
+- fix(completion): fix auto imports for the current file elements and elements from files on level - X in https://github.com/tact-lang/tact-language-server/pull/296
+- fix(resolving): support path with explicit `.tact` extension in https://github.com/tact-lang/tact-language-server/pull/349
+- fix(indexing): don't ignore too many files in Tact compiler repo in https://github.com/tact-lang/tact-language-server/pull/351
+
+### Other
+
+- feat(ci): add changelog to nightly builds in https://github.com/tact-lang/tact-language-server/pull/324
+- fix(tests): fix inlay hints tests in https://github.com/tact-lang/tact-language-server/pull/299
+- feat(test): add completion tests with applying in editor by @xpyctumo in https://github.com/tact-lang/tact-language-server/pull/276
+- feat(test): more completion tests in https://github.com/tact-lang/tact-language-server/pull/279
+- feat(test): more intentions tests in https://github.com/tact-lang/tact-language-server/pull/280
+- chore: update README.md in https://github.com/tact-lang/tact-language-server/pull/266
+- chore: change priorities of editors in the README by @novusnota in https://github.com/tact-lang/tact-language-server/pull/278
+- disabling `postinstall` scripts for third-party dependencies by @Danil42Russia in https://github.com/tact-lang/tact-language-server/pull/288
+- chore: use @tact-lang/opcode v0.2 in https://github.com/tact-lang/tact-language-server/pull/295
+- chore(documentation): override completions in Sublime Text by @novusnota in https://github.com/tact-lang/tact-language-server/pull/354
+
+## [0.2.1] - 2025-02-20
+
+Fixed critical bug in auto-import completion.
+
 ## [0.2.0] - 2025-02-18
 
 ### Improvements
