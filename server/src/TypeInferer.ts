@@ -179,6 +179,12 @@ export class TypeInferer {
             return new StructTy("StateInit", stateInit)
         }
 
+        if (node.node.type === "codeOf") {
+            const cell = index.elementByName(IndexKey.Primitives, "Cell")
+            if (!cell) return null
+            return new PrimitiveTy("Cell", cell, null)
+        }
+
         if (node.node.type === "parenthesized_expression") {
             const inner = node.node.children[1]
             if (!inner) return null

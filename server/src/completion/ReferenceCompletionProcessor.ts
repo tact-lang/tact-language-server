@@ -39,8 +39,8 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 return node instanceof Trait
             }
 
-            if (this.ctx.isInitOfName) {
-                // only contracts can be used in `initOf Name()`
+            if (this.ctx.isInitOfName || this.ctx.isCodeOfName) {
+                // only contracts can be used in `initOf Name()` or in `codeOf Name`
                 return node instanceof Contract
             }
 

@@ -47,7 +47,17 @@ export class KeywordsCompletionProvider implements CompletionProvider {
             kind: CompletionItemKind.Keyword,
             insertText: "initOf $1($2)$0",
             insertTextFormat: InsertTextFormat.Snippet,
-            weight: contextWeight(CompletionWeight.KEYWORD, expectedNull),
+        })
+
+        result.add({
+            label: "codeOf",
+            labelDetails: {
+                detail: " Contract",
+                description: " Cell",
+            },
+            kind: CompletionItemKind.Keyword,
+            insertText: "codeOf $1$0",
+            insertTextFormat: InsertTextFormat.Snippet,
         })
     }
 }
