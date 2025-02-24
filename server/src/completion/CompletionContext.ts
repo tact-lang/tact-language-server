@@ -30,6 +30,7 @@ export class CompletionContext {
     public isMessageContext: boolean = false
     public isBouncedMessage: boolean = false
     public isInitOfName: boolean = false
+    public isCodeOfName: boolean = false
     public afterFieldType: boolean = false
     public insideImport: boolean = false
     public inDestruct: boolean = false
@@ -228,6 +229,10 @@ export class CompletionContext {
             this.isInitOfName = true
         }
 
+        if (parent.type === "codeOf" && parent.childForFieldName("name")?.equals(element.node)) {
+            this.isCodeOfName = true
+        }
+
         if (parent.type === "ERROR" && parent.parent?.type === "map_type") {
             this.isType = true
             this.isExpression = false
@@ -316,7 +321,8 @@ export class CompletionContext {
             !this.inParameter &&
             !this.afterFieldType &&
             !this.insideImport &&
-            !this.isInitOfName
+            !this.isInitOfName &&
+            !this.isCodeOfName
         )
     }
 }

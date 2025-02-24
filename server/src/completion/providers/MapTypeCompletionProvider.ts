@@ -5,7 +5,13 @@ import {CompletionResult, CompletionWeight} from "@server/completion/WeightedCom
 
 export class MapTypeCompletionProvider implements CompletionProvider {
     public isAvailable(ctx: CompletionContext): boolean {
-        return ctx.isType && !ctx.inTraitList && !ctx.isMessageContext && !ctx.isInitOfName
+        return (
+            ctx.isType &&
+            !ctx.inTraitList &&
+            !ctx.isMessageContext &&
+            !ctx.isInitOfName &&
+            !ctx.isCodeOfName
+        )
     }
 
     public addCompletion(_ctx: CompletionContext, result: CompletionResult): void {

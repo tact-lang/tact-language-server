@@ -798,6 +798,7 @@ module.exports = grammar({
         $.identifier, // id
         $.null, // null
         $.initOf, // ExpressionInitOf
+        $.codeOf, // ExpressionCodeOf
         $.string, // stringLiteral
         $.self, // self
       ),
@@ -865,6 +866,12 @@ module.exports = grammar({
         "initOf",
         field("name", alias($._type_identifier, $.type_identifier)),
         optional(field("arguments", $.argument_list)),
+      ),
+
+    codeOf: ($) =>
+      seq(
+        "codeOf",
+        field("name", alias($._type_identifier, $.type_identifier)),
       ),
 
     /* Types */
