@@ -72,11 +72,22 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
 
-          # Delete both release and tag
-          gh release delete nightly --yes || true
-          git push origin :refs/tags/nightly || true  # Delete remote tag
-          git tag -d nightly || true  # Delete local tag
+          # Check if release exists before trying to delete it
+          if gh release view nightly &>/dev/null; then
+            echo "Deleting existing nightly release..."
+            gh release delete nightly --yes
+          fi
 
+          # Check if tag exists before trying to delete it
+          if git fetch origin nightly &>/dev/null; then
+            echo "Deleting existing nightly tag..."
+            git push origin :refs/tags/nightly || true
+          fi
+
+          # Delete local tag if it exists
+          git tag -d nightly 2>/dev/null || true
+
+          echo "Creating new nightly release..."
           # Create new release with tag
           gh release create nightly \
             --title "Nightly Build v${VERSION}" \
@@ -95,6 +106,6 @@ jobs:
           - Configure your editor to use the language server from the extracted folder" \
             --prerelease \
             --target master \
-            *.vsix tact-language-server-v${VERSION}.tar.gz tact-language-server-v${VERSION}.zip
+            *.vsix "tact-language-server-v${VERSION}.tar.gz" "tact-language-server-v${VERSION}.zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
