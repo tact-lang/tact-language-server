@@ -10,7 +10,6 @@ All notable changes to this project will be documented in this file.
 - feat(all): initial support for `codeOf` in https://github.com/tact-lang/tact-language-server/pull/356
 - feat(all): add support for `get` methods with explicit ID in https://github.com/tact-lang/tact-language-server/pull/358
 - feat(grammar): port remaining grammar changes for 1.6.0 in https://github.com/tact-lang/tact-language-server/pull/359
-
 - feat(vscode): integrate BoC decompiler in https://github.com/tact-lang/tact-language-server/pull/281
 - feat(vscode): split settings to groups in https://github.com/tact-lang/tact-language-server/pull/312
 - feat(vscode): port the latest version of TextMate grammar in https://github.com/tact-lang/tact-language-server/pull/353
