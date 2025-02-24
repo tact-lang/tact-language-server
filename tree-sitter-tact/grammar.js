@@ -341,10 +341,10 @@ module.exports = grammar({
         field("body", alias($.block_statement, $.function_body)),
       ),
 
-    function_attributes: (_) =>
+    function_attributes: ($) =>
       repeat1(
         choice(
-          "get",
+          $.get_attribute,
           "mutates",
           "extends",
           "virtual",
@@ -353,6 +353,9 @@ module.exports = grammar({
           "abstract",
         ),
       ),
+
+    get_attribute: ($) =>
+      seq("get", optional(seq("(", field("value", $._expression), ")"))),
 
     parameter_list: ($) => seq("(", commaSepWithTrailing($.parameter), ")"),
 
