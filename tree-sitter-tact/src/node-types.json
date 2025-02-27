@@ -821,6 +821,16 @@
           }
         ]
       },
+      "parameters": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "parameter_list",
+            "named": true
+          }
+        ]
+      },
       "traits": {
         "multiple": false,
         "required": false,

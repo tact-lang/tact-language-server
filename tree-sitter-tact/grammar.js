@@ -429,6 +429,7 @@ module.exports = grammar({
         field("attributes", optional($.contract_attributes)),
         "contract",
         field("name", $.identifier),
+        field("parameters", $.parameter_list),
         field("traits", optional($.trait_list)),
         field("body", $.contract_body),
       ),

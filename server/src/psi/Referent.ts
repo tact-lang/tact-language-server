@@ -280,6 +280,12 @@ export class Referent {
                 // search in function body
                 return Referent.localSearchScope(grand.lastChild)
             }
+
+            // contract Foo(value: Int) {}
+            //              ^^^^^ this
+            if (grand?.type === "contract") {
+                return GlobalSearchScope.allFiles()
+            }
         }
 
         if (
