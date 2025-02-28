@@ -337,7 +337,9 @@ export class Fun extends NamedNode {
         if (!parametersNode) return ""
 
         const result = this.returnType()
-        return parametersNode.text + (result ? `: ${result.node.text}` : "")
+        const suffix = result?.node.nextSibling?.text === "?" ? "?" : ""
+
+        return parametersNode.text + (result ? `: ${result.node.text}${suffix}` : "")
     }
 
     public isOverride(): boolean {
