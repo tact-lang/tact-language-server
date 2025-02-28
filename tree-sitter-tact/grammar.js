@@ -558,7 +558,10 @@ module.exports = grammar({
     let_statement: ($) =>
       seq(
         "let",
-        field("name", $.identifier),
+        field(
+          "name",
+          choice($.identifier, alias($._type_identifier, $.identifier)),
+        ),
         optional(
           seq(
             optional(seq(":", field("type", $._type))),

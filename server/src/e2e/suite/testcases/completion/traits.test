@@ -99,7 +99,6 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-13 name  generate getter for "name" field
 9  name: String; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
@@ -115,6 +114,7 @@ trait Child with Parent {
 13 receive("<message>") {}
 13 receive() {}
 13 virtual fun name() {}
+13 name  generate getter for "name" field
 
 ========================================================================
 Completion of fields in trait with deep inheritance
@@ -134,9 +134,7 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-13 age  generate getter for "age" field
 9  age: Int; of Grand
-13 name  generate getter for "name" field
 9  name: String; of Parent
 13 abstract fun name();
 13 bounced(msg: <type>) {}
@@ -152,6 +150,8 @@ trait Child with Parent {
 13 receive("<message>") {}
 13 receive() {}
 13 virtual fun name() {}
+13 age  generate getter for "age" field
+13 name  generate getter for "name" field
 
 ========================================================================
 Completion of fields in trait with field
@@ -169,10 +169,7 @@ trait Child with Parent {
     <caret>
 }
 ------------------------------------------------------------------------
-13 age  generate getter for "age" field
 9  age: Int; of Parent
-13 name  generate getter for "name" field
-13 name  generate getter for "name" field
 13 abstract fun name();
 13 bounced(msg: <type>) {}
 13 const Foo: <type> = <value>
@@ -187,6 +184,9 @@ trait Child with Parent {
 13 receive("<message>") {}
 13 receive() {}
 13 virtual fun name() {}
+13 age  generate getter for "age" field
+13 name  generate getter for "name" field
+13 name  generate getter for "name" field
 
 ========================================================================
 Completion of methods and fields without self
@@ -205,12 +205,13 @@ trait Child with Parent {
 ------------------------------------------------------------------------
 9  self.field: Int   of Child
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return <expr>;
 13 true
 2  self.bar(): Int
 2  self.foo(): Int
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 13 self
 14 return 0;
 14 do
@@ -240,5 +241,4 @@ trait Child with <caret> {}
 24 A2
 24 A3
 24 Child
-24 ToImport
 24 WithSeveralDeclaration

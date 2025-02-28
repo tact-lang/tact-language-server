@@ -12,11 +12,12 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 21 Foo{}
 14 do
 14 foreach
@@ -44,11 +45,12 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 21 Foo{}
 14 do
 14 foreach

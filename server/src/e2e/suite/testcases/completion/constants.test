@@ -11,11 +11,12 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 20 BAR: Int = 100
 20 FOO: Int = 100
 14 do
@@ -39,7 +40,6 @@ contract Foo {
     const<caret>
 }
 ------------------------------------------------------------------------
-13 state  generate getter for all contract state
 13 bounced(msg: <type>) {}
 13 const Foo: <type> = <value>
 13 external(msg: <type>) {}
@@ -52,6 +52,7 @@ contract Foo {
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 13 receive() {}
+13 state  generate getter for all contract state
 
 ========================================================================
 Trait constant completion

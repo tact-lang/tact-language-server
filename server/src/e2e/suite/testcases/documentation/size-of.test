@@ -57,7 +57,7 @@ struct Foo {
 ```
 
 
-**Size**: 261 bits plus up to 124 bits
+**Size**: 261 bits plus up to 120 bits
 
 ========================================================================
 Struct with varuint16 and varuint32 sizeof
@@ -77,7 +77,7 @@ struct Foo {
 ```
 
 
-**Size**: 9 bits plus up to 377 bits
+**Size**: 9 bits plus up to 368 bits
 
 ========================================================================
 Struct with varint16 and varint32 sizeof
@@ -97,7 +97,7 @@ struct Foo {
 ```
 
 
-**Size**: 9 bits plus up to 377 bits
+**Size**: 9 bits plus up to 368 bits
 
 ========================================================================
 Struct with int32 sizeof
@@ -200,7 +200,7 @@ struct Foo {
 ```
 
 
-**Size**: 514 bits
+**Size**: 524 bits
 
 ========================================================================
 Struct with Option Cell sizeof
@@ -267,7 +267,7 @@ message(0x7bdd97de) TokenBurnNotification {
 ```
 
 
-**Size**: 582 bits plus up to 124 bits
+**Size**: 634 bits plus up to 120 bits
 
 ========================================================================
 Real message sizeof 2
@@ -291,7 +291,7 @@ message(0xd1735400) TakeWalletAddress {
 ```
 
 
-**Size**: 322 bits plus up to 1023 bits
+**Size**: 364 bits plus up to 1023 bits
 
 ========================================================================
 Real message sizeof 3
@@ -324,4 +324,4 @@ message(0xf8a7ea5) TokenTransfer {
 ```
 
 
-**Size**: 588 bits plus up to 2294 bits
+**Size**: 640 bits plus up to 2286 bits
