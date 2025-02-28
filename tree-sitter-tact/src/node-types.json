@@ -2429,7 +2429,7 @@
       },
       "body": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "function_body",
