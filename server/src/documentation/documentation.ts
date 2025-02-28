@@ -256,6 +256,23 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
         case "parameter": {
             const type = TypeInferer.inferType(node)
             const typeName = type?.qualifiedName() ?? "unknown"
+
+            if (astNode.parent?.parent?.type === "contract") {
+                const field = new Field(node.node, node.file)
+                const ownerPresentation = renderOwnerPresentation(field)
+                if (!ownerPresentation) return null // not possible in correct code
+
+                const name = field.nameNode()
+                if (!name) return null
+
+                const type = TypeInferer.inferType(name)?.qualifiedName() ?? "unknown"
+
+                return defaultResult(
+                    `${ownerPresentation}${node.name()}: ${type}${field.defaultValuePresentation()}`,
+                    "",
+                )
+            }
+
             return defaultResult(`${node.name()}: ${typeName}`)
         }
     }
