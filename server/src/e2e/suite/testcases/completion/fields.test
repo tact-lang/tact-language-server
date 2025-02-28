@@ -289,3 +289,51 @@ trait Foo {
 2  name(): String
 14 call  Use as function argument
 14 not  Negate expression
+
+========================================================================
+Contract field type completion
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+contract Foo {
+    name: <caret>
+
+    fun name(): String {
+        return self.name;
+    }
+
+    fun bar() {
+        return self.<caret>;
+    }
+}
+------------------------------------------------------------------------
+13 map<K, V>
+9  Address
+9  Int
+9  String
+
+========================================================================
+Trait field type completion
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+trait Foo {
+    name: <caret>
+
+    fun name(): String {
+        return self.name;
+    }
+
+    fun bar() {
+        return self.<caret>;
+    }
+}
+------------------------------------------------------------------------
+13 map<K, V>
+9  Address
+9  Int
+9  String
