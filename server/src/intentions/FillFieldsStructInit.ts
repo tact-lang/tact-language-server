@@ -124,12 +124,10 @@ export class FillStructInitBase implements Intention {
         //    }
         //    ^ don't add extra new line here
         const newLine = singleLine ? "\n" : ""
+        const suffix = newLine === "" ? "" : `${newLine}${closeBraceIndent}`
 
         const diff = FileDiff.forFile(ctx.file.uri)
-        diff.appendTo(
-            asLspPosition(openBrace.endPosition),
-            `\n${fieldsPresentation}${newLine}${closeBraceIndent}`,
-        )
+        diff.appendTo(asLspPosition(openBrace.endPosition), `\n${fieldsPresentation}${suffix}`)
 
         return diff.toWorkspaceEdit()
     }

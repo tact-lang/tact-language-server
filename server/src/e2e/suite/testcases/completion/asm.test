@@ -85,14 +85,14 @@ asm fun test() {
 2  CALLCC (c →  ∅)   26
 2  CALLCCARGS (c →  ∅)   34
 2  CALLCCVARARGS (c p r →  ∅)   26
-2  CALLDICT (∅ → nn)   
-2  CALLDICT_LONG (∅ → n)   
+2  CALLDICT (∅ → nn)
+2  CALLDICT_LONG (∅ → n)
 2  CALLREF    126/51
 2  CALLXARGS (c →  ∅)   26
 2  CALLXARGS_VAR (c →  ∅)   26
 2  CALLXVARARGS (c p r →  ∅)   26
-2  CDATASIZE (c n → x y z)   
-2  CDATASIZEQ (c n → x y z -1 or 0)   
+2  CDATASIZE (c n → x y z)
+2  CDATASIZEQ (c n → x y z -1 or 0)
 2  CDDDR(t → x)
 2  CDDR(t → x)
 2  CDEPTH (c → x)   26

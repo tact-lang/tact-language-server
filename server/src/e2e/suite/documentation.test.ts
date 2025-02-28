@@ -45,9 +45,20 @@ suite("Documentation Test Suite", () => {
             test(`Documentation: ${testCase.name}`, async () => {
                 const hovers = await this.getHovers(testCase.input)
                 const actual = hovers
-                    .map(hover => this.formatDocumentation(hover))
+                    .map(hover =>
+                        this.formatDocumentation(hover)
+                            .split("\n")
+                            .map(it => it.trimEnd())
+                            .join("\n"),
+                    )
                     .join("\n")
-                    .trimEnd()
+                    .trim()
+
+                const expected = testCase.expected
+                    .split("\n")
+                    .map(it => it.trimEnd())
+                    .join("\n")
+                    .trim()
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({
@@ -56,7 +67,7 @@ suite("Documentation Test Suite", () => {
                         actual,
                     })
                 } else {
-                    assert.strictEqual(actual, testCase.expected.trimEnd())
+                    assert.strictEqual(actual, expected)
                 }
             })
         }

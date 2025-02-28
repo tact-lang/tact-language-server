@@ -40,15 +40,21 @@ suite("Signatures Test Suite", () => {
                               }
                               return ""
                           })
-                const expected = testCase.expected.split("\n").filter((line: string) => line !== "")
+
+                const expected = testCase.expected
+                    .split("\n")
+                    .map(line => line.trimEnd())
+                    .join("\n")
+                const actual = items.join("\n")
+
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({
                         filePath: testFile,
                         testName: testCase.name,
-                        actual: items.join("\n"),
+                        actual: actual,
                     })
                 } else {
-                    assert.deepStrictEqual(items.sort(), expected.sort())
+                    assert.deepStrictEqual(actual, expected)
                 }
             })
         }

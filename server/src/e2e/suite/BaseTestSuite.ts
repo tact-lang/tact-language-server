@@ -13,7 +13,9 @@ export interface TestUpdate {
 }
 
 export abstract class BaseTestSuite {
-    protected static readonly UPDATE_SNAPSHOTS: boolean = true
+    protected static readonly UPDATE_SNAPSHOTS: boolean =
+        process.env["TACT_LS_UPDATE_SNAPSHOTS"] === "true"
+
     protected document!: vscode.TextDocument
     protected editor!: vscode.TextEditor
     protected testFilePath!: string

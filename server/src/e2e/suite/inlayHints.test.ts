@@ -20,7 +20,7 @@ suite("Inlay Hints Test Suite", () => {
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Hint: ${testCase.name}`, async () => {
                 const hints = await this.getHints(testCase.input)
-                const expected = testCase.expected.split("\n").filter((line: string) => line !== "")
+                const expected = testCase.expected.trimEnd()
                 await this.replaceDocumentText(testCase.input)
 
                 for (let x = 0; x < hints.length; x++) {
@@ -43,14 +43,15 @@ suite("Inlay Hints Test Suite", () => {
                     }
                 }
 
+                const actual = this.document.getText().trimEnd()
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({
                         filePath: testFile,
                         testName: testCase.name,
-                        actual: this.document.getText(),
+                        actual: actual,
                     })
                 } else {
-                    assert.deepStrictEqual(hints, expected)
+                    assert.deepStrictEqual(actual, expected)
                 }
             })
         }
