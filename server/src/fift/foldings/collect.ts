@@ -24,6 +24,7 @@ export function collectFift(file: File): FoldingRange[] {
             n.type === "proc_inline_definition" ||
             n.type === "method_definition" ||
             n.type === "block_instruction" ||
+            n.type === "instruction_block" ||
             n.type === "if_statement" ||
             n.type === "ifjmp_statement" ||
             n.type === "while_statement" ||
