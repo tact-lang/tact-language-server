@@ -1386,10 +1386,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
                 const referent = new Referent(node, file)
                 const scope = referent.useScope()
-                if (!scope) {
-                    console.log("referent", JSON.stringify(referent, null, 2))
-                    return "Scope not found"
-                }
+                if (!scope) return "Scope not found"
+
                 if (scope instanceof LocalSearchScope) return scope.toString()
                 return "GlobalSearchScope"
             }

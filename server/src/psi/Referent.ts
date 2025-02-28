@@ -72,11 +72,6 @@ export class Referent {
         this.file = file
         const element = new NamedNode(node, file)
         this.resolved = Reference.resolve(element)
-        if (!this.resolved) {
-            console.log("not resolved", element.node.text)
-            console.log("not resolved", element.node.parent?.type)
-            console.log("not resolved", element.node.parent?.text)
-        }
     }
 
     /**
@@ -240,8 +235,6 @@ export class Referent {
         if (!this.resolved) return null
 
         const node = this.resolved.node
-        console.log("type", node.type)
-        console.log("parent", node.parent?.type)
 
         const parent = this.resolved.node.parent
         if (parent === null) return null
