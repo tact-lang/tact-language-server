@@ -47,6 +47,11 @@ export function collect(
         if (type === "parameter") {
             const name = n.childForFieldName("name")
             if (!name) return true
+
+            if (n.parent?.parent?.type === "contract") {
+                tokens.node(name, lsp.SemanticTokenTypes.property)
+                return true
+            }
             tokens.node(name, lsp.SemanticTokenTypes.parameter)
             return true
         }
@@ -97,6 +102,11 @@ export function collect(
 
             switch (resolvedType) {
                 case "parameter": {
+                    if (resolved.node.parent?.parent?.type === "contract") {
+                        tokens.node(n, lsp.SemanticTokenTypes.property)
+                        break
+                    }
+
                     tokens.node(n, lsp.SemanticTokenTypes.parameter)
                     break
                 }

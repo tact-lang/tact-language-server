@@ -88,13 +88,24 @@ export class StorageMembersOwner extends NamedNode {
             .map(value => new Fun(value, this.file))
     }
 
+    public parameters(): Field[] {
+        const params = this.node.childForFieldName("parameters")
+        if (!params) return []
+        return params.children
+            .filter(value => value?.type === "parameter")
+            .filter(value => value !== null)
+            .map(value => new Field(value, this.file))
+    }
+
     public ownFields(): Field[] {
+        const parameters = this.parameters()
         const body = this.node.childForFieldName("body")
-        if (!body) return []
-        return body.children
+        if (!body) return parameters
+        const fields = body.children
             .filter(value => value?.type === "storage_variable")
             .filter(value => value !== null)
             .map(value => new Field(value, this.file))
+        return [...parameters, ...fields]
     }
 
     public ownConstants(): Constant[] {

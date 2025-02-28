@@ -54,3 +54,21 @@ Scope: GlobalSearchScope
 
 References: [12:15]
 Scope: GlobalSearchScope
+
+========================================================================
+Contract with parameters
+========================================================================
+primitive Int;
+
+contract Test(
+    <caret>some: Int,
+    other: Int,
+) {
+    fun foo() {
+        self.some;
+        self.other;
+    }
+}
+------------------------------------------------------------------------
+References: [7:13]
+Scope: GlobalSearchScope

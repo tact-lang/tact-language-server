@@ -182,3 +182,17 @@ contract Foo with WithFoo {
 trait WithFoo
 const FOO: Int = 0
 ```
+
+========================================================================
+Contract field parameter
+========================================================================
+primitive Int;
+
+contract Test(
+    <caret>some: Int,
+) {}
+------------------------------------------------------------------------
+```tact
+contract Test
+some: Int
+```

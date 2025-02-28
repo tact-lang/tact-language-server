@@ -372,7 +372,13 @@ module.exports = grammar({
     parameter_list: ($) => seq("(", commaSepWithTrailing($.parameter), ")"),
 
     parameter: ($) =>
-      seq(field("name", $.identifier), ":", field("type", $._type)),
+      seq(
+        field("name", $.identifier),
+        ":",
+        field("type", $._type),
+        field("_completion_anchor", optional($.identifier)),
+        field("tlb", optional($.tlb_serialization)),
+      ),
 
     /* Structs, Messages */
 
@@ -429,6 +435,7 @@ module.exports = grammar({
         field("attributes", optional($.contract_attributes)),
         "contract",
         field("name", $.identifier),
+        optional(field("parameters", $.parameter_list)),
         field("traits", optional($.trait_list)),
         field("body", $.contract_body),
       ),
