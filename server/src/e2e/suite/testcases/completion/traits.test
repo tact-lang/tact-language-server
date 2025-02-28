@@ -241,5 +241,4 @@ trait Child with <caret> {}
 24 A2
 24 A3
 24 Child
-24 ToImport
 24 WithSeveralDeclaration
