@@ -371,7 +371,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const file = findFile(uri)
         index.addFile(uri, file)
 
-        await runInspections(uri, file)
+        if (event.document.languageId === "tact") {
+            await runInspections(uri, file)
+        }
     })
 
     documents.onDidChangeContent(async event => {
@@ -392,7 +394,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const file = findFile(uri, event.document.getText(), true)
         index.addFile(uri, file, false)
 
-        await runInspections(uri, file)
+        if (event.document.languageId === "tact") {
+            await runInspections(uri, file)
+        }
     })
 
     connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams) => {
