@@ -43,27 +43,31 @@ suite("Completion Test Suite", () => {
 
                 const completions = await this.getCompletions(testCase.input, ".")
 
-                const items = completions.map(item => {
-                    const label = typeof item.label === "object" ? item.label.label : item.label
-                    const details =
-                        (typeof item.label === "object" ? item.label.detail : item.detail) ?? ""
-                    const description =
-                        typeof item.label === "object" && item.label.description
-                            ? `  ${item.label.description}`
-                            : ""
+                const items = completions
+                    .filter(item => Number(item.kind) !== 0)
+                    .map(item => {
+                        const label = typeof item.label === "object" ? item.label.label : item.label
+                        const details =
+                            (typeof item.label === "object" ? item.label.detail : item.detail) ?? ""
+                        const description =
+                            typeof item.label === "object" && item.label.description
+                                ? `  ${item.label.description}`
+                                : ""
 
-                    return `${item.kind?.toString().padEnd(2)} ${label}${details}${description}`
-                })
-                const expected = testCase.expected.split("\n").filter((line: string) => line !== "")
+                        return `${item.kind?.toString().padEnd(2)} ${label}${details}${description}`.trimEnd()
+                    })
+
+                const expected = testCase.expected.trimEnd()
+                const actual = items.length > 0 ? items.join("\n") : "No completion items"
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({
                         filePath: testFile,
                         testName: testCase.name,
-                        actual: items.join("\n"),
+                        actual: actual,
                     })
                 } else {
-                    assert.deepStrictEqual(items.sort(), expected.sort())
+                    assert.deepStrictEqual(actual, expected)
                 }
 
                 if (testFile.includes("import")) {

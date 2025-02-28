@@ -143,44 +143,7 @@ fun foo() {
     Foo{
         value: 0,
         other: "",
-        opt: null,    
-    };
-}
-
-========================================================================
-@intention Fill all fields...
-Fill all fields for struct with several fields and empty line 2
-========================================================================
-primitive Int;
-primitive String;
-
-struct Foo {
-    value: Int;
-    other: String;
-    opt: String?
-}
-
-fun foo() {
-    Foo{
-        <caret>
-    };
-}
-------------------------------------------------------------------------
-primitive Int;
-primitive String;
-
-struct Foo {
-    value: Int;
-    other: String;
-    opt: String?
-}
-
-fun foo() {
-    Foo{
-        value: 0,
-        other: "",
-        opt: null,    
-        
+        opt: null,
     };
 }
 

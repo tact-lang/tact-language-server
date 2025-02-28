@@ -235,6 +235,7 @@ export class Referent {
         if (!this.resolved) return null
 
         const node = this.resolved.node
+
         const parent = this.resolved.node.parent
         if (parent === null) return null
 

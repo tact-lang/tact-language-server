@@ -7,7 +7,6 @@ struct Test {
     a: Int as <caret>uint8;
 }
 ------------------------------------------------------------------------
-
 **uint8** — 8-bit unsigned integer
 
 - **Range**: 0 to 255 (2^8 - 1)
@@ -23,7 +22,6 @@ struct Test {
     a: Int as <caret>int8;
 }
 ------------------------------------------------------------------------
-
 **int8** — 8-bit signed integer
 
 - **Range**: -128 to 127 (-2^7 to 2^7 - 1)
@@ -39,7 +37,6 @@ struct Test {
     a: Int as <caret>varint16;
 }
 ------------------------------------------------------------------------
-
 **varint16** — variable-length signed integer
 
 - **Range**: -2^119 to 2^119 - 1
@@ -55,7 +52,6 @@ struct Test {
     a: Int as <caret>varint32;
 }
 ------------------------------------------------------------------------
-
 **varint32** — variable-length signed integer
 
 - **Range**: -2^247 to 2^247 - 1
@@ -71,7 +67,6 @@ struct Test {
     a: Int as <caret>coins;
 }
 ------------------------------------------------------------------------
-
 **coins** — variable-length unsigned integer
 
 - **Range**: 0 to 2^120 - 1
@@ -89,7 +84,6 @@ struct Test {
     a: Int as <caret>int234;
 }
 ------------------------------------------------------------------------
-
 **int234** — 234-bit signed integer
 
 - **Range**: -2^233 to 2^233 - 1
@@ -107,7 +101,6 @@ struct Test {
     a: Int as <caret>uint1;
 }
 ------------------------------------------------------------------------
-
 **uint1** — 1-bit unsigned integer
 
 - **Range**: 0 to 2^1 - 1
@@ -125,7 +118,6 @@ struct Test {
     a: Cell as <caret>remaining;
 }
 ------------------------------------------------------------------------
-
 **remaining** — direct serialization modifier
 
 - **Applies to**: Cell, Builder, and Slice types

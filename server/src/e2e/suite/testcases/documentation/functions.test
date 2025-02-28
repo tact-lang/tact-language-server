@@ -149,7 +149,7 @@ Calculates and returns the so-called _original_ forward fee in nanoToncoins `Int
 
  Attempts to specify a negative value of `fwdFee` throw an exception with exit code 5: `Integer out of expected range`.
 
- 
+
 ```tact
 fun example() {
     let fwdFee: Int = context().readForwardFee();
@@ -177,9 +177,9 @@ fun <caret>foo(): Int {}
 ```tact
 fun foo(): Int
 ```
-Some interesting list 
+Some interesting list
 - Point 1
-  with other line 
+  with other line
 - Point 2
 
 ========================================================================

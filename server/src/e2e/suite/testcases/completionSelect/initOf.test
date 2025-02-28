@@ -22,7 +22,7 @@ contract Foo {
 }
 
 ========================================================================
-initOf name completion before ()
+initOf name completion without ()
 ========================================================================
 primitive Int;
 
@@ -63,6 +63,6 @@ contract Foo {
     value: Int;
 
     fun foo() {
-        initOf Foo()<caret>
+        initOf Foo<caret>()
     }
 }

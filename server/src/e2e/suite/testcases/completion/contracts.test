@@ -60,12 +60,7 @@ contract Foo {
     receive(<caret>) {}
 }
 ------------------------------------------------------------------------
-0  contract
-0  Foo
-0  receive
-0  ToImport
-0  trait
-0  WithSeveralDeclaration
+No completion items
 
 ========================================================================
 Completion inside `external()` parameters
@@ -74,12 +69,7 @@ contract Foo {
     external(<caret>) {}
 }
 ------------------------------------------------------------------------
-0  contract
-0  external
-0  Foo
-0  ToImport
-0  trait
-0  WithSeveralDeclaration
+No completion items
 
 ========================================================================
 Completion inside `fun()` parameters
@@ -88,10 +78,4 @@ contract Foo {
     fun foo(<caret>) {}
 }
 ------------------------------------------------------------------------
-0  contract
-0  Foo
-0  foo
-0  fun
-0  ToImport
-0  trait
-0  WithSeveralDeclaration
+No completion items

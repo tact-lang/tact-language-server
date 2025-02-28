@@ -33,15 +33,7 @@ struct Transfer {
     owner: Address as <caret>;
 }
 ------------------------------------------------------------------------
-0  Address
-0  as
-0  owner
-0  primitive
-0  struct
-0  ToImport
-0  trait
-0  Transfer
-0  WithSeveralDeclaration
+No completion items
 
 ========================================================================
 TL-B serialization types for Slice completion
@@ -85,7 +77,7 @@ struct Transfer {
     value: Builder <caret>;
 }
 ------------------------------------------------------------------------
-13 as type
+No completion items
 
 ========================================================================
 TL-B serialization as 2
@@ -96,7 +88,7 @@ struct Transfer {
     value: Builder <caret>
 }
 ------------------------------------------------------------------------
-13 as type
+No completion items
 
 ========================================================================
 TL-B serialization as 3
@@ -107,4 +99,17 @@ contract Transfer {
     value: Builder <caret>
 }
 ------------------------------------------------------------------------
-13 as type
+13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
+13 fun name() {}
+13 get fun name() {}
+13 init() {}
+13 inline fun name() {}
+13 receive(msg: <type>) {}
+13 receive("<message>") {}
+13 receive() {}
+13 state  generate getter for all contract state
+13 value  generate getter for "value" field

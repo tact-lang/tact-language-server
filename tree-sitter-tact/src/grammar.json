@@ -1763,7 +1763,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_function_definition"
+                  "name": "_function"
                 },
                 "named": true,
                 "value": "storage_function"
@@ -1839,7 +1839,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "SYMBOL",
-                  "name": "_function_definition"
+                  "name": "_function"
                 },
                 "named": true,
                 "value": "storage_function"

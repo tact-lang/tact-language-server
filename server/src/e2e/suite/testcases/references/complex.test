@@ -1,8 +1,10 @@
 ========================================================================
 Trait function with multiple implementations and extends
 ========================================================================
+primitive String;
+
 trait Animal {
-    fun <caret>speak(): String;
+    abstract fun <caret>speak(): String;
 }
 
 contract Dog with Animal {
@@ -21,7 +23,7 @@ extends fun makeNoise(self: Animal) {
     self.speak();
 }
 ------------------------------------------------------------------------
-References: [17:9]
+References: [19:9]
 Scope: GlobalSearchScope
 
 ========================================================================
