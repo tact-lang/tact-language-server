@@ -97,7 +97,12 @@ export class FieldsOwnerTy<Anchor extends FieldsOwner> extends BaseTy<Anchor> {
             res = mergeSizes(res, size)
         })
 
-        return res
+        const headerSize = this.anchor?.node.type === "message" ? 32 : 0
+
+        return mergeSizes(res, {
+            fixed: headerSize,
+            floating: 0,
+        })
     }
 }
 
@@ -135,10 +140,10 @@ export class PrimitiveTy extends BaseTy<Primitive> {
                         this.tlb === "varuint16" ||
                         this.tlb === "varint16"
                     ) {
-                        return {fixed: 4, floating: 124}
+                        return {fixed: 4, floating: 120}
                     }
                     if (this.tlb === "varuint32" || this.tlb === "varint32") {
-                        return {fixed: 5, floating: 253}
+                        return {fixed: 5, floating: 248}
                     }
 
                     const trimmed = trimPrefix(trimPrefix(this.tlb, "uint"), "int")
@@ -154,7 +159,7 @@ export class PrimitiveTy extends BaseTy<Primitive> {
                 return {fixed: 1, floating: 0}
             }
             case "Address": {
-                return {fixed: 257, floating: 0}
+                return {fixed: 267, floating: 0}
             }
             case "Cell":
             case "Slice":
