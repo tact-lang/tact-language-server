@@ -33,12 +33,13 @@ extends fun some(self: Data) {
     return <caret>
 }
 ------------------------------------------------------------------------
-5  self   Data
-9  self.active:    of Data
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
+5  self   Data
+9  self.active:    of Data
 2  some(self: Data)
 21 Data{}
 
@@ -57,12 +58,13 @@ extends fun some(self: Data) {
     return <caret>
 }
 ------------------------------------------------------------------------
-5  self   Data
-9  self.active:    of Data
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
+5  self   Data
+9  self.active:    of Data
 2  other(self: Data)
 2  some(self: Data)
 21 Data{}

@@ -82,6 +82,7 @@ export default tseslint.config(
             "@typescript-eslint/max-params": "off",
             "@typescript-eslint/no-invalid-this": "off",
             "@typescript-eslint/init-declarations": "off",
+            "@typescript-eslint/dot-notation": "off",
 
             "@unused-imports/no-unused-imports": "error",
             "no-duplicate-imports": "error",

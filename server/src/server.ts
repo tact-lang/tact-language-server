@@ -150,6 +150,10 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
         return settings.stdlib.path
     }
 
+    if (process.env["TACT_LS_SKIP_STDLIB_IN_TESTS"] === "true") {
+        return null
+    }
+
     const searchDirs = [
         "node_modules/@tact-lang/compiler/src/stdlib/stdlib",
         "node_modules/@tact-lang/compiler/src/stdlib",
@@ -177,6 +181,14 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
     const stdlibPath = path.join(rootDir, localFolder)
     console.info(`Using Standard library from ${stdlibPath}`)
     return stdlibPath
+}
+
+function findStubs(): string | null {
+    if (process.env["TACT_LS_SKIP_STDLIB_IN_TESTS"] === "true") {
+        return null
+    }
+
+    return path.join(__dirname, "stubs")
 }
 
 async function initialize(): Promise<void> {
@@ -225,9 +237,11 @@ async function initialize(): Promise<void> {
     setProjectStdlibPath(stdlibPath)
 
     reporter.report(55, "Indexing: (2/3) Stubs")
-    const stubsPath = path.join(__dirname, "stubs")
-    const stubsRoot = new IndexRoot(`file://${stubsPath}`, IndexRootKind.Stdlib)
-    await stubsRoot.index()
+    const stubsPath = findStubs()
+    if (stubsPath !== null) {
+        const stubsRoot = new IndexRoot(`file://${stubsPath}`, IndexRootKind.Stdlib)
+        await stubsRoot.index()
+    }
 
     reporter.report(80, "Indexing: (3/3) Workspace")
     const workspaceRoot = new IndexRoot(rootUri, IndexRootKind.Workspace)

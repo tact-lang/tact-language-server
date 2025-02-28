@@ -9,6 +9,8 @@ export async function run(): Promise<void> {
         timeout: 20_000,
     })
 
+    process.env["TACT_LS_SKIP_STDLIB_IN_TESTS"] = "true"
+
     const testsRoot = path.resolve(__dirname, ".")
 
     return new Promise((resolve, reject) => {

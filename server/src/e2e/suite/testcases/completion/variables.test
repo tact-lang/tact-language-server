@@ -17,11 +17,12 @@ fun test() {
 5  myInt   Int
 5  myString   String
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -47,11 +48,12 @@ fun test(amount: Int, to: Address) {
 5  amount   Int
 5  to   Address
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test(amount: Int, to: Address)
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -78,11 +80,12 @@ extends fun move(self: Point, x: Int, y: Int) {
 5  x   Int
 5  y   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  move(self: Point, x: Int, y: Int)
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 21 Point{}
 14 do
 14 foreach
@@ -111,11 +114,12 @@ extends fun scale(self: Point, factor: Int) {
 5  factor   Int
 5  self   Point
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  scale(self: Point, factor: Int)
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 21 Point{}
 14 do
 14 foreach
@@ -146,11 +150,12 @@ fun test() {
 5  inner   Int
 5  outer   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -183,11 +188,12 @@ fun test() {
 5  b   Int
 5  c   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -217,11 +223,12 @@ fun test() {
 5  key   Int
 5  value   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -252,11 +259,12 @@ fun test() {
 5  result   Int
 5  value   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -286,11 +294,12 @@ fun test() {
 5  error   Int
 5  value   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -318,11 +327,12 @@ fun test() {
 ------------------------------------------------------------------------
 5  value   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -348,11 +358,12 @@ fun test(param: Int) {
 5  local   Int
 5  param   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test(param: Int)
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -376,11 +387,12 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -405,11 +417,12 @@ fun test() {
 ------------------------------------------------------------------------
 5  variable   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -437,11 +450,12 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -472,11 +486,12 @@ fun test() {
 5  second   Int
 5  third   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -498,14 +513,10 @@ fun test() {
     let <caret>
 }
 ------------------------------------------------------------------------
-0  fun
-0  Int
-0  let
-0  primitive
-0  test
-0  ToImport
-0  trait
-0  WithSeveralDeclaration
+13 map<K, V>
+9  Int
+24 ToImport
+24 WithSeveralDeclaration
 
 ========================================================================
 Completion in variable name 2
@@ -516,14 +527,10 @@ fun test() {
     let <caret> = 10;
 }
 ------------------------------------------------------------------------
-0  fun
-0  Int
-0  let
-0  primitive
-0  test
-0  ToImport
-0  trait
-0  WithSeveralDeclaration
+13 map<K, V>
+9  Int
+24 ToImport
+24 WithSeveralDeclaration
 
 ========================================================================
 Variable and function with the same name
@@ -539,12 +546,13 @@ fun test() {
 ------------------------------------------------------------------------
 5  first   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  first()
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if

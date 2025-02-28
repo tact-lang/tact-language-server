@@ -14,30 +14,3 @@ fun foo() {
 fun require(that: Bool, msg: String)
 ```
 Exit code: **44401**
-
-Checks the condition and throws an error with an exit code generated from the error message if the condition is false. Does nothing otherwise.
-
- The generated exit code is guaranteed to be outside the common 0−255 range reserved for TVM and Tact contract errors, which makes it possible to distinguish exit codes from `require()` and any other standard exit codes.
-
- 
-```tact
-fun examples() {
-    // now() has to return a value greater than 1000,
-    // otherwise an error message will be thrown
-    require(now() > 1000, "We're in the first 1000 seconds of 1 January 1970!");
-
-    try {
-        // The following will never be true, so this require would always throw
-        require(now() < -1, "Time is an illusion. Lunchtime doubly so.");
-    } catch (e) {
-        // e will be outside of range 0-255
-        dump(e);
-    }
-}
-```
- See:
-
-
-* https://docs.tact-lang.org/ref/core-debug/#require
-
-* https://docs.tact-lang.org/book/compile/#report

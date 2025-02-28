@@ -12,12 +12,13 @@ fun test() {
     value = <caret>
 }
 ------------------------------------------------------------------------
-5  value   Bool
 13 false
 13 true
-2  bar(): Bool
-13 initOf Contract(params)   StateInit
 13 null
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
+5  value   Bool
+2  bar(): Bool
 2  foo(): Int
 2  test()
 
@@ -40,9 +41,10 @@ fun test() {
 ------------------------------------------------------------------------
 13 false
 13 true
-2  bar(): Bool
-13 initOf Contract(params)   StateInit
 13 null
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
+2  bar(): Bool
 2  foo(): Int
 2  test()
 21 Some{}
@@ -66,13 +68,14 @@ fun test() {
 ------------------------------------------------------------------------
 5  someValue   Int
 5  value   Int?
-13 initOf Contract(params)   StateInit
 13 null
-2  bar(): Int
+2  bar(): Int?
 2  foo(): Int
 5  someBool   Bool
 13 false
 13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 2  test()
 2  zoo(): Bool
 
@@ -93,13 +96,14 @@ fun test() {
 }
 ------------------------------------------------------------------------
 5  someValue   Int
-13 initOf Contract(params)   StateInit
 13 null
-2  bar(): Int
+2  bar(): Int?
 2  foo(): Int
 5  someBool   Bool
 13 false
 13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 2  test()
 2  zoo(): Bool
 
@@ -119,13 +123,14 @@ fun test() {
     let value = <caret>;
 }
 ------------------------------------------------------------------------
-5  someBool   Bool
-5  someValue   Int
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 true
-2  bar(): Int
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
+5  someBool   Bool
+5  someValue   Int
+2  bar(): Int?
 2  foo(): Int
 2  test()
 2  zoo(): Bool
@@ -149,15 +154,16 @@ fun test() {
     let value: MyStruct = <caret>;
 }
 ------------------------------------------------------------------------
+13 false
+13 null
+13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 5  someStruct   MyStruct
-2  bar(): MyStruct
+2  bar(): MyStruct?
 2  foo(): MyStruct
 21 MyStruct{}
 5  someBool   Bool
 5  someValue   Int
-13 false
-13 initOf Contract(params)   StateInit
-13 null
-13 true
 2  test()
 2  zoo(): Bool

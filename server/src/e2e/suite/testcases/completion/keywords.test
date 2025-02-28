@@ -8,11 +8,12 @@ trait Foo {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  self.foo()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 13 self
 14 do
 14 foreach
@@ -36,11 +37,12 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  self.foo()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 13 self
 14 do
 14 foreach
@@ -62,11 +64,12 @@ fun foo() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  foo()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if

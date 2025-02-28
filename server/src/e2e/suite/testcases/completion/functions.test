@@ -16,13 +16,14 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  add(a: Int, b: Int): Int
 2  multiply(x: Int, y: Int): Int
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -49,9 +50,10 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 2  add(a: Int, b: Int): Int
 2  test()
 
@@ -96,9 +98,10 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 2  add(a: Int, b: Int): Int
 2  test()
 
@@ -118,13 +121,14 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  add(a: Int, b: Int): Int
 2  multiply(x: Int, y: Int): Int
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if
@@ -157,12 +161,13 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 return;
 13 true
 2  foo()
 2  test()
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 14 do
 14 foreach
 14 if

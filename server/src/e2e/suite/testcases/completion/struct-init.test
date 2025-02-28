@@ -77,12 +77,13 @@ fun test() {
     Foo{ <caret> value: 10 };
 }
 ------------------------------------------------------------------------
-9  age: Int   of Foo
-9  value: Int   of Foo
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
+9  age: Int   of Foo
+9  value: Int   of Foo
 
 ========================================================================
 Second field in struct init with variable
@@ -115,8 +116,9 @@ fun test() {
 }
 ------------------------------------------------------------------------
 13 false
-13 initOf Contract(params)   StateInit
 13 null
 13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
 2  test()
 21 Foo{}
