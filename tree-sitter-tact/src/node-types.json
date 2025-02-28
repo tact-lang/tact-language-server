@@ -2058,12 +2058,32 @@
     "type": "parameter",
     "named": true,
     "fields": {
+      "_completion_anchor": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
       "name": {
         "multiple": false,
         "required": true,
         "types": [
           {
             "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "tlb": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "tlb_serialization",
             "named": true
           }
         ]
