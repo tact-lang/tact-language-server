@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2025-03-01
+
+### Improvements
+
+- feat(all): initial support for contract parameters in https://github.com/tact-lang/tact-language-server/pull/374
+- feat(foldings): add folding for Fift blocks in https://github.com/tact-lang/tact-language-server/pull/379
+
+### Fixed
+
+- fix(completion): fix completion for types of fields in https://github.com/tact-lang/tact-language-server/pull/381
+- fix(documentation): correctly show T? type in https://github.com/tact-lang/tact-language-server/pull/380
+- fix(documentation/inlay-hints): fix size calculation in https://github.com/tact-lang/tact-language-server/pull/377
+- fix(inspections): run inspections only on Tact files in https://github.com/tact-lang/tact-language-server/pull/378
+
+### Other
+
+- feat(tests): better tests, test fixes in https://github.com/tact-lang/tact-language-server/pull/383
+- fix(tests): fix tests in https://github.com/tact-lang/tact-language-server/pull/382
+
 ## [0.3.0] - 2025-02-24
 
 ### Improvements
