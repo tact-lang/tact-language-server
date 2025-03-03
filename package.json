@@ -352,7 +352,7 @@
                         "default": true,
                         "description": "Show struct fields in document outline"
                     },
-                    "tac.document.showMessageFields": {
+                    "tact.document.showMessageFields": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show message fields in document outline"
