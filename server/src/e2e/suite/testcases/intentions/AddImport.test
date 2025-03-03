@@ -4,7 +4,10 @@ Add import for trait from other file
 contract Test with <caret>ToImport {
 }
 ------------------------------------------------------------------------
-No intentions
+import "./other";
+
+contract Test with ToImport {
+}
 
 ========================================================================
 Add import for trait from other file with other imports
