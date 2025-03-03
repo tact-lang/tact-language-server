@@ -285,7 +285,7 @@ export class Referent {
             // contract Foo(value: Int) {}
             //              ^^^^^ this
             if (grand?.type === "contract") {
-                return GlobalSearchScope.allFiles()
+                return Referent.localSearchScope(grand.lastChild)
             }
         }
 
