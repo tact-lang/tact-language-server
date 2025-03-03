@@ -121,6 +121,8 @@ import {GetterCompletionProvider} from "@server/completion/providers/GetterCompl
 import {CompilerInspection} from "@server/inspections/CompilerInspection"
 import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
 import {MistiInspection} from "@server/inspections/MistInspection"
+import {DontUseTextReceiversInspection} from "@server/inspections/DontUseTextReceiversInspection"
+import {ReplaceTextReceiverWithBinary} from "@server/intentions/ReplaceTextReceiverWithBinary"
 
 /**
  * Whenever LS is initialized.
@@ -323,6 +325,7 @@ async function runInspections(uri: string, file: File): Promise<void> {
         new UnusedImportInspection(),
         new MissedFieldInContractInspection(),
         new NotImportedSymbolInspection(),
+        new DontUseTextReceiversInspection(),
     ]
 
     const settings = await getDocumentSettings(uri)
@@ -1357,6 +1360,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     const intentions: Intention[] = [
         new AddExplicitType(),
         new AddImport(),
+        new ReplaceTextReceiverWithBinary(),
         new FillFieldsStructInit(),
         new FillRequiredStructInit(),
         new AddFieldInitialization(),

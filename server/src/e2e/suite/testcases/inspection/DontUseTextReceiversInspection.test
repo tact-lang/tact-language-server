@@ -1,0 +1,19 @@
+========================================================================
+Contract with text receiver
+========================================================================
+contract Foo {
+    receive("some name") {}
+    receive("some-other-name") {}
+}
+------------------------------------------------------------------------
+1 1:12 to 1:23 Use binary messages instead of text messages to improve performance (tact)
+1 2:12 to 2:29 Use binary messages instead of text messages to improve performance (tact)
+
+========================================================================
+Contract with text receiver in external
+========================================================================
+contract Test {
+    external("<caret>some") {}
+}
+------------------------------------------------------------------------
+1 1:13 to 1:26 Use binary messages instead of text messages to improve performance (tact)

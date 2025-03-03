@@ -44,7 +44,7 @@ contract Test {
     }
 }
 ------------------------------------------------------------------------
-no issues
+1 1:13 to 1:26 Use binary messages instead of text messages to improve performance (tact)
 
 ========================================================================
 Empty init
