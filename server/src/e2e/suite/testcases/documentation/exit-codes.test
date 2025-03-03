@@ -1,0 +1,38 @@
+========================================================================
+Exit code documentation for throw
+========================================================================
+fun foo() {
+    throw(<caret>134);
+}
+------------------------------------------------------------------------
+Invalid argument.
+
+**Phase**: Tact compiler (Compute phase)
+
+Learn more about exit codes in documentation: https://docs.tact-lang.org/book/exit-codes/
+
+========================================================================
+Exit code documentation for throwIf
+========================================================================
+fun foo() {
+    throwIf(<caret>134, true);
+}
+------------------------------------------------------------------------
+Invalid argument.
+
+**Phase**: Tact compiler (Compute phase)
+
+Learn more about exit codes in documentation: https://docs.tact-lang.org/book/exit-codes/
+
+========================================================================
+No exit code documentation for other functions
+========================================================================
+primitive Int;
+
+fun bar(a: Int) {}
+
+fun foo() {
+    bar(<caret>134);
+}
+------------------------------------------------------------------------
+no documentation
