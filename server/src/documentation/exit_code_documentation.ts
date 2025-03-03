@@ -104,6 +104,7 @@ export const DATA: Record<number, {origin: string; description: string} | undefi
     "136": {origin: "Tact compiler (Compute phase)", description: "Invalid standard address."},
     "137": {
         origin: "Tact compiler (Compute phase)",
-        description: "Masterchain support is not enabled for this contract. Removed since Tact 1.6",
+        description:
+            "Masterchain support is not enabled for this contract. Removed since Tact 1.6.",
     },
 }
