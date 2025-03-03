@@ -55,6 +55,8 @@ The easiest way to get started with Tact is to use VS Code or editors based on i
    or [in VS Code-based editors](https://open-vsx.org/extension/tonstudio/vscode-tact)
 2. That's it!
 
+![editor.png](docs/manual/assets/editor.png)
+
 ## Installation
 
 ### VS Code / VSCodium / Cursor / Windsurf
