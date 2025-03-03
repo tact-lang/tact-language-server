@@ -61,7 +61,7 @@ The easiest way to get started with Tact is to use VS Code or editors based on i
 
 ### VS Code / VSCodium / Cursor / Windsurf
 
-1. Get the latest `.vsix` file from [releases](https://github.com/tact-lang/tact-language-server/releases), from
+1. Get the latest `.vsix` file from [releases](https://github.com/tact-lang/tact-language-server/releases) from
    [VS Code marketplace](https://marketplace.visualstudio.com/items?itemName=tonstudio.vscode-tact)
    or from [Open VSX Registry](https://open-vsx.org/extension/tonstudio/vscode-tact)
 2. In VS Code:
@@ -95,13 +95,13 @@ To obtain the `.vsix` package with the VS Code extension, additionally run:
 yarn package
 ```
 
-And then run either of those to install the extension from the `.vsix` package:
+Then run either of those to install the extension from the `.vsix` package:
 
 ```shell
-# VSCode, replace VERSION with actual version from package.json
+# VSCode, replace VERSION with the actual version from package.json
 code --install-extension vscode-tact-VERSION.vsix
 
-# VSCodium, replace VERSION with actual version from package.json
+# VSCodium, replace VERSION with the actual version from package.json
 codium --install-extension vscode-tact-VERSION.vsix
 ```
 
@@ -132,7 +132,7 @@ codium --install-extension vscode-tact-VERSION.vsix
     }
     ```
 
-4. Create a new file with `.tact` extension to verify the setup
+4. Create a new file with the `.tact` extension to verify the setup
 
 ### Neovim
 
@@ -186,11 +186,11 @@ Recommended, but not required:
 
 Setup steps:
 
-1. Install the [tact.vim](https://github.com/tact-lang/tact.vim) if it isn't already installed. Prefer using a non-builtin plugin manager to easily get new updates.
+1. Install the [tact.vim](https://github.com/tact-lang/tact.vim) if it hasn't already been installed. Prefer using a non-builtin plugin manager to get new updates easily.
 
 2. Install the [vim-lsp](https://github.com/prabirshrestha/vim-lsp) plugin if it isn't already installed. For that, use [vim-plug](https://github.com/junegunn/vim-plug) or the built-in package manager of Vim 8+, see [`:help packages`](https://vimhelp.org/repeat.txt.html#packages).
 
-- If it wasn't installed before, you'll need to setup basic keybindings with the language client. Add the following to your `~/.vimrc` (or `~/_vimrc` if you're on Windows), or modify to your preferences:
+- If it wasn't installed before, you'll need to set up basic keybindings with the language client. Add the following to your `~/.vimrc` (or `~/_vimrc` if you're on Windows), or modify your preferences:
 
     ```vim
     function! s:on_lsp_buffer_enabled() abort
@@ -213,13 +213,13 @@ Setup steps:
         let g:lsp_format_sync_timeout = 1000
         autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
 
-        " Refer to doc to add more commands:
+        " Refer to the doc to add more commands:
         " https://github.com/prabirshrestha/vim-lsp#supported-commands
     endfunction
 
     augroup lsp_install
         au!
-        " call s:on_lsp_buffer_enabled only for languages that has the server registered.
+        " call s:on_lsp_buffer_enabled only for languages that have the server registered.
         autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
     augroup END
     ```
