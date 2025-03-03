@@ -123,6 +123,7 @@ import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
 import {MistiInspection} from "@server/inspections/MistInspection"
 import {DontUseTextReceiversInspection} from "@server/inspections/DontUseTextReceiversInspection"
 import {ReplaceTextReceiverWithBinary} from "@server/intentions/ReplaceTextReceiverWithBinary"
+import {generateExitCodeDocumentation} from "@server/documentation/exit_code_documentation"
 
 /**
  * Whenever LS is initialized.
@@ -556,6 +557,39 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (!parent) return null
             const func = new InitFunction(parent, file)
             const doc = generateInitDoc(func)
+            if (doc === null) return null
+
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        // Hover documentation for 10 in `throwIf(10, cond)
+        if (hoverNode.type === "integer" && hoverNode.parent?.type === "argument") {
+            const call = hoverNode.parent.parent?.parent
+            if (!call) return null
+            if (call.type !== "static_call_expression") return null
+            const name = call.childForFieldName("name")?.text
+            if (!name) return null
+
+            if (
+                ![
+                    "throw",
+                    "throwIf",
+                    "throwUnless",
+                    "nativeThrow",
+                    "nativeThrowIf",
+                    "nativeThrowUnless",
+                ].includes(name)
+            ) {
+                return null
+            }
+
+            const doc = generateExitCodeDocumentation(Number.parseInt(hoverNode.text))
             if (doc === null) return null
 
             return {
