@@ -33,12 +33,12 @@ export class ReplaceTextReceiverWithBinary implements Intention {
         const resolved = ReplaceTextReceiverWithBinary.resolveString(ctx)
         if (!resolved) return null
 
-        const contract = parentOfType(resolved, "contract", "trait")
-        if (!contract) return null
+        const owner = parentOfType(resolved, "contract", "trait")
+        if (!owner) return null
 
         const diff = FileDiff.forFile(ctx.file.uri)
 
-        const positionToInsert = Math.max(contract.startPosition.row - 1, 0)
+        const positionToInsert = Math.max(owner.startPosition.row - 1, 0)
 
         const messageName = this.generateMessageName(resolved)
 
