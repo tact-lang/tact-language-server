@@ -221,6 +221,12 @@ export class TypeInferer {
                 return this.inferTypeMaybeOption(typeNode, resolved)
             }
 
+            if (resolved.node.type === "parameter") {
+                const typeNode = resolved.node.childForFieldName("type")
+                if (!typeNode) return null
+                return this.inferTypeMaybeOption(typeNode, resolved)
+            }
+
             return this.inferTypeFromResolved(resolved)
         }
 

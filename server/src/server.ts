@@ -38,7 +38,7 @@ import {KeywordsCompletionProvider} from "./completion/providers/KeywordsComplet
 import type {CompletionProvider} from "./completion/CompletionProvider"
 import {SelfCompletionProvider} from "./completion/providers/SelfCompletionProvider"
 import {ReturnCompletionProvider} from "./completion/providers/ReturnCompletionProvider"
-import {BaseTy, FieldsOwnerTy} from "./types/BaseTy"
+import {BaseTy, FieldsOwnerTy, Ty} from "./types/BaseTy"
 import type {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
 import {
     Constant,
@@ -1516,6 +1516,31 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
+    function getAdjustedNodeForType(node: SyntaxNode): SyntaxNode {
+        const parent = node.parent
+        if (
+            parent?.type === "method_call_expression" ||
+            parent?.type === "static_call_expression" ||
+            parent?.type === "instance_expression"
+        ) {
+            return parent
+        }
+
+        return node
+    }
+
+    function findTypeForNode(node: SyntaxNode, file: File): {ty: Ty; node: SyntaxNode} | null {
+        let nodeForType: SyntaxNode | null = node
+        while (nodeForType) {
+            const ty = TypeInferer.inferType(new Expression(nodeForType, file))
+            if (ty) return {ty, node: nodeForType}
+            nodeForType = nodeForType.parent
+            if (nodeForType?.type.includes("statement")) break
+        }
+
+        return null
+    }
+
     connection.onRequest(
         GetTypeAtPositionRequest,
         (params: GetTypeAtPositionParams): GetTypeAtPositionResponse => {
@@ -1523,15 +1548,23 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const cursorPosition = asParserPoint(params.position)
 
             const node = file.rootNode.descendantForPosition(cursorPosition)
-            if (!node) {
-                return {type: null}
+            if (!node) return {type: null, range: null}
+
+            const adjustedNode = getAdjustedNodeForType(node)
+
+            const res = findTypeForNode(adjustedNode, file)
+            if (!res) {
+                return {
+                    type: "void or unknown",
+                    range: asLspRange(node),
+                }
             }
 
-            const adjustedNode = node.parent?.type === "method_call_expression" ? node.parent : node
+            const {ty, node: actualNode} = res
 
-            const type = TypeInferer.inferType(new Expression(adjustedNode, file))
             return {
-                type: type ? type.qualifiedName() : null,
+                type: ty.qualifiedName(),
+                range: asLspRange(actualNode),
             }
         },
     )

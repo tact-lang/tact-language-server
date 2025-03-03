@@ -18,7 +18,7 @@ import {
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
 } from "@shared/shared-msgtypes"
-import type {Location, Position} from "vscode-languageclient"
+import type {Location} from "vscode-languageclient"
 import type {ClientOptions} from "@shared/config-scheme"
 import {registerBuildTasks} from "./build-system"
 import {registerOpenBocCommand} from "./commands/openBocCommand"
@@ -26,6 +26,7 @@ import {BocEditorProvider} from "./providers/BocEditorProvider"
 import {BocFileSystemProvider} from "./providers/BocFileSystemProvider"
 import {BocDecompilerProvider} from "./providers/BocDecompilerProvider"
 import {registerSaveBocDecompiledCommand} from "./commands/saveBocDecompiledCommand"
+import {Range, Position} from "vscode"
 
 let client: LanguageClient | null = null
 
@@ -206,6 +207,17 @@ function registerCommands(disposables: vscode.Disposable[]): void {
                 )
 
                 if (isFromEditor && result.type) {
+                    const editor = vscode.window.activeTextEditor
+                    if (editor && result.range) {
+                        const range = new Range(
+                            new Position(result.range.start.line, result.range.start.character),
+                            new Position(result.range.end.line, result.range.end.character),
+                        )
+
+                        editor.selections = [new vscode.Selection(range.start, range.end)]
+                        editor.revealRange(range)
+                    }
+
                     void vscode.window.showInformationMessage(`Type: ${result.type}`)
                 }
 

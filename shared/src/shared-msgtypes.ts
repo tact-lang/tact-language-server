@@ -23,6 +23,7 @@ export interface SetToolchainVersionParams {
 
 export interface GetTypeAtPositionResponse {
     type: string | null
+    range: lsp.Range | null
 }
 
 export type GetDocumentationAtPositionResponse = lsp.Hover
