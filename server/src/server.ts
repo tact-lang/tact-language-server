@@ -124,6 +124,7 @@ import {MistiInspection} from "@server/inspections/MistInspection"
 import {DontUseTextReceiversInspection} from "@server/inspections/DontUseTextReceiversInspection"
 import {ReplaceTextReceiverWithBinary} from "@server/intentions/ReplaceTextReceiverWithBinary"
 import {generateExitCodeDocumentation} from "@server/documentation/exit_code_documentation"
+import {RewriteInspection} from "@server/inspections/RewriteInspection"
 
 /**
  * Whenever LS is initialized.
@@ -327,6 +328,7 @@ async function runInspections(uri: string, file: File): Promise<void> {
         new MissedFieldInContractInspection(),
         new NotImportedSymbolInspection(),
         new DontUseTextReceiversInspection(),
+        new RewriteInspection(),
     ]
 
     const settings = await getDocumentSettings(uri)
@@ -1500,6 +1502,15 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                     },
                 })
             })
+
+            for (const diagnostic of params.context.diagnostics) {
+                const data = diagnostic.data as undefined | lsp.CodeAction
+                if (data === undefined || !("title" in data) || !("edit" in data)) {
+                    continue
+                }
+
+                actions.push(data)
+            }
 
             return actions
         },
