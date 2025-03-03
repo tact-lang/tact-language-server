@@ -1,5 +1,7 @@
 # Tact Language Server
 
+---
+
 Developed by [TON Studio](https://tonstudio.io), powered by the community.
 
 **[Try online!] • [Features] • [Installation] • [Community] • [Troubleshooting]**
@@ -13,6 +15,8 @@ Developed by [TON Studio](https://tonstudio.io), powered by the community.
 [![Twitter](https://img.shields.io/badge/X%2FTwitter-white?logo=x&style=flat&logoColor=gray)](https://x.com/tact_language)
 [![Telegram](https://img.shields.io/badge/Community_Chat-white?logo=telegram&style=flat)](https://t.me/tactlang)
 [![Telegram](https://img.shields.io/badge/Tact_Kitchen_🥣-white?logo=telegram&style=flat)](https://t.me/tact_kitchen)
+
+---
 
 This language server/extension provides support for the [Tact programming language](https://tact-lang.org).
 
