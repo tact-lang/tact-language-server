@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] - 2025-03-03
+
+Bump a version of decompiler to v0.3.0.
+
 ## [0.3.1] - 2025-03-01
 
 ### Improvements

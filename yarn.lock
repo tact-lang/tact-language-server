@@ -970,13 +970,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tact-lang/opcode@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@tact-lang/opcode@npm:0.2.0"
+"@tact-lang/opcode@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@tact-lang/opcode@npm:0.3.0"
   dependencies:
     "@ton/core": "npm:^0.60.0"
     "@ton/crypto": "npm:^3.3.0"
-  checksum: 10c0/2d7a670302251187dfb6ed7ffebe0596cd2f94a6c2823034a107994dad3e84f96293c80f4916ad6fe5961c169a40d05b29566186f91343a46e4c8760919d70fe
+  checksum: 10c0/7bf118c78ae2aba4774d1a6fc1dd019acbceb24353f0e67b60cf1d17fe8df687028436b6d6bc300d62bc42fa4a12bea10ffe7c6dd5864a6674290c6898af8b43
   languageName: node
   linkType: hard
 
@@ -7350,7 +7350,7 @@ __metadata:
   resolution: "vscode-tact@workspace:."
   dependencies:
     "@scaleton/func-debug-symbols": "npm:^0.1.5"
-    "@tact-lang/opcode": "npm:^0.2.0"
+    "@tact-lang/opcode": "npm:^0.3.0"
     "@textlint/markdown-to-ast": "npm:^14.4.2"
     "@types/jest": "npm:^29.5.12"
     "@types/mocha": "npm:^10.0.6"
