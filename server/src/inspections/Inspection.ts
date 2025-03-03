@@ -5,6 +5,7 @@ export const InspectionIds = {
     COMPILER: "tact-compiler-errors",
     UNUSED_PARAMETER: "unused-parameter",
     EMPTY_BLOCK: "empty-block",
+    REWRITE: "rewrite",
     UNUSED_VARIABLE: "unused-variable",
     STRUCT_INITIALIZATION: "struct-initialization",
     UNUSED_CONTRACT_MEMBERS: "unused-contract-members",
