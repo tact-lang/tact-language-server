@@ -169,3 +169,30 @@ contract Test(
 ------------------------------------------------------------------------
 3 4:4 to 4:9 Field 'other' is never used (tact)
 3 6:8 to 6:11 Method 'foo' is never used (tact)
+
+========================================================================
+Contract with parameters 2
+========================================================================
+primitive Int;
+
+contract Other(
+    some: Int,
+    other: Int,
+) {
+    fun foo() {
+        self.some;
+        self.other;
+    }
+}
+
+contract Test(
+    some: Int,
+    other: Int,
+) {
+    fun foo() {
+        self.some;
+    }
+}
+------------------------------------------------------------------------
+3 4:4 to 4:9 Field 'other' is never used (tact)
+3 6:8 to 6:11 Method 'foo' is never used (tact)
