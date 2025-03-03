@@ -8,4 +8,5 @@ const FOO: <caret> = 100;
 ------------------------------------------------------------------------
 13 map<K, V>
 9  Int
+24 ToImport
 24 WithSeveralDeclaration

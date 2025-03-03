@@ -292,37 +292,37 @@
             {
                 "title": "Editor › Code Lenses",
                 "properties": {
-                    "tact.editor.codeLens.enabled": {
+                    "tact.codeLens.enabled": {
                         "type": "boolean",
                         "default": true,
                         "description": "Enable/disable all code lens"
                     },
-                    "tact.editor.codeLens.showUsages": {
+                    "tact.codeLens.showUsages": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show number of usages for traits, structs, messages, constants and functions"
                     },
-                    "tact.editor.codeLens.showOverrides": {
+                    "tact.codeLens.showOverrides": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show number of overrides for virtual functions"
                     },
-                    "tact.editor.codeLens.showTraitImplementations": {
+                    "tact.codeLens.showTraitImplementations": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show number of implementations for traits"
                     },
-                    "tact.editor.codeLens.showFunctionImplementations": {
+                    "tact.codeLens.showFunctionImplementations": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show number of implementations for abstract functions"
                     },
-                    "tact.editor.codeLens.showParentTraitFields": {
+                    "tact.codeLens.showParentTraitFields": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show 'Go to parent' lens for fields inherited from traits"
                     },
-                    "tact.editor.codeLens.showParentTraitFunctions": {
+                    "tact.codeLens.showParentTraitFunctions": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show 'Go to parent' lens for functions inherited from traits"
@@ -332,12 +332,12 @@
             {
                 "title": "Editor › Completion",
                 "properties": {
-                    "tact.editor.completion.typeAware": {
+                    "tact.completion.typeAware": {
                         "type": "boolean",
                         "default": true,
                         "description": "Sort completion items by relevance to the current context type"
                     },
-                    "tact.editor.completion.addImports": {
+                    "tact.completion.addImports": {
                         "type": "boolean",
                         "default": true,
                         "description": "Automatically add necessary imports for symbols from other files"
@@ -347,12 +347,12 @@
             {
                 "title": "Editor › Document",
                 "properties": {
-                    "tact.editor.document.showStructFields": {
+                    "tact.document.showStructFields": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show struct fields in document outline"
                     },
-                    "tact.editor.document.showMessageFields": {
+                    "tac.document.showMessageFields": {
                         "type": "boolean",
                         "default": true,
                         "description": "Show message fields in document outline"
@@ -362,7 +362,7 @@
             {
                 "title": "Editor › Inspections",
                 "properties": {
-                    "tact.editor.inspections.disabled": {
+                    "tact.inspections.disabled": {
                         "type": "array",
                         "items": {
                             "type": "string",
@@ -375,7 +375,8 @@
                                 "unused-contract-members",
                                 "unused-import",
                                 "missed-field-in-contract",
-                                "not-imported-symbol"
+                                "not-imported-symbol",
+                                "dont-use-text-receivers"
                             ]
                         },
                         "default": [],
@@ -498,7 +499,7 @@
     },
     "devDependencies": {
         "@scaleton/func-debug-symbols": "^0.1.5",
-        "@types/jest": "^29.5.12",
+        "@types/jest": "^29.5.14",
         "@types/mocha": "^10.0.6",
         "@types/node": "^22.2.0",
         "@types/vscode": "^1.63.0",
@@ -514,7 +515,7 @@
         "mocha": "^10.3.0",
         "prettier": "3.4.2",
         "tree-sitter-cli": "^0.25.0",
-        "ts-jest": "^29.2.4",
+        "ts-jest": "^29.2.6",
         "ts-loader": "^9.5.1",
         "ts-node": "^10.9.2",
         "tsconfig-paths-webpack-plugin": "^4.2.0",

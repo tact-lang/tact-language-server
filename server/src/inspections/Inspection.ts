@@ -11,6 +11,7 @@ export const InspectionIds = {
     UNUSED_IMPORT: "unused-import",
     MISSED_FIELD_IN_CONTRACT: "missed-field-in-contract",
     NOT_IMPORTED_SYMBOL: "not-imported-symbol",
+    DONT_USE_TEXT_RECEIVERS: "dont-use-text-receivers",
     MISTI: "misti",
 } as const
 

@@ -1,0 +1,131 @@
+========================================================================
+@intention Replace text receiver with binary
+Replace text receiver
+========================================================================
+contract Test {
+    receive("<caret>some") {}
+}
+------------------------------------------------------------------------
+message Some {}
+
+contract Test {
+    receive(_: Some) {}
+}
+
+========================================================================
+@intention Replace text receiver with binary
+Replace text receiver for contract after import
+========================================================================
+import "some";
+
+contract Test {
+    receive("<caret>some") {}
+}
+------------------------------------------------------------------------
+import "some";
+
+message Some {}
+
+contract Test {
+    receive(_: Some) {}
+}
+
+========================================================================
+@intention Replace text receiver with binary
+Replace text receiver for contract after other message
+========================================================================
+import "some";
+
+message Foo {}
+
+contract Test {
+    receive("<caret>some") {}
+}
+------------------------------------------------------------------------
+import "some";
+
+message Foo {}
+
+message Some {}
+
+contract Test {
+    receive(_: Some) {}
+}
+
+========================================================================
+@intention Replace text receiver with binary
+Replace text receiver for contract with same name message
+========================================================================
+import "some";
+
+message Some {}
+
+contract Test {
+    receive("<caret>some") {}
+}
+------------------------------------------------------------------------
+import "some";
+
+message Some {}
+
+message Some2 {}
+
+contract Test {
+    receive(_: Some2) {}
+}
+
+========================================================================
+@intention Replace text receiver with binary
+Replace text receiver with spaces
+========================================================================
+contract Test {
+    receive("<caret>some message name") {}
+}
+------------------------------------------------------------------------
+message SomeMessageName {}
+
+contract Test {
+    receive(_: SomeMessageName) {}
+}
+
+========================================================================
+@intention Replace text receiver with binary
+Replace text receiver with spaces 2
+========================================================================
+contract Test {
+    receive("<caret>sOme         meSaaGE                name") {}
+}
+------------------------------------------------------------------------
+message SOmeMeSaaGEName {}
+
+contract Test {
+    receive(_: SOmeMeSaaGEName) {}
+}
+
+========================================================================
+@intention Replace text receiver with binary
+Replace text receiver with spaces 3
+========================================================================
+contract Test {
+    receive("<caret>h e l l o") {}
+}
+------------------------------------------------------------------------
+message HELLO {}
+
+contract Test {
+    receive(_: HELLO) {}
+}
+
+========================================================================
+@intention Replace text receiver with binary
+Replace text receiver in external
+========================================================================
+contract Test {
+    external("<caret>some") {}
+}
+------------------------------------------------------------------------
+message Some {}
+
+contract Test {
+    external(_: Some) {}
+}

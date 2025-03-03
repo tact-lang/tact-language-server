@@ -313,6 +313,7 @@ contract Foo {
 9  Address
 9  Int
 9  String
+24 ToImport
 24 WithSeveralDeclaration
 
 ========================================================================
@@ -339,4 +340,5 @@ trait Foo {
 9  Int
 9  String
 24 Foo
+24 ToImport
 24 WithSeveralDeclaration
