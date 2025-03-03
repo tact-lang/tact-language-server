@@ -233,5 +233,4 @@ fun multiply(x: Int, y: Int): <caret> {
 9  Int
 21 Bar
 21 Baz
-24 ToImport
 24 WithSeveralDeclaration

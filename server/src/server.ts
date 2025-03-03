@@ -122,7 +122,7 @@ import {CompilerInspection} from "@server/inspections/CompilerInspection"
 import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
 import {MistiInspection} from "@server/inspections/MistInspection"
 import {DontUseTextReceiversInspection} from "@server/inspections/DontUseTextReceiversInspection"
-import {ReplaceMessageReceiverWithBinary} from "@server/intentions/ReplaceMessageReceiverWithBinary"
+import {ReplaceTextReceiverWithBinary} from "@server/intentions/ReplaceTextReceiverWithBinary"
 
 /**
  * Whenever LS is initialized.
@@ -1360,7 +1360,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     const intentions: Intention[] = [
         new AddExplicitType(),
         new AddImport(),
-        new ReplaceMessageReceiverWithBinary(),
+        new ReplaceTextReceiverWithBinary(),
         new FillFieldsStructInit(),
         new FillRequiredStructInit(),
         new AddFieldInitialization(),

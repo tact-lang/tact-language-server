@@ -9,8 +9,8 @@ import {parentOfType} from "@server/psi/utils"
 import {toPascalCase} from "@server/utils/strings"
 import {index, IndexKey} from "@server/indexes"
 
-export class ReplaceMessageReceiverWithBinary implements Intention {
-    public readonly id: string = "tact.replace-message-receiver-with-binary"
+export class ReplaceTextReceiverWithBinary implements Intention {
+    public readonly id: string = "tact.replace-text-receiver-with-binary"
     public readonly name: string = "Replace text receiver with binary"
 
     private static resolveString(ctx: IntentionContext): SyntaxNode | null {
@@ -26,11 +26,11 @@ export class ReplaceMessageReceiverWithBinary implements Intention {
     }
 
     public isAvailable(ctx: IntentionContext): boolean {
-        return ReplaceMessageReceiverWithBinary.resolveString(ctx) !== null
+        return ReplaceTextReceiverWithBinary.resolveString(ctx) !== null
     }
 
     public invoke(ctx: IntentionContext): WorkspaceEdit | null {
-        const resolved = ReplaceMessageReceiverWithBinary.resolveString(ctx)
+        const resolved = ReplaceTextReceiverWithBinary.resolveString(ctx)
         if (!resolved) return null
 
         const contract = parentOfType(resolved, "contract", "trait")
