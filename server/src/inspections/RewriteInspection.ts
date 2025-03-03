@@ -27,7 +27,7 @@ export class RewriteInspection implements Inspection {
             }
 
             const sendFields = this.isSend(node, file)
-            if (sendFields && this.canBeRewriteAsMessage(sendFields)) {
+            if (sendFields && this.canBeRewrittenAsMessage(sendFields)) {
                 const name = node.childForFieldName("name")
                 if (!name) return
 
@@ -42,7 +42,7 @@ export class RewriteInspection implements Inspection {
                 })
             }
 
-            if (sendFields && this.canBeRewriteAsDeploy(sendFields)) {
+            if (sendFields && this.canBeRewrittenAsDeploy(sendFields)) {
                 const name = node.childForFieldName("name")
                 if (!name) return
 
@@ -90,7 +90,7 @@ export class RewriteInspection implements Inspection {
         }
     }
 
-    private canBeRewriteAsMessage(fields: Map<string, string>): boolean {
+    private canBeRewrittenAsMessage(fields: Map<string, string>): boolean {
         if (fields.has("code") && fields.get("code") !== "null") {
             // MessageParams doesn't have `code` field
             return false
@@ -103,7 +103,7 @@ export class RewriteInspection implements Inspection {
         return true
     }
 
-    private canBeRewriteAsDeploy(fields: Map<string, string>): boolean {
+    private canBeRewrittenAsDeploy(fields: Map<string, string>): boolean {
         if (fields.has("to")) {
             // DeployParams doesn't have `to` field
             return false
