@@ -1,7 +1,5 @@
 # Tact Language Server
 
----
-
 Developed by [TON Studio](https://tonstudio.io), powered by the community.
 
 **[Features] • [Installation] • [Community] • [Troubleshooting]**
