@@ -1,6 +1,22 @@
 # Tact Language Server
 
+Developed by [TON Studio](https://tonstudio.io), powered by the community.
+
+**[Features] • [Installation] • [Community] • [Troubleshooting]**
+
+[Features]: #features
+[Installation]: #installation
+[Community]: #community
+[Troubleshooting]: #troubleshooting
+
+[![Twitter](https://img.shields.io/badge/X%2FTwitter-white?logo=x&style=flat&logoColor=gray)](https://x.com/tact_language)
+[![Telegram](https://img.shields.io/badge/Community_Chat-white?logo=telegram&style=flat)](https://t.me/tactlang)
+[![Telegram](https://img.shields.io/badge/Tact_Kitchen_🥣-white?logo=telegram&style=flat)](https://t.me/tact_kitchen)
+
+---
+
 This language server/extension provides support for the [Tact programming language](https://tact-lang.org).
+Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON blockchain.
 
 ## Features
 
@@ -239,6 +255,16 @@ Setup steps:
 ## Troubleshooting
 
 See [TROUBLESHOOTING.md](./docs/manual/troubleshooting.md).
+
+## Community
+
+- [`@tactlang` on Telegram](https://t.me/tactlang) - Main community chat and discussion group.
+- [`@tactlang_ru` on Telegram](https://t.me/tactlang_ru) _(Russian)_
+- [`@tact_kitchen` on Telegram](https://t.me/tact_kitchen) - Channel with updates from the team.
+- [`@tact_language` on X/Twitter](https://x.com/tact_language)
+- [`tact-lang` organization on GitHub](https://github.com/tact-lang)
+- [`@ton_studio` on Telegram](https://t.me/ton_studio)
+- [`@thetonstudio` on X/Twitter](https://x.com/thetonstudio)
 
 # License
 
