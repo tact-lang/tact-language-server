@@ -16,6 +16,7 @@ Developed by [TON Studio](https://tonstudio.io), powered by the community.
 ---
 
 This language server/extension provides support for the [Tact programming language](https://tact-lang.org).
+Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON blockchain.
 
 ## Features
 
