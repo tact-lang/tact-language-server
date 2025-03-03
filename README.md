@@ -259,10 +259,6 @@ See [TROUBLESHOOTING.md](./docs/manual/troubleshooting.md).
 
 ## Community
 
-If you can’t find the answer in the [docs](https://docs.tact-lang.org),
-or you’ve tried to do some local testing, and it still didn’t help —
-don’t hesitate to reach out to Tact’s flourishing community:
-
 - [`@tactlang` on Telegram](https://t.me/tactlang) - Main community chat and discussion group.
 - [`@tactlang_ru` on Telegram](https://t.me/tactlang_ru) _(Russian)_
 - [`@tact_kitchen` on Telegram](https://t.me/tact_kitchen) - Channel with updates from the team.
