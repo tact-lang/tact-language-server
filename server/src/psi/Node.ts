@@ -126,6 +126,10 @@ export class CallLike extends NamedNode {
         if (!node) return []
         return node.children.filter(it => it !== null)
     }
+
+    public arguments(): SyntaxNode[] {
+        return this.rawArguments().filter(it => it.type === "argument")
+    }
 }
 
 export class AsmInstr extends NamedNode {

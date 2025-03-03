@@ -376,7 +376,8 @@
                                 "unused-import",
                                 "missed-field-in-contract",
                                 "not-imported-symbol",
-                                "dont-use-text-receivers"
+                                "dont-use-text-receivers",
+                                "rewrite"
                             ]
                         },
                         "default": [],
