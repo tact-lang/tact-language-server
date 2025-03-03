@@ -4,9 +4,8 @@
 
 Developed by [TON Studio](https://tonstudio.io), powered by the community.
 
-**[Try online!] • [Features] • [Installation] • [Community] • [Troubleshooting]**
+**[Features] • [Installation] • [Community] • [Troubleshooting]**
 
-[Try online!]: https://ide.ton.org
 [Features]: #features
 [Installation]: #installation
 [Community]: #community
