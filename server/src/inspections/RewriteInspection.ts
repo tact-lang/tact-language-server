@@ -21,7 +21,7 @@ export class RewriteInspection implements Inspection {
                     message: "Can be rewritten as more efficient `sender()`",
                     source: "tact",
                     code: "performance",
-                    data: this.rewriteContextSender(node, file),
+                    data: this.rewriteContextSenderAction(node, file),
                 })
             }
         })
@@ -47,7 +47,7 @@ export class RewriteInspection implements Inspection {
         return callName?.text === "context"
     }
 
-    private rewriteContextSender(node: SyntaxNode, file: File): lsp.CodeAction {
+    private rewriteContextSenderAction(node: SyntaxNode, file: File): lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
         diff.replace(asLspRange(node), "sender()")
         const edit = diff.toWorkspaceEdit()
