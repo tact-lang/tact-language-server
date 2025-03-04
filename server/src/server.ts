@@ -1138,12 +1138,22 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         isStructField: boolean
         structFieldIndex: number
     } | null => {
-        const findParametersNode = (element: NamedNode): SyntaxNode | null => {
+        const findParameters = (element: NamedNode): Node[] => {
             if (element instanceof Contract) {
-                return element.initFunction()?.node.childForFieldName("parameters") ?? null
+                const initFunction = element.initFunction()
+                if (initFunction) {
+                    return initFunction.parameters()
+                }
+                return element.parameters()
             }
 
-            return element.node.childForFieldName("parameters")
+            const parameters = element.node.childForFieldName("parameters")
+            if (!parameters) return []
+
+            return parameters.children
+                .filter(param => param?.type === "parameter")
+                .filter(param => param !== null)
+                .map(param => new Node(param, element.file))
         }
 
         const findSignatureHelpNode = (node: SyntaxNode): SyntaxNode | null => {
@@ -1238,19 +1248,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const res = Reference.resolve(call.nameNode())
         if (res === null) return null
 
-        const parametersNode = findParametersNode(res)
-        if (!parametersNode) return null
-
-        const parameters = parametersNode.children
-            .filter(value => value?.type === "parameter")
-            .filter(value => value !== null)
-
-        const rawArguments = call.rawArguments()
-
-        const parametersInfo: lsp.ParameterInformation[] = parameters.map(value => ({
-            label: value.text,
+        const parameters = findParameters(res)
+        const parametersInfo: lsp.ParameterInformation[] = parameters.map(param => ({
+            label: param.node.text,
         }))
         const parametersString = parametersInfo.map(el => el.label).join(", ")
+
+        const rawArguments = call.rawArguments()
 
         if (callNode.type === "initOf") {
             return {
