@@ -282,7 +282,13 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
 
 function generateMembers(nodes: Node[][]): string {
     const parts = nodes
-        .map(nodesPars => nodesPars.map(it => "    " + generateMemberDocFor(it)).join("\n"))
+        .map(nodesPars =>
+            nodesPars
+                .map(it => generateMemberDocFor(it))
+                .filter(it => it !== null)
+                .map(it => `    ${it}`)
+                .join("\n"),
+        )
         .filter(it => it !== "")
     return parts.join("\n\n")
 }
@@ -322,6 +328,13 @@ function generateMemberDocFor(node: Node): string | null {
         case "bounced_function": {
             const func = new MessageFunction(astNode, node.file)
             return func.nameLike() + ";"
+        }
+        case "parameter": {
+            const field = new Field(node.node, node.file)
+            const name = field.nameNode()
+            if (!name) return null
+            const type = TypeInferer.inferType(name)?.qualifiedName() ?? "unknown"
+            return `${name.name()}: ${type}${field.defaultValuePresentation()};`
         }
     }
 
