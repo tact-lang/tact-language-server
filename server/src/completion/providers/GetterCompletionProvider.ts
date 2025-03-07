@@ -20,7 +20,13 @@ export class GetterCompletionProvider implements CompletionProvider {
 
         fields.forEach(field => {
             const type = field.typeNode()?.type()
-            if (!type || field.name() === "DummyIdentifier") return
+            if (
+                !type ||
+                field.name() === "DummyIdentifier" ||
+                field.name().endsWith("DummyIdentifier")
+            ) {
+                return
+            }
 
             result.add({
                 label: field.name(),
