@@ -47,13 +47,32 @@ function processParameterHints(
         }
 
         if (arg.text === paramName || arg.text.endsWith(`.${paramName}`)) {
-            // no need to add hint for `takeFoo(foo)` or `takeFoo(val.foo)`
+            // no need to add a hint for `takeFoo(foo)` or `takeFoo(val.foo)`
             continue
         }
 
-        if (arg.children[0]?.type === "instance_expression") {
-            // no need to add hint for `takeFoo(Foo{})`
+        const argExpr = arg.children[0]
+        if (!argExpr) continue
+
+        if (argExpr.type === "instance_expression") {
+            // no need to add a hint for `takeFoo(Foo{})`
             continue
+        }
+
+        if (argExpr.type === "static_call_expression") {
+            const name = argExpr.childForFieldName("name")
+            if (paramName === name?.text) {
+                // no need to add a hint for `takeSender(sender())`
+                continue
+            }
+        }
+
+        if (argExpr.type === "method_call_expression") {
+            const name = argExpr.childForFieldName("name")
+            if (paramName === name?.text) {
+                // no need to add a hint for `takeSender(foo.sender())`
+                continue
+            }
         }
 
         result.push({

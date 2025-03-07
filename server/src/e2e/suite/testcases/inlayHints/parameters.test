@@ -16,3 +16,87 @@ fun foo(a: int, b: Int) {}
 fun test() {
     foo(1, 2);
 }
+
+========================================================================
+Static call argument with same name
+========================================================================
+primitive Int;
+
+fun sender(): Int { return 0; }
+fun foo(sender: Int) {}
+
+fun test() {
+    foo(sender());
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun sender(): Int { return 0; }
+fun foo(sender: Int) {}
+
+fun test() {
+    foo(sender());
+}
+
+========================================================================
+Static call argument with almost same name
+========================================================================
+primitive Int;
+
+fun someSender(): Int { return 0; }
+fun foo(sender: Int) {}
+
+fun test() {
+    foo(someSender());
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun someSender(): Int { return 0; }
+fun foo(sender: Int) {}
+
+fun test() {
+    foo(/* sender: */someSender());
+}
+
+========================================================================
+Method call argument with same name
+========================================================================
+primitive Int;
+
+fun sender(self: Int): Int { return 0; }
+fun foo(sender: Int) {}
+
+fun test() {
+    foo(10.sender());
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun sender(self: Int): Int { return 0; }
+fun foo(sender: Int) {}
+
+fun test() {
+    foo(10.sender());
+}
+
+========================================================================
+Method call argument with almost same name
+========================================================================
+primitive Int;
+
+fun someSender(self: Int): Int { return 0; }
+fun foo(sender: Int) {}
+
+fun test() {
+    foo(10.someSender());
+}
+------------------------------------------------------------------------
+primitive Int;
+
+fun someSender(self: Int): Int { return 0; }
+fun foo(sender: Int) {}
+
+fun test() {
+    foo(/* sender: */10.someSender());
+}
