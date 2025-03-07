@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import {AssemblyWriter, disassembleRoot, debugSymbols, Cell} from "@tact-lang/opcode"
+import {AssemblyWriter, Cell, debugSymbols, disassembleRoot} from "@tact-lang/opcode"
 import {readFileSync} from "node:fs"
 
 export class BocDecompilerProvider implements vscode.TextDocumentContentProvider {
@@ -8,20 +8,11 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
 
     public static scheme: string = "boc-decompiled"
 
-    private readonly decompileCache: Map<string, string> = new Map()
-
     public provideTextDocumentContent(uri: vscode.Uri): string {
         const bocPath = this.getBocPath(uri)
 
         try {
-            const cached = this.decompileCache.get(bocPath)
-            if (cached) {
-                return cached
-            }
-
-            const decompiled = this.decompileBoc(bocPath)
-            this.decompileCache.set(bocPath, decompiled)
-            return decompiled
+            return this.decompileBoc(bocPath)
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
             return this.formatError(errorMessage)
@@ -78,6 +69,5 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
     // Метод для обновления содержимого
     public update(uri: vscode.Uri): void {
         this._onDidChange.fire(uri)
-        this.decompileCache.delete(this.getBocPath(uri))
     }
 }
