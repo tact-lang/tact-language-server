@@ -76,7 +76,7 @@ These logs are helpful when reporting issues on GitHub.
 
 If you encounter an issue not covered here:
 
-1. Check the [GitHub Issues](https://github.com/tact-lang/tact-vscode/issues) to see if it's already reported
+1. Check the [GitHub Issues](https://github.com/tact-lang/tact-language-server/issues) to see if it's already reported
 2. If not, create a new issue with:
     - VS Code version
     - Extension version
