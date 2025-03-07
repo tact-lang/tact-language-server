@@ -34,3 +34,77 @@ fun foo() {
         from: address(""),
     }.toCell()/*  Size: 367 bits plus up to 120 bits */
 }
+
+========================================================================
+toCell call in method chain
+========================================================================
+primitive Int;
+primitive Address;
+
+message(0x7362d09c) TokenNotification {
+    query_id: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+}
+
+fun foo() {
+    const bits = TokenNotification{
+        query_id: 10,
+        amount: 20,
+        from: address(""),
+    }.toCell().bits()
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+message(0x7362d09c) TokenNotification {
+    query_id: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+}
+
+fun foo() {
+    const bits = TokenNotification{
+        query_id: 10,
+        amount: 20,
+        from: address(""),
+    }.toCell().bits()
+}
+
+========================================================================
+toCell call with field access
+========================================================================
+primitive Int;
+primitive Address;
+
+message(0x7362d09c) TokenNotification {
+    query_id: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+}
+
+fun foo() {
+    const bits = TokenNotification{
+        query_id: 10,
+        amount: 20,
+        from: address(""),
+    }.toCell().bits
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+message(0x7362d09c) TokenNotification {
+    query_id: Int as uint64;
+    amount: Int as coins;
+    from: Address;
+}
+
+fun foo() {
+    const bits = TokenNotification{
+        query_id: 10,
+        amount: 20,
+        from: address(""),
+    }.toCell().bits
+}
