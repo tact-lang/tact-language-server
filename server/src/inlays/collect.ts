@@ -98,6 +98,15 @@ function processToCellCall(call: CallLike, result: InlayHint[], showToCellSize: 
     if (!showToCellSize) return
     if (call.node.type !== "method_call_expression" || call.name() !== "toCell") return
 
+    const parent = call.node.parent
+
+    // if:
+    // Foo{}.asCell().bits()
+    // Foo{}.asCell().bits
+    if (parent?.type === "method_call_expression" || parent?.type === "field_access_expression") {
+        return
+    }
+
     const qualifier = call.node.childForFieldName("object")
     if (!qualifier) {
         return
