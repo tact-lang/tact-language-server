@@ -1,0 +1,63 @@
+========================================================================
+Global function
+========================================================================
+primitive Int;
+
+fun foo(size: Int) {
+    // some code
+}
+
+fun test() {
+    foo(42);
+}
+------------------------------------------------------------------------
+[3, 4], [7, 8]
+primitive Int;
+
+fun foo(size: Int) {...
+    // some code
+}
+
+fun test() {...
+    foo(42);
+}
+
+========================================================================
+Global function with Cell
+========================================================================
+fun foo() {
+    const cell = TokenNotification{
+        query_id: 10,
+        amount: 20,
+        from: address(""),
+    }.toCell()/*  Size: 367 bits plus up to 120 bits */
+}
+------------------------------------------------------------------------
+[1, 6], [2, 5]
+fun foo() {...
+    const cell = TokenNotification{...
+        query_id: 10,
+        amount: 20,
+        from: address(""),
+    }.toCell()/*  Size: 367 bits plus up to 120 bits */
+}
+
+========================================================================
+Global function with foreach
+========================================================================
+fun foo() {
+    let a: map<Int, String> = emptyMap();
+    foreach (key, value in a) {
+        dump(key)
+        dump(value)
+    }
+}
+------------------------------------------------------------------------
+[1, 6], [3, 5]
+fun foo() {...
+    let a: map<Int, String> = emptyMap();
+    foreach (key, value in a) {...
+        dump(key)
+        dump(value)
+    }
+}
