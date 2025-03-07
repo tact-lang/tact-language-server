@@ -27,6 +27,7 @@ export function collect(file: File): FoldingRange[] {
             n.type === "function_body" ||
             n.type === "asm_function_body" ||
             n.type === "struct_body" ||
+            n.type === "message_body" ||
             n.type === "contract_body" ||
             n.type === "asm_sequence" ||
             n.type === "trait_body"
