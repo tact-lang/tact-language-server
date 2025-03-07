@@ -40,6 +40,10 @@ const KEYWORDS = {
     const: true,
     true: true,
     false: true,
+    init: true,
+    contract: true,
+    message: true,
+    struct: true,
 }
 
 const PUNCTUATION = {
@@ -71,6 +75,7 @@ const PUNCTUATION = {
     "|": true,
     "&&": true,
     "||": true,
+    "?": true,
 }
 
 function processNode(
