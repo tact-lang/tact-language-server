@@ -250,11 +250,143 @@ primitive AnyStruct;
 /// Pseudo-type that represents any Message.
 primitive AnyMessage;
 
-fun AnyStruct_fromCell(cell: Cell): S {}
-fun AnyStruct_fromSlice(slice: Slice): S {}
+/// Extension function for any Struct type.
+///
+/// Converts a `Cell` into the specified `Struct` and returns that `Struct`.
+///
+/// Attempts to pass a `Cell` with a layout different from the specified `Struct` or 
+/// to load more data than the `Cell` contains throw an exception with 
+/// [exit code 9]: `Cell underflow`.
+/// 
+/// ```tact
+/// struct GuessCoin {
+///     probably: Int as coins;
+///     nothing: Int as coins;
+/// }
+/// 
+/// fun directParse(payload: Cell): GuessCoin {
+///     return GuessCoin.fromCell(payload);
+/// }
+/// 
+/// fun cautiousParse(payload: Cell): GuessCoin? {
+///     let coin: GuessCoin? = null;
+///     try {
+///         coin = GuessCoin.fromCell(payload);
+///     } catch (e) {
+///         dump("Cell payload doesn't match GuessCoin Struct!");
+///     }
+///     return coin;
+/// }
+/// ```
+///
+/// See: https://docs.tact-lang.org/ref/core-cells/#structfromcell
+///
+/// [exit code 9]: https://docs.tact-lang.org/book/exit-codes#9
+/// 
+fun AnyStruct_fromCell(cell: Cell): S;
 
-fun AnyMessage_fromCell(cell: Cell): M {}
-fun AnyMessage_fromSlice(slice: Slice): M {}
+/// Extension function for any Struct type.
+///
+/// Converts a `Slice` into the specified `Struct` and returns that `Struct`.
+///
+/// Attempts to pass a `Slice` with a layout different from the specified `Struct` or
+/// to load more data than the `Slice` contains throw an exception with 
+/// [exit code 9]: `Cell underflow`.
+/// 
+/// ```tact
+/// struct GuessCoin {
+///     probably: Int as coins;
+///     nothing: Int as coins;
+/// }
+/// 
+/// fun directParse(payload: Slice): GuessCoin {
+///     return GuessCoin.fromSlice(payload);
+/// }
+/// 
+/// fun cautiousParse(payload: Slice): GuessCoin? {
+///     let coin: GuessCoin? = null;
+///     try {
+///         coin = GuessCoin.fromSlice(payload);
+///     } catch (e) {
+///         dump("Slice payload doesn't match GuessCoin Struct!");
+///     }
+///     return coin;
+/// }
+/// ```
+/// 
+/// See: https://docs.tact-lang.org/ref/core-cells/#structfromslice
+/// 
+/// [exit code 9]: https://docs.tact-lang.org/book/exit-codes#9
+/// 
+fun AnyStruct_fromSlice(slice: Slice): S;
+
+/// Extension function for any Message type.
+///
+/// Converts a `Cell` into the specified `Message` and returns that `Message`.
+///
+/// Attempts to pass a `Cell` with a layout different from the specified `Message` or 
+/// to load more data than the `Cell` contains throw an exception with 
+/// [exit code 9]: `Cell underflow`.
+/// 
+/// ```tact
+/// message(0x777) TripleAxe {
+///     prize: Int as uint32;
+/// }
+/// 
+/// fun directParse(payload: Cell): TripleAxe {
+///     return TripleAxe.fromCell(payload);
+/// }
+/// 
+/// fun cautiousParse(payload: Cell): TripleAxe? {
+///     let coin: TripleAxe? = null;
+///     try {
+///         coin = TripleAxe.fromCell(payload);
+///     } catch (e) {
+///         dump("Cell payload doesn't match TripleAxe Message!");
+///     }
+///     return coin;
+/// }
+/// ```
+///
+/// See: https://docs.tact-lang.org/ref/core-cells/#messagefromcell
+///
+/// [exit code 9]: https://docs.tact-lang.org/book/exit-codes#9
+/// 
+fun AnyMessage_fromCell(cell: Cell): M;
+
+/// Extension function for any Message type.
+///
+/// Converts a `Slice` into the specified `Message` and returns that `Message`.
+///
+/// Attempts to pass a `Slice` with a layout different from the specified `Message` or
+/// to load more data than the `Slice` contains throw an exception with 
+/// [exit code 9]: `Cell underflow`.
+/// 
+/// ```tact
+/// message(0x777) TripleAxe {
+///     prize: Int as uint32;
+/// }
+/// 
+/// fun directParse(payload: Slice): TripleAxe {
+///     return TripleAxe.fromSlice(payload);
+/// }
+/// 
+/// fun cautiousParse(payload: Slice): TripleAxe? {
+///     let coin: TripleAxe? = null;
+///     try {
+///         coin = TripleAxe.fromSlice(payload);
+///     } catch (e) {
+///         dump("Slice payload doesn't match TripleAxe Message!");
+///     }
+///     return coin;
+/// }
+/// ```
+/// 
+/// See: https://docs.tact-lang.org/ref/core-cells/#messagefromslice
+/// 
+/// [exit code 9]: https://docs.tact-lang.org/book/exit-codes#9
+/// 
+fun AnyMessage_fromSlice(slice: Slice): M;
 
 /// Extension function for any Struct.
 ///
