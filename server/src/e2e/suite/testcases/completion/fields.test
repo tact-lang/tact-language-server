@@ -340,3 +340,37 @@ trait Foo {
 9  String
 24 Foo
 24 WithSeveralDeclaration
+
+========================================================================
+Contract field completion before other field
+========================================================================
+primitive Int;
+primitive Address;
+primitive String;
+
+contract Foo {
+    som<caret>
+    name: Int;
+
+    fun name(): String {
+        return self.name;
+    }
+
+    fun bar() {
+        return self.<caret>;
+    }
+}
+------------------------------------------------------------------------
+13 bounced(msg: <type>) {}
+13 const Foo: <type> = <value>
+13 external(msg: <type>) {}
+13 external("<message>") {}
+13 external() {}
+13 fun name() {}
+13 get fun name() {}
+13 init() {}
+13 inline fun name() {}
+13 receive(msg: <type>) {}
+13 receive("<message>") {}
+13 receive() {}
+13 state  generate getter for all contract state
