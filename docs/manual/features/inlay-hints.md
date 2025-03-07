@@ -30,6 +30,8 @@ Parameter hints are skipped when:
 
 - Parameter name matches argument (`takeFoo(foo)`)
 - Argument is a property access matching parameter (`takeFoo(val.foo)`)
+- Argument is a function call with name matching parameter (`takeFoo(foo())`)
+- Argument is a method call with name matching parameter (`takeFoo(val.foo())`)
 - Parameter is a parameter of a well-known unary function like `ton()`
 - Parameter name is a single letter
 
