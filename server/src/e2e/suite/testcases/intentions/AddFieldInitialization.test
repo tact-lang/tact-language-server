@@ -308,3 +308,137 @@ struct Test {
 }
 ------------------------------------------------------------------------
 No intentions
+
+========================================================================
+Add field initialization for single field with TL-B
+========================================================================
+primitive Int;
+
+contract Test {
+    <caret>field: Int as int32;
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct TestInit {
+    field: Int as int32;
+}
+
+contract Test {
+    field: Int as int32;
+
+    init(init: TestInit) {
+        self.field = init.field;
+    }
+}
+
+========================================================================
+Add TL-B field initialization after init another field
+========================================================================
+primitive Int;
+
+struct TestInit {
+    field: Int as int32
+}
+
+contract Test {
+    field: Int as int32;
+    <caret>other: Int as int32;
+
+    init(init: TestInit) {
+        self.field = init.field;
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+
+struct TestInit {
+    field: Int as int32
+    other: Int;
+}
+
+contract Test {
+    field: Int as int32;
+    other: Int as int32;
+
+    init(init: TestInit) {
+        self.field = init.field;
+        self.other = init.other;
+    }
+}
+
+========================================================================
+Add TL-B field initialization after init another field with changes in init
+========================================================================
+primitive Int;
+primitive Address;
+
+struct TestInit {
+    field: Int as int32
+    other: Int;
+}
+
+contract Test {
+    field: Int as int32;
+    other: Int as int32;
+    <caret>value: Address;
+
+    init(init: TestInit) {
+        self.field = init.field;
+        self.other = init.other + 100;
+        if (true) {
+            self.other = 100;
+        }
+    }
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+
+struct TestInit {
+    field: Int as int32
+    other: Int;
+    value: Address;
+}
+
+contract Test {
+    field: Int as int32;
+    other: Int as int32;
+    value: Address;
+
+    init(init: TestInit) {
+        self.field = init.field;
+        self.other = init.other + 100;
+        if (true) {
+            self.other = 100;
+        }
+        self.value = init.value;
+    }
+}
+
+========================================================================
+No intention for already initialized field
+========================================================================
+primitive Int;
+primitive Address;
+
+struct TestInit {
+    field: Int as int32
+    other: Int;
+}
+
+contract Test {
+    field: Int as int32;
+    <caret>other: Int as int32;
+    value: Address;
+
+    init(init: TestInit) {
+        self.field = init.field;
+        self.other = init.other + 100;
+        if (true) {
+            self.other = 100;
+        }
+    }
+}
+------------------------------------------------------------------------
+No intentions

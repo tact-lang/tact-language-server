@@ -9,7 +9,7 @@ import {
     contextWeight,
     WeightedCompletionItem,
 } from "@server/completion/WeightedCompletionItem"
-import {StructTy} from "@server/types/BaseTy"
+import {MessageTy, StructTy} from "@server/types/BaseTy"
 import {tactCodeBlock} from "@server/documentation/documentation"
 import {trimPrefix} from "@server/utils/strings"
 import {File} from "@server/psi/File"
@@ -131,7 +131,11 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
                 insertTextFormat: InsertTextFormat.Snippet,
                 weight: contextWeight(
                     CompletionWeight.STRUCT,
-                    this.ctx.matchContextTy(() => new StructTy(node.name(), node)),
+                    this.ctx.matchContextTy(() =>
+                        node instanceof Struct
+                            ? new StructTy(node.name(), node)
+                            : new MessageTy(node.name(), node),
+                    ),
                 ),
                 data: additionalData,
             })

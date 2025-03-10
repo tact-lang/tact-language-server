@@ -4,6 +4,7 @@ import {
     Constant,
     Contract,
     Field,
+    FieldsOwner,
     Fun,
     InitFunction,
     Message,
@@ -435,8 +436,8 @@ function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSetting
     return `Exit code: **${exitCode.value}**\n\n`
 }
 
-function documentationSizeOf(struct: Struct): string {
-    const ty = new FieldsOwnerTy(struct.name(), struct)
+function documentationSizeOf(fieldsOwner: FieldsOwner): string {
+    const ty = new FieldsOwnerTy(fieldsOwner.name(), fieldsOwner)
     const sizeOf = ty.sizeOf()
     const sizeOfPres = sizeOfPresentation(sizeOf)
     return `\n\n**Size**: ${sizeOfPres}`
