@@ -71,4 +71,10 @@ contract Test(
 }
 ------------------------------------------------------------------------
 References: [7:13]
-Scope: GlobalSearchScope
+Scope: LocalSearchScope:
+{
+    fun foo() {
+        self.some;
+        self.other;
+    }
+}
