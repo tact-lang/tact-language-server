@@ -6,11 +6,13 @@ import {Inspection, InspectionIds} from "./Inspection"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {FileDiff} from "@server/utils/FileDiff"
 import {CallLike} from "@server/psi/Node"
+import {toolchain} from "@server/toolchain"
 
 export class RewriteInspection implements Inspection {
     public readonly id: "rewrite" = InspectionIds.REWRITE
 
     public inspect(file: File): lsp.Diagnostic[] {
+        if (!toolchain.isTact16()) return []
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 

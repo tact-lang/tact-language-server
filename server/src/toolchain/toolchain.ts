@@ -40,6 +40,10 @@ export class Toolchain {
         return new Toolchain(path).validate()
     }
 
+    public isTact16(): boolean {
+        return this.version.number.startsWith("1.6")
+    }
+
     private setVersion(): this {
         try {
             const result = cp.execSync(`${this.compilerPath} -v`)

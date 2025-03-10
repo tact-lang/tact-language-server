@@ -6,11 +6,15 @@ import {asLspRange} from "@server/utils/position"
 import {NamedNode} from "@server/psi/Node"
 import {FileDiff} from "@server/utils/FileDiff"
 import {Contract} from "@server/psi/Decls"
+import {toolchain} from "@server/toolchain"
 
 export class DontUseDeployableInspection extends UnusedInspection implements Inspection {
     public readonly id: "dont-use-deployable" = InspectionIds.DONT_USE_DEPLOYABLE
 
     protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+        if (file.fromStdlib) return
+        if (!toolchain.isTact16()) return
+
         const contracts = file.getContracts()
         for (const contract of contracts) {
             const inheritedTraits = contract.inheritTraitsList()
