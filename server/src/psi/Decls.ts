@@ -42,6 +42,24 @@ export class Struct extends FieldsOwner {
     public body(): SyntaxNode | null {
         return this.node.childForFieldName("body")
     }
+
+    public lastFieldPos(): Position | null {
+        const body = this.node.childForFieldName("body")
+        if (!body) return null
+
+        const fields = this.fields()
+
+        if (fields.length === 0) {
+            const openBrace = body.firstChild
+            if (!openBrace) return null
+            return asLspPosition(openBrace.endPosition)
+        }
+
+        const field = fields.at(-1)
+        if (!field) return null
+
+        return asLspPosition(field.node.endPosition)
+    }
 }
 
 export class Primitive extends NamedNode {}

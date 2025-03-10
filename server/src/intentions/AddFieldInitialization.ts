@@ -4,10 +4,12 @@ import type {File} from "@server/psi/File"
 import {asLspPosition, asParserPoint} from "@server/utils/position"
 import type {Position} from "vscode-languageclient"
 import {FileDiff} from "@server/utils/FileDiff"
-import {Field, StorageMembersOwner} from "@server/psi/Decls"
-import type {Ty} from "@server/types/BaseTy"
+import {Field, InitFunction, StorageMembersOwner} from "@server/psi/Decls"
+import {PrimitiveTy, StructTy, Ty} from "@server/types/BaseTy"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 import type {Node as SyntaxNode} from "web-tree-sitter"
+import {TypeInferer} from "@server/TypeInferer"
+import {NamedNode} from "@server/psi/Node"
 
 export class AddFieldInitialization implements Intention {
     public readonly id: string = "tact.add-field-to-init"
@@ -72,11 +74,16 @@ export class AddFieldInitialization implements Intention {
 
         const initFunction = owner.initFunction()
         if (!initFunction) {
-            // most simple case, mo init function so we need to add one
+            // most simple case, mo init function, so we need to add one
             return this.appendInitFunction(diff, field, type, owner)
         }
 
         const parameters = initFunction.parameters()
+        if (parameters.length === 1 && parameters[0].name() === "init") {
+            // add new field to `*Init` struct
+            return this.addInitializationViaField(diff, initFunction, parameters[0], field, type)
+        }
+
         const placeToAddParameter = initFunction.endParen()
         if (!placeToAddParameter) return null
 
@@ -91,14 +98,23 @@ export class AddFieldInitialization implements Intention {
                 `${commaPart}${parameter}`,
             )
         }
+        this.addFieldInit(diff, initFunction, field, field.name())
+        return diff.toWorkspaceEdit()
+    }
 
+    private addFieldInit(
+        diff: FileDiff,
+        initFunction: InitFunction,
+        field: Field,
+        initializer: string,
+    ): void {
         // init(foo: Int) {
         //     if (true) { ... }
         //     self.foo = foo;
         //     ^^^^^^^^^^^^^^^ this
         // }
         const lastStatementPos = initFunction.lastStatementPos()
-        if (!lastStatementPos) return null
+        if (!lastStatementPos) return
 
         // contract Foo {
         //     foo: Int;
@@ -109,15 +125,36 @@ export class AddFieldInitialization implements Intention {
         //     }
         // }
         const indent = " ".repeat(8)
-        const fieldInit = `${indent}self.${field.name()} = ${field.name()};`
+        const fieldInit = `${indent}self.${field.name()} = ${initializer};`
 
         if (initFunction.hasOneLineBody) {
             const closeBraceIndent = " ".repeat(4)
             diff.appendTo(lastStatementPos, `\n${fieldInit}\n${closeBraceIndent}`)
-            return diff.toWorkspaceEdit()
+        } else {
+            diff.appendAsNextLine(lastStatementPos.line, fieldInit)
         }
+    }
 
-        diff.appendAsNextLine(lastStatementPos.line, fieldInit)
+    private addInitializationViaField(
+        diff: FileDiff,
+        initFunction: InitFunction,
+        parameter: NamedNode,
+        field: Field,
+        type: Ty,
+    ): WorkspaceEdit | null {
+        const parameterType = TypeInferer.inferType(parameter)
+        if (!(parameterType instanceof StructTy)) return null
+
+        const initStruct = parameterType.anchor
+        if (!initStruct) return null
+
+        const placeToInsert = initStruct.lastFieldPos()
+        if (!placeToInsert) return null
+
+        diff.appendAsNextLine(placeToInsert.line, `    ${field.name()}: ${type.qualifiedName()};`)
+
+        // add `self.value = init.value`
+        this.addFieldInit(diff, initFunction, field, `init.${field.name()}`)
         return diff.toWorkspaceEdit()
     }
 
@@ -127,14 +164,6 @@ export class AddFieldInitialization implements Intention {
         type: Ty,
         owner: StorageMembersOwner,
     ): WorkspaceEdit {
-        const initFunctionTemplate = `
-    init($name: $type) {
-        self.$name = $name;
-    }`
-        const actualText = initFunctionTemplate
-            .replace(/\$name/g, resolved.name())
-            .replace(/\$type/g, type.qualifiedName())
-
         const lines = [
             owner.node.startPosition.row + 1, // next line after name
             ...owner.ownFields().map(f => f.node.endPosition.row),
@@ -158,8 +187,52 @@ export class AddFieldInitialization implements Intention {
         // line to add here will be line of `const FOO: Int = 10;`
         const lineToAdd = Math.max(...lines)
 
+        if (!this.fieldCanBeParameter(resolved)) {
+            // need to create `*Init` structure
+            const initStrucName = `${owner.name()}Init`
+
+            const initStructTemplate = `struct ${initStrucName} {
+    ${resolved.name()}: ${type.qualifiedName()};
+}
+`
+
+            const initFunctionTemplate = `
+    init(init: ${initStrucName}) {
+        self.$name = init.$name;
+    }`
+
+            const actualText = initFunctionTemplate
+                .replace(/\$name/g, resolved.name())
+                .replace(/\$type/g, type.qualifiedName())
+
+            diff.appendAsNextLine(lineToAdd, actualText)
+            diff.appendAsPrevLine(owner.node.startPosition.row, initStructTemplate)
+            return diff.toWorkspaceEdit()
+        }
+
+        const initFunctionTemplate = `
+    init($name: $type) {
+        self.$name = $name;
+    }`
+        const actualText = initFunctionTemplate
+            .replace(/\$name/g, resolved.name())
+            .replace(/\$type/g, type.qualifiedName())
+
         diff.appendAsNextLine(lineToAdd, actualText)
         return diff.toWorkspaceEdit()
+    }
+
+    private fieldCanBeParameter(field: Field): boolean {
+        const name = field.nameNode()
+        if (!name) return true
+        const ty = TypeInferer.inferType(name)
+        if (!ty) return true
+        if (ty instanceof PrimitiveTy && ty.tlb !== null) {
+            // cannot define parameter with `Int as uint8` type
+            return false
+        }
+        // any other can be defined as parameter
+        return true
     }
 }
 
