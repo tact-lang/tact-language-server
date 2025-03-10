@@ -48,7 +48,7 @@ export class IndexRoot {
                   ]
 
         const files = await glob("**/*.tact", {
-            cwd: rootPath,
+            cwd: URL.parse(this.root) ?? rootPath,
             ignore: ignore,
         })
         if (files.length === 0) {
@@ -64,25 +64,28 @@ export class IndexRoot {
 }
 
 export function findFile(uri: string, content?: string, changed: boolean = false): File {
-    const cached = PARSED_FILES_CACHE.get(uri)
+    const normalizedUri = uri.replace(/\\/g, "/")
+
+    const cached = PARSED_FILES_CACHE.get(normalizedUri)
     if (cached !== undefined && !changed) {
         return cached
     }
 
-    let realContent = content ?? safeFileRead(URI.parse(uri).path)
+    const fsPath = URI.parse(normalizedUri).fsPath
+    let realContent = content ?? safeFileRead(fsPath)
     if (!realContent) {
-        console.error(`cannot read ${uri} file`)
+        console.error(`cannot read ${normalizedUri} file, path: ${fsPath}`)
         realContent = ""
     }
 
     const parser = createTactParser()
-    const tree = measureTime(`reparse file ${uri}`, () => parser.parse(realContent))
+    const tree = measureTime(`reparse file ${normalizedUri}`, () => parser.parse(realContent))
     if (!tree) {
-        throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
+        throw new Error(`FATAL ERROR: cannot parse ${normalizedUri} file`)
     }
 
-    const file = new File(uri, tree, realContent)
-    PARSED_FILES_CACHE.set(uri, file)
+    const file = new File(normalizedUri, tree, realContent)
+    PARSED_FILES_CACHE.set(normalizedUri, file)
     return file
 }
 
@@ -92,7 +95,7 @@ export function findFiftFile(uri: string, content?: string): File {
         return cached
     }
 
-    let realContent = content ?? safeFileRead(URI.parse(uri).path)
+    let realContent = content ?? safeFileRead(URI.parse(uri).fsPath)
     if (!realContent) {
         console.error(`cannot read ${uri} file`)
         realContent = ""
