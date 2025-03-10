@@ -28,29 +28,30 @@ export class TypeTlbSerializationCompletionProvider implements CompletionProvide
         const node = ctx.element.node
         const parent = node.parent
         if (!parent) return false
+        const insideContract = parent.parent?.type === "contract_body"
 
         if (parent.type === "storage_variable" || parent.type === "field") {
             const field = new Field(parent, ctx.element.file)
             const typeNode = field.typeNode()
             if (!typeNode) return false
             // contract Foo {
+            // ^^^^^^^^ parent is contract
+            //
             //     foo: <caret>;
             //     ^^^^^^^^^^^^^ field is complete
             // }
-            return typeNode.node.equals(node)
+            return insideContract && typeNode.node.equals(node)
         }
 
         // contract Foo {
+        // ^^^^^^^^ parent is contract
+        //
         //     foo: <caret>
         //        ^ ^^^^^^^ type context
         //        |
         //        colon
         // }
-        return (
-            parent.type === "ERROR" &&
-            parent.parent?.type === "contract_body" &&
-            node.previousSibling?.text === ":"
-        )
+        return parent.type === "ERROR" && insideContract && node.previousSibling?.text === ":"
     }
 
     public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
