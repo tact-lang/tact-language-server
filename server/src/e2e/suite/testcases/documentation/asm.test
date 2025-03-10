@@ -6,7 +6,7 @@ primitive Int;
 asm fun foo() { 10 <caret>PUSHINT }
 ------------------------------------------------------------------------
 ```
-PUSHINT_4 (const_int)
+PUSHINT_4
 ```
 - Stack (top is on the right): `(∅ → x)`
 - Gas: `18`
@@ -22,9 +22,34 @@ primitive Int;
 asm fun foo() { <caret>ENDC }
 ------------------------------------------------------------------------
 ```
-ENDC (cell_build)
+ENDC
 ```
 - Stack (top is on the right): `(b → c)`
 - Gas: `518`
 
 Converts a _Builder_ into an ordinary _Cell_.
+
+========================================================================
+NIP instruction
+========================================================================
+primitive Int;
+
+asm fun foo() { <caret>NIP }
+------------------------------------------------------------------------
+```
+NIP (alias of 1 POP)
+```
+- Stack (top is on the right): `(x y → y)`
+
+Same as `s1 POP`.
+
+---
+Aliased instruction info:
+
+```
+POP
+```
+
+- Gas: `18`
+
+Pops the old `s0` value into the old `s[i]`.
