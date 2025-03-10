@@ -2,6 +2,59 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2025-03-10
+
+### Improvements
+
+- feat(completion): add completion variants for TL-B types for fields in https://github.com/tact-lang/tact-language-server/pull/455
+- feat(resolving): initial implementation of import-based resolving in https://github.com/tact-lang/tact-language-server/pull/445
+- feat(resolving): prefer local definition when find definitions in https://github.com/tact-lang/tact-language-server/pull/439
+- feat(indexing): improve indexes logic in https://github.com/tact-lang/tact-language-server/pull/443
+- feat(definition): prefer project definitions over stdlib one in https://github.com/tact-lang/tact-language-server/pull/441
+- feat(inlay-hints): don't show parameter hints for call argument with matching name in https://github.com/tact-lang/tact-language-server/pull/425
+- feat(tests): better tests + fixes in https://github.com/tact-lang/tact-language-server/pull/383
+- feat(vscode): add problem matcher to highlight errors after build in https://github.com/tact-lang/tact-language-server/pull/437
+- feat(vscode): add command to run Misti on a project with installation if not installed in https://github.com/tact-lang/tact-language-server/pull/456
+- feat(all): initial support for contract parameters in https://github.com/tact-lang/tact-language-server/pull/374
+- feat(stubs): add doc comments for `fromSlice` and `fromCell` functions in https://github.com/tact-lang/tact-language-server/pull/420
+- feat(documentation): add exit code documentation in https://github.com/tact-lang/tact-language-server/pull/400
+- feat(documentation): better documentation for assembly instructions in https://github.com/tact-lang/tact-language-server/pull/459
+- feat(foldings): add folding for Fift blocks in https://github.com/tact-lang/tact-language-server/pull/379
+- feat(inspections): rewrite `send()` with `message()` or `deploy()` in https://github.com/tact-lang/tact-language-server/pull/405
+- feat(inspections): rewrite `context().sender` with `sender()` in https://github.com/tact-lang/tact-language-server/pull/404
+- feat(inspections): add inspection for Deployable with quickfix in https://github.com/tact-lang/tact-language-server/pull/457
+- feat(intentions/inspections): add inspection and quickfix for text receivers in https://github.com/tact-lang/tact-language-server/pull/396
+- feat(intentions): support `init(init: Init)` pattern in https://github.com/tact-lang/tact-language-server/pull/452
+
+### Fixed
+
+- fix(indexing): fix indexing on Windows in https://github.com/tact-lang/tact-language-server/pull/436
+- fix(building): fix constructor modifier in https://github.com/tact-lang/tact-language-server/pull/442
+- fix(document-symbols): document symbols now return whole range of declaration, not only name in https://github.com/tact-lang/tact-language-server/pull/454
+- fix(inlay-hints): don't show size hint for `toCellI()` in method chain in https://github.com/tact-lang/tact-language-server/pull/432
+- fix(foldings): add missing folding for messages in https://github.com/tact-lang/tact-language-server/pull/428
+- fix(manual): fix link to issues in https://github.com/tact-lang/tact-language-server/pull/427
+- fix(semantic-tokens): fix highlighting for some keywords in doc comments in https://github.com/tact-lang/tact-language-server/pull/424
+- fix(vscode): don't cache disasm for BoC in https://github.com/tact-lang/tact-language-server/pull/422
+- fix(signature-help): fix signature help for `initOf` for contracts with parameters in https://github.com/tact-lang/tact-language-server/pull/410
+- fix(vscode): fix type of command, add selection of expression on a result, fix type of storage parameter in https://github.com/tact-lang/tact-language-server/pull/406
+- fix(go-to-references): fix use scope for contract parameters in https://github.com/tact-lang/tact-language-server/pull/401
+- fix(tests): fix tests in https://github.com/tact-lang/tact-language-server/pull/382
+- fix(completion): fix completion for types of fields in https://github.com/tact-lang/tact-language-server/pull/381
+- fix(completion): don't show getter completion for incomplete field in https://github.com/tact-lang/tact-language-server/pull/433
+- fix(inspections): run inspections only on Tact files in https://github.com/tact-lang/tact-language-server/pull/378
+- fix(inspections): run some inspections only on Tact 1.6 in https://github.com/tact-lang/tact-language-server/pull/458
+- fix(documentation): correctly show T? type in https://github.com/tact-lang/tact-language-server/pull/380
+- fix(documentation): fix contract parameters in contract documentation in https://github.com/tact-lang/tact-language-server/pull/426
+- fix(documentation/inlay-hints): fix size calculation in https://github.com/tact-lang/tact-language-server/pull/377
+
+### Other
+
+- test: add folding tests in https://github.com/tact-lang/tact-language-server/pull/414
+- chore: fix grammar in README.md in https://github.com/tact-lang/tact-language-server/pull/408
+- chore: better README.md in https://github.com/tact-lang/tact-language-server/pull/397
+- chore: add image to readme in https://github.com/tact-lang/tact-language-server/pull/402
+
 ## [0.3.2] - 2025-03-03
 
 Bump a version of decompiler to v0.3.0.
