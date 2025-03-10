@@ -178,6 +178,43 @@ export class StorageMembersOwner extends NamedNode {
 
         return [...inheritTraits, ...baseTraitOrEmpty]
     }
+
+    public inheritTraitsList(): NamedNode[] {
+        if (this.name() === "BaseTrait") {
+            return []
+        }
+
+        const traitList = this.node.childForFieldName("traits")
+        if (!traitList) {
+            return []
+        }
+
+        const inheritTraits = traitList.children
+            .filter(value => value?.type === "type_identifier")
+            .filter(value => value !== null)
+            .map(value => new NamedNode(value, this.file))
+
+        return [...inheritTraits]
+    }
+
+    public positionForReceiver(): Position | null {
+        const initFunction = this.initFunction()
+        if (initFunction) {
+            return asLspPosition(initFunction.node.endPosition)
+        }
+
+        const fields = this.fields()
+        if (fields.length === 0) {
+            const openBrace = this.node.childForFieldName("body")?.firstChild
+            if (!openBrace) return null
+            return asLspPosition(openBrace.endPosition)
+        }
+
+        const lastField = fields.at(-1)
+        if (!lastField) return null
+
+        return asLspPosition(lastField.node.endPosition)
+    }
 }
 
 export class Trait extends StorageMembersOwner {}

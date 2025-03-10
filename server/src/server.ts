@@ -126,6 +126,7 @@ import {ReplaceTextReceiverWithBinary} from "@server/intentions/ReplaceTextRecei
 import {generateExitCodeDocumentation} from "@server/documentation/exit_code_documentation"
 import {RewriteInspection} from "@server/inspections/RewriteInspection"
 import {TypeTlbSerializationCompletionProvider} from "@server/completion/providers/TypeTlbSerializationCompletionProvider"
+import {DontUseDeployableInspection} from "@server/inspections/DontUseDeployableInspection"
 
 /**
  * Whenever LS is initialized.
@@ -336,6 +337,7 @@ async function runInspections(uri: string, file: File): Promise<void> {
         new MissedFieldInContractInspection(),
         new NotImportedSymbolInspection(),
         new DontUseTextReceiversInspection(),
+        new DontUseDeployableInspection(),
         new RewriteInspection(),
     ]
 
