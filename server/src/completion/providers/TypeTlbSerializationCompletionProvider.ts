@@ -21,8 +21,6 @@ export class TypeTlbSerializationCompletionProvider implements CompletionProvide
         "int256",
         "int257",
         "coins",
-        "int{X}",
-        "uint{X}",
     ]
 
     public isAvailable(ctx: CompletionContext): boolean {
