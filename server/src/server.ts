@@ -1652,7 +1652,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return {
                     name: element.name(),
                     kind: kind,
-                    range: asNullableLspRange(element.node),
+                    range: asLspRange(element.node),
                     detail: detail,
                     selectionRange: asNullableLspRange(element.nameIdentifier()),
                     children: children,
