@@ -8,6 +8,8 @@ export class DontUseTextReceiversInspection extends UnusedInspection implements 
     public readonly id: "dont-use-text-receivers" = InspectionIds.DONT_USE_TEXT_RECEIVERS
 
     protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+        if (file.fromStdlib) return
+
         const contracts = file.getContracts()
         for (const contract of contracts) {
             const functions = contract.messageFunctions()
