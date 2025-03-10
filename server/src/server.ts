@@ -246,7 +246,10 @@ async function initialize(): Promise<void> {
     reporter.report(55, "Indexing: (2/3) Stubs")
     const stubsPath = findStubs()
     if (stubsPath !== null) {
-        const stubsRoot = new IndexingRoot(`file://${stubsPath}`, IndexingRootKind.Stdlib)
+        const stubsUri = `file://${stubsPath}`
+        index.withStdlibRoot(new IndexRoot("stubs", stubsUri))
+
+        const stubsRoot = new IndexingRoot(stubsUri, IndexingRootKind.Stdlib)
         await stubsRoot.index()
     }
 

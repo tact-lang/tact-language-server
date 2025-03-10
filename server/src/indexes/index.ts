@@ -138,11 +138,11 @@ export class FileIndex {
 }
 
 export class IndexRoot {
-    public readonly name: "stdlib" | "workspace"
+    public readonly name: "stdlib" | "stubs" | "workspace"
     public readonly root: string
     public readonly files: Map<string, FileIndex> = new Map()
 
-    public constructor(name: "stdlib" | "workspace", root: string) {
+    public constructor(name: "stdlib" | "stubs" | "workspace", root: string) {
         this.name = name
         this.root = root
     }
@@ -264,22 +264,34 @@ export class IndexRoot {
 
 export class GlobalIndex {
     private stdlibRoot: IndexRoot | undefined = undefined
+    private stubsRoot: IndexRoot | undefined = undefined
     private roots: IndexRoot[] = []
 
     public withStdlibRoot(root: IndexRoot): void {
         this.stdlibRoot = root
     }
 
+    public withStubsRoot(root: IndexRoot): void {
+        this.stubsRoot = root
+    }
+
     public withRoots(roots: IndexRoot[]): void {
         this.roots = roots
     }
 
-    public findRootFor(path: string): IndexRoot | undefined {
-        if (this.stdlibRoot?.contains(path)) {
-            return this.stdlibRoot
+    public allRoots(): IndexRoot[] {
+        const roots: IndexRoot[] = [...this.roots]
+        if (this.stdlibRoot) {
+            roots.push(this.stdlibRoot)
         }
+        if (this.stubsRoot) {
+            roots.push(this.stubsRoot)
+        }
+        return roots
+    }
 
-        for (const root of this.roots) {
+    public findRootFor(path: string): IndexRoot | undefined {
+        for (const root of this.allRoots()) {
             if (root.contains(path)) {
                 return root
             }
@@ -315,11 +327,11 @@ export class GlobalIndex {
         processor: ScopeProcessor,
         state: ResolveState,
     ): boolean {
-        for (const root of this.roots) {
+        for (const root of this.allRoots()) {
             if (!root.processElementsByKey(key, processor, state)) return false
         }
 
-        return this.stdlibRoot?.processElementsByKey(key, processor, state) ?? true
+        return true
     }
 
     public processElsByKeyAndFile(
@@ -328,29 +340,24 @@ export class GlobalIndex {
         processor: ScopeProcessor,
         state: ResolveState,
     ): boolean {
-        for (const root of this.roots) {
+        for (const root of this.allRoots()) {
             if (!root.processElsByKeyAndFile(key, file, processor, state)) return false
         }
 
-        return this.stdlibRoot?.processElsByKeyAndFile(key, file, processor, state) ?? true
+        return true
     }
 
     public elementByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K] | null {
-        for (const root of this.roots) {
+        for (const root of this.allRoots()) {
             const element = root.elementByName(key, name)
             if (element) return element
         }
-
-        return this.stdlibRoot?.elementByName(key, name) ?? null
+        return null
     }
 
     public hasSeveralDeclarations(name: string): boolean {
-        const roots = [...this.roots, this.stdlibRoot]
-
         let seen = false
-        for (const root of roots) {
-            if (!root) continue
-
+        for (const root of this.allRoots()) {
             const decl = root.hasDeclaration(name)
             if (decl && seen) {
                 return true
