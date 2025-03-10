@@ -121,7 +121,10 @@
                 "command": "tact.build",
                 "title": "Build Project",
                 "category": "Tact",
-                "icon": "$(gear)"
+                "icon": "$(gear)",
+                "problemMatcher": [
+                    "$tact"
+                ]
             },
             {
                 "command": "tact/getTypeAtPosition",
@@ -436,6 +439,11 @@
                         "default": false,
                         "description": "Enable Tact compiler analysis"
                     },
+                    "tact.linters.useProblemMatcher": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Highlight errors in editor after build"
+                    },
                     "tact.linters.misti.enable": {
                         "type": "boolean",
                         "default": false,
@@ -485,6 +493,26 @@
             {
                 "type": "tact-template-test",
                 "properties": {}
+            }
+        ],
+        "problemMatchers": [
+            {
+                "name": "tact",
+                "owner": "tact",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": [
+                    {
+                        "regexp": "^Error:\\s+(.+):(\\d+):(\\d+):\\s+(.+)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "message": 4
+                    }
+                ],
+                "severity": "error"
             }
         ]
     },

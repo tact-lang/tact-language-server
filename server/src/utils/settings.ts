@@ -68,6 +68,7 @@ export interface TactSettings {
             enable: boolean
             binPath: string
         }
+        useProblemMatcher: boolean
     }
 }
 
@@ -137,6 +138,7 @@ const defaultSettings: TactSettings = {
             enable: false,
             binPath: "npx misti",
         },
+        useProblemMatcher: false,
     },
 }
 
@@ -241,6 +243,8 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
                 enable: vsSettings.linters?.misti.enable ?? defaultSettings.linters.misti.enable,
                 binPath: vsSettings.linters?.misti.binPath ?? defaultSettings.linters.misti.binPath,
             },
+            useProblemMatcher:
+                vsSettings.linters?.useProblemMatcher ?? defaultSettings.linters.useProblemMatcher,
         },
     }
 }
