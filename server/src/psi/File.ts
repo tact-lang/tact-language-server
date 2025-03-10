@@ -4,6 +4,7 @@ import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "./Decl
 import type {Node as SyntaxNode, Tree} from "web-tree-sitter"
 import type {Position} from "vscode-languageclient"
 import {trimSuffix} from "@server/utils/strings"
+import {ImportResolver} from "@server/psi/ImportResolver"
 
 export class File {
     public constructor(
@@ -81,6 +82,15 @@ export class File {
         return this.tree.rootNode.children
             .filter(node => node !== null && node.type === "import")
             .filter(node => node !== null)
+    }
+
+    public importedFiles(): string[] {
+        const imports = this.imports()
+            .map(node => node.childForFieldName("library"))
+            .filter(node => node !== null)
+        return imports
+            .map(it => ImportResolver.resolveImport(this, it.text.slice(1, -1), false))
+            .filter(it => it !== null)
     }
 
     public importPath(inFile: File): string {

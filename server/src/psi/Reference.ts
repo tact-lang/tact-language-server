@@ -11,7 +11,7 @@ import {
     TraitTy,
     Ty,
 } from "@server/types/BaseTy"
-import {index, IndexKey} from "@server/indexes"
+import {index, IndexFinder, IndexKey} from "@server/indexes"
 import {Expression, NamedNode, Node} from "./Node"
 import type {File} from "./File"
 import {Contract, Field, FieldsOwner, Fun, Message, Struct, Trait} from "./Decls"
@@ -567,16 +567,49 @@ export class Reference {
             })()
 
             if (!index.processElsByKeyAndFile(IndexKey.Funs, file, processor, state)) return false
-        } else {
-            if (!index.processElsByKeyAndFile(IndexKey.Funs, file, proc, state)) return false
+            if (!index.processElsByKeyAndFile(IndexKey.Primitives, file, proc, state)) return false
+            if (!index.processElsByKeyAndFile(IndexKey.Structs, file, proc, state)) return false
+            if (!index.processElsByKeyAndFile(IndexKey.Messages, file, proc, state)) return false
+            if (!index.processElsByKeyAndFile(IndexKey.Traits, file, proc, state)) return false
+            if (!index.processElsByKeyAndFile(IndexKey.Constants, file, proc, state)) return false
+            return index.processElsByKeyAndFile(IndexKey.Contracts, file, proc, state)
         }
 
-        if (!index.processElsByKeyAndFile(IndexKey.Primitives, file, proc, state)) return false
-        if (!index.processElsByKeyAndFile(IndexKey.Structs, file, proc, state)) return false
-        if (!index.processElsByKeyAndFile(IndexKey.Messages, file, proc, state)) return false
-        if (!index.processElsByKeyAndFile(IndexKey.Traits, file, proc, state)) return false
-        if (!index.processElsByKeyAndFile(IndexKey.Constants, file, proc, state)) return false
-        return index.processElsByKeyAndFile(IndexKey.Contracts, file, proc, state)
+        // fast path, check the current file
+        const fileIndex = index.findFile(file.uri)
+        if (fileIndex && !this.processElsInIndex(proc, state, fileIndex)) return false
+
+        // if not found, check all imported files
+        for (const importedFile of file.importedFiles()) {
+            const fileIndex = index.findFile(`file://${importedFile}`)
+            if (!fileIndex) continue
+            if (!this.processElsInIndex(proc, state, fileIndex)) return false
+        }
+
+        // If not found in workspace, search in stdlib and stubs
+        if (index.stdlibRoot) {
+            if (!this.processElsInIndex(proc, state, index.stdlibRoot)) return false
+        }
+
+        if (index.stubsRoot) {
+            if (!this.processElsInIndex(proc, state, index.stubsRoot)) return false
+        }
+
+        return true
+    }
+
+    private processElsInIndex(
+        proc: ScopeProcessor,
+        state: ResolveState,
+        fileIndex: IndexFinder,
+    ): boolean {
+        if (!fileIndex.processElementsByKey(IndexKey.Funs, proc, state)) return false
+        if (!fileIndex.processElementsByKey(IndexKey.Primitives, proc, state)) return false
+        if (!fileIndex.processElementsByKey(IndexKey.Structs, proc, state)) return false
+        if (!fileIndex.processElementsByKey(IndexKey.Messages, proc, state)) return false
+        if (!fileIndex.processElementsByKey(IndexKey.Traits, proc, state)) return false
+        if (!fileIndex.processElementsByKey(IndexKey.Constants, proc, state)) return false
+        return fileIndex.processElementsByKey(IndexKey.Contracts, proc, state)
     }
 
     public processBlock(proc: ScopeProcessor, state: ResolveState): boolean {

@@ -26,6 +26,10 @@ export enum IndexKey {
     Constants = "Constants",
 }
 
+export interface IndexFinder {
+    processElementsByKey: (key: IndexKey, processor: ScopeProcessor, state: ResolveState) => boolean
+}
+
 export class FileIndex {
     private readonly elements: {
         [IndexKey.Contracts]: Contract[]
@@ -181,6 +185,10 @@ export class IndexRoot {
         console.info(`found changes in ${uri}`)
     }
 
+    public findFile(uri: string): FileIndex | undefined {
+        return this.files.get(uri)
+    }
+
     public processElementsByKey(
         key: IndexKey,
         processor: ScopeProcessor,
@@ -263,9 +271,9 @@ export class IndexRoot {
 }
 
 export class GlobalIndex {
-    private stdlibRoot: IndexRoot | undefined = undefined
-    private stubsRoot: IndexRoot | undefined = undefined
-    private roots: IndexRoot[] = []
+    public stdlibRoot: IndexRoot | undefined = undefined
+    public stubsRoot: IndexRoot | undefined = undefined
+    public roots: IndexRoot[] = []
 
     public withStdlibRoot(root: IndexRoot): void {
         this.stdlibRoot = root
@@ -320,6 +328,13 @@ export class GlobalIndex {
         if (!indexRoot) return
 
         indexRoot.fileChanged(uri)
+    }
+
+    public findFile(uri: string): FileIndex | undefined {
+        const indexRoot = this.findRootFor(uri)
+        if (!indexRoot) return undefined
+
+        return indexRoot.findFile(uri)
     }
 
     public processElementsByKey(
