@@ -548,8 +548,10 @@ export class Reference {
     }
 
     private processAllEntities(proc: ScopeProcessor, state: ResolveState): boolean {
+        const file = this.element.file
+
         if (state.get("completion")) {
-            const intermediateProc = new (class implements ScopeProcessor {
+            const processor = new (class implements ScopeProcessor {
                 public execute(node: Node, state: ResolveState): boolean {
                     if (!(node instanceof Fun)) return true
                     if (node.withSelf()) return true // don't add methods to unqualified completion
@@ -564,17 +566,17 @@ export class Reference {
                 }
             })()
 
-            if (!index.processElementsByKey(IndexKey.Funs, intermediateProc, state)) return false
+            if (!index.processElsByKeyAndFile(IndexKey.Funs, file, processor, state)) return false
         } else {
-            if (!index.processElementsByKey(IndexKey.Funs, proc, state)) return false
+            if (!index.processElsByKeyAndFile(IndexKey.Funs, file, proc, state)) return false
         }
 
-        if (!index.processElementsByKey(IndexKey.Primitives, proc, state)) return false
-        if (!index.processElementsByKey(IndexKey.Structs, proc, state)) return false
-        if (!index.processElementsByKey(IndexKey.Messages, proc, state)) return false
-        if (!index.processElementsByKey(IndexKey.Traits, proc, state)) return false
-        if (!index.processElementsByKey(IndexKey.Constants, proc, state)) return false
-        return index.processElementsByKey(IndexKey.Contracts, proc, state)
+        if (!index.processElsByKeyAndFile(IndexKey.Primitives, file, proc, state)) return false
+        if (!index.processElsByKeyAndFile(IndexKey.Structs, file, proc, state)) return false
+        if (!index.processElsByKeyAndFile(IndexKey.Messages, file, proc, state)) return false
+        if (!index.processElsByKeyAndFile(IndexKey.Traits, file, proc, state)) return false
+        if (!index.processElsByKeyAndFile(IndexKey.Constants, file, proc, state)) return false
+        return index.processElsByKeyAndFile(IndexKey.Contracts, file, proc, state)
     }
 
     public processBlock(proc: ScopeProcessor, state: ResolveState): boolean {

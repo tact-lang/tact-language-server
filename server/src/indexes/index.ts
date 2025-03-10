@@ -181,6 +181,24 @@ export class GlobalIndex {
         return true
     }
 
+    public processElsByKeyAndFile(
+        key: IndexKey,
+        file: File,
+        processor: ScopeProcessor,
+        state: ResolveState,
+    ): boolean {
+        const fileIndex = this.files.get(file.uri)
+        if (fileIndex !== undefined) {
+            if (!fileIndex.processElementsByKey(key, processor, state)) return false
+        }
+
+        for (const [k, value] of this.files) {
+            if (k === file.uri) continue
+            if (!value.processElementsByKey(key, processor, state)) return false
+        }
+        return true
+    }
+
     public elementByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K] | null {
         for (const value of this.files.values()) {
             const result = value.elementByName(key, name)
