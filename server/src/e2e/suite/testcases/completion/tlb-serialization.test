@@ -15,12 +15,14 @@ message Transfer {
 13 int32
 13 int64
 13 int8
+13 int{X}
 13 uint128
 13 uint16
 13 uint256
 13 uint32
 13 uint64
 13 uint8
+13 uint{X}
 
 ========================================================================
 TL-B serialization types for non Int completion
