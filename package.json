@@ -389,7 +389,8 @@
                                 "missed-field-in-contract",
                                 "not-imported-symbol",
                                 "dont-use-text-receivers",
-                                "rewrite"
+                                "rewrite",
+                                "dont-use-deployable"
                             ]
                         },
                         "default": [],

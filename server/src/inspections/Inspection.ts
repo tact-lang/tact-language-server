@@ -13,6 +13,7 @@ export const InspectionIds = {
     MISSED_FIELD_IN_CONTRACT: "missed-field-in-contract",
     NOT_IMPORTED_SYMBOL: "not-imported-symbol",
     DONT_USE_TEXT_RECEIVERS: "dont-use-text-receivers",
+    DONT_USE_DEPLOYABLE: "dont-use-deployable",
     MISTI: "misti",
 } as const
 
