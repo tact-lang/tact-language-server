@@ -142,7 +142,7 @@ export class IndexRoot {
     public readonly root: string
     public readonly files: Map<string, FileIndex> = new Map()
 
-    private constructor(name: "stdlib" | "workspace", root: string) {
+    public constructor(name: "stdlib" | "workspace", root: string) {
         this.name = name
         this.root = root
     }
