@@ -125,6 +125,7 @@ import {DontUseTextReceiversInspection} from "@server/inspections/DontUseTextRec
 import {ReplaceTextReceiverWithBinary} from "@server/intentions/ReplaceTextReceiverWithBinary"
 import {generateExitCodeDocumentation} from "@server/documentation/exit_code_documentation"
 import {RewriteInspection} from "@server/inspections/RewriteInspection"
+import {TypeTlbSerializationCompletionProvider} from "@server/completion/providers/TypeTlbSerializationCompletionProvider"
 
 /**
  * Whenever LS is initialized.
@@ -918,6 +919,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 new ReferenceCompletionProvider(ref),
                 new AsmInstructionCompletionProvider(),
                 new PostfixCompletionProvider(),
+                new TypeTlbSerializationCompletionProvider(),
             ]
 
             providers.forEach((provider: CompletionProvider) => {
