@@ -45,7 +45,6 @@ export function generateAsmDoc(instruction: AsmInstruction): string | null {
             "---",
             "Aliased instruction info:",
             "",
-            "",
             ...actualInstructionDescription,
         ].join("\n")
     }
