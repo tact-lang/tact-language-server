@@ -32,6 +32,8 @@ export class IndexingRoot {
                       "**/cli/tact/output/**",
                       "**/dist/**",
                       "**/test/failed/**",
+                      "**/optimizer/test/**",
+                      "**/types/effects/**",
                       "**/grammar/**/test/**",
                       "**/test/compilation-failed/**",
                       "**/pretty-printer-output/**",
