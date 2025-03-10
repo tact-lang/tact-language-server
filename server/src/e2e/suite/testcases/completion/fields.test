@@ -317,14 +317,12 @@ contract Foo {
 13 Int32
 13 Int64
 13 Int8
-13 Int{X}
 13 Uint128
 13 Uint16
 13 Uint256
 13 Uint32
 13 Uint64
 13 Uint8
-13 Uint{X}
 13 map<K, V>
 9  Address
 9  Int
@@ -358,14 +356,12 @@ trait Foo {
 13 Int32
 13 Int64
 13 Int8
-13 Int{X}
 13 Uint128
 13 Uint16
 13 Uint256
 13 Uint32
 13 Uint64
 13 Uint8
-13 Uint{X}
 13 map<K, V>
 9  Address
 9  Int
