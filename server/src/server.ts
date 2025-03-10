@@ -247,7 +247,7 @@ async function initialize(): Promise<void> {
     const stubsPath = findStubs()
     if (stubsPath !== null) {
         const stubsUri = `file://${stubsPath}`
-        index.withStdlibRoot(new IndexRoot("stubs", stubsUri))
+        index.withStubsRoot(new IndexRoot("stubs", stubsUri))
 
         const stubsRoot = new IndexingRoot(stubsUri, IndexingRootKind.Stdlib)
         await stubsRoot.index()
