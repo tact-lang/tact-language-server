@@ -154,6 +154,15 @@
                 "command": "tact.saveBocDecompiled",
                 "title": "Decompile BoC to Fift Assembly File",
                 "category": "Tact"
+            },
+            {
+                "command": "tact.runMisti",
+                "title": "Run Misti Analysis",
+                "category": "Tact",
+                "icon": "$(search)",
+                "problemMatcher": [
+                    "$tact"
+                ]
             }
         ],
         "keybindings": [
