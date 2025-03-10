@@ -62,6 +62,13 @@ export class BlueprintTaskProvider implements TaskProviderBase {
             panel: vscode.TaskPanelKind.Dedicated,
             focus: true,
         }
+
+        const settings = vscode.workspace.getConfiguration("tact")
+        const useProblemMatcher = settings.get<boolean>("linters.useProblemMatcher") ?? false
+        if (useProblemMatcher) {
+            task.problemMatchers = ["$tact"]
+        }
+
         return task
     }
 }
@@ -116,6 +123,12 @@ export class TactTemplateTaskProvider implements TaskProviderBase {
             reveal: vscode.TaskRevealKind.Always,
             panel: vscode.TaskPanelKind.Dedicated,
             focus: true,
+        }
+
+        const settings = vscode.workspace.getConfiguration("tact")
+        const useProblemMatcher = settings.get<boolean>("linters.useProblemMatcher") ?? false
+        if (useProblemMatcher) {
+            task.problemMatchers = ["$tact"]
         }
 
         return task
