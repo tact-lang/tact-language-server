@@ -1,4 +1,4 @@
-import {asmData, getStackPresentation} from "@server/completion/data/types"
+import {AsmInstruction, getStackPresentation} from "@server/completion/data/types"
 
 function formatOperands(operands: Record<string, number | string>): string {
     return Object.entries(operands)
@@ -6,54 +6,49 @@ function formatOperands(operands: Record<string, number | string>): string {
         .join(" ")
 }
 
-export function generateAsmDoc(word: string): string | null {
-    const data = asmData()
-    const upperWord = word.toUpperCase()
+export function generateAsmDoc(instruction: AsmInstruction): string | null {
+    const stackInfo = instruction.doc.stack
+        ? `- Stack (top is on the right): \`${getStackPresentation(instruction.doc.stack)}\``
+        : ""
 
-    const instruction = data.instructions.find(i => i.mnemonic === upperWord)
-    if (instruction) {
-        const stackInfo = instruction.doc.stack
-            ? `- Stack (top is on the right): \`${getStackPresentation(instruction.doc.stack)}\``
-            : ""
+    const gas = instruction.doc.gas.length > 0 ? instruction.doc.gas : `unknown`
 
-        const gas = instruction.doc.gas.length > 0 ? instruction.doc.gas : `unknown`
-        return [
-            "```",
-            `${instruction.mnemonic} (${instruction.doc.category})`,
-            "```",
-            stackInfo,
-            `- Gas: \`${gas}\``,
-            "",
-            instruction.doc.description,
-            "",
-            instruction.doc.fift_examples.length > 0 ? "**Examples:**" : "",
-            ...instruction.doc.fift_examples.map(
-                ex => `\`\`\`\n${ex.fift}\n\`\`\`\n${ex.description}`,
-            ),
-        ].join("\n")
-    }
+    const actualInstructionDescription = [
+        "```",
+        instruction.mnemonic,
+        "```",
+        stackInfo,
+        `- Gas: \`${gas}\``,
+        "",
+        instruction.doc.description,
+        "",
+        "",
+    ]
 
-    const alias = data.aliases.find(a => a.mnemonic === upperWord)
-    if (alias) {
+    if (instruction.alias_info) {
+        const operandsStr = formatOperands(instruction.alias_info.operands) + " "
+        const aliasInfoDescription = ` (alias of ${operandsStr}${instruction.alias_info.alias_of})`
+
+        const alias = instruction.alias_info
         const stackInfo = alias.doc_stack
             ? `- Stack (top is on the right): \`${getStackPresentation(alias.doc_stack)}\``
             : ""
 
-        const operandsStr = formatOperands(alias.operands)
         return [
             "```",
-            alias.mnemonic,
+            alias.mnemonic + aliasInfoDescription,
             "```",
-            `- Alias of: \`${operandsStr} ${alias.alias_of}\`\n`,
             stackInfo,
             "",
             alias.description ?? "",
             "",
-            alias.doc_fift ? `Fift: ${alias.doc_fift}` : "",
-        ]
-            .filter(Boolean)
-            .join("\n")
+            "---",
+            "Aliased instruction info:",
+            "",
+            "",
+            ...actualInstructionDescription,
+        ].join("\n")
     }
 
-    return null
+    return actualInstructionDescription.join("\n")
 }

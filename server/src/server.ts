@@ -515,10 +515,10 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (!asmExpression) return null
 
             const instr = new AsmInstr(asmExpression, file)
-            const actualName = instr.info()?.mnemonic
-            if (!actualName) return null
+            const info = instr.info()
+            if (!info) return null
 
-            const doc = generateAsmDoc(actualName)
+            const doc = generateAsmDoc(info)
             if (doc === null) return null
 
             return {

@@ -17,6 +17,7 @@ export interface AsmInstruction {
         }[]
     }
     since_version: number
+    alias_info?: AsmAlias
 }
 
 export interface AsmAlias {
@@ -59,7 +60,10 @@ export function findInstruction(name: string, args: SyntaxNode[] = []): AsmInstr
     if (alias) {
         const instruction = data.instructions.find(i => i.mnemonic === alias.alias_of)
         if (instruction) {
-            return instruction
+            return {
+                ...instruction,
+                alias_info: alias,
+            }
         }
     }
 
