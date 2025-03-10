@@ -46,11 +46,13 @@ export class TypeTlbSerializationCompletionProvider implements CompletionProvide
         // contract Foo {
         // ^^^^^^^^ parent is contract
         //
-        //     foo: <caret>
-        //        ^ ^^^^^^^ type context
-        //        |
-        //        colon
-        // }
+        //     foo: <caret> <--------------
+        //     |  ^ ^^^^^^^ type context  |
+        //     |  |                       |
+        //     |  colon before            |
+        // }   |                          |
+        //     field is not complete ------
+        //
         return parent.type === "ERROR" && insideContract && node.previousSibling?.text === ":"
     }
 
