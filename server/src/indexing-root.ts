@@ -10,22 +10,22 @@ export const PARSED_FILES_CACHE: Map<string, File> = new Map()
 
 export const FIFT_PARSED_FILES_CACHE: Map<string, File> = new Map()
 
-export enum IndexRootKind {
+export enum IndexingRootKind {
     Stdlib = "stdlib",
     Workspace = "workspace",
 }
 
-export class IndexRoot {
+export class IndexingRoot {
     public constructor(
         public root: string,
-        public kind: IndexRootKind,
+        public kind: IndexingRootKind,
     ) {}
 
     public async index(): Promise<void> {
         const rootPath = this.root.slice(7)
 
         const ignore =
-            this.kind === IndexRootKind.Stdlib
+            this.kind === IndexingRootKind.Stdlib
                 ? []
                 : [
                       "**/node_modules/**",

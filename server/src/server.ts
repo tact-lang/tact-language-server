@@ -4,7 +4,7 @@ import {createTactParser, initParser} from "./parser"
 import {asLspRange, asNullableLspRange, asParserPoint} from "@server/utils/position"
 import {TypeInferer} from "./TypeInferer"
 import {LocalSearchScope, Referent} from "@server/psi/Referent"
-import {index, IndexKey} from "./indexes"
+import {index, IndexKey, IndexRoot} from "./indexes"
 import {AsmInstr, CallLike, Expression, NamedNode, Node} from "@server/psi/Node"
 import {Reference, ResolveState, ScopeProcessor} from "@server/psi/Reference"
 import {File} from "@server/psi/File"
@@ -71,10 +71,10 @@ import {
     FIFT_PARSED_FILES_CACHE,
     findFiftFile,
     findFile,
-    IndexRoot,
-    IndexRootKind,
+    IndexingRoot,
+    IndexingRootKind,
     PARSED_FILES_CACHE,
-} from "./index-root"
+} from "./indexing-root"
 import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
 import {AsmInstructionCompletionProvider} from "./completion/providers/AsmInstructionCompletionProvider"
 import {generateAsmDoc} from "./documentation/asm_documentation"
@@ -234,7 +234,10 @@ async function initialize(): Promise<void> {
     const stdlibPath = findStdlib(settings, rootDir)
     if (stdlibPath !== null) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
-        const stdlibRoot = new IndexRoot(`file://${stdlibPath}`, IndexRootKind.Stdlib)
+        const stdlibUri = `file://${stdlibPath}`
+        index.withStdlibRoot(new IndexRoot("stdlib", stdlibUri))
+
+        const stdlibRoot = new IndexingRoot(stdlibUri, IndexingRootKind.Stdlib)
         await stdlibRoot.index()
     }
 
@@ -243,12 +246,13 @@ async function initialize(): Promise<void> {
     reporter.report(55, "Indexing: (2/3) Stubs")
     const stubsPath = findStubs()
     if (stubsPath !== null) {
-        const stubsRoot = new IndexRoot(`file://${stubsPath}`, IndexRootKind.Stdlib)
+        const stubsRoot = new IndexingRoot(`file://${stubsPath}`, IndexingRootKind.Stdlib)
         await stubsRoot.index()
     }
 
     reporter.report(80, "Indexing: (3/3) Workspace")
-    const workspaceRoot = new IndexRoot(rootUri, IndexRootKind.Workspace)
+    index.withRoots([new IndexRoot("workspace", rootUri)])
+    const workspaceRoot = new IndexingRoot(rootUri, IndexingRootKind.Workspace)
     await workspaceRoot.index()
 
     reporter.report(100, "Ready")

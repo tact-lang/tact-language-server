@@ -4,7 +4,7 @@ import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "@serve
 import {isNamedFunNode} from "@server/psi/utils"
 import {ResolveState, ScopeProcessor} from "@server/psi/Reference"
 import {CACHE} from "@server/cache"
-import {PARSED_FILES_CACHE} from "@server/index-root"
+import {PARSED_FILES_CACHE} from "@server/indexing-root"
 
 export interface IndexKeyToType {
     [IndexKey.Contracts]: Contract
@@ -137,8 +137,19 @@ export class FileIndex {
     }
 }
 
-export class GlobalIndex {
-    private readonly files: Map<string, FileIndex> = new Map()
+export class IndexRoot {
+    public readonly name: "stdlib" | "workspace"
+    public readonly root: string
+    public readonly files: Map<string, FileIndex> = new Map()
+
+    private constructor(name: "stdlib" | "workspace", root: string) {
+        this.name = name
+        this.root = root
+    }
+
+    public contains(file: string): boolean {
+        return file.startsWith(this.root)
+    }
 
     public addFile(uri: string, file: File, clearCache: boolean = true): void {
         if (this.files.has(uri)) {
@@ -209,6 +220,24 @@ export class GlobalIndex {
         return null
     }
 
+    public hasDeclaration(name: string): boolean {
+        for (const value of this.files.values()) {
+            const element =
+                value.elementByName(IndexKey.Funs, name) ??
+                value.elementByName(IndexKey.Contracts, name) ??
+                value.elementByName(IndexKey.Constants, name) ??
+                value.elementByName(IndexKey.Structs, name) ??
+                value.elementByName(IndexKey.Messages, name) ??
+                value.elementByName(IndexKey.Traits, name) ??
+                value.elementByName(IndexKey.Primitives, name)
+
+            if (element) {
+                return true
+            }
+        }
+        return false
+    }
+
     public hasSeveralDeclarations(name: string): boolean {
         let seen = false
         for (const value of this.files.values()) {
@@ -229,6 +258,111 @@ export class GlobalIndex {
                 seen = true
             }
         }
+        return false
+    }
+}
+
+export class GlobalIndex {
+    private stdlibRoot: IndexRoot | undefined = undefined
+    private roots: IndexRoot[] = []
+
+    public withStdlibRoot(root: IndexRoot): void {
+        this.stdlibRoot = root
+    }
+
+    public withRoots(roots: IndexRoot[]): void {
+        this.roots = roots
+    }
+
+    public findRootFor(path: string): IndexRoot | undefined {
+        if (this.stdlibRoot?.contains(path)) {
+            return this.stdlibRoot
+        }
+
+        for (const root of this.roots) {
+            if (root.contains(path)) {
+                return root
+            }
+        }
+
+        console.warn(`cannot find index root for ${path}`)
+        return undefined
+    }
+
+    public addFile(uri: string, file: File, clearCache: boolean = true): void {
+        const indexRoot = this.findRootFor(uri)
+        if (!indexRoot) return
+
+        indexRoot.addFile(uri, file, clearCache)
+    }
+
+    public removeFile(uri: string): void {
+        const indexRoot = this.findRootFor(uri)
+        if (!indexRoot) return
+
+        indexRoot.removeFile(uri)
+    }
+
+    public fileChanged(uri: string): void {
+        const indexRoot = this.findRootFor(uri)
+        if (!indexRoot) return
+
+        indexRoot.fileChanged(uri)
+    }
+
+    public processElementsByKey(
+        key: IndexKey,
+        processor: ScopeProcessor,
+        state: ResolveState,
+    ): boolean {
+        for (const root of this.roots) {
+            if (!root.processElementsByKey(key, processor, state)) return false
+        }
+
+        return this.stdlibRoot?.processElementsByKey(key, processor, state) ?? true
+    }
+
+    public processElsByKeyAndFile(
+        key: IndexKey,
+        file: File,
+        processor: ScopeProcessor,
+        state: ResolveState,
+    ): boolean {
+        for (const root of this.roots) {
+            if (!root.processElsByKeyAndFile(key, file, processor, state)) return false
+        }
+
+        return this.stdlibRoot?.processElsByKeyAndFile(key, file, processor, state) ?? true
+    }
+
+    public elementByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K] | null {
+        for (const root of this.roots) {
+            const element = root.elementByName(key, name)
+            if (element) return element
+        }
+
+        return this.stdlibRoot?.elementByName(key, name) ?? null
+    }
+
+    public hasSeveralDeclarations(name: string): boolean {
+        const roots = [...this.roots, this.stdlibRoot]
+
+        let seen = false
+        for (const root of roots) {
+            if (!root) continue
+
+            const decl = root.hasDeclaration(name)
+            if (decl && seen) {
+                return true
+            }
+            if (decl) {
+                const hasSeveralDecls = root.hasSeveralDeclarations(name)
+                if (hasSeveralDecls) return true
+
+                seen = true
+            }
+        }
+
         return false
     }
 }
