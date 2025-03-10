@@ -1,4 +1,6 @@
 import * as vscode from "vscode"
+import * as fs from "node:fs"
+import * as path from "node:path"
 import {Utils as vscode_uri} from "vscode-uri"
 import {
     LanguageClient,
@@ -7,7 +9,6 @@ import {
     ServerOptions,
     TransportKind,
 } from "vscode-languageclient/node"
-import * as path from "node:path"
 import {consoleError, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
@@ -27,6 +28,7 @@ import {BocFileSystemProvider} from "./providers/BocFileSystemProvider"
 import {BocDecompilerProvider} from "./providers/BocDecompilerProvider"
 import {registerSaveBocDecompiledCommand} from "./commands/saveBocDecompiledCommand"
 import {Range, Position} from "vscode"
+import {detectPackageManager, PackageManager} from "./utils/package-manager"
 
 let client: LanguageClient | null = null
 
@@ -35,6 +37,7 @@ export function activate(context: vscode.ExtensionContext): void {
     registerBuildTasks(context)
     registerOpenBocCommand(context)
     registerSaveBocDecompiledCommand(context)
+    registerMistiCommand(context)
 
     const config = vscode.workspace.getConfiguration("tact")
     const openDecompiled = config.get<boolean>("boc.openDecompiledOnOpen")
@@ -237,5 +240,98 @@ function registerCommands(disposables: vscode.Disposable[]): void {
                 )
             },
         ),
+    )
+}
+
+function getInstallCommandForMisti(packageManager: PackageManager): string {
+    switch (packageManager) {
+        case "bun": {
+            return "bun add -d @nowarp/misti"
+        }
+        case "yarn": {
+            return "yarn add -D @nowarp/misti"
+        }
+        case "pnpm": {
+            return "pnpm add -D @nowarp/misti"
+        }
+        case "npm": {
+            return "npm install --save-dev @nowarp/misti"
+        }
+        default: {
+            return ""
+        }
+    }
+}
+
+function projectUsesMisti(): boolean {
+    const workspaceFolders = vscode.workspace.workspaceFolders
+    if (!workspaceFolders || workspaceFolders.length === 0) return false
+
+    const packageJsonPath = path.join(workspaceFolders[0].uri.fsPath, "package.json")
+
+    try {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
+            dependencies?: Record<string, unknown>
+            devDependencies?: Record<string, unknown>
+        }
+        return (
+            packageJson.dependencies?.["@nowarp/misti"] !== undefined ||
+            packageJson.devDependencies?.["@nowarp/misti"] !== undefined
+        )
+    } catch {
+        // ignore any errors
+    }
+
+    return false
+}
+
+function registerMistiCommand(context: vscode.ExtensionContext): void {
+    context.subscriptions.push(
+        vscode.commands.registerCommand("tact.runMisti", async () => {
+            if (!projectUsesMisti()) {
+                const packageManager = detectPackageManager()
+                const installCommand = getInstallCommandForMisti(packageManager)
+
+                const result = await vscode.window.showErrorMessage(
+                    "Misti is not installed in your project. Would you like to install it?",
+                    "Install Misti",
+                    "Cancel",
+                )
+
+                if (result === "Install Misti") {
+                    const terminal = vscode.window.createTerminal("Install Misti")
+                    terminal.show()
+                    terminal.sendText(installCommand)
+                }
+                return
+            }
+
+            const settings = vscode.workspace.getConfiguration("tact")
+            const mistiBinPath = settings.get<string>("linters.misti.binPath") ?? "npx"
+
+            // Handle a case when user specified "npx misti" command
+            const [executable, ...args] = mistiBinPath.split(" ")
+
+            const task = new vscode.Task(
+                {type: "misti"},
+                vscode.TaskScope.Workspace,
+                "Run Misti Analysis",
+                "Misti",
+                new vscode.ShellExecution(executable, [...args, "./tact.config.json"]),
+            )
+
+            task.presentationOptions = {
+                reveal: vscode.TaskRevealKind.Always,
+                panel: vscode.TaskPanelKind.Dedicated,
+                focus: true,
+            }
+
+            const useProblemMatcher = settings.get<boolean>("linters.useProblemMatcher") ?? false
+            if (useProblemMatcher) {
+                task.problemMatchers = ["$tact"]
+            }
+
+            await vscode.tasks.executeTask(task)
+        }),
     )
 }
