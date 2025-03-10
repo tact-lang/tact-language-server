@@ -1652,7 +1652,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return {
                     name: element.name(),
                     kind: kind,
-                    range: asNullableLspRange(element.nameIdentifier()),
+                    range: asLspRange(element.node),
                     detail: detail,
                     selectionRange: asNullableLspRange(element.nameIdentifier()),
                     children: children,
@@ -1667,7 +1667,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 messageFunctions.forEach(messageFunction => {
                     to.push({
                         name: messageFunction.nameLike(),
-                        range: asNullableLspRange(messageFunction.node),
+                        range: asLspRange(messageFunction.node),
                         selectionRange: asNullableLspRange(messageFunction.kindIdentifier()),
                         kind: SymbolKind.Method,
                     })
