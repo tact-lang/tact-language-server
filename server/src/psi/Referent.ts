@@ -150,8 +150,9 @@ export class Referent {
             // fast path, identifier name doesn't equal to definition name
             // self can refer to enclosing trait or contract
             const nodeName = node.text
-            if (nodeName !== resolved.name() && nodeName !== "self" && nodeName !== "initOf")
+            if (nodeName !== resolved.name() && nodeName !== "self" && nodeName !== "initOf") {
                 return true
+            }
             if (nodeName === "self" && !includeSelf) return true
 
             const parent = node.parent
@@ -217,6 +218,7 @@ export class Referent {
 
             if (
                 res.node.type === resolved.node.type &&
+                res.node.startPosition.row === resolved.node.startPosition.row &&
                 (identifier.text === resolved.name() || identifier.text === "self")
             ) {
                 // found new reference
