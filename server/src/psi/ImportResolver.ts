@@ -1,6 +1,6 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as path from "node:path"
-import {PARSED_FILES_CACHE} from "@server/index-root"
+import {PARSED_FILES_CACHE} from "@server/indexing-root"
 import type {File} from "./File"
 import {existsSync} from "node:fs"
 import {trimPrefix, trimSuffix} from "@server/utils/strings"

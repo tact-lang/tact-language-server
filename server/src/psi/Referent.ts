@@ -4,7 +4,7 @@ import {NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
 import type {File} from "./File"
 import {isFunNode, isNamedFunNode, parentOfType} from "./utils"
-import {PARSED_FILES_CACHE} from "@server/index-root"
+import {PARSED_FILES_CACHE} from "@server/indexing-root"
 import {Contract} from "@server/psi/Decls"
 
 /**
