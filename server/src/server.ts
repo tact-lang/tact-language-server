@@ -1667,7 +1667,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 messageFunctions.forEach(messageFunction => {
                     to.push({
                         name: messageFunction.nameLike(),
-                        range: asNullableLspRange(messageFunction.node),
+                        range: asLspRange(messageFunction.node),
                         selectionRange: asNullableLspRange(messageFunction.kindIdentifier()),
                         kind: SymbolKind.Method,
                     })
