@@ -15,7 +15,7 @@ Developed by [TON Studio](https://tonstudio.io), powered by the community.
 
 ---
 
-This language server/extension provides support for the [Tact programming language](https://tact-lang.org).
+This language server and an extension for VSCode-based editors provide support for the [Tact programming language](https://tact-lang.org).
 Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON blockchain.
 
 ## Features
@@ -30,7 +30,7 @@ Tact is a next-generation programming language for building secure, scalable, an
 - Signature help inside calls, `initOf` and struct initialization
 - [Lenses] with implementation/reference counts
 - [Gas estimates] for assembly functions
-- Build and Test projects based on Blueprint and Tact Template
+- Build and test projects based on Blueprint and [Tact template]
 - Integration with Tact compiler and Misti static analyzer
 
 [Semantic syntax highlighting]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/highlighting.md
@@ -45,6 +45,7 @@ Tact is a next-generation programming language for building secure, scalable, an
 [more]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/inlay-hints.md#additional-hints
 [Lenses]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/code-lenses.md
 [Gas estimates]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/gas-calculation.md
+[Tact template]: https://github.com/tact-lang/tact-template
 
 ## Quick start
 
@@ -115,11 +116,15 @@ codium --install-extension vscode-tact-VERSION.vsix
     - Select "Package Control: Install Package"
     - Search for and select "LSP"
 
-2. Install the `Tact` package via Package Control for syntax highlighting
+2. For syntax highlighting, install the [`Tact` package](https://github.com/tact-lang/tact-sublime) via Package Control in a similar manner:
+
+    - Open Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
+    - Select "Package Control: Install Package"
+    - Search for and select "Tact"
 
 3. Add the following configuration to your LSP settings (`Preferences > Package Settings > LSP > Settings`):
 
-    ```json
+    ```jsonc
     {
         "clients": {
             "tact": {
@@ -128,7 +133,7 @@ codium --install-extension vscode-tact-VERSION.vsix
                 "selector": "source.tact"
             }
         },
-        "inhibit_snippet_completions": true
+        "inhibit_snippet_completions": true,
     }
     ```
 
@@ -186,11 +191,11 @@ Recommended, but not required:
 
 Setup steps:
 
-1. Install the [tact.vim](https://github.com/tact-lang/tact.vim) if it hasn't already been installed. Prefer using a non-builtin plugin manager to get new updates easily.
+1. Install the [tact.vim](https://github.com/tact-lang/tact.vim) if it hasn't already been installed. Use a non-built-in plugin manager to simplify the update process.
 
 2. Install the [vim-lsp](https://github.com/prabirshrestha/vim-lsp) plugin if it isn't already installed. For that, use [vim-plug](https://github.com/junegunn/vim-plug) or the built-in package manager of Vim 8+, see [`:help packages`](https://vimhelp.org/repeat.txt.html#packages).
 
-- If it wasn't installed before, you'll need to set up basic keybindings with the language client. Add the following to your `~/.vimrc` (or `~/_vimrc` if you're on Windows), or modify your preferences:
+- If it wasn't installed before, you should set up basic keybindings with the language client. Add the following to your `~/.vimrc` (or `~/_vimrc` if you're on Windows):
 
     ```vim
     function! s:on_lsp_buffer_enabled() abort
@@ -238,8 +243,7 @@ Setup steps:
 
 ### Helix
 
-1. Make sure you have Helix installed and configured
-2. Add the following configuration to your `~/.config/helix/languages.toml`:
+1. Add the following configuration to your `~/.config/helix/languages.toml`:
 
     ```toml
     [[language]]
@@ -251,12 +255,8 @@ Setup steps:
     args = ["path/to/language-server/dist/server.js", "--stdio"]
     ```
 
-3. Replace `path/to/language-server` with the actual path where you cloned the repository
-4. Restart Helix for changes to take effect
-
-## Troubleshooting
-
-See [TROUBLESHOOTING.md](./docs/manual/troubleshooting.md).
+2. Replace `path/to/language-server` with the actual path where you cloned the repository
+3. Restart Helix for changes to take effect
 
 ## Community
 
@@ -267,6 +267,10 @@ See [TROUBLESHOOTING.md](./docs/manual/troubleshooting.md).
 - [`tact-lang` organization on GitHub](https://github.com/tact-lang)
 - [`@ton_studio` on Telegram](https://t.me/ton_studio)
 - [`@thetonstudio` on X/Twitter](https://x.com/thetonstudio)
+
+## Troubleshooting
+
+See [TROUBLESHOOTING.md](./docs/manual/troubleshooting.md).
 
 # License
 
