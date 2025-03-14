@@ -130,8 +130,8 @@ codium --install-extension vscode-tact-VERSION.vsix
             "tact": {
                 "enabled": true,
                 "command": ["node", "path/to/language-server/dist/server.js", "--stdio"],
-                "selector": "source.tact"
-            }
+                "selector": "source.tact",
+            },
         },
         "inhibit_snippet_completions": true,
     }
