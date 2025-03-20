@@ -29,7 +29,7 @@ export class Toolchain {
     public static autoDetect(root: string): Toolchain {
         const candidatesPath = [
             path.join(root, "node_modules", ".bin", "tact"),
-            path.join(root, ".bin", "tact.js"), // path in compiler repo
+            path.join(root, "bin", "tact.js"), // path in compiler repo
         ]
         const foundPath = candidatesPath.find(it => existsSync(it))
         if (!foundPath) {
