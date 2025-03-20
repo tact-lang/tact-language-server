@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2025-03-20
+
+- fix: search of stdlib for new projects, and tact toolchain in Tact compiler repo in https://github.com/tact-lang/tact-language-server/pull/470
+- fix(documentation): grammar and spelling, ordering, links in https://github.com/tact-lang/tact-language-server/pull/465
+
 ## [0.4.0] - 2025-03-10
 
 ### Improvements
