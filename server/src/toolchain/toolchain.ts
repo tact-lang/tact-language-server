@@ -27,13 +27,20 @@ export class Toolchain {
     }
 
     public static autoDetect(root: string): Toolchain {
-        const defaultPath = path.join(root, "node_modules", ".bin", "tact")
-        if (!existsSync(defaultPath)) {
-            console.info(`cannot find toolchain in default directory: ${defaultPath}`)
+        const candidatesPath = [
+            path.join(root, "node_modules", ".bin", "tact"),
+            path.join(root, "bin", "tact.js"), // path in compiler repo
+        ]
+        const foundPath = candidatesPath.find(it => existsSync(it))
+        if (!foundPath) {
+            console.info(`cannot find toolchain in:`)
+            candidatesPath.forEach(it => {
+                console.info(it)
+            })
             return fallbackToolchain
         }
 
-        return new Toolchain(defaultPath).setVersion()
+        return new Toolchain(foundPath).setVersion()
     }
 
     public static fromPath(path: string): Toolchain {
