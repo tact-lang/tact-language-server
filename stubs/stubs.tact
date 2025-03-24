@@ -39,7 +39,7 @@ fun require(that: Bool, msg: String);
 /// * `Bool`
 /// * `Address`
 /// * `Cell`, `Builder` or `Slice`
-/// * `String` or `StringBuilder`
+/// * `String`
 /// * `map<K, V>`
 /// * Optionals and `null` value
 /// * `void`, which is implicitly returned when a function doesn't have return value defined
@@ -544,7 +544,7 @@ extends fun isEmpty(self: map<K, V>): Bool;
 /// Returns `true` if all entries of the map match corresponding entries of another map,
 /// ignoring possible differences in the underlying serialization logic. Returns `false` otherwise.
 ///
-/// This function is very gas expensive, `prefer == operator` for simple comparisons.
+/// This function is very gas expensive, prefer `==` operator for simple comparisons.
 ///
 /// See: https://docs.tact-lang.org/book/maps/#deepequals
 ///
