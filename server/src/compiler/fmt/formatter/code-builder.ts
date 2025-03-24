@@ -68,7 +68,7 @@ export class CodeBuilder {
 
     public dedent(): this {
         const last = this.indentStack.pop()
-        if (last) {
+        if (last !== undefined) {
             this.currentIndent = last
         }
         return this

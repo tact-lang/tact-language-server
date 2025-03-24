@@ -39,8 +39,7 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
         }
         case "Operator": {
             const name = node.children.at(0)
-            if (!name || name.$ !== "node") {
-                code.add(visit(name).trim())
+            if (!name) {
                 return
             }
             code.add(visit(name).trim())
