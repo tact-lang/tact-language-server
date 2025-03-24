@@ -127,6 +127,7 @@ import {generateExitCodeDocumentation} from "@server/documentation/exit_code_doc
 import {RewriteInspection} from "@server/inspections/RewriteInspection"
 import {TypeTlbSerializationCompletionProvider} from "@server/completion/providers/TypeTlbSerializationCompletionProvider"
 import {DontUseDeployableInspection} from "@server/inspections/DontUseDeployableInspection"
+import {formatCode} from "@server/compiler/fmt/fmt"
 
 /**
  * Whenever LS is initialized.
@@ -1785,6 +1786,34 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
+    connection.onRequest(
+        lsp.DocumentFormattingRequest.type,
+        (params: lsp.DocumentFormattingParams): lsp.TextEdit[] | null => {
+            const uri = params.textDocument.uri
+            if (uri.endsWith(".fif")) {
+                return null
+            }
+
+            const file = findFile(uri)
+            const formatted = formatCode(file.content)
+
+            const lines = file.content.split("\n")
+            return [{
+                range: {
+                    start: {
+                        line: 0,
+                        character: 0,
+                    },
+                    end: {
+                        line: lines.length,
+                        character: (lines.at(-1) ?? "").length
+                    }
+                },
+                newText: formatted
+            }]
+        },
+    )
+
     // eslint-disable-next-line @typescript-eslint/unbound-method
     const _needed = TypeInferer.inferType
 
@@ -1793,6 +1822,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     return {
         capabilities: {
             textDocumentSync: lsp.TextDocumentSyncKind.Incremental,
+            documentFormattingProvider: true,
             documentSymbolProvider: true,
             workspaceSymbolProvider: true,
             definitionProvider: true,
