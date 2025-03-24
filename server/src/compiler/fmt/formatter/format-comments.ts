@@ -3,7 +3,11 @@ import {Cst, CstNode} from "../cst/cst-parser"
 import {visit} from "../cst/cst-helpers"
 import {getCommentsBetween} from "./helpers"
 
-export function formatTrailingComments(code: CodeBuilder, node: undefined | CstNode, startFrom: number): void {
+export function formatTrailingComments(
+    code: CodeBuilder,
+    node: undefined | CstNode,
+    startFrom: number,
+): void {
     if (!node || startFrom < 0) return
 
     const afterBody = node.children.slice(startFrom + 1)

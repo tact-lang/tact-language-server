@@ -1798,19 +1798,21 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const formatted = formatCode(file.content)
 
             const lines = file.content.split("\n")
-            return [{
-                range: {
-                    start: {
-                        line: 0,
-                        character: 0,
+            return [
+                {
+                    range: {
+                        start: {
+                            line: 0,
+                            character: 0,
+                        },
+                        end: {
+                            line: lines.length,
+                            character: (lines.at(-1) ?? "").length,
+                        },
                     },
-                    end: {
-                        line: lines.length,
-                        character: (lines.at(-1) ?? "").length
-                    }
+                    newText: formatted,
                 },
-                newText: formatted
-            }]
+            ]
         },
     )
 

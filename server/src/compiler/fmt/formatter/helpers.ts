@@ -48,7 +48,7 @@ export function collectListInfo(node: CstNode, startIndex: number, endIndex: num
         if (child.$ === "leaf") {
             if (child.text === ",") {
                 wasComma = true
-            } else if (child.text.includes('\n')) {
+            } else if (child.text.includes("\n")) {
                 if (currentItem && containsSeveralNewlines(child.text)) {
                     currentItem.hasTrailingNewline = true
                 }
@@ -149,7 +149,8 @@ export const formatSeparatedList = (
         startIndex = 1,
         endIndex = -1,
         extraWrapperSpace,
-        suffixElement, needSeparatorAfterSuffixElement,
+        suffixElement,
+        needSeparatorAfterSuffixElement,
     } = options
 
     const info = collectListInfo(node, startIndex, endIndex)
@@ -312,9 +313,7 @@ export function containsSeveralNewlines(text: string): boolean {
 export function trailingNewlines(node: Cst): string {
     if (node.$ === "leaf") return ""
     let lastChild = node.children.at(-1)
-    if (
-        (node.type === "Receiver" || node.type === "ContractInit" || node.type === "Constant")
-    ) {
+    if (node.type === "Receiver" || node.type === "ContractInit" || node.type === "Constant") {
         const body = childByField(node, "body")
         if (body) {
             lastChild = body.children.at(-1)
