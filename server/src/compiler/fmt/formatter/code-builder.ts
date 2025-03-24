@@ -19,30 +19,36 @@ export class CodeBuilder {
         return this
     }
 
-    add(part: string): this {
+    public add(part: string): this {
         this.addPart(part)
         return this
     }
 
-    space(): this {
+    public space(): this {
         if (!this.atLineStart) {
             this.parts.push(" ")
         }
         return this
     }
 
-    apply(callback: (code: CodeBuilder, node: Cst) => void, node: Cst): this {
+    public apply(callback: (code: CodeBuilder, node: Cst) => void, node: Cst): this {
         callback(this, node)
         return this
     }
 
-    newLine(): this {
+    public applyOpt(callback: (code: CodeBuilder, node: Cst) => void, node: undefined | Cst): this {
+        if (!node) return this
+        callback(this, node)
+        return this
+    }
+
+    public newLine(): this {
         this.parts.push("\n")
         this.atLineStart = true
         return this
     }
 
-    newLines(count: number): this {
+    public newLines(count: number): this {
         if (count <= 0) {
             return this
         }
@@ -54,26 +60,27 @@ export class CodeBuilder {
         return this
     }
 
-    indent(): this {
+    public indent(): this {
         this.indentStack.push(this.currentIndent)
         this.currentIndent += this.indentStr
         return this
     }
 
-    dedent(): this {
-        if (this.indentStack.length > 0) {
-            this.currentIndent = this.indentStack.pop()!
+    public dedent(): this {
+        const last = this.indentStack.pop()
+        if (last) {
+            this.currentIndent = last
         }
         return this
     }
 
-    indentCustom(len: number): this {
+    public indentCustom(len: number): this {
         this.indentStack.push(this.currentIndent)
         this.currentIndent = " ".repeat(len)
         return this
     }
 
-    lineLength(): number {
+    public lineLength(): number {
         let sum = 0
         for (let i = 0; i < this.parts.length; i++) {
             const index = this.parts.length - 1 - i
@@ -87,7 +94,7 @@ export class CodeBuilder {
         return sum
     }
 
-    trimNewlines(): this {
+    public trimNewlines(): this {
         let toRemove = 0
         for (; toRemove < this.parts.length; toRemove++) {
             const index = this.parts.length - 1 - toRemove
@@ -101,7 +108,7 @@ export class CodeBuilder {
         return this
     }
 
-    toString(): string {
+    public toString(): string {
         return this.parts.join("")
     }
 }

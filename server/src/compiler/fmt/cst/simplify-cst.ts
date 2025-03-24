@@ -78,7 +78,7 @@ export const simplifyCst = (node: Cst): Cst => {
                 return it
             }
 
-            const firstChild = it.children[0]
+            const firstChild = it.children.at(0)
             if (!firstChild || firstChild.$ !== "node") return it
             return {
                 ...firstChild,

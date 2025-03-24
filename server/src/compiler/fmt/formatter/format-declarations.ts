@@ -15,7 +15,7 @@ import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
 import {formatComments, formatTrailingComments} from "./format-comments"
 
-export const formatParameter = (code: CodeBuilder, param: CstNode): void => {
+export const formatParameter = (code: CodeBuilder, param: Cst): void => {
     // value: Foo
     // ^^^^^  ^^^
     // |      |
@@ -64,7 +64,10 @@ export const formatFunction = (code: CodeBuilder, node: CstNode): void => {
 
     if (bodyOpt && bodyOpt.type === "FunctionDefinition") {
         code.space()
-        formatStatements(code, childByField(bodyOpt, "body"))
+        const innerBody = childByField(bodyOpt, "body")
+        if (innerBody) {
+            formatStatements(code, innerBody)
+        }
     } else {
         code.add(";")
 
@@ -74,7 +77,7 @@ export const formatFunction = (code: CodeBuilder, node: CstNode): void => {
     }
 }
 
-function formatAttribute(code: CodeBuilder, attr: Cst) {
+function formatAttribute(code: CodeBuilder, attr: Cst): void {
     // get(100)
     // ^^^
     const attrName = childByField(attr, "name")
@@ -89,10 +92,12 @@ function formatAttribute(code: CodeBuilder, attr: Cst) {
             // get(0x1000) fun foo() {}
             //     ^^^^^^ this
             const value = nonLeafChild(methodIdOpt)
-            code.add("(").apply(formatExpression, value).add(")")
+            if (value) {
+                code.add("(").apply(formatExpression, value).add(")")
+            }
         }
     } else {
-        code.add(`${idText(attr)}`)
+        code.add(idText(attr))
     }
     code.space()
 }
@@ -256,7 +261,7 @@ function formatAsmShuffle(code: CodeBuilder, node: CstNode): void {
     code.add(")")
 }
 
-function formatAttributes(code: CodeBuilder, attributes: CstNode | undefined) {
+function formatAttributes(code: CodeBuilder, attributes: CstNode | undefined): void {
     if (!attributes) return
 
     const attrs = childrenByType(attributes, "FunctionAttribute")

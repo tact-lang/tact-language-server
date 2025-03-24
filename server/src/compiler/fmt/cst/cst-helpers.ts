@@ -50,16 +50,12 @@ export const childrenByGroup = (node: Cst, group: string): Cst[] => {
     return node.children.filter(c => c.$ === "node" && c.group === group)
 }
 
-export const nonLeafChild = (node: Cst): undefined | CstNode => {
-    if (node.$ === "leaf") {
+export const nonLeafChild = (node: undefined | Cst): undefined | CstNode => {
+    if (!node || node.$ === "leaf") {
         return undefined
     }
 
-    const res = node.children.find(c => c.$ === "node")
-    if (res && res.$ === "node") {
-        return res
-    }
-    return undefined
+    return node.children.find(c => c.$ === "node")
 }
 
 export const childByField = (node: Cst, field: string): undefined | CstNode => {
@@ -105,8 +101,9 @@ export const textOfId = (node: Cst): string => {
     if (node.$ === "leaf") return node.text
     if (node.type === "Id" || node.type === "TypeId") {
         const name = childByField(node, "name")
-        const first = name.children[0]
-        return first.$ === "leaf" ? first.text : ""
+        if (!name) return ""
+        const first = name.children.at(0)
+        return first && first.$ === "leaf" ? first.text : ""
     }
     return ""
 }
@@ -118,7 +115,7 @@ export const isLowerCase = (str: string): boolean => {
 export const visualizeCST = (node: Cst, field: undefined | string, indent: string = ""): string => {
     const fieldRepr = field ? `${field}: ` : ""
     if (node.$ === "leaf") {
-        const text = node.text.replace(/\n/g, "\\n").substring(0, 30)
+        const text = node.text.replace(/\n/g, String.raw`\n`).slice(0, 30)
         return `${indent}${fieldRepr}"${text}${node.text.length > 30 ? "..." : ""}"`
     }
 
@@ -139,8 +136,9 @@ export const visualizeCST = (node: Cst, field: undefined | string, indent: strin
     return result + childrenOutput
 }
 
-export function countNewlines(leaf: undefined | Cst) {
+export function countNewlines(leaf: undefined | Cst): number {
     if (!leaf || leaf.$ !== "leaf") return 0
+    // eslint-disable-next-line unicorn/prefer-spread
     return leaf.text.split("").filter(it => it === "\n").length
 }
 
@@ -152,6 +150,8 @@ export function trailingNewlines(node: Cst): number {
     }
 
     const lastChild = node.children.at(-1)
+    if (!lastChild) return 0
+
     if (lastChild.$ === "leaf") {
         if (lastChild.text.includes("\n")) {
             return countNewlines(lastChild)

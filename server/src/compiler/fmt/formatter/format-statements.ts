@@ -18,13 +18,16 @@ function trailingNewlines(node: Cst): string {
     if (node.$ === "leaf") return ""
 
     let lastChild = node.children.at(-1)
-    if (lastChild.$ === "node" && lastChild.type === "trueBranch") {
+    if (lastChild && lastChild.$ === "node" && lastChild.type === "trueBranch") {
         lastChild = lastChild.children.at(-1)
     }
-    if (lastChild.$ === "node" && lastChild.type === "falseBranch") {
+    if (lastChild && lastChild.$ === "node" && lastChild.type === "falseBranch") {
         const falseBranch = childByType(lastChild, "FalseBranch")
         if (falseBranch) {
-            return trailingNewlines(childByField(falseBranch, "body"))
+            const innerBody = childByField(falseBranch, "body")
+            if (innerBody) {
+                return trailingNewlines(innerBody)
+            }
         }
 
         const falseCondition = childByType(lastChild, "StatementCondition")
@@ -33,15 +36,16 @@ function trailingNewlines(node: Cst): string {
         }
     }
     if (
-        node.$ === "node" &&
-        (node.type === "StatementWhile" ||
-            node.type === "StatementForEach" ||
-            node.type === "StatementRepeat")
+        node.type === "StatementWhile" ||
+        node.type === "StatementForEach" ||
+        node.type === "StatementRepeat"
     ) {
         const body = childByField(node, "body")
-        lastChild = body.children.at(-1)
+        if (body) {
+            lastChild = body.children.at(-1)
+        }
     }
-    if (lastChild.$ === "leaf" && lastChild.text.includes("\n")) {
+    if (lastChild && lastChild.$ === "leaf" && lastChild.text.includes("\n")) {
         return lastChild.text
     }
     return ""
@@ -84,7 +88,7 @@ export function singleLineStatement(node: CstNode): boolean {
         return false
     }
 
-    const comments = statements.filter(it => it.$ === "node" && it.type === "Comment")
+    const comments = statements.filter(it => it.type === "Comment")
     return (
         statements.length === 1 &&
         childLeafWithText(statements[0], ";") === undefined &&
@@ -291,6 +295,9 @@ const formatReturnStatement = (code: CodeBuilder, node: CstNode, needSemicolon: 
     // |
     // returnKeyword
     const returnKeyword = childLeafWithText(node, "return")
+    if (!returnKeyword) {
+        throw new Error("Invalid return statement")
+    }
     const exprOpt = childByField(node, "expression")
 
     code.add("return")
@@ -368,7 +375,7 @@ const formatConditionStatement = (code: CodeBuilder, node: CstNode): void => {
     const trueBranch = childByField(node, "trueBranch")
     const falseBranch = childByField(node, "falseBranch")
 
-    if (!condition || !trueBranch) {
+    if (!condition || !trueBranch || !ifKeyword) {
         throw new Error("Invalid condition statement")
     }
 
@@ -398,7 +405,10 @@ const formatConditionStatement = (code: CodeBuilder, node: CstNode): void => {
         if (branch.type === "StatementCondition") {
             formatConditionStatement(code, branch)
         } else {
-            formatStatements(code, childByField(branch, "body"))
+            const body = childByField(branch, "body")
+            if (body) {
+                formatStatements(code, body)
+            }
         }
     }
 
@@ -428,7 +438,7 @@ const formatWhileStatement = (code: CodeBuilder, node: CstNode): void => {
     formatTrailingComments(code, node, endIndex)
 }
 
-const formatDestructField = (code: CodeBuilder, field: Cst) => {
+const formatDestructField = (code: CodeBuilder, field: Cst): void => {
     if (field.$ !== "node") return
 
     if (field.type === "RegularField") {
@@ -536,12 +546,11 @@ const formatUntilStatement = (code: CodeBuilder, node: CstNode, needSemicolon: b
     //    body
     const body = childByField(node, "body")
     const conditionNode = childByField(node, "condition")
+    const condition = nonLeafChild(conditionNode)
 
-    if (!body || !conditionNode) {
+    if (!body || !conditionNode || !condition) {
         throw new Error("Invalid until statement")
     }
-
-    const condition = nonLeafChild(conditionNode)
 
     code.add("do").space()
     formatStatements(code, body)

@@ -3,8 +3,8 @@ import {Cst, CstNode} from "../cst/cst-parser"
 import {visit} from "../cst/cst-helpers"
 import {getCommentsBetween} from "./helpers"
 
-export function formatTrailingComments(code: CodeBuilder, node: CstNode, startFrom: number) {
-    if (startFrom < 0) return
+export function formatTrailingComments(code: CodeBuilder, node: undefined | CstNode, startFrom: number): void {
+    if (!node || startFrom < 0) return
 
     const afterBody = node.children.slice(startFrom + 1)
     if (afterBody.length === 0) return
@@ -13,12 +13,12 @@ export function formatTrailingComments(code: CodeBuilder, node: CstNode, startFr
     formatComments(code, comments)
 }
 
-export function formatInlineComments(node: CstNode, code: CodeBuilder, start: Cst, end: Cst) {
+export function formatInlineComments(node: CstNode, code: CodeBuilder, start: Cst, end: Cst): void {
     const comments = getCommentsBetween(node, start, end)
     formatComments(code, comments)
 }
 
-export function formatComments(code: CodeBuilder, comments: Cst[]) {
+export function formatComments(code: CodeBuilder, comments: Cst[]): void {
     if (comments.length === 0) return
 
     code.space()
@@ -27,6 +27,6 @@ export function formatComments(code: CodeBuilder, comments: Cst[]) {
     }
 }
 
-export function formatComment(code: CodeBuilder, comment: CstNode) {
+export function formatComment(code: CodeBuilder, comment: CstNode): void {
     code.add(visit(comment).trim())
 }

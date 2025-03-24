@@ -54,8 +54,10 @@ export function collectListInfo(node: CstNode, startIndex: number, endIndex: num
                 }
 
                 if (leadingComments.length > 0) {
+                    // eslint-disable-next-line unicorn/prefer-at
                     leadingComments[leadingComments.length - 1].hasNewline = true
                 } else if (listLeadingComments.length > 0 && inLeadingComments) {
+                    // eslint-disable-next-line unicorn/prefer-at
                     listLeadingComments[listLeadingComments.length - 1].hasNewline = true
                 }
 

@@ -33,23 +33,29 @@ export function formatContract(code: CodeBuilder, node: CstNode): void {
     formatInheritedTraits(code, node)
     formatContractTraitBody(code, node, (code, decl) => {
         switch (decl.type) {
-            case "ContractInit":
+            case "ContractInit": {
                 formatContractInit(code, decl)
                 break
-            case "Receiver":
+            }
+            case "Receiver": {
                 formatReceiver(code, decl)
                 break
-            case "$Function":
+            }
+            case "$Function": {
                 formatFunction(code, decl)
                 break
-            case "Constant":
+            }
+            case "Constant": {
                 formatConstant(code, decl)
                 break
-            case "FieldDecl":
+            }
+            case "FieldDecl": {
                 formatFieldDecl(code, decl, true)
                 break
-            default:
+            }
+            default: {
                 throw new Error(`Unknown contract declaration type: ${decl.type}`)
+            }
         }
     })
 }
@@ -62,20 +68,25 @@ export function formatTrait(code: CodeBuilder, node: CstNode): void {
     formatInheritedTraits(code, node)
     formatContractTraitBody(code, node, (code, decl) => {
         switch (decl.type) {
-            case "Receiver":
+            case "Receiver": {
                 formatReceiver(code, decl)
                 break
-            case "$Function":
+            }
+            case "$Function": {
                 formatFunction(code, decl)
                 break
-            case "Constant":
+            }
+            case "Constant": {
                 formatConstant(code, decl)
                 break
-            case "FieldDecl":
+            }
+            case "FieldDecl": {
                 formatFieldDecl(code, decl, true)
                 break
-            default:
+            }
+            default: {
                 throw new Error(`Unknown trait declaration type: ${decl.type}`)
+            }
         }
     })
 }
@@ -175,7 +186,9 @@ export function formatConstant(code: CodeBuilder, decl: CstNode): void {
         // const Foo: Int = 100;
         //                  ^^^ this
         const value = nonLeafChild(bodyOpt)
-        code.apply(formatExpression, value).add(";")
+        if (value) {
+            code.apply(formatExpression, value).add(";")
+        }
     } else if (!bodyOpt || bodyOpt.type === "ConstantDeclaration") {
         // const Foo: Int;
         //               ^ this
@@ -187,7 +200,7 @@ export function formatConstant(code: CodeBuilder, decl: CstNode): void {
     formatTrailingComments(code, bodyOpt, semicolonIndex)
 }
 
-function formatConstantAttributes(code: CodeBuilder, attributes: CstNode | undefined) {
+function formatConstantAttributes(code: CodeBuilder, attributes: CstNode | undefined): void {
     if (!attributes) return
 
     const attrs = childrenByType(attributes, "ConstantAttribute")
@@ -196,10 +209,10 @@ function formatConstantAttributes(code: CodeBuilder, attributes: CstNode | undef
     }
 }
 
-function formatConstantAttribute(code: CodeBuilder, attr: Cst) {
+function formatConstantAttribute(code: CodeBuilder, attr: Cst): void {
     const attrName = childByField(attr, "name")
     if (!attrName) return
-    code.add(`${idText(attr)}`).space()
+    code.add(idText(attr)).space()
 }
 
 export function formatFieldDecl(code: CodeBuilder, decl: CstNode, needSemicolon: boolean): void {
@@ -226,8 +239,10 @@ export function formatFieldDecl(code: CodeBuilder, decl: CstNode, needSemicolon:
         // foo: Int = 100;
         //            ^^^ this
         const value = nonLeafChild(initOpt)
-        //  = 100
-        code.space().add("=").space().apply(formatExpression, value)
+        if (value) {
+            //  = 100
+            code.space().add("=").space().apply(formatExpression, value)
+        }
     }
     if (needSemicolon) {
         code.add(";")
@@ -241,7 +256,7 @@ export function formatFieldDecl(code: CodeBuilder, decl: CstNode, needSemicolon:
     formatTrailingComments(code, decl, endIndex)
 }
 
-function formatContractTraitAttribute(attr: Cst, code: CodeBuilder) {
+function formatContractTraitAttribute(attr: Cst, code: CodeBuilder): void {
     const name = childByField(attr, "name")
     if (!name) return
     code.add("@interface").add("(").apply(formatExpression, name).add(")")
@@ -344,7 +359,7 @@ function formatContractTraitBody(
         code.newLine()
 
         const newlines = trailingNewlines(decl)
-        if (!needNewLine && containsSeveralNewlines(newlines)) {
+        if (containsSeveralNewlines(newlines)) {
             code.newLine()
         }
     }

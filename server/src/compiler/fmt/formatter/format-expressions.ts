@@ -32,16 +32,18 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
     switch (node.type) {
         case "expression": {
             const child = nonLeafChild(node)
-            formatExpression(code, child)
+            if (child) {
+                formatExpression(code, child)
+            }
             return
         }
         case "Operator": {
-            const name = node.children[0]
+            const name = node.children.at(0)
             if (!name || name.$ !== "node") {
                 code.add(visit(name).trim())
                 return
             }
-            code.add(visit(name.children[0]).trim())
+            code.add(visit(name).trim())
             return
         }
         case "StringLiteral": {
@@ -83,12 +85,12 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
         case "Parens": {
             const child = childByField(node, "child")
             const expression = nonLeafChild(child)
-            code.add("(").apply(formatExpression, expression).add(")")
+            code.add("(").applyOpt(formatExpression, expression).add(")")
             return
         }
         case "condition": {
             const expression = nonLeafChild(node)
-            code.add("(").apply(formatExpression, expression).add(")")
+            code.add("(").applyOpt(formatExpression, expression).add(")")
             return
         }
         case "Conditional": {
@@ -96,10 +98,12 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
             return
         }
         case "Binary": {
-            let lineLengthBeforeLeft = code.lineLength()
+            const lineLengthBeforeLeft = code.lineLength()
             let indented = false
 
-            const processBinaryTail = (code: CodeBuilder, node: CstNode): void => {
+            const processBinaryTail = (code: CodeBuilder, node: Cst): void => {
+                if (node.$ === "leaf") return
+
                 let newlinesCount = 0
 
                 for (const child of node.children) {
@@ -114,12 +118,18 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
                         const commentsStart = child.children.findIndex(
                             it => it.$ === "node" && it.type === "Comment",
                         )
-                        const commentsEnd = child.children.length - 1 - [...child.children].reverse().findIndex(
-                            it => it.$ === "node" && it.type === "Comment",
-                        ) + 1
+                        const commentsEnd =
+                            child.children.length -
+                            1 -
+                            [...child.children]
+                                .reverse()
+                                .findIndex(it => it.$ === "node" && it.type === "Comment") +
+                            1
 
                         const comments = child.children.slice(commentsStart, commentsEnd)
-                        const hasComments = comments.find(it => it.$ === "node" && it.type === "Comment")
+                        const hasComments = comments.find(
+                            it => it.$ === "node" && it.type === "Comment",
+                        )
 
                         if (hasComments) {
                             if (newlinesCount === 0) {
@@ -127,7 +137,9 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
                                 code.space()
                             }
 
-                            const preCommentsNewlines = countNewlines(child.children[commentsStart - 1])
+                            const preCommentsNewlines = countNewlines(
+                                child.children[commentsStart - 1],
+                            )
                             const postCommentsNewlines = countNewlines(child.children[commentsEnd])
 
                             if (preCommentsNewlines > 0) {
@@ -136,17 +148,17 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
                                 code.space()
                             }
 
-                            comments.forEach((comment, index) => {
+                            for (const comment of comments) {
                                 if (comment.$ === "leaf") {
                                     const newlines = countNewlines(comment)
                                     code.newLines(newlines)
-                                    return
+                                    continue
                                 }
 
                                 if (comment.type === "Comment") {
                                     code.add(visit(comment))
                                 }
-                            })
+                            }
 
                             code.newLines(postCommentsNewlines - 1)
 
@@ -194,16 +206,17 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
             return
         }
         case "Unary": {
-            const prefixes = childByField(node, "prefixes")
+            const prefixesNode = childByField(node, "prefixes")
             const expression = childByField(node, "expression")
 
             if (!expression) {
                 throw new Error("Invalid unary expression")
             }
 
-            prefixes.children.forEach(prefix => {
+            const prefixes = prefixesNode?.children ?? []
+            for (const prefix of prefixes) {
                 formatExpression(code, prefix)
-            })
+            }
             formatExpression(code, expression)
             return
         }
@@ -234,13 +247,13 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
     code.add(visit(node).trim())
 }
 
-function formatConditional(node: CstNode, code: CodeBuilder) {
+function formatConditional(node: CstNode, code: CodeBuilder): void {
     // foo ? bar : baz
     // ^^^ ^^^^^^^^^^^
     // |   |
     // |   tailOpt
     // head
-    const head = node.children[0]
+    const head = node.children.at(0)
     const tailOpt = childByField(node, "tail")
     if (!head) {
         throw new Error("Invalid conditional expression")
@@ -284,7 +297,7 @@ function formatConditional(node: CstNode, code: CodeBuilder) {
     }
 }
 
-function formatInitOf(code: CodeBuilder, node: CstNode) {
+function formatInitOf(code: CodeBuilder, node: CstNode): void {
     code.add("initOf")
     // initOf JettonWallet(0, sender)
     //        ^^^^^^^^^^^^ ^^^^^^^^^
@@ -293,7 +306,7 @@ function formatInitOf(code: CodeBuilder, node: CstNode) {
     //        name
     const name = childByField(node, "name")
     const params = childByField(node, "params")
-    if (!name) {
+    if (!name || !params) {
         throw new Error("Invalid initOf expression")
     }
 
@@ -301,7 +314,7 @@ function formatInitOf(code: CodeBuilder, node: CstNode) {
     formatSeparatedList(code, params, formatExpression)
 }
 
-function formatCodeOf(code: CodeBuilder, node: CstNode) {
+function formatCodeOf(code: CodeBuilder, node: CstNode): void {
     code.add("codeOf")
     // codeOf JettonWallet
     //        ^^^^^^^^^^^^ this
@@ -347,7 +360,10 @@ const formatStructInstance = (code: CodeBuilder, node: CstNode): void => {
             const initOpt = childByField(field, "init")
             if (initOpt) {
                 code.add(":").space()
-                formatExpression(code, nonLeafChild(initOpt))
+                const expression = nonLeafChild(initOpt)
+                if (expression) {
+                    formatExpression(code, expression)
+                }
             }
         },
         {
@@ -378,7 +394,7 @@ const formatStructInstance = (code: CodeBuilder, node: CstNode): void => {
     )
 }
 
-function formatSuffix(node: CstNode, code: CodeBuilder) {
+function formatSuffix(node: CstNode, code: CodeBuilder): void {
     const suffixes = childByField(node, "suffixes")
     if (!suffixes) {
         return
@@ -394,10 +410,10 @@ function formatSuffix(node: CstNode, code: CodeBuilder) {
 
     // foo.bar()
     // ^^^
-    const firstExpression = node.children[0]
+    const firstExpression = node.children.at(0)
     // foo.bar()
     //        ^^
-    const firstSuffix = suffixesList[0]
+    const firstSuffix = suffixesList.at(0)
 
     // first call suffix attached to first expression
     const firstSuffixIsCallOrNotNull =
@@ -413,35 +429,42 @@ function formatSuffix(node: CstNode, code: CodeBuilder) {
 
         if (suffix.type === "SuffixFieldAccess") {
             const name = childByField(suffix, "name")
-            infos.push({
-                nodes: [suffix],
-                hasLeadingNewline: name.children.some(
-                    it => it.$ === "leaf" && it.text.includes("\n"),
-                ),
-                leadingComments: [],
-                trailingComments: [],
-            })
+            if (name) {
+                infos.push({
+                    nodes: [suffix],
+                    hasLeadingNewline: name.children.some(
+                        it => it.$ === "leaf" && it.text.includes("\n"),
+                    ),
+                    leadingComments: [],
+                    trailingComments: [],
+                })
+            }
         }
 
         if (suffix.type === "SuffixCall" && infos.length > 0) {
             const lastInfo = infos.at(-1)
-            lastInfo.nodes.push(suffix)
+            if (lastInfo) {
+                lastInfo.nodes.push(suffix)
 
-            const params = childByField(suffix, "params")
-            lastInfo.hasLeadingNewline = params.children.some(
-                it => it.$ === "leaf" && it.text.includes("\n"),
-            )
+                const params = childByField(suffix, "params")
+                lastInfo.hasLeadingNewline =
+                    params?.children.some(it => it.$ === "leaf" && it.text.includes("\n")) ?? false
+            }
         }
 
         if (suffix.type === "SuffixUnboxNotNull" && infos.length > 0) {
             const lastInfo = infos.at(-1)
-            lastInfo.nodes.push(suffix)
+            if (lastInfo) {
+                lastInfo.nodes.push(suffix)
+            }
         }
     })
 
     const indent = infos.slice(0, -1).some(call => call.hasLeadingNewline) ? 4 : 0
 
-    formatExpression(code, firstExpression)
+    if (firstExpression) {
+        formatExpression(code, firstExpression)
+    }
 
     if (firstSuffixIsCallOrNotNull) {
         formatExpression(code, firstSuffix)

@@ -76,12 +76,12 @@ function formatFields(code: CodeBuilder, node: CstNode): void {
 
             let needNewline = false
             let needNewlineBetween = false
-            fields.forEach(field => {
+            for (const field of fields) {
                 if (field.$ === "leaf") {
                     if (containsSeveralNewlines(field.text)) {
                         needNewlineBetween = true
                     }
-                    return
+                    continue
                 }
 
                 if (needNewlineBetween) {
@@ -103,7 +103,7 @@ function formatFields(code: CodeBuilder, node: CstNode): void {
                     formatFieldDecl(code, field, true)
                     needNewline = true
                 }
-            })
+            }
 
             if (needNewline) {
                 code.newLine()

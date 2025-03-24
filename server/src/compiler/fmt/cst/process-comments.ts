@@ -125,7 +125,7 @@ function containsSeveralNewlines(text: string): boolean {
     if (index === -1) {
         return false
     }
-    return text.substring(index + 1).includes("\n")
+    return text.slice(index + 1).includes("\n")
 }
 
 const findNodeWithComments = (node: CstNode): undefined | [CstNode, string] => {
@@ -162,11 +162,14 @@ const findNodeWithComments = (node: CstNode): undefined | [CstNode, string] => {
         return [node, ";"]
     }
     if (node.type === "Constant") {
-        return [childByField(node, "body"), ";"]
+        const body = childByField(node, "body")
+        if (body) {
+            return [body, ";"]
+        }
     }
 
     const lastChildren = node.children.at(-1)
-    if (lastChildren.$ !== "node") return undefined
+    if (!lastChildren || lastChildren.$ !== "node") return undefined
     return [lastChildren, "}"]
 }
 
@@ -228,7 +231,8 @@ export const processDocComments = (node: Cst): Cst => {
         const lastLeaf = initialLeafs.at(-1)
 
         // Comment is attached to declaration only when the last whitespace is not several line breaks
-        const isAttachedTo = lastLeaf.$ === "leaf" && !containsSeveralNewlines(lastLeaf.text)
+        const isAttachedTo =
+            lastLeaf && lastLeaf.$ === "leaf" && !containsSeveralNewlines(lastLeaf.text)
         if (!isAttachedTo) {
             // if comments are not attached, then we don't need to do anything
             return {
@@ -291,8 +295,7 @@ export const processDocComments = (node: Cst): Cst => {
 
         // collect all nodes until some declaration
         const comments: Cst[] = []
-        for (let index = 0; index < childrenToProcess.length; index++) {
-            const element = childrenToProcess[index]
+        for (const element of childrenToProcess) {
             if (element.$ === "node" && element.type !== "Comment") {
                 // found declaration
                 break
@@ -310,7 +313,7 @@ export const processDocComments = (node: Cst): Cst => {
         }
 
         // remove all collected comments and whitespaces
-        for (let i = 0; i < comments.length; i++) {
+        for (const _ of comments) {
             childrenToProcess.shift()
         }
 
@@ -457,7 +460,7 @@ export const processDocComments = (node: Cst): Cst => {
                     }
                 }
 
-                const nextItem = items[i + 1]
+                const nextItem = items.at(i + 1)
                 if (nextItem && nextItem.$ === "leaf" && containsSeveralNewlines(nextItem.text)) {
                     // not attached to anything
                     items.splice(i - 1, 0, ...pendingComments)
@@ -482,9 +485,6 @@ export const processDocComments = (node: Cst): Cst => {
             }
 
             const commentOwner = found
-            if (!commentOwner[0]) {
-                continue
-            }
 
             const res = extractComments(commentOwner)
             if (!res) {
@@ -504,14 +504,14 @@ export const processDocComments = (node: Cst): Cst => {
             pendingComments.push(...comments)
         }
 
-        if (node.type !== "imports") {
-            // comments aren't attached to anything
-            if (pendingComments.length > 0) {
-                node.children.push(...pendingComments)
-                pendingComments = []
-            }
-        } else {
+        if (node.type === "imports") {
             return node
+        }
+
+        // comments aren't attached to anything
+        if (pendingComments.length > 0) {
+            node.children.push(...pendingComments)
+            pendingComments = []
         }
     }
 
@@ -540,13 +540,8 @@ export const processDocComments = (node: Cst): Cst => {
                     continue
                 }
 
-                const ownerAndAnchor = found
-                if (!ownerAndAnchor[0]) {
-                    continue
-                }
-                const owner = ownerAndAnchor[0]
+                const [owner, anchors] = found
 
-                const anchors = found[1]
                 for (const anchor of anchors) {
                     const res = extractComments([owner, anchor])
                     if (res) {
@@ -605,7 +600,7 @@ export const processDocComments = (node: Cst): Cst => {
         }
 
         pendingComments = leadingComments
-        const processedChildren = node.children.filter((it, index) => {
+        const processedChildren = node.children.filter((_, index) => {
             if (index >= startIndex && index < fieldsIndex) {
                 // remove all nodes that we take
                 return false
@@ -676,13 +671,8 @@ export const processDocComments = (node: Cst): Cst => {
                     continue
                 }
 
-                const ownerAndAnchor = found
-                if (!ownerAndAnchor[0]) {
-                    continue
-                }
-                const owner = ownerAndAnchor[0]
+                const [owner, anchors] = found
 
-                const anchors = found[1]
                 for (const anchor of anchors) {
                     const res = extractComments([owner, anchor])
                     if (res) {
@@ -725,7 +715,9 @@ const findStatementNodeWithComments = (node: CstNode): undefined | [CstNode, Anc
         node.type === "StatementRepeat"
     ) {
         const body = childByField(node, "body")
-        return [body, ["}"]]
+        if (body) {
+            return [body, ["}"]]
+        }
     }
 
     if (node.type === "StatementBlock") {
@@ -736,14 +728,18 @@ const findStatementNodeWithComments = (node: CstNode): undefined | [CstNode, Anc
         const body = childByField(node, "body")
         const handler = childByField(node, "handler")
         if (!handler) {
+            if (!body) return undefined
             return [body, ["}"]]
         }
         const handlerBody = childByField(handler, "body")
-        return [handlerBody, ["}"]]
+        if (handlerBody) {
+            return [handlerBody, ["}"]]
+        }
     }
 
     if (node.type === "StatementCondition") {
         const trueBranch = childByField(node, "trueBranch")
+        if (!trueBranch) return undefined
         const falseBranch = childByField(node, "falseBranch")
         if (!falseBranch) {
             return [trueBranch, ["}"]]
@@ -751,7 +747,9 @@ const findStatementNodeWithComments = (node: CstNode): undefined | [CstNode, Anc
         const falseBranch2 = childByType(falseBranch, "FalseBranch")
         if (falseBranch2) {
             const body = childByField(falseBranch2, "body")
-            return [body, ["}"]]
+            if (body) {
+                return [body, ["}"]]
+            }
         }
 
         const falseBranchIf = childByType(falseBranch, "StatementCondition")
@@ -763,7 +761,7 @@ const findStatementNodeWithComments = (node: CstNode): undefined | [CstNode, Anc
 
     if (node.children.length > 0) {
         const child = node.children.at(-1)
-        if (child.$ === "node") {
+        if (child && child.$ === "node") {
             return findStatementNodeWithComments(child)
         }
 

@@ -3,7 +3,7 @@ import {processDocComments} from "./cst/process-comments"
 import {simplifyCst} from "./cst/simplify-cst"
 import {format} from "./formatter/formatter"
 
-export function formatCode(code: string) {
+export function formatCode(code: string): string {
     const ctx = createContext(code, space)
     const b: Builder = []
     skip(ctx, b)

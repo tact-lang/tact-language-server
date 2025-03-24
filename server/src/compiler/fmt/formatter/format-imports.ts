@@ -1,4 +1,4 @@
-import {childByField, childLeafIdxWithText, visit} from "../cst/cst-helpers"
+import {childByField, childLeafIdxWithText} from "../cst/cst-helpers"
 import {CstNode} from "../cst/cst-parser"
 import {CodeBuilder} from "./code-builder"
 import {formatExpression} from "./format-expressions"
