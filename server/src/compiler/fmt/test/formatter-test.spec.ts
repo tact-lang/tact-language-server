@@ -146,7 +146,7 @@ describe('should format', () => {
                 /* first line
             second line
             */
-            1;
+                1;
         }
     `));
 
@@ -160,7 +160,7 @@ describe('should format', () => {
         fun foo() {
             let foo: Foo =
                 // comment
-            1;
+                1;
         }
     `));
 
@@ -230,7 +230,21 @@ describe('should format', () => {
         fun foo() {
             foo =
                 // comment
-            1;
+                1;
+        }
+    `));
+
+    it('return statement with comment before value on next line', test(`
+        fun foo() {
+            return
+                // comment
+                1;
+        }
+    `, `
+        fun foo() {
+            return
+                // comment
+                1;
         }
     `));
 

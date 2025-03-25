@@ -157,7 +157,7 @@ const formatBinary: FormatRule = (code, node) => {
                     1
 
                 const comments = child.children.slice(commentsStart, commentsEnd)
-                const hasComments = comments.find(it => it.$ === "node" && it.type === "Comment")
+                const hasComments = comments.some(it => it.$ === "node" && it.type === "Comment")
 
                 if (hasComments) {
                     if (newlinesCount === 0) {
@@ -199,9 +199,7 @@ const formatBinary: FormatRule = (code, node) => {
                     code.indentCustom(lineLengthBeforeLeft)
                     indented = true
                 }
-                for (let i = 0; i < newlinesCount; i++) {
-                    code.newLine()
-                }
+                code.newLines(newlinesCount)
                 newlinesCount = 0
             }
         }
@@ -214,18 +212,9 @@ const formatBinary: FormatRule = (code, node) => {
         return
     }
 
-    const operator = childByType(tail, "Operator")
-    if (operator) {
-        const newlinesCount = trailingNewlines(operator)
-        if (newlinesCount > 0) {
-            // multiline expression
-            code.newLine()
-            code.indent()
-            indented = true
-        }
-    }
     code.apply(formatExpression, head)
     code.apply(processBinaryTail, tail)
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (indented) {
         code.dedent()
     }

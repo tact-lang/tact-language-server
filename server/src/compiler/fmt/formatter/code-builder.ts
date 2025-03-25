@@ -22,6 +22,13 @@ export class CodeBuilder {
         return this
     }
 
+    public addIf(cond: boolean, part: string): this {
+        if (cond) {
+            this.addPart(part)
+        }
+        return this
+    }
+
     public space(): this {
         if (!this.atLineStart) {
             this.parts.push(" ")

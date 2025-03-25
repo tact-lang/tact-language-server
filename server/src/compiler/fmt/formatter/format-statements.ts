@@ -176,7 +176,7 @@ function formatCommentsBetweenAssignAndValue(
     node: CstNode,
     assign: CstLeaf,
     init: CstNode,
-): void {
+): boolean {
     const commentsAndNewlines = getLeafsBetween(node, assign, init)
     const comments = commentsAndNewlines.filter(it => it.$ === "node" && it.type === "Comment")
     if (comments.length > 0) {
@@ -200,9 +200,11 @@ function formatCommentsBetweenAssignAndValue(
         } else {
             code.space()
         }
-    } else {
-        code.space()
+
+        return true
     }
+
+    return false
 }
 
 export const formatLetStatement: FormatStatementRule = (code, node, needSemicolon) => {
@@ -234,16 +236,54 @@ export const formatLetStatement: FormatStatementRule = (code, node, needSemicolo
 
     code.space().add("=")
 
-    formatCommentsBetweenAssignAndValue(code, node, assign, init)
+    const hasMultilineComment = formatCommentsBetweenAssignAndValue(code, node, assign, init)
+    const needIndentAndNewline = multilineExpression(init)
+    if (needIndentAndNewline || hasMultilineComment) {
+        if (needIndentAndNewline) {
+            code.newLine()
+        }
+        code.indent()
+    } else {
+        code.space()
+    }
 
     formatExpression(code, init)
 
-    if (needSemicolon) {
-        code.add(";")
+    code.addIf(needSemicolon, ";")
+
+    if (hasMultilineComment || needIndentAndNewline) {
+        code.dedent()
     }
 
     const endIndex = childIdxByField(node, "init")
     formatTrailingComments(code, node, endIndex, true)
+}
+
+const multilineExpression = (expr: CstNode): boolean => {
+    if (expr.type !== "Binary") return false
+
+    const tail = childByField(expr, "tail")
+    if (!tail) return false
+
+    const exprRight = childByField(expr, "right")
+    if (exprRight && exprRight.type !== "Binary") {
+        // don't wrap multiline with single binary
+        return false
+    }
+
+    if (tail.children.length > 2) {
+        return visit(expr).includes("\n")
+    }
+
+    const operator = childByField(tail, "op")
+    if (operator && operator.children.some(it => it.$ === "node" && it.type === "Comment")) {
+        return true
+    }
+
+    const right = childByField(tail, "right")
+    if (right?.type !== "Binary") return false // don't wrap multiline with single binary
+
+    return visit(expr).includes("\n")
 }
 
 export const formatReturnStatement: FormatStatementRule = (code, node, needSemicolon) => {
@@ -261,13 +301,30 @@ export const formatReturnStatement: FormatStatementRule = (code, node, needSemic
 
     code.add("return")
     if (exprOpt) {
-        code.space()
-        formatInlineComments(node, code, returnKeyword, exprOpt, true)
+        const hasMultilineComment = formatCommentsBetweenAssignAndValue(
+            code,
+            node,
+            returnKeyword,
+            exprOpt,
+        )
+        const needIndentAndNewline = multilineExpression(exprOpt)
+        if (needIndentAndNewline || hasMultilineComment) {
+            if (needIndentAndNewline) {
+                code.newLine()
+            }
+            code.indent()
+        } else {
+            code.space()
+        }
+
         formatExpression(code, exprOpt)
+
+        if (hasMultilineComment || needIndentAndNewline) {
+            code.dedent()
+        }
     }
-    if (needSemicolon) {
-        code.add(";")
-    }
+
+    code.addIf(needSemicolon, ";")
 
     const endIndex = exprOpt ? childIdxByField(node, "expression") : 0 // index of return
     formatTrailingComments(code, node, endIndex, true)
@@ -279,9 +336,7 @@ export const formatExpressionStatement: FormatStatementRule = (code, node, needS
         throw new Error("Invalid expression statement")
     }
     formatExpression(code, expression)
-    if (needSemicolon) {
-        code.add(";")
-    }
+    code.addIf(needSemicolon, ";")
 
     const endIndex = childIdxByField(node, "expression")
     formatTrailingComments(code, node, endIndex, true)
@@ -312,11 +367,23 @@ export const formatAssignStatement: FormatStatementRule = (code, node, needSemic
     }
 
     code.add("=")
-    formatCommentsBetweenAssignAndValue(code, node, assign, right)
+
+    const hasMultilineComment = formatCommentsBetweenAssignAndValue(code, node, assign, right)
+    const needIndentAndNewline = multilineExpression(right)
+    if (needIndentAndNewline || hasMultilineComment) {
+        if (needIndentAndNewline) {
+            code.newLine()
+        }
+        code.indent()
+    } else {
+        code.space()
+    }
 
     formatExpression(code, right)
-    if (needSemicolon) {
-        code.add(";")
+    code.addIf(needSemicolon, ";")
+
+    if (hasMultilineComment || needIndentAndNewline) {
+        code.dedent()
     }
 
     const endIndex = childIdxByField(node, "right")
@@ -456,9 +523,7 @@ export const formatDestructStatement: FormatStatementRule = (code, node, needSem
 
     code.space().add("=").space()
     formatExpression(code, init)
-    if (needSemicolon) {
-        code.add(";")
-    }
+    code.addIf(needSemicolon, ";")
 
     const endIndex = childIdxByField(node, "init")
     formatTrailingComments(code, node, endIndex, true)
@@ -505,9 +570,7 @@ export const formatUntilStatement: FormatStatementRule = (code, node, needSemico
     code.space().add("until (")
     formatExpression(code, condition)
     code.add(")")
-    if (needSemicolon) {
-        code.add(";")
-    }
+    code.addIf(needSemicolon, ";")
 
     const endIndex = childIdxByField(node, "condition")
     formatTrailingComments(code, node, endIndex, true)
