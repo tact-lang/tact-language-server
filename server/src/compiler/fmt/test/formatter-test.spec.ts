@@ -1727,6 +1727,76 @@ describe('should format', () => {
             }
         `));
 
+        it('contract with subsequent fields', intact(`
+            contract Foo {
+                a: Int;
+                a: Int;
+                a: Int;
+                a: Int;
+                a: Int;
+            }
+        `));
+
+        it('contract with subsequent constants', intact(`
+            contract Foo {
+                const FOO: Int = 100;
+                const FOO: Int = 100;
+                const FOO: Int = 100;
+                const FOO: Int = 100;
+                const FOO: Int = 100;
+                const FOO: Int = 100;
+            }
+        `));
+
+        it('contract with subsequent fields and constants', test(`
+            contract Foo {
+                a: Int;
+                a: Int;
+                const FOO: Int = 100;
+                const FOO: Int = 100;
+            }
+        `, `
+            contract Foo {
+                a: Int;
+                a: Int;
+
+                const FOO: Int = 100;
+                const FOO: Int = 100;
+            }
+        `));
+
+        it('contract with subsequent functions', test(`
+            contract Foo {
+                fun foo() {}
+                fun foo() {}
+                fun foo() {}
+            }
+        `, `
+            contract Foo {
+                fun foo() {}
+
+                fun foo() {}
+
+                fun foo() {}
+            }
+        `));
+
+        it('contract with subsequent receivers', test(`
+            contract Foo {
+                receive() {}
+                receive() {}
+                receive() {}
+            }
+        `, `
+            contract Foo {
+                receive() {}
+
+                receive() {}
+
+                receive() {}
+            }
+        `));
+
         it('trait with abstract constant', intact(`
             trait T {
                 abstract const Foo: Int;
