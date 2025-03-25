@@ -73,7 +73,7 @@ export const formatFunction = (code: CodeBuilder, node: CstNode): void => {
 
         // process trailing comments after `;`
         const semicolonIndex = childLeafIdxWithText(bodyOpt, ";")
-        formatTrailingComments(code, bodyOpt, semicolonIndex)
+        formatTrailingComments(code, bodyOpt, semicolonIndex, true)
     }
 }
 
@@ -132,7 +132,7 @@ export const formatNativeFunction = (code: CodeBuilder, node: CstNode): void => 
 
     // inline comments after `@name()`
     const comments = getCommentsBetween(node, nativeName, attributesOpt ?? name)
-    formatComments(code, comments)
+    formatComments(code, comments, true)
 
     code.newLine()
 
@@ -150,7 +150,7 @@ export const formatNativeFunction = (code: CodeBuilder, node: CstNode): void => 
 
     // process trailing comments after `;`
     const semicolonIndex = childLeafIdxWithText(node, ";")
-    formatTrailingComments(code, node, semicolonIndex)
+    formatTrailingComments(code, node, semicolonIndex, true)
 }
 
 export const formatAsmFunction = (code: CodeBuilder, node: CstNode): void => {
@@ -206,7 +206,7 @@ export const formatAsmFunction = (code: CodeBuilder, node: CstNode): void => {
 
     // process trailing comments after `}`
     const braceIndex = childLeafIdxWithText(node, "}")
-    formatTrailingComments(code, node, braceIndex)
+    formatTrailingComments(code, node, braceIndex, true)
 }
 
 function formatAsmShuffle(code: CodeBuilder, node: CstNode): void {
@@ -327,7 +327,7 @@ export function formatConstant(code: CodeBuilder, decl: CstNode): void {
 
     // process trailing comments after `;`
     const semicolonIndex = childLeafIdxWithText(bodyOpt, ";")
-    formatTrailingComments(code, bodyOpt, semicolonIndex)
+    formatTrailingComments(code, bodyOpt, semicolonIndex, true)
 }
 
 function formatConstantAttributes(code: CodeBuilder, attributes: CstNode | undefined): void {

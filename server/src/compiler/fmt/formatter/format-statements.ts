@@ -11,7 +11,13 @@ import {
 } from "../cst/cst-helpers"
 import {formatExpression} from "./format-expressions"
 import {formatAscription, formatType} from "./format-types"
-import {containsSeveralNewlines, formatId, formatSeparatedList, getCommentsBetween} from "./helpers"
+import {
+    containsSeveralNewlines,
+    formatId,
+    formatSeparatedList,
+    getLeafsBetween,
+    multilineComments,
+} from "./helpers"
 import {formatTrailingComments, formatInlineComments} from "./format-comments"
 import {FormatRule, FormatStatementRule} from "@server/compiler/fmt/formatter/formatter"
 
@@ -20,7 +26,7 @@ export const formatStatements: FormatRule = (code, node) => {
     const statements = node.children.slice(0, endIndex).filter(it => it.$ === "node")
     if (statements.length === 0) {
         code.add("{}")
-        formatTrailingComments(code, node, endIndex)
+        formatTrailingComments(code, node, endIndex, true)
         return
     }
 
@@ -102,7 +108,7 @@ export const formatStatements: FormatRule = (code, node) => {
 
     code.dedent().add("}")
 
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatStatement: FormatStatementRule = (code, node, needSemicolon) => {
@@ -184,24 +190,40 @@ export const formatLetStatement: FormatStatementRule = (code, node, needSemicolo
     code.add("let").space().apply(formatId, name)
 
     if (typeOpt) {
-        formatInlineComments(node, code, name, typeOpt)
+        formatInlineComments(node, code, name, typeOpt, true)
         formatAscription(code, typeOpt)
-        formatInlineComments(node, code, typeOpt, assign)
+        formatInlineComments(node, code, typeOpt, assign, true)
     } else {
-        formatInlineComments(node, code, name, assign)
+        formatInlineComments(node, code, name, assign, true)
     }
 
-    code.space().add("=").space()
+    code.space().add("=")
 
-    const comments = getCommentsBetween(node, assign, init)
+    const commentsAndNewlines = getLeafsBetween(node, assign, init)
+    const comments = commentsAndNewlines.filter(it => it.$ === "node" && it.type === "Comment")
     if (comments.length > 0) {
-        code.newLine()
-        code.indent()
-        for (const comment of comments) {
+        const multiline = multilineComments(commentsAndNewlines)
+
+        if (multiline) {
+            code.indent()
+            code.newLine()
+        } else {
+            code.space()
+        }
+
+        for (const comment of commentsAndNewlines) {
+            if (comment.$ !== "node" || comment.type !== "Comment") continue
             code.add(visit(comment))
         }
-        code.newLine()
-        code.dedent()
+
+        if (multiline) {
+            code.newLine()
+            code.dedent()
+        } else {
+            code.space()
+        }
+    } else {
+        code.space()
     }
 
     formatExpression(code, init)
@@ -211,7 +233,7 @@ export const formatLetStatement: FormatStatementRule = (code, node, needSemicolo
     }
 
     const endIndex = childIdxByField(node, "init")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatReturnStatement: FormatStatementRule = (code, node, needSemicolon) => {
@@ -230,7 +252,7 @@ export const formatReturnStatement: FormatStatementRule = (code, node, needSemic
     code.add("return")
     if (exprOpt) {
         code.space()
-        formatInlineComments(node, code, returnKeyword, exprOpt)
+        formatInlineComments(node, code, returnKeyword, exprOpt, true)
         formatExpression(code, exprOpt)
     }
     if (needSemicolon) {
@@ -238,7 +260,7 @@ export const formatReturnStatement: FormatStatementRule = (code, node, needSemic
     }
 
     const endIndex = exprOpt ? childIdxByField(node, "expression") : 0 // index of return
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatExpressionStatement: FormatStatementRule = (code, node, needSemicolon) => {
@@ -252,7 +274,7 @@ export const formatExpressionStatement: FormatStatementRule = (code, node, needS
     }
 
     const endIndex = childIdxByField(node, "expression")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatAssignStatement: FormatStatementRule = (code, node, needSemicolon) => {
@@ -280,7 +302,7 @@ export const formatAssignStatement: FormatStatementRule = (code, node, needSemic
     }
 
     code.add("=").space()
-    formatInlineComments(node, code, assign, right)
+    formatInlineComments(node, code, assign, right, true)
 
     formatExpression(code, right)
     if (needSemicolon) {
@@ -288,7 +310,7 @@ export const formatAssignStatement: FormatStatementRule = (code, node, needSemic
     }
 
     const endIndex = childIdxByField(node, "right")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatConditionStatement: FormatRule = (code, node) => {
@@ -303,7 +325,7 @@ export const formatConditionStatement: FormatRule = (code, node) => {
     }
 
     code.add("if").space()
-    formatInlineComments(node, code, ifKeyword, condition)
+    formatInlineComments(node, code, ifKeyword, condition, false)
 
     formatExpression(code, condition)
     code.space()
@@ -336,7 +358,7 @@ export const formatConditionStatement: FormatRule = (code, node) => {
     }
 
     const endIndex = childIdxByField(node, falseBranch ? "falseBranch" : "trueBranch")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatWhileStatement: FormatRule = (code, node) => {
@@ -358,7 +380,7 @@ export const formatWhileStatement: FormatRule = (code, node) => {
     formatStatements(code, body)
 
     const endIndex = childIdxByField(node, "body")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatDestructField: FormatRule = (code, field) => {
@@ -429,7 +451,7 @@ export const formatDestructStatement: FormatStatementRule = (code, node, needSem
     }
 
     const endIndex = childIdxByField(node, "init")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatRepeatStatement: FormatRule = (code, node) => {
@@ -451,7 +473,7 @@ export const formatRepeatStatement: FormatRule = (code, node) => {
     formatStatements(code, body)
 
     const endIndex = childIdxByField(node, "body")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatUntilStatement: FormatStatementRule = (code, node, needSemicolon) => {
@@ -478,7 +500,7 @@ export const formatUntilStatement: FormatStatementRule = (code, node, needSemico
     }
 
     const endIndex = childIdxByField(node, "condition")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatTryStatement: FormatRule = (code, node) => {
@@ -515,7 +537,7 @@ export const formatTryStatement: FormatRule = (code, node) => {
     }
 
     const endIndex = childIdxByField(node, handlerOpt ? "handler" : "body")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatForEachStatement: FormatRule = (code, node) => {
@@ -542,7 +564,7 @@ export const formatForEachStatement: FormatRule = (code, node) => {
     formatStatements(code, body)
 
     const endIndex = childIdxByField(node, "body")
-    formatTrailingComments(code, node, endIndex)
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 function isSemicolonStatement(node: CstNode): boolean {

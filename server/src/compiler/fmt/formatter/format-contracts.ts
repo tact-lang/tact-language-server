@@ -179,25 +179,19 @@ function formatInheritedTraits(code: CodeBuilder, node: CstNode): void {
     const traitsNode = childByField(node, "traits")
     if (!traitsNode) return
 
-    code.space().add("with").space()
+    code.space().add("with")
 
     // ["with", " ", "Bar", ", ", "Baz"]
     //               ^ starts from here
     const namesIndex = childIdxByType(traitsNode, "Id")
 
-    formatSeparatedList(
-        code,
-        traitsNode,
-        (code, trait) => {
-            code.apply(formatId, trait)
-        },
-        {
-            wrapperLeft: "",
-            wrapperRight: "",
-            startIndex: namesIndex,
-            endIndex: 0,
-        },
-    )
+    formatSeparatedList(code, traitsNode, formatId, {
+        wrapperLeft: "",
+        wrapperRight: "",
+        startIndex: namesIndex,
+        endIndex: 0,
+        spaceBeforeIfNotMultiline: true,
+    })
 }
 
 function formatContractParameters(code: CodeBuilder, node: CstNode): void {

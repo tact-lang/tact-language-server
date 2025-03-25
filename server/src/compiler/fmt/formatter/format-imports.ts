@@ -23,5 +23,5 @@ export const formatImport: FormatRule = (code, node) => {
 
     // process trailing comments after `;`
     const semicolonIndex = childLeafIdxWithText(node, ";")
-    formatTrailingComments(code, node, semicolonIndex)
+    formatTrailingComments(code, node, semicolonIndex, true)
 }

@@ -139,6 +139,7 @@ export const formatSeparatedList = (
         suffixElement?: string
         needSeparatorAfterSuffixElement?: boolean
         separator?: string
+        spaceBeforeIfNotMultiline?: boolean
         provideTrailingComments?: (item: Cst) => undefined | Cst[]
     } = {},
 ): void => {
@@ -150,12 +151,17 @@ export const formatSeparatedList = (
         endIndex = -1,
         extraWrapperSpace,
         suffixElement,
+        spaceBeforeIfNotMultiline,
         needSeparatorAfterSuffixElement,
     } = options
 
     const info = collectListInfo(node, startIndex, endIndex)
     const items = info.items
     const shouldBeMultiline = info.shouldBeMultiline
+
+    if (!shouldBeMultiline && spaceBeforeIfNotMultiline) {
+        code.add(" ")
+    }
 
     code.add(wrapperLeft)
 
@@ -233,6 +239,13 @@ export const formatSeparatedList = (
             code.add(extraWrapperSpace)
         }
 
+        if (info.inlineLeadingComments.length > 0) {
+            for (const comment of info.inlineLeadingComments) {
+                code.add(visit(comment.node))
+                code.space()
+            }
+        }
+
         info.leadingComments.forEach(comment => {
             code.add(visit(comment.node))
 
@@ -278,6 +291,17 @@ export const getCommentsBetween = (
     }) as CstNode[]
 }
 
+export const getLeafsBetween = (
+    node: CstNode,
+    startNode: undefined | Cst,
+    endNode: undefined | Cst,
+): Cst[] => {
+    const startIndex = startNode ? node.children.indexOf(startNode) : -1
+    const endIndex = endNode ? node.children.indexOf(endNode) : node.children.length
+
+    return node.children.filter((_, childIndex) => childIndex > startIndex && childIndex < endIndex)
+}
+
 // name: Id
 //   name: name
 //      "some"
@@ -295,7 +319,7 @@ export const formatId = (code: CodeBuilder, node: Cst): void => {
     const name = idText(node)
     code.add(name)
 
-    formatTrailingComments(code, node, 1)
+    formatTrailingComments(code, node, 1, true)
 }
 
 export function declName(node: CstNode): string {
@@ -312,4 +336,10 @@ export function containsSeveralNewlines(text: string): boolean {
         return false
     }
     return text.slice(index + 1).includes("\n")
+}
+
+export function multilineComments(comments: Cst[]): boolean {
+    return comments.some(it => {
+        return visit(it).includes("\n")
+    })
 }

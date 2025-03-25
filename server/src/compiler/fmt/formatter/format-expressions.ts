@@ -82,7 +82,7 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
             code.add("(").applyOpt(formatExpression, expression).add(")")
 
             const endIndex = childLeafIdxWithText(child, ")")
-            formatTrailingComments(code, child, endIndex)
+            formatTrailingComments(code, child, endIndex, true)
             return
         }
         case "condition": {
@@ -321,7 +321,7 @@ const formatInitOf: FormatRule = (code, node) => {
     formatSeparatedList(code, params, formatExpression)
 
     const endIndex = childLeafIdxWithText(params, ")")
-    formatTrailingComments(code, params, endIndex)
+    formatTrailingComments(code, params, endIndex, true)
 }
 
 const formatCodeOf: FormatRule = (code, node) => {
@@ -404,7 +404,7 @@ const formatStructInstance: FormatRule = (code, node) => {
     )
 
     const endIndex = childLeafIdxWithText(fields, "}")
-    formatTrailingComments(code, fields, endIndex)
+    formatTrailingComments(code, fields, endIndex, true)
 }
 
 interface ChainCall {
@@ -537,7 +537,7 @@ const formatSuffixFieldAccess: FormatRule = (code, node) => {
 const formatSuffixUnboxNotNull: FormatRule = (code, node) => {
     code.add("!!")
 
-    formatTrailingComments(code, node, 1)
+    formatTrailingComments(code, node, 1, true)
 }
 
 const formatSuffixCall: FormatRule = (code, node) => {
@@ -550,5 +550,5 @@ const formatSuffixCall: FormatRule = (code, node) => {
 
     formatSeparatedList(code, args, formatExpression, {endIndex})
 
-    formatTrailingComments(code, args, endIndex)
+    formatTrailingComments(code, args, endIndex, true)
 }

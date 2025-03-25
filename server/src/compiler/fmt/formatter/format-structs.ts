@@ -120,7 +120,7 @@ const formatFields: FormatRule = (code, node) => {
     code.dedent().add("}")
 }
 
-export const formatField: FormatStatementRule = (code, decl, needSemicolon): void => {
+export const formatField: FormatStatementRule = (code, decl, needSemicolon) => {
     formatDocComments(code, decl)
 
     // foo : Int = 100;
@@ -158,5 +158,5 @@ export const formatField: FormatStatementRule = (code, decl, needSemicolon): voi
     // foo: Int; // 100
     //      ^^^ after this type
     const endIndex = childIdxByField(decl, "type")
-    formatTrailingComments(code, decl, endIndex)
+    formatTrailingComments(code, decl, endIndex, true)
 }
