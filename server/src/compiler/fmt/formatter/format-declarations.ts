@@ -285,3 +285,62 @@ export const formatPrimitiveType = (code: CodeBuilder, node: CstNode): void => {
 
     code.add("primitive").space().apply(formatId, name).add(";")
 }
+
+export function formatConstant(code: CodeBuilder, decl: CstNode): void {
+    formatDocComments(code, decl)
+
+    // const Foo : Int = 100;
+    //       ^^^ ^^^^^ ^^^^^
+    //       |   |     |
+    //       |   |     bodyOpt
+    //       |   type
+    //       name
+    const name = childByField(decl, "name")
+    const type = childByField(decl, "type")
+    const bodyOpt = childByField(decl, "body")
+
+    if (!name || !type) {
+        throw new Error("Invalid constant declaration")
+    }
+
+    const attributes = childByField(decl, "attributes")
+    formatConstantAttributes(code, attributes)
+
+    // const FOO: Int
+    code.add("const").space().apply(formatId, name).apply(formatAscription, type)
+
+    if (bodyOpt && bodyOpt.type === "ConstantDefinition") {
+        // const Foo: Int = 100;
+        //               ^^^^^^^ this
+        code.space().add("=").space()
+        // const Foo: Int = 100;
+        //                  ^^^ this
+        const value = nonLeafChild(bodyOpt)
+        if (value) {
+            code.apply(formatExpression, value).add(";")
+        }
+    } else if (!bodyOpt || bodyOpt.type === "ConstantDeclaration") {
+        // const Foo: Int;
+        //               ^ this
+        code.add(";")
+    }
+
+    // process trailing comments after `;`
+    const semicolonIndex = childLeafIdxWithText(bodyOpt, ";")
+    formatTrailingComments(code, bodyOpt, semicolonIndex)
+}
+
+function formatConstantAttributes(code: CodeBuilder, attributes: CstNode | undefined): void {
+    if (!attributes) return
+
+    const attrs = childrenByType(attributes, "ConstantAttribute")
+    for (const attr of attrs) {
+        formatConstantAttribute(code, attr)
+    }
+}
+
+function formatConstantAttribute(code: CodeBuilder, attr: Cst): void {
+    const attrName = childByField(attr, "name")
+    if (!attrName) return
+    code.add(idText(attr)).space()
+}

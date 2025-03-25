@@ -5,11 +5,12 @@ import {
     formatNativeFunction,
     formatAsmFunction,
     formatPrimitiveType,
+    formatConstant,
 } from "./format-declarations"
 import {formatStatement} from "./format-statements"
 import {formatExpression} from "./format-expressions"
 import {visit, childByField, trailingNewlines} from "../cst/cst-helpers"
-import {formatConstant, formatContract, formatTrait} from "./format-contracts"
+import {formatContract, formatTrait} from "./format-contracts"
 import {formatMessage, formatStruct} from "./format-structs"
 import {formatImport} from "./format-imports"
 import {containsSeveralNewlines} from "./helpers"

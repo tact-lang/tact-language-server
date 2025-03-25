@@ -1,22 +1,20 @@
 import {Cst, CstNode} from "../cst/cst-parser"
 import {
     childByField,
-    childIdxByField,
     childIdxByType,
     childLeafIdxWithText,
     childrenByType,
-    nonLeafChild,
     trailingNewlines,
     visit,
 } from "../cst/cst-helpers"
 import {CodeBuilder} from "./code-builder"
-import {containsSeveralNewlines, declName, formatId, formatSeparatedList, idText} from "./helpers"
-import {formatFunction, formatParameter} from "./format-declarations"
+import {containsSeveralNewlines, declName, formatId, formatSeparatedList} from "./helpers"
+import {formatConstant, formatFunction, formatParameter} from "./format-declarations"
 import {formatStatements} from "./format-statements"
-import {formatAscription} from "./format-types"
 import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
-import {formatComment, formatTrailingComments} from "./format-comments"
+import {formatComment} from "./format-comments"
+import {formatField} from "./format-structs"
 
 export function formatContract(code: CodeBuilder, node: CstNode): void {
     formatDocComments(code, node)
@@ -44,7 +42,7 @@ export function formatContract(code: CodeBuilder, node: CstNode): void {
                 break
             }
             case "FieldDecl": {
-                formatFieldDecl(code, decl, true)
+                formatField(code, decl, true)
                 break
             }
             default: {
@@ -75,7 +73,7 @@ export function formatTrait(code: CodeBuilder, node: CstNode): void {
                 break
             }
             case "FieldDecl": {
-                formatFieldDecl(code, decl, true)
+                formatField(code, decl, true)
                 break
             }
             default: {
@@ -148,106 +146,6 @@ function formatReceiver(code: CodeBuilder, decl: CstNode): void {
     }
     code.space()
     formatStatements(code, body)
-}
-
-export function formatConstant(code: CodeBuilder, decl: CstNode): void {
-    formatDocComments(code, decl)
-
-    // const Foo : Int = 100;
-    //       ^^^ ^^^^^ ^^^^^
-    //       |   |     |
-    //       |   |     bodyOpt
-    //       |   type
-    //       name
-    const name = childByField(decl, "name")
-    const type = childByField(decl, "type")
-    const bodyOpt = childByField(decl, "body")
-
-    if (!name || !type) {
-        throw new Error("Invalid constant declaration")
-    }
-
-    const attributes = childByField(decl, "attributes")
-    formatConstantAttributes(code, attributes)
-
-    // const FOO: Int
-    code.add("const").space().apply(formatId, name).apply(formatAscription, type)
-
-    if (bodyOpt && bodyOpt.type === "ConstantDefinition") {
-        // const Foo: Int = 100;
-        //               ^^^^^^^ this
-        code.space().add("=").space()
-        // const Foo: Int = 100;
-        //                  ^^^ this
-        const value = nonLeafChild(bodyOpt)
-        if (value) {
-            code.apply(formatExpression, value).add(";")
-        }
-    } else if (!bodyOpt || bodyOpt.type === "ConstantDeclaration") {
-        // const Foo: Int;
-        //               ^ this
-        code.add(";")
-    }
-
-    // process trailing comments after `;`
-    const semicolonIndex = childLeafIdxWithText(bodyOpt, ";")
-    formatTrailingComments(code, bodyOpt, semicolonIndex)
-}
-
-function formatConstantAttributes(code: CodeBuilder, attributes: CstNode | undefined): void {
-    if (!attributes) return
-
-    const attrs = childrenByType(attributes, "ConstantAttribute")
-    for (const attr of attrs) {
-        formatConstantAttribute(code, attr)
-    }
-}
-
-function formatConstantAttribute(code: CodeBuilder, attr: Cst): void {
-    const attrName = childByField(attr, "name")
-    if (!attrName) return
-    code.add(idText(attr)).space()
-}
-
-export function formatFieldDecl(code: CodeBuilder, decl: CstNode, needSemicolon: boolean): void {
-    formatDocComments(code, decl)
-
-    // foo : Int = 100;
-    // ^^^ ^^^^^   ^^^
-    // |   |       |
-    // |   |       initOpt
-    // |   type
-    // name
-    const name = childByField(decl, "name")
-    const type = childByField(decl, "type")
-    const initOpt = childByField(decl, "expression")
-
-    if (!name || !type) {
-        throw new Error("Invalid field declaration")
-    }
-
-    // foo: Int
-    code.apply(formatId, name).apply(formatAscription, type)
-
-    if (initOpt) {
-        // foo: Int = 100;
-        //            ^^^ this
-        const value = nonLeafChild(initOpt)
-        if (value) {
-            //  = 100
-            code.space().add("=").space().apply(formatExpression, value)
-        }
-    }
-    if (needSemicolon) {
-        code.add(";")
-    }
-
-    // since `;` is not a part of the field, we process all comments after type
-    //
-    // foo: Int; // 100
-    //      ^^^ after this type
-    const endIndex = childIdxByField(decl, "type")
-    formatTrailingComments(code, decl, endIndex)
 }
 
 function formatContractTraitAttribute(attr: Cst, code: CodeBuilder): void {

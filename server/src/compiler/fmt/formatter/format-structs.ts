@@ -1,11 +1,16 @@
-import {CstNode} from "../cst/cst-parser"
-import {childByField, childLeafWithText, nonLeafChild, visit} from "../cst/cst-helpers"
-import {CodeBuilder} from "./code-builder"
-import {containsSeveralNewlines, declName} from "./helpers"
+import {
+    childByField,
+    childIdxByField,
+    childLeafWithText,
+    nonLeafChild,
+    visit,
+} from "../cst/cst-helpers"
+import {containsSeveralNewlines, declName, formatId} from "./helpers"
 import {formatExpression} from "./format-expressions"
-import {formatFieldDecl} from "./format-contracts"
 import {formatDocComments} from "./format-doc-comments"
-import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
+import {FormatRule, FormatStatementRule} from "./formatter"
+import {formatAscription} from "./format-types"
+import {formatTrailingComments} from "./format-comments"
 
 export const formatStruct: FormatRule = (code, node) => {
     formatDocComments(code, node)
@@ -33,7 +38,7 @@ export const formatMessage: FormatRule = (code, node) => {
     formatFields(code, node)
 }
 
-function formatFields(code: CodeBuilder, node: CstNode): void {
+const formatFields: FormatRule = (code, node) => {
     const children = node.children
 
     // struct can contain only comments, so we need to handle this case properly
@@ -57,7 +62,7 @@ function formatFields(code: CodeBuilder, node: CstNode): void {
 
     if (oneLiner && firstField.$ === "node") {
         code.space().add("{").space()
-        formatFieldDecl(code, firstField, false)
+        formatField(code, firstField, false)
         code.space().add("}")
         return
     }
@@ -101,7 +106,7 @@ function formatFields(code: CodeBuilder, node: CstNode): void {
                     if (needNewline) {
                         code.newLine()
                     }
-                    formatFieldDecl(code, field, true)
+                    formatField(code, field, true)
                     needNewline = true
                 }
             }
@@ -113,4 +118,45 @@ function formatFields(code: CodeBuilder, node: CstNode): void {
     })
 
     code.dedent().add("}")
+}
+
+export const formatField: FormatStatementRule = (code, decl, needSemicolon): void => {
+    formatDocComments(code, decl)
+
+    // foo : Int = 100;
+    // ^^^ ^^^^^   ^^^
+    // |   |       |
+    // |   |       initOpt
+    // |   type
+    // name
+    const name = childByField(decl, "name")
+    const type = childByField(decl, "type")
+    const initOpt = childByField(decl, "expression")
+
+    if (!name || !type) {
+        throw new Error("Invalid field declaration")
+    }
+
+    // foo: Int
+    code.apply(formatId, name).apply(formatAscription, type)
+
+    if (initOpt) {
+        // foo: Int = 100;
+        //            ^^^ this
+        const value = nonLeafChild(initOpt)
+        if (value) {
+            //  = 100
+            code.space().add("=").space().apply(formatExpression, value)
+        }
+    }
+    if (needSemicolon) {
+        code.add(";")
+    }
+
+    // since `;` is not a part of the field, we process all comments after type
+    //
+    // foo: Int; // 100
+    //      ^^^ after this type
+    const endIndex = childIdxByField(decl, "type")
+    formatTrailingComments(code, decl, endIndex)
 }
