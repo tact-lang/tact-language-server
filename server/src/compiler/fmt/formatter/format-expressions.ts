@@ -4,7 +4,9 @@ import {
     childByType,
     childIdxByField,
     childLeafIdxWithText,
+    containsComments,
     countNewlines,
+    isComment,
     nonLeafChild,
     textOfId,
     trailingNewlines,
@@ -145,21 +147,16 @@ const formatBinary: FormatRule = (code, node) => {
             if (child.type === "Operator") {
                 newlinesCount = trailingNewlines(child)
 
-                const commentsStart = child.children.findIndex(
-                    it => it.$ === "node" && it.type === "Comment",
-                )
+                const commentsStart = child.children.findIndex(it => isComment(it))
                 const commentsEnd =
                     child.children.length -
                     1 -
-                    [...child.children]
-                        .reverse()
-                        .findIndex(it => it.$ === "node" && it.type === "Comment") +
+                    [...child.children].reverse().findIndex(it => isComment(it)) +
                     1
 
                 const comments = child.children.slice(commentsStart, commentsEnd)
-                const hasComments = comments.some(it => it.$ === "node" && it.type === "Comment")
 
-                if (hasComments) {
+                if (containsComments(comments)) {
                     if (newlinesCount === 0) {
                         // inline comments after operator
                         code.space()

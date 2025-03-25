@@ -5,6 +5,9 @@ import {
     childIdxByField,
     childIdxByType,
     childLeafIdxWithText,
+    containsComments,
+    filterComments,
+    isComment,
 } from "./cst-helpers"
 
 let pendingComments: Cst[] = []
@@ -53,8 +56,7 @@ function extractComments([commentPoint, anchor]: [CstNode, Anchor]):
 
     const actualAnchorIndex = anchorIndex + 1
     const followingLeafs = commentPoint.children.slice(actualAnchorIndex)
-    const hasComments = followingLeafs.some(it => it.$ === "node" && it.type === "Comment")
-    if (!hasComments) {
+    if (!containsComments(followingLeafs)) {
         // no comments, no need to do anything
         return undefined
     }
@@ -66,7 +68,7 @@ function extractComments([commentPoint, anchor]: [CstNode, Anchor]):
 
     // all before, inline comments that we don't touch
     const inlineLeafs = followingLeafs.slice(0, inlineCommentsIndex - actualAnchorIndex)
-    const inlineComments = inlineLeafs.filter(it => it.$ === "node" && it.type === "Comment")
+    const inlineComments = filterComments(inlineLeafs)
 
     const inlineCommentFirstChildren = commentPoint.children[inlineCommentsIndex]
     if (inlineCommentFirstChildren.$ === "leaf" && inlineCommentFirstChildren.text.includes("\n")) {
@@ -219,8 +221,7 @@ export const processDocComments = (node: Cst): Cst => {
         }
 
         const initialLeafs = node.children.slice(0, moduleIndex)
-        const hasComments = initialLeafs.some(it => it.$ === "node" && it.type === "Comment")
-        if (!hasComments) {
+        if (!containsComments(initialLeafs)) {
             // no comments, no need to do anything
             return {
                 ...node,
@@ -242,9 +243,7 @@ export const processDocComments = (node: Cst): Cst => {
         }
 
         // skip top level whitespaces before comment
-        let firstCommentIndex = initialLeafs.findIndex(
-            it => it.$ === "node" && it.type === "Comment",
-        )
+        let firstCommentIndex = initialLeafs.findIndex(it => isComment(it))
 
         const reverseDoubleNewlineIndex = [...initialLeafs]
             .reverse()
@@ -303,8 +302,7 @@ export const processDocComments = (node: Cst): Cst => {
             comments.push(element)
         }
 
-        const hasComments = comments.some(it => it.$ === "node" && it.type === "Comment")
-        if (!hasComments) {
+        if (!containsComments(comments)) {
             // no comments, no need to do anything
             return {
                 ...node,
@@ -589,7 +587,7 @@ export const processDocComments = (node: Cst): Cst => {
         const fieldsIndex = childIdxByField(node, "fields")
 
         const leadingLeafs = node.children.slice(startIndex, fieldsIndex)
-        const leadingComments = leadingLeafs.filter(it => it.$ === "node" && it.type === "Comment")
+        const leadingComments = filterComments(leadingLeafs)
 
         if (leadingComments.length === 0) {
             // nothing to do, no leading comments

@@ -1,6 +1,6 @@
 import {CodeBuilder} from "./code-builder"
 import {Cst, CstNode} from "../cst/cst-parser"
-import {visit} from "../cst/cst-helpers"
+import {filterComments, visit} from "../cst/cst-helpers"
 import {getCommentsBetween} from "./helpers"
 import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
@@ -15,7 +15,7 @@ export function formatTrailingComments(
     const afterBody = node.children.slice(startFrom + 1)
     if (afterBody.length === 0) return
 
-    const comments = afterBody.filter(it => it.$ === "node" && it.type === "Comment")
+    const comments = filterComments(afterBody)
     formatComments(code, comments, withSpace)
 }
 

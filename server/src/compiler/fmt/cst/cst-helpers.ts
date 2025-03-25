@@ -170,3 +170,19 @@ export function trailingNewlines(node: Cst): number {
 
     return trailingNewlines(lastChild)
 }
+
+export function isComment(node: Cst): boolean {
+    return node.$ === "node" && node.type === "Comment"
+}
+
+export function isInlineComment(node: Cst): boolean {
+    return node.$ === "node" && node.type === "Comment" && visit(node).startsWith("//")
+}
+
+export function filterComments(nodes: Cst[]): CstNode[] {
+    return nodes.filter(it => it.$ === "node").filter(it => it.type === "Comment")
+}
+
+export function containsComments(nodes: Cst[]): boolean {
+    return nodes.some(it => isComment(it))
+}

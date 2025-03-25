@@ -3,6 +3,7 @@ import {
     childIdxByField,
     childLeafIdxWithText,
     childLeafWithText,
+    containsComments,
     nonLeafChild,
     visit,
 } from "../cst/cst-helpers"
@@ -44,7 +45,7 @@ const formatFields: FormatRule = (code, node) => {
     const children = node.children.slice(0, endIndex)
 
     // struct can contain only comments, so we need to handle this case properly
-    const hasComments = children.find(it => it.$ === "node" && it.type === "Comment")
+    const hasComments = containsComments(children)
 
     const fieldsNode = childByField(node, "fields")
     if ((!fieldsNode || fieldsNode.children.length === 0) && !hasComments) {

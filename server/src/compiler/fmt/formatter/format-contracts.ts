@@ -4,6 +4,8 @@ import {
     childIdxByType,
     childLeafIdxWithText,
     childrenByType,
+    containsComments,
+    filterComments,
     trailingNewlines,
     visit,
 } from "../cst/cst-helpers"
@@ -212,7 +214,7 @@ function formatContractTraitBody(
     const children = node.children.slice(0, endIndex)
 
     // contract or trait can contain only comments, so we need to handle this case properly
-    const hasComments = children.find(it => it.$ === "node" && it.type === "Comment")
+    const hasComments = containsComments(children)
 
     const declarationsNode = childByField(node, "declarations")
     if (!declarationsNode && !hasComments) {
@@ -273,9 +275,7 @@ function formatContractTraitBody(
         const openBraceIndex = childLeafIdxWithText(node, "{")
         const closeBraceIndex = childLeafIdxWithText(node, "}")
 
-        const comments = node.children
-            .slice(openBraceIndex + 1, closeBraceIndex)
-            .filter(it => it.$ === "node" && it.type === "Comment")
+        const comments = filterComments(node.children.slice(openBraceIndex + 1, closeBraceIndex))
         comments.forEach(child => {
             code.add(visit(child).trim())
             code.newLine()

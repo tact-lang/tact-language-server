@@ -5,6 +5,9 @@ import {
     childIdxByField,
     childLeafIdxWithText,
     childLeafWithText,
+    containsComments,
+    filterComments,
+    isInlineComment,
     nonLeafChild,
     trailingNewlines,
     visit,
@@ -178,7 +181,7 @@ function formatCommentsBetweenAssignAndValue(
     init: CstNode,
 ): boolean {
     const commentsAndNewlines = getLeafsBetween(node, assign, init)
-    const comments = commentsAndNewlines.filter(it => it.$ === "node" && it.type === "Comment")
+    const comments = filterComments(commentsAndNewlines)
     if (comments.length > 0) {
         const multiline = multilineComments(commentsAndNewlines)
 
@@ -276,7 +279,7 @@ const multilineExpression = (expr: CstNode): boolean => {
     }
 
     const operator = childByField(tail, "op")
-    if (operator && operator.children.some(it => it.$ === "node" && it.type === "Comment")) {
+    if (operator && containsComments(operator.children)) {
         return true
     }
 
@@ -652,9 +655,7 @@ function isSemicolonStatement(node: CstNode): boolean {
 }
 
 function canBeSingleLine(node: CstNode): boolean {
-    const hasInlineComments = node.children.some(
-        it => it.$ === "node" && it.type === "Comment" && visit(it).startsWith("//"),
-    )
+    const hasInlineComments = node.children.some(it => isInlineComment(it))
     if (hasInlineComments) {
         return false
     }
@@ -678,7 +679,7 @@ function isSingleLineStatement(node: CstNode): boolean {
         return false
     }
 
-    const comments = statements.filter(it => it.type === "Comment")
+    const comments = filterComments(statements)
     return (
         statements.length === 1 &&
         childLeafWithText(statements[0], ";") === undefined &&
