@@ -100,6 +100,7 @@ describe("top level declarations comments formatting", () => {
         contract Foo(param: Int) {
             // contract field comment
             field: Int;
+
             /* block field comment */
             const FOO: Int = 100;
         } // inline contract comment
@@ -117,6 +118,7 @@ describe("top level declarations comments formatting", () => {
         trait Foo {
             // trait field comment
             field: Int;
+
             /* block field comment */
             const FOO: Int = 100;
         } // inline trait comment
@@ -272,12 +274,15 @@ describe("top level declarations comments formatting", () => {
         /* block multiple items comment */
         contract Bar {
             field: Int;
+
             init(value: Int) {
                 field = value;
             }
+
             receive(msg: Message) {
                 process(msg);
             }
+
             get fun value(): Int {
                 return field;
             }

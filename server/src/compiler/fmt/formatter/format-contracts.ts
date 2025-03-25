@@ -1,4 +1,4 @@
-import {Cst, CstNode} from "../cst/cst-parser"
+import {CstNode} from "../cst/cst-parser"
 import {
     childByField,
     childIdxByType,
@@ -15,8 +15,9 @@ import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
 import {formatComment, formatTrailingComments} from "./format-comments"
 import {formatField} from "./format-structs"
+import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
-export function formatContract(code: CodeBuilder, node: CstNode): void {
+export const formatContract: FormatRule = (code, node) => {
     formatDocComments(code, node)
 
     formatContractTraitAttributes(code, node)
@@ -52,7 +53,7 @@ export function formatContract(code: CodeBuilder, node: CstNode): void {
     })
 }
 
-export function formatTrait(code: CodeBuilder, node: CstNode): void {
+export const formatTrait: FormatRule = (code, node) => {
     formatDocComments(code, node)
 
     formatContractTraitAttributes(code, node)
@@ -83,7 +84,7 @@ export function formatTrait(code: CodeBuilder, node: CstNode): void {
     })
 }
 
-function formatContractInit(code: CodeBuilder, decl: CstNode): void {
+const formatContractInit: FormatRule = (code, decl) => {
     formatDocComments(code, decl)
 
     code.add("init")
@@ -104,7 +105,7 @@ function formatContractInit(code: CodeBuilder, decl: CstNode): void {
     formatStatements(code, body)
 }
 
-function formatReceiver(code: CodeBuilder, decl: CstNode): void {
+const formatReceiver: FormatRule = (code, decl) => {
     formatDocComments(code, decl)
 
     // receive(param: Message) {}
@@ -148,13 +149,13 @@ function formatReceiver(code: CodeBuilder, decl: CstNode): void {
     formatStatements(code, body)
 }
 
-function formatContractTraitAttribute(attr: Cst, code: CodeBuilder): void {
+const formatContractTraitAttribute: FormatRule = (code, attr) => {
     const name = childByField(attr, "name")
     if (!name) return
     code.add("@interface").add("(").apply(formatExpression, name).add(")")
 }
 
-function formatContractTraitAttributes(code: CodeBuilder, node: CstNode): void {
+const formatContractTraitAttributes: FormatRule = (code, node) => {
     // @interface("name")
     // ^^^^^^^^^^^^^^^^^^ this
     // contract Foo {}
@@ -163,7 +164,7 @@ function formatContractTraitAttributes(code: CodeBuilder, node: CstNode): void {
 
     const attributes = childrenByType(attributesNode, "ContractAttribute")
     attributes.forEach((attr, i) => {
-        formatContractTraitAttribute(attr, code)
+        formatContractTraitAttribute(code, attr)
         if (i < attributes.length - 1) {
             code.newLine()
         }
@@ -173,7 +174,7 @@ function formatContractTraitAttributes(code: CodeBuilder, node: CstNode): void {
     }
 }
 
-function formatInheritedTraits(code: CodeBuilder, node: CstNode): void {
+const formatInheritedTraits: FormatRule = (code, node) => {
     // contract Foo with Bar, Baz {}
     //              ^^^^^^^^^^^^^ this
     const traitsNode = childByField(node, "traits")
@@ -194,7 +195,7 @@ function formatInheritedTraits(code: CodeBuilder, node: CstNode): void {
     })
 }
 
-function formatContractParameters(code: CodeBuilder, node: CstNode): void {
+const formatContractParameters: FormatRule = (code, node) => {
     // contract Foo(value: Int) {}
     //             ^^^^^^^^^^^^ this
     const params = childByField(node, "parameters")
@@ -205,7 +206,7 @@ function formatContractParameters(code: CodeBuilder, node: CstNode): void {
 function formatContractTraitBody(
     code: CodeBuilder,
     node: CstNode,
-    formatDeclaration: (code: CodeBuilder, decl: CstNode) => void,
+    formatDeclaration: FormatRule,
 ): void {
     const endIndex = childLeafIdxWithText(node, "}")
     const children = node.children.slice(0, endIndex)

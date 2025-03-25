@@ -1631,6 +1631,7 @@ describe('should format', () => {
             contract Foo {
                 foo: Int;
                 bar: Int;
+
                 const Foo: Int = 0;
             }
         `));
@@ -1639,6 +1640,7 @@ describe('should format', () => {
             contract Foo {
                 foo: Int;
                 bar: Int;
+
                 fun foo() {}
             }
         `));
@@ -1646,6 +1648,7 @@ describe('should format', () => {
         it('contract with receive with empty line after', intact(`
             contract Test {
                 init() {}
+
                 receive(src: A) {}
 
                 bounced(src: Int) {}
@@ -1655,6 +1658,7 @@ describe('should format', () => {
         it('contract with fun with empty line after', intact(`
             contract Test {
                 init() {}
+
                 fun foo() {}
 
                 bounced(src: Int) {}
