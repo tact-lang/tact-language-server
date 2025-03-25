@@ -7,7 +7,8 @@ import {
     visit,
 } from "../cst/cst-helpers"
 import {formatId} from "./helpers"
-import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
+import {FormatRule} from "./formatter"
+import {formatTrailingComments} from "./format-comments"
 
 export const formatType: FormatRule = (code, node) => {
     switch (node.type) {
@@ -57,19 +58,7 @@ const formatTypeRegular: FormatRule = (code, node) => {
 
     code.add(textOfId(child))
 
-    const trailingComments = child.children
-        .slice(1)
-        .filter(child => child.$ === "node" && child.type === "Comment")
-    if (trailingComments.length > 0) {
-        code.space()
-        for (const comment of trailingComments) {
-            const index = trailingComments.indexOf(comment)
-            code.add(visit(comment))
-            if (index < trailingComments.length - 1) {
-                code.space()
-            }
-        }
-    }
+    formatTrailingComments(code, child, 0, true)
 }
 
 const formatTypeGeneric: FormatRule = (code, node) => {
