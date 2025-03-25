@@ -39,6 +39,7 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
             code.add(visit(name).trim())
             return
         }
+        // TODO: better handling of literals
         case "StringLiteral": {
             code.add(visit(node).trim())
             return
@@ -79,6 +80,9 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
             const child = childByField(node, "child")
             const expression = nonLeafChild(child)
             code.add("(").applyOpt(formatExpression, expression).add(")")
+
+            const endIndex = childLeafIdxWithText(child, ")")
+            formatTrailingComments(code, child, endIndex)
             return
         }
         case "condition": {
@@ -91,132 +95,15 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
             return
         }
         case "Binary": {
-            const lineLengthBeforeLeft = code.lineLength()
-            let indented = false
-
-            const processBinaryTail = (code: CodeBuilder, node: Cst): void => {
-                if (node.$ === "leaf") return
-
-                let newlinesCount = 0
-
-                for (const child of node.children) {
-                    if (child.$ === "leaf") continue
-                    if (child.type === "Operator") {
-                        code.space()
-                    }
-                    code.apply(formatExpression, child)
-                    if (child.type === "Operator") {
-                        newlinesCount = trailingNewlines(child)
-
-                        const commentsStart = child.children.findIndex(
-                            it => it.$ === "node" && it.type === "Comment",
-                        )
-                        const commentsEnd =
-                            child.children.length -
-                            1 -
-                            [...child.children]
-                                .reverse()
-                                .findIndex(it => it.$ === "node" && it.type === "Comment") +
-                            1
-
-                        const comments = child.children.slice(commentsStart, commentsEnd)
-                        const hasComments = comments.find(
-                            it => it.$ === "node" && it.type === "Comment",
-                        )
-
-                        if (hasComments) {
-                            if (newlinesCount === 0) {
-                                // inline comments after operator
-                                code.space()
-                            }
-
-                            const preCommentsNewlines = countNewlines(
-                                child.children[commentsStart - 1],
-                            )
-                            const postCommentsNewlines = countNewlines(child.children[commentsEnd])
-
-                            if (preCommentsNewlines > 0) {
-                                code.newLines(preCommentsNewlines)
-                            } else {
-                                code.space()
-                            }
-
-                            for (const comment of comments) {
-                                if (comment.$ === "leaf") {
-                                    const newlines = countNewlines(comment)
-                                    code.newLines(newlines)
-                                    continue
-                                }
-
-                                if (comment.type === "Comment") {
-                                    code.add(visit(comment))
-                                }
-                            }
-
-                            code.newLines(postCommentsNewlines - 1)
-
-                            newlinesCount = 1
-                        } else if (newlinesCount === 0) {
-                            code.space()
-                        }
-                    }
-
-                    if (newlinesCount) {
-                        if (!indented && lineLengthBeforeLeft > 0) {
-                            code.indentCustom(lineLengthBeforeLeft)
-                            indented = true
-                        }
-                        for (let i = 0; i < newlinesCount; i++) {
-                            code.newLine()
-                        }
-                        newlinesCount = 0
-                    }
-                }
-            }
-
-            const head = childByField(node, "head")
-            const tail = childByField(node, "tail")
-
-            if (head && tail) {
-                const operator = childByType(tail, "Operator")
-                if (operator) {
-                    const newlinesCount = trailingNewlines(operator)
-                    if (newlinesCount > 0) {
-                        // multiline expression
-                        code.newLine()
-                        code.indent()
-                        indented = true
-                    }
-                }
-
-                code.apply(formatExpression, head)
-                code.apply(processBinaryTail, tail)
-                if (indented) {
-                    code.dedent()
-                }
-            }
-
+            formatBinary(code, node)
             return
         }
         case "Unary": {
-            const prefixesNode = childByField(node, "prefixes")
-            const expression = childByField(node, "expression")
-
-            if (!expression) {
-                throw new Error("Invalid unary expression")
-            }
-
-            const prefixes = prefixesNode?.children ?? []
-            for (const prefix of prefixes) {
-                formatExpression(code, prefix)
-            }
-            formatExpression(code, expression)
+            formatUnary(code, node)
             return
         }
         case "ParameterList": {
-            formatSeparatedList(code, node, (code, arg) => {
-                formatExpression(code, arg)
-            })
+            formatSeparatedList(code, node, formatExpression)
             return
         }
         case "Suffix": {
@@ -238,6 +125,131 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
     }
 
     code.add(visit(node).trim())
+}
+
+const formatBinary: FormatRule = (code, node) => {
+    const lineLengthBeforeLeft = code.lineLength()
+    let indented = false
+
+    const processBinaryTail = (code: CodeBuilder, node: Cst): void => {
+        if (node.$ === "leaf") return
+
+        let newlinesCount = 0
+
+        for (const child of node.children) {
+            if (child.$ === "leaf") continue
+            if (child.type === "Operator") {
+                code.space()
+            }
+            code.apply(formatExpression, child)
+            if (child.type === "Operator") {
+                newlinesCount = trailingNewlines(child)
+
+                const commentsStart = child.children.findIndex(
+                    it => it.$ === "node" && it.type === "Comment",
+                )
+                const commentsEnd =
+                    child.children.length -
+                    1 -
+                    [...child.children]
+                        .reverse()
+                        .findIndex(it => it.$ === "node" && it.type === "Comment") +
+                    1
+
+                const comments = child.children.slice(commentsStart, commentsEnd)
+                const hasComments = comments.find(it => it.$ === "node" && it.type === "Comment")
+
+                if (hasComments) {
+                    if (newlinesCount === 0) {
+                        // inline comments after operator
+                        code.space()
+                    }
+
+                    const preCommentsNewlines = countNewlines(child.children[commentsStart - 1])
+                    const postCommentsNewlines = countNewlines(child.children[commentsEnd])
+
+                    if (preCommentsNewlines > 0) {
+                        code.newLines(preCommentsNewlines)
+                    } else {
+                        code.space()
+                    }
+
+                    for (const comment of comments) {
+                        if (comment.$ === "leaf") {
+                            const newlines = countNewlines(comment)
+                            code.newLines(newlines)
+                            continue
+                        }
+
+                        if (comment.type === "Comment") {
+                            code.add(visit(comment))
+                        }
+                    }
+
+                    code.newLines(postCommentsNewlines - 1)
+
+                    newlinesCount = 1
+                } else if (newlinesCount === 0) {
+                    code.space()
+                }
+            }
+
+            if (newlinesCount) {
+                if (!indented && lineLengthBeforeLeft > 0) {
+                    code.indentCustom(lineLengthBeforeLeft)
+                    indented = true
+                }
+                for (let i = 0; i < newlinesCount; i++) {
+                    code.newLine()
+                }
+                newlinesCount = 0
+            }
+        }
+    }
+
+    const head = childByField(node, "head")
+    const tail = childByField(node, "tail")
+
+    if (!head || !tail) {
+        return
+    }
+
+    const operator = childByType(tail, "Operator")
+    if (operator) {
+        const newlinesCount = trailingNewlines(operator)
+        if (newlinesCount > 0) {
+            // multiline expression
+            code.newLine()
+            code.indent()
+            indented = true
+        }
+    }
+    code.apply(formatExpression, head)
+    code.apply(processBinaryTail, tail)
+    if (indented) {
+        code.dedent()
+    }
+}
+
+const formatUnary: FormatRule = (code, node) => {
+    // ! foo
+    // ^ ^^^
+    // | |
+    // | expression
+    // |
+    // prefixesNode
+    const prefixesNode = childByField(node, "prefixes")
+    const expression = childByField(node, "expression")
+
+    if (!expression) {
+        throw new Error("Invalid unary expression")
+    }
+
+    const prefixes = prefixesNode?.children ?? []
+    for (const prefix of prefixes) {
+        formatExpression(code, prefix)
+    }
+    formatExpression(code, expression)
 }
 
 const formatConditional: FormatRule = (code, node) => {
@@ -288,6 +300,8 @@ const formatConditional: FormatRule = (code, node) => {
             .space().add(":").space()
             .apply(formatExpression, elseBranch)
     }
+
+    // trailing comments are processed in certain expression formatter
 }
 
 const formatInitOf: FormatRule = (code, node) => {
@@ -305,6 +319,9 @@ const formatInitOf: FormatRule = (code, node) => {
 
     code.space().apply(formatId, name)
     formatSeparatedList(code, params, formatExpression)
+
+    const endIndex = childLeafIdxWithText(params, ")")
+    formatTrailingComments(code, params, endIndex)
 }
 
 const formatCodeOf: FormatRule = (code, node) => {
@@ -317,6 +334,8 @@ const formatCodeOf: FormatRule = (code, node) => {
     }
 
     code.space().apply(formatId, name)
+
+    // trailing comments are processed in `formatId`
 }
 
 const formatStructInstance: FormatRule = (code, node) => {
@@ -383,6 +402,9 @@ const formatStructInstance: FormatRule = (code, node) => {
             },
         },
     )
+
+    const endIndex = childLeafIdxWithText(fields, "}")
+    formatTrailingComments(code, fields, endIndex)
 }
 
 interface ChainCall {
@@ -508,10 +530,14 @@ const formatSuffixFieldAccess: FormatRule = (code, node) => {
 
     code.add(".")
     code.apply(formatId, name)
+
+    // trailing comments are processed in `formatId`
 }
 
-const formatSuffixUnboxNotNull: FormatRule = (code, _node) => {
+const formatSuffixUnboxNotNull: FormatRule = (code, node) => {
     code.add("!!")
+
+    formatTrailingComments(code, node, 1)
 }
 
 const formatSuffixCall: FormatRule = (code, node) => {

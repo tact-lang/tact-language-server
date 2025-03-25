@@ -789,6 +789,20 @@ fun foo() {
                     };
                 }
             `));
+
+            it('chain with !!', intact(`
+                fun foo() {
+                    a!!.foo;
+                }
+            `));
+
+            // TODO:
+            // it('chain with !! with comment', intact(`
+            //     fun foo() {
+            //         a!! // comment
+            //             .foo;
+            //     }
+            // `));
         });
 
         describe('special expressions', () => {
@@ -841,13 +855,56 @@ fun foo() {
                 }
             `));
 
-//             it('method call', test(`
-// fun foo() {
-//     let x =    obj    .    method    (    )    ;
-// }`, `
-// fun foo() {
-//     let x = obj.method();
-// }`));
+            it('method call', test(`
+                fun foo() {
+                    let x =    obj    .    method    (    )    ;
+                }`, `
+                fun foo() {
+                    let x = obj.method();
+                }
+            `));
+
+            it('!! with comment', intact(`
+                fun foo() {
+                    a!! /* comment */;
+                }
+            `));
+
+            it('struct instance with comment', intact(`
+                fun foo() {
+                    Foo {} /* comment */;
+                }
+            `));
+
+            it('codeOf with comment', intact(`
+                fun foo() {
+                    codeOf Foo /* comment */;
+                }
+            `));
+
+            it('initOf with comment', intact(`
+                fun foo() {
+                    initOf Foo() /* comment */;
+                }
+            `));
+
+            it('conditional with comment', intact(`
+                fun foo() {
+                    10 ? 2 : 1 /* comment */;
+                }
+            `));
+
+            it('conditional with comment', intact(`
+                fun foo() {
+                    10 ? 2 : (1 + 2) /* comment */;
+                }
+            `));
+
+            it('literal with comment', intact(`
+                fun foo() {
+                    10 /* comment */;
+                }
+            `));
         });
     });
 
