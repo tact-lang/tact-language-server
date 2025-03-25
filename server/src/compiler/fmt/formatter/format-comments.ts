@@ -2,6 +2,7 @@ import {CodeBuilder} from "./code-builder"
 import {Cst, CstNode} from "../cst/cst-parser"
 import {visit} from "../cst/cst-helpers"
 import {getCommentsBetween} from "./helpers"
+import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
 export function formatTrailingComments(
     code: CodeBuilder,
@@ -31,6 +32,6 @@ export function formatComments(code: CodeBuilder, comments: Cst[]): void {
     }
 }
 
-export function formatComment(code: CodeBuilder, comment: CstNode): void {
+export const formatComment: FormatRule = (code, comment) => {
     code.add(visit(comment).trim())
 }

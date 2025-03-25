@@ -15,7 +15,7 @@ import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
 import {formatComments, formatTrailingComments} from "./format-comments"
 
-export const formatParameter = (code: CodeBuilder, param: Cst): void => {
+export const formatParameter = (code: CodeBuilder, param: CstNode): void => {
     // value: Foo
     // ^^^^^  ^^^
     // |      |

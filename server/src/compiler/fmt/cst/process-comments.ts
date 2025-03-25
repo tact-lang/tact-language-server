@@ -753,7 +753,7 @@ const findStatementNodeWithComments = (node: CstNode): undefined | [CstNode, Anc
         }
 
         const falseBranchIf = childByType(falseBranch, "StatementCondition")
-        if (!falseBranchIf || falseBranchIf.$ === "leaf") {
+        if (!falseBranchIf) {
             return undefined
         }
         return findStatementNodeWithComments(falseBranchIf)

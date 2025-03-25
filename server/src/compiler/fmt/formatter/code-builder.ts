@@ -1,5 +1,3 @@
-import {Cst} from "../cst/cst-parser"
-
 export class CodeBuilder {
     private parts: string[] = []
     private currentIndent: string = ""
@@ -31,12 +29,12 @@ export class CodeBuilder {
         return this
     }
 
-    public apply(callback: (code: CodeBuilder, node: Cst) => void, node: Cst): this {
+    public apply<T>(callback: (code: CodeBuilder, node: T) => void, node: T): this {
         callback(this, node)
         return this
     }
 
-    public applyOpt(callback: (code: CodeBuilder, node: Cst) => void, node: undefined | Cst): this {
+    public applyOpt<T>(callback: (code: CodeBuilder, node: T) => void, node: undefined | T): this {
         if (!node) return this
         callback(this, node)
         return this

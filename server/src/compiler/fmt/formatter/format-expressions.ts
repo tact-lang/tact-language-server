@@ -15,13 +15,7 @@ import {formatId, formatSeparatedList} from "./helpers"
 import {formatType} from "./format-types"
 import {formatTrailingComments} from "./format-comments"
 import {formatDocComments} from "./format-doc-comments"
-
-interface ChainCall {
-    nodes: CstNode[]
-    leadingComments: CstNode[]
-    trailingComments: CstNode[]
-    hasLeadingNewline: boolean
-}
+import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
 export const formatExpression = (code: CodeBuilder, node: Cst): void => {
     if (node.$ !== "node") {
@@ -93,7 +87,7 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
             return
         }
         case "Conditional": {
-            formatConditional(node, code)
+            formatConditional(code, node)
             return
         }
         case "Binary": {
@@ -226,7 +220,7 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
             return
         }
         case "Suffix": {
-            formatSuffix(node, code)
+            formatSuffix(code, node)
             return
         }
         case "InitOf": {
@@ -246,7 +240,7 @@ export const formatExpression = (code: CodeBuilder, node: Cst): void => {
     code.add(visit(node).trim())
 }
 
-function formatConditional(node: CstNode, code: CodeBuilder): void {
+const formatConditional: FormatRule = (code, node) => {
     // foo ? bar : baz
     // ^^^ ^^^^^^^^^^^
     // |   |
@@ -296,7 +290,7 @@ function formatConditional(node: CstNode, code: CodeBuilder): void {
     }
 }
 
-function formatInitOf(code: CodeBuilder, node: CstNode): void {
+const formatInitOf: FormatRule = (code, node) => {
     code.add("initOf")
     // initOf JettonWallet(0, sender)
     //        ^^^^^^^^^^^^ ^^^^^^^^^
@@ -313,7 +307,7 @@ function formatInitOf(code: CodeBuilder, node: CstNode): void {
     formatSeparatedList(code, params, formatExpression)
 }
 
-function formatCodeOf(code: CodeBuilder, node: CstNode): void {
+const formatCodeOf: FormatRule = (code, node) => {
     code.add("codeOf")
     // codeOf JettonWallet
     //        ^^^^^^^^^^^^ this
@@ -325,7 +319,7 @@ function formatCodeOf(code: CodeBuilder, node: CstNode): void {
     code.space().apply(formatId, name)
 }
 
-const formatStructInstance = (code: CodeBuilder, node: CstNode): void => {
+const formatStructInstance: FormatRule = (code, node) => {
     // Foo { value: 100 }
     // ^^^ ^^^^^^^^^^^^^^
     // |   |
@@ -334,7 +328,7 @@ const formatStructInstance = (code: CodeBuilder, node: CstNode): void => {
     const type = childByField(node, "type")
     const fields = childByType(node, "StructInstanceFields")
 
-    if (!type || !fields || fields.$ === "leaf") {
+    if (!type || !fields) {
         throw new Error("Invalid struct instance")
     }
 
@@ -344,8 +338,6 @@ const formatStructInstance = (code: CodeBuilder, node: CstNode): void => {
         code,
         fields,
         (code, field) => {
-            if (field.$ !== "node") return
-
             formatDocComments(code, field)
 
             // `value: 100` or just `value`
@@ -393,7 +385,14 @@ const formatStructInstance = (code: CodeBuilder, node: CstNode): void => {
     )
 }
 
-function formatSuffix(node: CstNode, code: CodeBuilder): void {
+interface ChainCall {
+    nodes: CstNode[]
+    leadingComments: CstNode[]
+    trailingComments: CstNode[]
+    hasLeadingNewline: boolean
+}
+
+const formatSuffix: FormatRule = (code, node) => {
     const suffixes = childByField(node, "suffixes")
     if (!suffixes) {
         return
@@ -501,7 +500,7 @@ function formatSuffix(node: CstNode, code: CodeBuilder): void {
     return
 }
 
-const formatSuffixFieldAccess = (code: CodeBuilder, node: CstNode): void => {
+const formatSuffixFieldAccess: FormatRule = (code, node) => {
     const name = childByField(node, "name")
     if (!name) {
         throw new Error("Invalid field access expression")
@@ -511,11 +510,11 @@ const formatSuffixFieldAccess = (code: CodeBuilder, node: CstNode): void => {
     code.apply(formatId, name)
 }
 
-const formatSuffixUnboxNotNull = (code: CodeBuilder, _node: CstNode): void => {
+const formatSuffixUnboxNotNull: FormatRule = (code, _node) => {
     code.add("!!")
 }
 
-const formatSuffixCall = (code: CodeBuilder, node: CstNode): void => {
+const formatSuffixCall: FormatRule = (code, node) => {
     const args = childByField(node, "params")
     if (!args) {
         throw new Error("Invalid call expression")

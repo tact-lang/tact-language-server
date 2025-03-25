@@ -6,17 +6,11 @@ import {
     childLeafIdxWithText,
     childrenByType,
     nonLeafChild,
+    trailingNewlines,
     visit,
 } from "../cst/cst-helpers"
 import {CodeBuilder} from "./code-builder"
-import {
-    containsSeveralNewlines,
-    declName,
-    formatId,
-    formatSeparatedList,
-    idText,
-    trailingNewlines,
-} from "./helpers"
+import {containsSeveralNewlines, declName, formatId, formatSeparatedList, idText} from "./helpers"
 import {formatFunction, formatParameter} from "./format-declarations"
 import {formatStatements} from "./format-statements"
 import {formatAscription} from "./format-types"
@@ -359,7 +353,7 @@ function formatContractTraitBody(
         code.newLine()
 
         const newlines = trailingNewlines(decl)
-        if (containsSeveralNewlines(newlines)) {
+        if (newlines > 1) {
             code.newLine()
         }
     }

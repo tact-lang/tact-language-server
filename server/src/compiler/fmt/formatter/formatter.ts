@@ -1,4 +1,4 @@
-import {Cst} from "../cst/cst-parser"
+import {Cst, CstNode} from "../cst/cst-parser"
 import {CodeBuilder} from "./code-builder"
 import {
     formatFunction,
@@ -8,11 +8,14 @@ import {
 } from "./format-declarations"
 import {formatStatement} from "./format-statements"
 import {formatExpression} from "./format-expressions"
-import {visit, childByField} from "../cst/cst-helpers"
+import {visit, childByField, trailingNewlines} from "../cst/cst-helpers"
 import {formatConstant, formatContract, formatTrait} from "./format-contracts"
 import {formatMessage, formatStruct} from "./format-structs"
 import {formatImport} from "./format-imports"
-import {containsSeveralNewlines, trailingNewlines} from "./helpers"
+import {containsSeveralNewlines} from "./helpers"
+
+export type FormatRule = (code: CodeBuilder, node: CstNode) => void
+export type FormatStatementRule = (code: CodeBuilder, node: CstNode, needSemicolon: boolean) => void
 
 export const format = (node: Cst): string => {
     const code = new CodeBuilder()
@@ -106,7 +109,7 @@ const formatNode = (code: CodeBuilder, node: Cst): void => {
                 }
 
                 const newlines = trailingNewlines(item)
-                if (containsSeveralNewlines(newlines)) {
+                if (newlines > 1) {
                     code.newLine()
                 }
             })

@@ -1,11 +1,10 @@
 import {childByField, childLeafIdxWithText} from "../cst/cst-helpers"
-import {CstNode} from "../cst/cst-parser"
-import {CodeBuilder} from "./code-builder"
 import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
 import {formatTrailingComments} from "./format-comments"
+import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
-export function formatImport(code: CodeBuilder, node: CstNode): void {
+export const formatImport: FormatRule = (code, node) => {
     formatDocComments(code, node)
 
     const path = childByField(node, "path")

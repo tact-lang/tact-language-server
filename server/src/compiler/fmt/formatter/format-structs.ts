@@ -5,14 +5,15 @@ import {containsSeveralNewlines, declName} from "./helpers"
 import {formatExpression} from "./format-expressions"
 import {formatFieldDecl} from "./format-contracts"
 import {formatDocComments} from "./format-doc-comments"
+import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
-export function formatStruct(code: CodeBuilder, node: CstNode): void {
+export const formatStruct: FormatRule = (code, node) => {
     formatDocComments(code, node)
     code.add("struct").space().add(declName(node))
     formatFields(code, node)
 }
 
-export function formatMessage(code: CodeBuilder, node: CstNode): void {
+export const formatMessage: FormatRule = (code, node) => {
     formatDocComments(code, node)
     code.add("message")
 

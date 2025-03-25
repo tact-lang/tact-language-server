@@ -18,12 +18,16 @@ export const visit = (node: Cst): string => {
     return node.children.map(it => visit(it)).join("")
 }
 
-export const childByType = (node: Cst, type: string): undefined | Cst => {
+export const childByType = (node: Cst, type: string): undefined | CstNode => {
     if (node.$ === "leaf") {
         return undefined
     }
 
-    return node.children.find(c => c.$ === "node" && c.type === type)
+    const found = node.children.find(c => c.$ === "node" && c.type === type)
+    if (found?.$ === "node") {
+        return found
+    }
+    return undefined
 }
 
 export const childIdxByType = (node: Cst, type: string): number => {
@@ -34,12 +38,12 @@ export const childIdxByType = (node: Cst, type: string): number => {
     return node.children.findIndex(c => c.$ === "node" && c.type === type)
 }
 
-export const childrenByType = (node: Cst, type: string): Cst[] => {
+export const childrenByType = (node: Cst, type: string): CstNode[] => {
     if (node.$ === "leaf") {
         return []
     }
 
-    return node.children.filter(c => c.$ === "node" && c.type === type)
+    return node.children.filter(c => c.$ === "node" && c.type === type).filter(c => c.$ === "node")
 }
 
 export const childrenByGroup = (node: Cst, group: string): Cst[] => {

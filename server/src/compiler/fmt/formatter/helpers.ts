@@ -129,7 +129,7 @@ export function collectListInfo(node: CstNode, startIndex: number, endIndex: num
 export const formatSeparatedList = (
     code: CodeBuilder,
     node: CstNode,
-    formatItem: (code: CodeBuilder, item: Cst) => void,
+    formatItem: (code: CodeBuilder, item: CstNode) => void,
     options: {
         startIndex?: number
         endIndex?: number
@@ -186,7 +186,9 @@ export const formatSeparatedList = (
                 }
             })
 
-            formatItem(code, item.item)
+            if (item.item.$ === "node") {
+                formatItem(code, item.item)
+            }
             code.add(separator)
 
             if (item.hasTrailingNewline) {
@@ -242,7 +244,9 @@ export const formatSeparatedList = (
         })
 
         items.forEach((item, index) => {
-            formatItem(code, item.item)
+            if (item.item.$ === "node") {
+                formatItem(code, item.item)
+            }
             if (index < items.length - 1) {
                 code.add(separator).space()
             }
@@ -308,26 +312,4 @@ export function containsSeveralNewlines(text: string): boolean {
         return false
     }
     return text.slice(index + 1).includes("\n")
-}
-
-export function trailingNewlines(node: Cst): string {
-    if (node.$ === "leaf") return ""
-    let lastChild = node.children.at(-1)
-    if (node.type === "Receiver" || node.type === "ContractInit" || node.type === "Constant") {
-        const body = childByField(node, "body")
-        if (body) {
-            lastChild = body.children.at(-1)
-        }
-    }
-    if (node.type === "$Function") {
-        const body = childByField(node, "body")
-        if (body) {
-            const innerBody = childByField(body, "body")
-            lastChild = innerBody ? innerBody.children.at(-1) : body.children.at(-1)
-        }
-    }
-    if (lastChild && lastChild.$ === "leaf" && lastChild.text.includes("\n")) {
-        return lastChild.text
-    }
-    return ""
 }

@@ -1,4 +1,3 @@
-import {Cst, CstNode} from "../cst/cst-parser"
 import {
     childByField,
     childByType,
@@ -7,15 +6,10 @@ import {
     textOfId,
     visit,
 } from "../cst/cst-helpers"
-import {CodeBuilder} from "./code-builder"
 import {formatId} from "./helpers"
+import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
-export const formatType = (code: CodeBuilder, node: Cst): void => {
-    if (node.$ !== "node") {
-        code.add(visit(node))
-        return
-    }
-
+export const formatType: FormatRule = (code, node) => {
     switch (node.type) {
         case "TypeRegular": {
             formatTypeRegular(code, node)
@@ -43,7 +37,7 @@ export const formatType = (code: CodeBuilder, node: Cst): void => {
     }
 }
 
-export const formatAscription = (code: CodeBuilder, node: Cst): void => {
+export const formatAscription: FormatRule = (code, node) => {
     // : Int
     //   ^^^ this
     const type = childByType(node, "TypeAs")
@@ -55,7 +49,7 @@ export const formatAscription = (code: CodeBuilder, node: Cst): void => {
     formatType(code, type)
 }
 
-const formatTypeRegular = (code: CodeBuilder, node: CstNode): void => {
+const formatTypeRegular: FormatRule = (code, node) => {
     const child = childByField(node, "child")
     if (!child) {
         throw new Error("Invalid regular type")
@@ -78,7 +72,7 @@ const formatTypeRegular = (code: CodeBuilder, node: CstNode): void => {
     }
 }
 
-const formatTypeGeneric = (code: CodeBuilder, node: CstNode): void => {
+const formatTypeGeneric: FormatRule = (code, node) => {
     // map<Int, String>
     // ^^^ ^^^^^^^^^^^
     // |   |
@@ -111,7 +105,7 @@ const formatTypeGeneric = (code: CodeBuilder, node: CstNode): void => {
     }
 }
 
-const formatTypeAs = (code: CodeBuilder, node: CstNode): void => {
+const formatTypeAs: FormatRule = (code, node) => {
     const type = childByField(node, "type")
     if (!type) {
         throw new Error("Invalid 'as' type")
@@ -132,7 +126,7 @@ const formatTypeAs = (code: CodeBuilder, node: CstNode): void => {
     }
 }
 
-const formatTypeOptional = (code: CodeBuilder, node: CstNode): void => {
+const formatTypeOptional: FormatRule = (code, node) => {
     const type = childByType(node, "TypeRegular")
     if (type) {
         formatType(code, type)
