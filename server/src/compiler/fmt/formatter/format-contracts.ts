@@ -13,7 +13,7 @@ import {formatConstant, formatFunction, formatParameter} from "./format-declarat
 import {formatStatements} from "./format-statements"
 import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
-import {formatComment} from "./format-comments"
+import {formatComment, formatTrailingComments} from "./format-comments"
 import {formatField} from "./format-structs"
 
 export function formatContract(code: CodeBuilder, node: CstNode): void {
@@ -207,7 +207,8 @@ function formatContractTraitBody(
     node: CstNode,
     formatDeclaration: (code: CodeBuilder, decl: CstNode) => void,
 ): void {
-    const children = node.children
+    const endIndex = childLeafIdxWithText(node, "}")
+    const children = node.children.slice(0, endIndex)
 
     // contract or trait can contain only comments, so we need to handle this case properly
     const hasComments = children.find(it => it.$ === "node" && it.type === "Comment")
@@ -265,4 +266,7 @@ function formatContractTraitBody(
     }
 
     code.dedent().add("}")
+
+    // format inline comments after `}`
+    formatTrailingComments(code, node, endIndex, true)
 }

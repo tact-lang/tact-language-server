@@ -1,6 +1,7 @@
 import {
     childByField,
     childIdxByField,
+    childLeafIdxWithText,
     childLeafWithText,
     nonLeafChild,
     visit,
@@ -39,7 +40,8 @@ export const formatMessage: FormatRule = (code, node) => {
 }
 
 const formatFields: FormatRule = (code, node) => {
-    const children = node.children
+    const endIndex = childLeafIdxWithText(node, "}")
+    const children = node.children.slice(0, endIndex)
 
     // struct can contain only comments, so we need to handle this case properly
     const hasComments = children.find(it => it.$ === "node" && it.type === "Comment")
@@ -118,6 +120,9 @@ const formatFields: FormatRule = (code, node) => {
     })
 
     code.dedent().add("}")
+
+    // format inline comments after `}`
+    formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatField: FormatStatementRule = (code, decl, needSemicolon) => {

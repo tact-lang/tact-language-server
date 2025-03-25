@@ -284,6 +284,10 @@ export const formatPrimitiveType = (code: CodeBuilder, node: CstNode): void => {
     }
 
     code.add("primitive").space().apply(formatId, name).add(";")
+
+    // process trailing comments after `;`
+    const semicolonIndex = childLeafIdxWithText(node, ";")
+    formatTrailingComments(code, node, semicolonIndex, true)
 }
 
 export function formatConstant(code: CodeBuilder, decl: CstNode): void {

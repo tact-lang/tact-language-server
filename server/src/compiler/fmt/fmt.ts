@@ -9,7 +9,7 @@ export function formatCode(code: string): string {
     skip(ctx, b)
     const isParsed = Module(ctx, b)
     if (!isParsed) {
-        throw new Error("cannot parse")
+        return code
     }
 
     const root = processDocComments(simplifyCst(CstNode(b, "Root")))
