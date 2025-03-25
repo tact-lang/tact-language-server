@@ -322,6 +322,15 @@ describe('should format', () => {
     `));
 
     describe('structs and messages', () => {
+        it('empty struct', intact(`
+            struct Foo {}
+        `));
+
+        it('empty struct with trailing comment', intact(`
+            struct Foo {} // comment
+            struct Bar {}
+        `));
+
         it('simple struct', intact(`
             struct Foo {
                 name: String;
@@ -414,6 +423,15 @@ describe('should format', () => {
                 // comment here
                 field: String;
             }
+        `));
+
+        it('empty message', intact(`
+            message Foo {}
+        `));
+
+        it('empty message with trailing comment', intact(`
+            message Foo {} // comment
+            message Bar {}
         `));
 
         it('simple message', intact(`
@@ -1556,6 +1574,11 @@ describe('should format', () => {
 
         it('empty contract', intact(`
             contract Foo {}
+        `));
+
+        it('empty contract with trailing comment', intact(`
+            contract Foo {} // comment
+            contract Bar {}
         `));
 
         it('empty contract with comment', intact(`

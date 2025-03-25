@@ -217,6 +217,9 @@ function formatContractTraitBody(
     const declarationsNode = childByField(node, "declarations")
     if (!declarationsNode && !hasComments) {
         code.space().add("{}")
+
+        // format inline comments after `}`
+        formatTrailingComments(code, node, endIndex, true)
         return
     }
 

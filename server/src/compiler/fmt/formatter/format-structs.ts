@@ -49,6 +49,9 @@ const formatFields: FormatRule = (code, node) => {
     const fieldsNode = childByField(node, "fields")
     if ((!fieldsNode || fieldsNode.children.length === 0) && !hasComments) {
         code.space().add("{}")
+
+        // format inline comments after `}`
+        formatTrailingComments(code, node, endIndex, true)
         return
     }
 
@@ -66,6 +69,9 @@ const formatFields: FormatRule = (code, node) => {
         code.space().add("{").space()
         formatField(code, firstField, false)
         code.space().add("}")
+
+        // format inline comments after `}`
+        formatTrailingComments(code, node, endIndex, true)
         return
     }
 
