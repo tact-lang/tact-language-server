@@ -15,7 +15,7 @@ import {formatConstant, formatFunction, formatParameter} from "./format-declarat
 import {formatStatements} from "./format-statements"
 import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
-import {formatComment, formatTrailingComments} from "./format-comments"
+import {formatComment, formatLineComments, formatTrailingComments} from "./format-comments"
 import {formatField} from "./format-structs"
 import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
@@ -275,11 +275,10 @@ function formatContractTraitBody(
         const openBraceIndex = childLeafIdxWithText(node, "{")
         const closeBraceIndex = childLeafIdxWithText(node, "}")
 
-        const comments = filterComments(node.children.slice(openBraceIndex + 1, closeBraceIndex))
-        comments.forEach(child => {
-            code.add(visit(child).trim())
-            code.newLine()
-        })
+        // output comments between `{` and `}`
+        const bodyNodes = node.children.slice(openBraceIndex + 1, closeBraceIndex)
+        const comments = filterComments(bodyNodes)
+        formatLineComments(code, comments)
     }
 
     code.trimNewlines().newLine()

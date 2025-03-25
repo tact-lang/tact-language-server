@@ -21,7 +21,7 @@ import {
     getLeafsBetween,
     multilineComments,
 } from "./helpers"
-import {formatTrailingComments, formatInlineComments} from "./format-comments"
+import {formatTrailingComments, formatInlineComments, formatComment} from "./format-comments"
 import {FormatRule, FormatStatementRule} from "@server/compiler/fmt/formatter/formatter"
 import {CodeBuilder} from "@server/compiler/fmt/formatter/code-builder"
 
@@ -86,7 +86,7 @@ export const formatStatements: FormatRule = (code, node) => {
                 code.space()
             }
 
-            code.add(visit(statement).trim())
+            formatComment(code, statement)
 
             if (!seenFirstNewline) {
                 // don't add new line for inline comment
@@ -194,7 +194,7 @@ function formatCommentsBetweenAssignAndValue(
 
         for (const comment of commentsAndNewlines) {
             if (comment.$ !== "node" || comment.type !== "Comment") continue
-            code.add(visit(comment))
+            formatComment(code, comment)
         }
 
         if (multiline) {

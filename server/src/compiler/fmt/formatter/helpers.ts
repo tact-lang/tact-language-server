@@ -1,7 +1,7 @@
 import {Cst, CstNode} from "../cst/cst-parser"
 import {CodeBuilder} from "./code-builder"
 import {childByField, visit} from "../cst/cst-helpers"
-import {formatTrailingComments} from "./format-comments"
+import {formatComment, formatTrailingComments} from "./format-comments"
 
 interface CommentWithNewline {
     node: CstNode
@@ -140,7 +140,7 @@ export const formatSeparatedList = (
         needSeparatorAfterSuffixElement?: boolean
         separator?: string
         spaceBeforeIfNotMultiline?: boolean
-        provideTrailingComments?: (item: Cst) => undefined | Cst[]
+        provideTrailingComments?: (item: Cst) => undefined | CstNode[]
     } = {},
 ): void => {
     const {
@@ -168,29 +168,29 @@ export const formatSeparatedList = (
     if (shouldBeMultiline) {
         if (info.inlineLeadingComments.length > 0) {
             code.space()
-            info.inlineLeadingComments.forEach(comment => {
-                code.add(visit(comment.node))
-            })
+            for (const comment of info.inlineLeadingComments) {
+                formatComment(code, comment.node)
+            }
         }
 
         code.newLine().indent()
 
-        info.leadingComments.forEach(comment => {
-            code.add(visit(comment.node))
+        for (const comment of info.leadingComments) {
+            formatComment(code, comment.node)
             if (comment.hasNewline) {
                 code.newLine()
             }
-        })
+        }
 
         items.forEach(item => {
-            item.leadingComments.forEach(comment => {
-                code.add(visit(comment.node))
+            for (const comment of item.leadingComments) {
+                formatComment(code, comment.node)
                 if (comment.hasNewline) {
                     code.newLine()
                 } else {
                     code.space()
                 }
-            })
+            }
 
             if (item.item.$ === "node") {
                 formatItem(code, item.item)
@@ -206,7 +206,7 @@ export const formatSeparatedList = (
                 ...item.trailingComments.map(it => it.node),
             ]
             trailingComments.forEach((comment, index) => {
-                code.space().add(visit(comment))
+                formatComment(code, comment)
 
                 if (index !== trailingComments.length - 1) {
                     code.newLine()
@@ -226,7 +226,7 @@ export const formatSeparatedList = (
 
         if (info.trailingComments.length > 0) {
             info.trailingComments.forEach((comment, index) => {
-                code.add(visit(comment.node))
+                formatComment(code, comment.node)
                 if (comment.hasNewline || index === info.trailingComments.length - 1) {
                     code.newLine()
                 }
@@ -241,20 +241,20 @@ export const formatSeparatedList = (
 
         if (info.inlineLeadingComments.length > 0) {
             for (const comment of info.inlineLeadingComments) {
-                code.add(visit(comment.node))
+                formatComment(code, comment.node)
                 code.space()
             }
         }
 
-        info.leadingComments.forEach(comment => {
-            code.add(visit(comment.node))
+        for (const comment of info.leadingComments) {
+            formatComment(code, comment.node)
 
             if (comment.hasNewline) {
                 code.newLine()
             } else {
                 code.space()
             }
-        })
+        }
 
         items.forEach((item, index) => {
             if (item.item.$ === "node") {
@@ -319,7 +319,7 @@ export const formatId = (code: CodeBuilder, node: Cst): void => {
     const name = idText(node)
     code.add(name)
 
-    formatTrailingComments(code, node, 1, true)
+    formatTrailingComments(code, node, 0, true)
 }
 
 export function declName(node: CstNode): string {
@@ -339,7 +339,5 @@ export function containsSeveralNewlines(text: string): boolean {
 }
 
 export function multilineComments(comments: Cst[]): boolean {
-    return comments.some(it => {
-        return visit(it).includes("\n")
-    })
+    return comments.some(it => visit(it).includes("\n"))
 }

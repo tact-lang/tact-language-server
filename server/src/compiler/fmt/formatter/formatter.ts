@@ -14,6 +14,7 @@ import {formatContract, formatTrait} from "./format-contracts"
 import {formatMessage, formatStruct} from "./format-structs"
 import {formatImport} from "./format-imports"
 import {containsSeveralNewlines} from "./helpers"
+import {formatComment} from "./format-comments"
 
 export type FormatRule = (code: CodeBuilder, node: CstNode) => void
 export type FormatStatementRule = (code: CodeBuilder, node: CstNode, needSemicolon: boolean) => void
@@ -51,7 +52,7 @@ const formatNode = (code: CodeBuilder, node: Cst): void => {
                 }
 
                 if (child.type === "Comment") {
-                    code.add(visit(child))
+                    formatComment(code, child)
                     code.newLine()
                     return
                 }
@@ -155,7 +156,7 @@ const formatNode = (code: CodeBuilder, node: Cst): void => {
             break
         }
         case "Comment": {
-            code.add(visit(node).trim())
+            formatComment(code, node)
             break
         }
         case "StatementDestruct":

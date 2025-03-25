@@ -55,7 +55,7 @@ export const formatFunction: FormatRule = (code, node) => {
         formatAttributes(code, attributes)
     }
 
-    code.add("fun").space().add(visit(name))
+    code.add("fun").space().apply(formatId, name)
 
     formatSeparatedList(code, parameters, formatParameter)
 

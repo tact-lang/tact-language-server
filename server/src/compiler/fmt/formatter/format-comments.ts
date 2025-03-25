@@ -41,6 +41,15 @@ export function formatComments(code: CodeBuilder, comments: Cst[], withSpace: bo
     }
 }
 
+export function formatLineComments(code: CodeBuilder, comments: Cst[]): void {
+    if (comments.length === 0) return
+
+    for (const comment of comments) {
+        code.add(visit(comment).trim())
+        code.newLine()
+    }
+}
+
 export const formatComment: FormatRule = (code, comment) => {
     code.add(visit(comment).trim())
 }

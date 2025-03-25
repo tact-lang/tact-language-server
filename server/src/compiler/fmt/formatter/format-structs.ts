@@ -5,14 +5,13 @@ import {
     childLeafWithText,
     containsComments,
     nonLeafChild,
-    visit,
 } from "../cst/cst-helpers"
 import {containsSeveralNewlines, declName, formatId} from "./helpers"
 import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
 import {FormatRule, FormatStatementRule} from "./formatter"
 import {formatAscription} from "./format-types"
-import {formatTrailingComments} from "./format-comments"
+import {formatComment, formatTrailingComments} from "./format-comments"
 
 export const formatStruct: FormatRule = (code, node) => {
     formatDocComments(code, node)
@@ -48,7 +47,7 @@ const formatFields: FormatRule = (code, node) => {
     const hasComments = containsComments(children)
 
     const fieldsNode = childByField(node, "fields")
-    if ((!fieldsNode || fieldsNode.children.length === 0) && !hasComments) {
+    if (!fieldsNode && !hasComments) {
         code.space().add("{}")
 
         // format inline comments after `}`
@@ -78,11 +77,11 @@ const formatFields: FormatRule = (code, node) => {
 
     code.space().add("{").newLine().indent()
 
-    children.forEach(child => {
-        if (child.$ === "leaf") return
+    for (const child of children) {
+        if (child.$ === "leaf") continue
 
         if (child.type === "Comment") {
-            code.add(visit(child).trim())
+            code.apply(formatComment, child)
             code.newLine()
         }
 
@@ -108,7 +107,7 @@ const formatFields: FormatRule = (code, node) => {
                     if (needNewline) {
                         code.add(" ")
                     }
-                    code.add(visit(field).trim())
+                    code.apply(formatComment, child)
                     code.newLine()
                     needNewline = false
                 } else if (field.type === "FieldDecl") {
@@ -124,7 +123,7 @@ const formatFields: FormatRule = (code, node) => {
                 code.newLine()
             }
         }
-    })
+    }
 
     code.dedent().add("}")
 

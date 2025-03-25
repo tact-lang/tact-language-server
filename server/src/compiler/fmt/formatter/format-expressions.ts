@@ -6,6 +6,7 @@ import {
     childLeafIdxWithText,
     containsComments,
     countNewlines,
+    filterComments,
     isComment,
     nonLeafChild,
     textOfId,
@@ -15,7 +16,7 @@ import {
 import {CodeBuilder} from "./code-builder"
 import {formatId, formatSeparatedList} from "./helpers"
 import {formatType} from "./format-types"
-import {formatTrailingComments} from "./format-comments"
+import {formatComment, formatTrailingComments} from "./format-comments"
 import {formatDocComments} from "./format-doc-comments"
 import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
@@ -179,7 +180,7 @@ const formatBinary: FormatRule = (code, node) => {
                         }
 
                         if (comment.type === "Comment") {
-                            code.add(visit(comment))
+                            formatComment(code, comment)
                         }
                     }
 
@@ -377,9 +378,7 @@ const formatStructInstance: FormatRule = (code, node) => {
 
                 const searchField = initOpt ? "init" : "name"
                 const endIndex = childIdxByField(field, searchField)
-                const comments = field.children
-                    .slice(endIndex)
-                    .filter(child => child.$ === "node" && child.type === "Comment")
+                const comments = filterComments(field.children.slice(endIndex))
 
                 if (comments.length > 0) {
                     return comments

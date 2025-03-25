@@ -6,6 +6,7 @@ describe('should format', () => {
         `fun foo(param: Int);`
     ));
 
+    it('function with comments after name', intact(`fun foo /*comment*/(param: Int);`));
     it('function with leading comment', intact(`fun foo(/* leading comment */ param: Int);`));
     it('function with multiple leading comments', intact(`fun foo(/* leading comment */ /* second */ param: Int);`));
     it('function with trailing comment', intact(`fun foo(param: Int /* trailing comment */);`));
@@ -33,7 +34,7 @@ describe('should format', () => {
         /* oh no */loh: Bool);
     `, `
         fun some( // top comment
-            /* oopsy */param: Int /* hello there *//* wtf bro */, // comment here
+            /* oopsy */param: Int /* hello there *//* wtf bro */,// comment here
             // bottom comment
             /* oh no */ loh: Bool,
         );
