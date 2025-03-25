@@ -242,7 +242,7 @@ function formatContractTraitBody(
         if (decl.type === "Comment") {
             formatComment(code, decl)
         } else {
-            if (previousDeclarationType && previousDeclarationType !== decl.type) {
+            if (previousDeclarationType !== undefined && previousDeclarationType !== decl.type) {
                 // add extra new line between different kinds of declarations
                 code.newLine()
             }
