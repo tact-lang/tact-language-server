@@ -667,7 +667,8 @@ function canBeSingleLine(node: CstNode): boolean {
             return false
         }
     }
-    return true
+    const multiline = visit(node).trim().includes("\n")
+    return !multiline
 }
 
 function isSingleLineStatement(node: CstNode): boolean {
