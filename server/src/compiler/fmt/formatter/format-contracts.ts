@@ -224,6 +224,7 @@ function formatContractTraitBody(
     const declarations = declarationsNode?.children ?? []
 
     let needNewLine = false
+    let previousDeclarationType: undefined | string = undefined
     for (const decl of declarations) {
         if (decl.$ === "leaf") {
             if (containsSeveralNewlines(decl.text)) {
@@ -235,12 +236,19 @@ function formatContractTraitBody(
         if (needNewLine) {
             code.newLine()
             needNewLine = false
+            previousDeclarationType = undefined // don't need to add extra newline
         }
 
         if (decl.type === "Comment") {
             formatComment(code, decl)
         } else {
+            if (previousDeclarationType && previousDeclarationType !== decl.type) {
+                // add extra new line between different kinds of declarations
+                code.newLine()
+            }
+
             formatDeclaration(code, decl)
+            previousDeclarationType = decl.type
         }
 
         code.newLine()
@@ -248,6 +256,7 @@ function formatContractTraitBody(
         const newlines = trailingNewlines(decl)
         if (newlines > 1) {
             code.newLine()
+            previousDeclarationType = undefined // don't need to add extra newline
         }
     }
 
@@ -264,6 +273,8 @@ function formatContractTraitBody(
             code.newLine()
         })
     }
+
+    code.trimNewlines().newLine()
 
     code.dedent().add("}")
 

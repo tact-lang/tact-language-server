@@ -39,7 +39,8 @@ const formatNode = (code: CodeBuilder, node: Cst): void => {
             let needNewLine = false
             node.children.forEach((child, index) => {
                 if (child.$ === "leaf") {
-                    if (containsSeveralNewlines(child.text)) {
+                    // don't add extra leading lines
+                    if (index !== 0 && containsSeveralNewlines(child.text)) {
                         needNewLine = true
                     }
                     return
