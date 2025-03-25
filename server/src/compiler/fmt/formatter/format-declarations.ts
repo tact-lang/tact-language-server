@@ -1,4 +1,3 @@
-import {Cst, CstNode} from "../cst/cst-parser"
 import {
     childByField,
     childIdxByField,
@@ -7,15 +6,15 @@ import {
     nonLeafChild,
     visit,
 } from "../cst/cst-helpers"
-import {CodeBuilder} from "./code-builder"
 import {formatId, formatSeparatedList, getCommentsBetween, idText} from "./helpers"
 import {formatAscription} from "./format-types"
 import {formatStatements} from "./format-statements"
 import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
 import {formatComments, formatTrailingComments} from "./format-comments"
+import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 
-export const formatParameter = (code: CodeBuilder, param: CstNode): void => {
+export const formatParameter: FormatRule = (code, param) => {
     // value: Foo
     // ^^^^^  ^^^
     // |      |
@@ -30,7 +29,7 @@ export const formatParameter = (code: CodeBuilder, param: CstNode): void => {
     formatAscription(code, type)
 }
 
-export const formatFunction = (code: CodeBuilder, node: CstNode): void => {
+export const formatFunction: FormatRule = (code, node) => {
     formatDocComments(code, node)
 
     // fun foo(value: Int): Bool {}
@@ -52,7 +51,9 @@ export const formatFunction = (code: CodeBuilder, node: CstNode): void => {
     // inline extends fun foo(self: Int) {}
     // ^^^^^^^^^^^^^^ this
     const attributes = childByField(node, "attributes")
-    formatAttributes(code, attributes)
+    if (attributes) {
+        formatAttributes(code, attributes)
+    }
 
     code.add("fun").space().add(visit(name))
 
@@ -77,7 +78,7 @@ export const formatFunction = (code: CodeBuilder, node: CstNode): void => {
     }
 }
 
-function formatAttribute(code: CodeBuilder, attr: Cst): void {
+const formatAttribute: FormatRule = (code, attr) => {
     // get(100)
     // ^^^
     const attrName = childByField(attr, "name")
@@ -102,7 +103,7 @@ function formatAttribute(code: CodeBuilder, attr: Cst): void {
     code.space()
 }
 
-export const formatNativeFunction = (code: CodeBuilder, node: CstNode): void => {
+export const formatNativeFunction: FormatRule = (code, node) => {
     formatDocComments(code, node)
 
     // @name("native_name")
@@ -136,7 +137,9 @@ export const formatNativeFunction = (code: CodeBuilder, node: CstNode): void => 
 
     code.newLine()
 
-    formatAttributes(code, attributesOpt)
+    if (attributesOpt) {
+        formatAttributes(code, attributesOpt)
+    }
 
     code.add("native").space().apply(formatId, name)
 
@@ -153,7 +156,7 @@ export const formatNativeFunction = (code: CodeBuilder, node: CstNode): void => 
     formatTrailingComments(code, node, semicolonIndex, true)
 }
 
-export const formatAsmFunction = (code: CodeBuilder, node: CstNode): void => {
+export const formatAsmFunction: FormatRule = (code, node) => {
     formatDocComments(code, node)
 
     // asm(a, b) inline fun foo(param: Int): Int { FOO }
@@ -183,7 +186,10 @@ export const formatAsmFunction = (code: CodeBuilder, node: CstNode): void => {
     }
 
     code.space()
-    formatAttributes(code, attributes)
+
+    if (attributes) {
+        formatAttributes(code, attributes)
+    }
 
     code.add("fun").space().apply(formatId, name)
 
@@ -209,7 +215,7 @@ export const formatAsmFunction = (code: CodeBuilder, node: CstNode): void => {
     formatTrailingComments(code, node, braceIndex, true)
 }
 
-function formatAsmShuffle(code: CodeBuilder, node: CstNode): void {
+const formatAsmShuffle: FormatRule = (code, node) => {
     // (a, b -> 1, 2)
     //  ^^^^ ^^^^^^^
     //  |    |
@@ -261,16 +267,14 @@ function formatAsmShuffle(code: CodeBuilder, node: CstNode): void {
     code.add(")")
 }
 
-function formatAttributes(code: CodeBuilder, attributes: CstNode | undefined): void {
-    if (!attributes) return
-
+const formatAttributes: FormatRule = (code, attributes) => {
     const attrs = childrenByType(attributes, "FunctionAttribute")
     for (const attr of attrs) {
         formatAttribute(code, attr)
     }
 }
 
-export const formatPrimitiveType = (code: CodeBuilder, node: CstNode): void => {
+export const formatPrimitiveType: FormatRule = (code, node) => {
     formatDocComments(code, node)
 
     // primitive Foo;
@@ -290,7 +294,7 @@ export const formatPrimitiveType = (code: CodeBuilder, node: CstNode): void => {
     formatTrailingComments(code, node, semicolonIndex, true)
 }
 
-export function formatConstant(code: CodeBuilder, decl: CstNode): void {
+export const formatConstant: FormatRule = (code, decl) => {
     formatDocComments(code, decl)
 
     // const Foo : Int = 100;
@@ -308,7 +312,9 @@ export function formatConstant(code: CodeBuilder, decl: CstNode): void {
     }
 
     const attributes = childByField(decl, "attributes")
-    formatConstantAttributes(code, attributes)
+    if (attributes) {
+        formatConstantAttributes(code, attributes)
+    }
 
     // const FOO: Int
     code.add("const").space().apply(formatId, name).apply(formatAscription, type)
@@ -334,16 +340,14 @@ export function formatConstant(code: CodeBuilder, decl: CstNode): void {
     formatTrailingComments(code, bodyOpt, semicolonIndex, true)
 }
 
-function formatConstantAttributes(code: CodeBuilder, attributes: CstNode | undefined): void {
-    if (!attributes) return
-
+const formatConstantAttributes: FormatRule = (code, attributes) => {
     const attrs = childrenByType(attributes, "ConstantAttribute")
     for (const attr of attrs) {
         formatConstantAttribute(code, attr)
     }
 }
 
-function formatConstantAttribute(code: CodeBuilder, attr: Cst): void {
+const formatConstantAttribute: FormatRule = (code, attr) => {
     const attrName = childByField(attr, "name")
     if (!attrName) return
     code.add(idText(attr)).space()
