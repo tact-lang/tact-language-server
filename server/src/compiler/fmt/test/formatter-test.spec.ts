@@ -1704,6 +1704,15 @@ describe('should format', () => {
             }
         `));
 
+        it('contract with abstract and virtual functions', intact(`
+            contract Foo {
+                abstract fun foo();
+
+                // comment
+                virtual inline fun bar() {}
+            }
+        `));
+
         it('trait with abstract constant', intact(`
             trait T {
                 abstract const Foo: Int;
@@ -1769,6 +1778,7 @@ describe('should format', () => {
 
         it('function declaration with trailing comment', intact(`
             fun foo(); // comment
+            fun bar();
         `));
 
         it('constant with trailing comments', intact(`

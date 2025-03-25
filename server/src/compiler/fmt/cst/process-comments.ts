@@ -155,7 +155,7 @@ const findNodeWithComments = (node: CstNode): undefined | [CstNode, string] => {
         if (body) {
             const innerBody = childByField(body, "body")
             if (!innerBody) {
-                return [node, ";"]
+                return [body, ";"]
             }
             return [innerBody, "}"]
         }
