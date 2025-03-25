@@ -29,9 +29,9 @@ describe("comments", () => {
         "should correctly attach doc comments to function",
         test(
             `
-        /// Some doc comment of function foo
-        fun foo() {}
-    `,
+                /// Some doc comment of function foo
+                fun foo() {}
+            `,
             "$Function",
             0,
             "/// Some doc comment of function foo",
@@ -42,9 +42,9 @@ describe("comments", () => {
         "should correctly attach doc comments to struct",
         test(
             `
-        /// Some doc comment of struct Foo
-        struct Foo {}
-    `,
+                /// Some doc comment of struct Foo
+                struct Foo {}
+            `,
             "StructDecl",
             0,
             "/// Some doc comment of struct Foo",
@@ -55,11 +55,11 @@ describe("comments", () => {
         "should correctly attach doc comments to struct after function",
         test(
             `
-        fun foo() {}
+                fun foo() {}
 
-        /// Some doc comment of struct Foo
-        struct Foo {}
-    `,
+                /// Some doc comment of struct Foo
+                struct Foo {}
+            `,
             "StructDecl",
             0,
             "/// Some doc comment of struct Foo",
@@ -70,11 +70,11 @@ describe("comments", () => {
         "should correctly attach doc comments to struct after function with inline comment",
         test(
             `
-        fun foo() {} // inline comment of foo
+                fun foo() {} // inline comment of foo
 
-        /// Some doc comment of struct Foo
-        struct Foo {}
-    `,
+                /// Some doc comment of struct Foo
+                struct Foo {}
+            `,
             "StructDecl",
             0,
             "/// Some doc comment of struct Foo",
