@@ -795,15 +795,33 @@ describe('should format', () => {
                 }
             `));
 
-            it('complex conditional', intact(`
+            it('nested conditional with parens', intact(`
                 fun foo() {
-                    let x = a > 10 ? b + c : d;
+                    let x = a
+                        ? b
+                        : (c ? d : e);
                 }
             `));
 
-            it('nexted conditional', intact(`
+            it('nexted conditional with parens 2', intact(`
                 fun foo() {
-                    let x = a > 10 ? (b ? c : d) : d;
+                    let x = a > 10
+                        ? (b ? c : d)
+                        : d;
+                }
+            `));
+
+            it('nexted conditional with parens 2', intact(`
+                fun foo() {
+                    let x = a > 10
+                        ? ((((((b ? c : d))))))
+                        : d;
+                }
+            `));
+
+            it('complex conditional', intact(`
+                fun foo() {
+                    let x = a > 10 ? b + c : d;
                 }
             `));
 

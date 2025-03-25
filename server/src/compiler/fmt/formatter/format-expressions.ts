@@ -239,6 +239,17 @@ const formatUnary: FormatRule = (code, node) => {
     formatExpression(code, expression)
 }
 
+function isNestedConditional(node: CstNode): boolean {
+    if (node.type === "Parens") {
+        const child = childByField(node, "child")
+        const expression = nonLeafChild(child)
+        if (!expression) return false
+        return isNestedConditional(expression)
+    }
+
+    return node.type === "Conditional"
+}
+
 const formatConditional: FormatRule = (code, node) => {
     // foo ? bar : baz
     // ^^^ ^^^^^^^^^^^
@@ -265,7 +276,7 @@ const formatConditional: FormatRule = (code, node) => {
 
     const branchesWidth = trueBranchCode.length + falseBranchCode.length
 
-    const nestedConditional = thenBranch.type === "Conditional" || elseBranch.type === "Conditional"
+    const nestedConditional = isNestedConditional(thenBranch) || isNestedConditional(elseBranch)
     const multiline = branchesWidth > 70 || nestedConditional
     if (multiline) {
         // format as:
