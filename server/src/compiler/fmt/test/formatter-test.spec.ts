@@ -170,7 +170,7 @@ describe('should format', () => {
 
     it('variable declaration with comment before value', intact(`
         fun foo() {
-            let foo: Foo = /*: Foo*/1;
+            let foo: Foo = /*: Foo*/ 1;
         }
     `));
 
@@ -204,19 +204,75 @@ describe('should format', () => {
         }
     `));
 
+    it('variable declaration with comment before value on next line, complex', intact(`
+        fun foo() {
+            let result =
+                // self.uB is correctly initialized
+
+                self.uB.b1 == false &&
+                self.uB.b2.c1 == 0 &&
+                self.uB.b3 == 14 &&
+
+                // init does not modify default value of self.sA
+
+                self.sA.a1 == 20 &&
+                self.sA.a2.b1 == true &&
+                self.sA.a2.b2.c1 == 5 &&
+                self.sA.a2.b3 == 10 &&
+
+                // init modifies default value of self.sB
+
+                self.sB.b1 == false &&
+                self.sB.b2.c1 == 3 &&
+                self.sB.b3 == 10 &&
+
+                // init does not change default value of self.sC.
+
+                self.sC.c1 == 5 &&
+
+                // the map self.mB is empty
+                // (self.mB == emptyMap()) &&  // Commented out because it causes an internal compiler error (see issue #808)
+                self.mB == null && // Equivalent way of saying it is empty
+                self.mB.isEmpty() && // Another equivalent way of saying it is empty
+
+                // the map self.mA has these three key-value pairs:
+
+                self.mA.get(1)!!.a1 == 20 &&
+                self.mA.get(1)!!.a2.b1 == true &&
+                self.mA.get(1)!!.a2.b2.c1 == 5 &&
+                self.mA.get(1)!!.a2.b3 == 10 &&
+
+                self.mA.get(2)!!.a1 == 20 &&
+                self.mA.get(2)!!.a2.b1 == true &&
+                self.mA.get(2)!!.a2.b2.c1 == 100 &&
+                self.mA.get(2)!!.a2.b3 == 0 &&
+
+                self.mA.get(3)!!.a1 == 5 &&
+                self.mA.get(3)!!.a2.b1 == false &&
+                self.mA.get(3)!!.a2.b2.c1 == 150 &&
+                self.mA.get(3)!!.a2.b3 == 0;
+        }
+    `));
+
     it('variable declaration with comment after value', intact(`
         fun foo() {
             let foo: Foo = 1/*: Foo*/;
         }
     `));
 
-// TODO: fix
-//
-//     it('5', intact(`fun foo() {
-//     let foo/*
-//         oopsy
-//     */ = 1;
-// }`));
+    it('assign statement with comment before value on next line', test(`
+        fun foo() {
+            foo =
+                // comment
+                1;
+        }
+    `, `
+        fun foo() {
+            foo =
+                // comment
+            1;
+        }
+    `));
 
     it('if else statement', intact(`
         fun some() {
@@ -780,11 +836,11 @@ describe('should format', () => {
                 }
             `));
 
-            // TODO
-            // it('chained operations', intact(`
-            // fun foo() {
-            //     let x = obj.method().field.anotherMethod();
-            // }`));
+            it('chained operations', intact(`
+                fun foo() {
+                    let x = obj.method().field.anotherMethod();
+                }
+            `));
 
             it('unbox not null', intact(`
                 fun foo() {
@@ -1088,14 +1144,13 @@ describe('should format', () => {
             }
         `));
 
-        // TODO
-        // it('inline comment after a block statement', intact(`
-        //     fun foo() {
-        //         {
-        //            10;
-        //         } // comment
-        //     }
-        // `));
+        it('inline comment after a block statement', intact(`
+            fun foo() {
+                {
+                    10;
+                } // comment
+            }
+        `));
 
         it('inline comment after return statement', intact(`
             fun foo() {
@@ -1448,22 +1503,20 @@ describe('should format', () => {
             fun baz() {}
         `));
 
-        // TODO
-        // it('floating comments between declarations', intact(`
-        //     fun foo() {}
-        //
-        //     // floating comment
-        //
-        //     fun bar() {}
-        // `));
+        it('floating comments between declarations', intact(`
+            fun foo() {}
 
-        // TODO
-        // it('top level comment for function with empty line between comments', intact(`
-        //     // comment here
-        //
-        //     // top comment
-        //     fun foo() {}
-        // `));
+            // floating comment
+
+            fun bar() {}
+        `));
+
+        it('top level comment for function with empty line between comments', intact(`
+            // comment here
+
+            // top comment
+            fun foo() {}
+        `));
     });
 
     describe('top level declarations', () => {

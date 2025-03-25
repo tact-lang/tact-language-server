@@ -1,4 +1,4 @@
-import {CstNode} from "../cst/cst-parser"
+import {CstLeaf, CstNode} from "../cst/cst-parser"
 import {
     childByField,
     childByType,
@@ -20,6 +20,7 @@ import {
 } from "./helpers"
 import {formatTrailingComments, formatInlineComments} from "./format-comments"
 import {FormatRule, FormatStatementRule} from "@server/compiler/fmt/formatter/formatter"
+import {CodeBuilder} from "@server/compiler/fmt/formatter/code-builder"
 
 export const formatStatements: FormatRule = (code, node) => {
     const endIndex = childLeafIdxWithText(node, "}")
@@ -170,6 +171,40 @@ export const formatStatement: FormatStatementRule = (code, node, needSemicolon) 
     }
 }
 
+function formatCommentsBetweenAssignAndValue(
+    code: CodeBuilder,
+    node: CstNode,
+    assign: CstLeaf,
+    init: CstNode,
+): void {
+    const commentsAndNewlines = getLeafsBetween(node, assign, init)
+    const comments = commentsAndNewlines.filter(it => it.$ === "node" && it.type === "Comment")
+    if (comments.length > 0) {
+        const multiline = multilineComments(commentsAndNewlines)
+
+        if (multiline) {
+            code.indent()
+            code.newLine()
+        } else {
+            code.space()
+        }
+
+        for (const comment of commentsAndNewlines) {
+            if (comment.$ !== "node" || comment.type !== "Comment") continue
+            code.add(visit(comment))
+        }
+
+        if (multiline) {
+            code.newLine()
+            code.dedent()
+        } else {
+            code.space()
+        }
+    } else {
+        code.space()
+    }
+}
+
 export const formatLetStatement: FormatStatementRule = (code, node, needSemicolon) => {
     // let name : Int = 100;
     //     ^^^^ ^^^^^ ^ ^^^
@@ -199,32 +234,7 @@ export const formatLetStatement: FormatStatementRule = (code, node, needSemicolo
 
     code.space().add("=")
 
-    const commentsAndNewlines = getLeafsBetween(node, assign, init)
-    const comments = commentsAndNewlines.filter(it => it.$ === "node" && it.type === "Comment")
-    if (comments.length > 0) {
-        const multiline = multilineComments(commentsAndNewlines)
-
-        if (multiline) {
-            code.indent()
-            code.newLine()
-        } else {
-            code.space()
-        }
-
-        for (const comment of commentsAndNewlines) {
-            if (comment.$ !== "node" || comment.type !== "Comment") continue
-            code.add(visit(comment))
-        }
-
-        if (multiline) {
-            code.newLine()
-            code.dedent()
-        } else {
-            code.space()
-        }
-    } else {
-        code.space()
-    }
+    formatCommentsBetweenAssignAndValue(code, node, assign, init)
 
     formatExpression(code, init)
 
@@ -301,8 +311,8 @@ export const formatAssignStatement: FormatStatementRule = (code, node, needSemic
         code.add(visit(operatorOpt))
     }
 
-    code.add("=").space()
-    formatInlineComments(node, code, assign, right, true)
+    code.add("=")
+    formatCommentsBetweenAssignAndValue(code, node, assign, right)
 
     formatExpression(code, right)
     if (needSemicolon) {
