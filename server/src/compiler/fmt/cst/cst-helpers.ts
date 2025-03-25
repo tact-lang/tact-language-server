@@ -10,7 +10,12 @@ export function parseCode(code: string): undefined | Cst {
     if (!res) {
         return undefined
     }
-    return processDocComments(simplifyCst(CstNode(b, "Root")))
+    const root = CstNode(b, "Root")
+    const recreatedCode = visit(root)
+    if (recreatedCode !== code) {
+        return undefined
+    }
+    return processDocComments(simplifyCst(root))
 }
 
 export const visit = (node: Cst): string => {

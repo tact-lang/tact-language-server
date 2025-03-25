@@ -1797,22 +1797,34 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const file = findFile(uri)
             const formatted = formatCode(file.content)
 
-            const lines = file.content.split("\n")
-            return [
-                {
-                    range: {
-                        start: {
-                            line: 0,
-                            character: 0,
+            if (formatted.$ === "FormattedCode") {
+                if (formatted.code === file.content) {
+                    // already formatted
+                    return null
+                }
+
+                const lines = file.content.split("\n")
+                return [
+                    {
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 0,
+                            },
+                            end: {
+                                line: lines.length,
+                                character: (lines.at(-1) ?? "").length,
+                            },
                         },
-                        end: {
-                            line: lines.length,
-                            character: (lines.at(-1) ?? "").length,
-                        },
+                        newText: formatted.code,
                     },
-                    newText: formatted,
-                },
-            ]
+                ]
+            }
+
+            showErrorMessage(
+                `Cannot format file: ${formatted.message}, please open a new issue with the file content: https://github.com/tact-lang/tact-language-server/issues`,
+            )
+            return null
         },
     )
 

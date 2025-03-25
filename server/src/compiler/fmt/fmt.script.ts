@@ -31,14 +31,18 @@ if (!fs.statSync(firstArg).isFile()) {
 
         const content = fs.readFileSync(fullPath, "utf8")
         const result = formatCode(content)
+        if (result.$ === "FormatCodeError") {
+            console.log(result.message)
+            return
+        }
 
-        if (result === content) {
+        if (result.code === content) {
             // console.log("already formatted")
             return
         }
 
         console.log(`reformat ${file}`)
-        fs.writeFileSync(fullPath, result)
+        fs.writeFileSync(fullPath, result.code)
     })
 
     process.exit(0)
@@ -47,6 +51,9 @@ if (!fs.statSync(firstArg).isFile()) {
 const code = fs.readFileSync(`${process.cwd()}/${firstArg}`, "utf8")
 
 const result = formatCode(code)
+if (result.$ === "FormatCodeError") {
+    throw new Error(result.message)
+}
 
 const name = path.basename(firstArg)
-fs.writeFileSync(`${name}.fmt.tact`, result)
+fs.writeFileSync(`${name}.fmt.tact`, result.code)
