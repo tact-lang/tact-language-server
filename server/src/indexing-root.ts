@@ -22,8 +22,6 @@ export class IndexingRoot {
     ) {}
 
     public async index(): Promise<void> {
-        const rootPath = this.root.slice(7)
-
         const ignore =
             this.kind === IndexingRootKind.Stdlib
                 ? []
@@ -50,7 +48,7 @@ export class IndexingRoot {
                   ]
 
         const files = await glob("**/*.tact", {
-            cwd: URL.parse(this.root) ?? rootPath,
+            cwd: new URL(this.root).pathname,
             ignore: ignore,
         })
         if (files.length === 0) {
