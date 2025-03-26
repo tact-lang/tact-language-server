@@ -366,7 +366,7 @@ export const formatAssignStatement: FormatStatementRule = (code, node, needSemic
 
     code.space()
     if (operatorOpt) {
-        code.add(visit(operatorOpt))
+        code.add(visit(operatorOpt).trim())
     }
 
     code.add("=")

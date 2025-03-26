@@ -221,6 +221,16 @@ describe('should format', () => {
         }
     `));
 
+    it('assign statement with augmented operator with space', test(`
+        fun foo() {
+            a << = 100;
+        }
+    `, `
+        fun foo() {
+            a <<= 100;
+        }
+    `));
+
     it('assign statement with comment before value on next line', test(`
         fun foo() {
             foo =
