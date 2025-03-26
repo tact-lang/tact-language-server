@@ -29,7 +29,7 @@ export const test = (input: string, output: string) => {
         const normalizedOutput = normalizeIndentation(output).trim()
         const root = parseCode(normalizedInput)
         if (root === undefined) {
-            fail("cannot parse code")
+            throw new Error("cannot parse code")
         }
 
         const formatted = format(root)

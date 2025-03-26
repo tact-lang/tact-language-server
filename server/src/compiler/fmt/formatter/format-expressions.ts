@@ -389,12 +389,7 @@ const formatStructInstance: FormatRule = (code, node) => {
 
                 const searchField = initOpt ? "init" : "name"
                 const endIndex = childIdxByField(field, searchField)
-                const comments = filterComments(field.children.slice(endIndex))
-
-                if (comments.length > 0) {
-                    return comments
-                }
-                return []
+                return filterComments(field.children.slice(endIndex))
             },
         },
     )
@@ -412,9 +407,7 @@ interface ChainCall {
 
 const formatSuffix: FormatRule = (code, node) => {
     const suffixes = childByField(node, "suffixes")
-    if (!suffixes) {
-        return
-    }
+    if (!suffixes) return
 
     const infos: ChainCall[] = []
     let suffixesList =

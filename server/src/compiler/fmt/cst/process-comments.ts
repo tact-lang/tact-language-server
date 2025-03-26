@@ -204,7 +204,7 @@ export const processDocComments = (node: Cst): Cst => {
         // Step 1: collect all nodes to Module
         const moduleIndex = childIdxByType(node, "Module")
         if (moduleIndex === -1) {
-            // not Module?
+            // no Module?
             // no need to do anything
             return {
                 ...node,
