@@ -34,7 +34,7 @@ describe('should format', () => {
         /* oh no */loh: Bool);
     `, `
         fun some( // top comment
-            /* oopsy */param: Int /* hello there *//* wtf bro */,// comment here
+            /* oopsy */param: Int /* hello there *//* wtf bro */, // comment here
             // bottom comment
             /* oh no */ loh: Bool,
         );

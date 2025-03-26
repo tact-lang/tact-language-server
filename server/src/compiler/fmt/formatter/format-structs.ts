@@ -3,6 +3,7 @@ import {
     childIdxByField,
     childLeafIdxWithText,
     childLeafWithText,
+    childrenByType,
     containsComments,
     nonLeafChild,
 } from "../cst/cst-helpers"
@@ -55,8 +56,7 @@ const formatFields: FormatRule = (code, node) => {
         return
     }
 
-    const fields =
-        fieldsNode?.children.filter(it => it.$ === "node" && it.type === "FieldDecl") ?? []
+    const fields = fieldsNode ? childrenByType(fieldsNode, "FieldDecl") : []
     const firstField = fields.at(0)
 
     const oneLiner =
@@ -65,7 +65,7 @@ const formatFields: FormatRule = (code, node) => {
         childLeafWithText(fieldsNode, ";") === undefined &&
         !hasComments
 
-    if (oneLiner && firstField.$ === "node") {
+    if (oneLiner) {
         code.space().add("{").space()
         formatField(code, firstField, false)
         code.space().add("}")
@@ -160,9 +160,8 @@ export const formatField: FormatStatementRule = (code, decl, needSemicolon) => {
             code.space().add("=").space().apply(formatExpression, value)
         }
     }
-    if (needSemicolon) {
-        code.add(";")
-    }
+
+    code.addIf(needSemicolon, ";")
 
     // since `;` is not a part of the field, we process all comments after type
     //

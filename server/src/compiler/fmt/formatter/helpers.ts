@@ -182,7 +182,7 @@ export const formatSeparatedList = (
             }
         }
 
-        items.forEach(item => {
+        for (const item of items) {
             for (const comment of item.leadingComments) {
                 formatComment(code, comment.node)
                 if (comment.hasNewline) {
@@ -205,6 +205,11 @@ export const formatSeparatedList = (
                 ...(options.provideTrailingComments?.(item.item) ?? []),
                 ...item.trailingComments.map(it => it.node),
             ]
+
+            if (trailingComments.length > 0) {
+                code.space()
+            }
+
             trailingComments.forEach((comment, index) => {
                 formatComment(code, comment)
 
@@ -214,7 +219,7 @@ export const formatSeparatedList = (
             })
 
             code.newLine()
-        })
+        }
 
         if (suffixElement) {
             code.add(suffixElement)
