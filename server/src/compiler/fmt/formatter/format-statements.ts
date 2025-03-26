@@ -303,6 +303,7 @@ export const formatReturnStatement: FormatStatementRule = (code, node, needSemic
     const exprOpt = childByField(node, "expression")
 
     code.add("return")
+
     if (exprOpt) {
         const hasMultilineComment = formatCommentsBetweenAssignAndValue(
             code,
@@ -334,10 +335,13 @@ export const formatReturnStatement: FormatStatementRule = (code, node, needSemic
 }
 
 export const formatExpressionStatement: FormatStatementRule = (code, node, needSemicolon) => {
+    // 10;
+    // ^^ expression
     const expression = childByField(node, "expression")
     if (!expression) {
         throw new Error("Invalid expression statement")
     }
+
     formatExpression(code, expression)
     code.addIf(needSemicolon, ";")
 
@@ -395,10 +399,16 @@ export const formatAssignStatement: FormatStatementRule = (code, node, needSemic
 
 export const formatConditionStatement: FormatRule = (code, node) => {
     // if (true) {} else {}
+    // ^^ ^^^^^^ ^^ ^^^^^^^
+    // |  |      |  |
+    // |  |      |  falseBranchOpt
+    // |  |      trueBranch
+    // |  condition
+    // ifKeyword
     const ifKeyword = childLeafWithText(node, "if")
     const condition = childByField(node, "condition")
     const trueBranch = childByField(node, "trueBranch")
-    const falseBranch = childByField(node, "falseBranch")
+    const falseBranchOpt = childByField(node, "falseBranch")
 
     if (!condition || !trueBranch || !ifKeyword) {
         throw new Error("Invalid condition statement")
@@ -412,7 +422,7 @@ export const formatConditionStatement: FormatRule = (code, node) => {
 
     formatStatements(code, trueBranch)
 
-    if (falseBranch) {
+    if (falseBranchOpt) {
         if (isSingleLineStatement(trueBranch)) {
             // add a new line to format like this:
             // if (true) { return 10 }
@@ -424,7 +434,7 @@ export const formatConditionStatement: FormatRule = (code, node) => {
 
         code.add("else").space()
 
-        const branch = nonLeafChild(falseBranch)
+        const branch = nonLeafChild(falseBranchOpt)
         if (!branch) return
 
         if (branch.type === "StatementCondition") {
@@ -437,12 +447,26 @@ export const formatConditionStatement: FormatRule = (code, node) => {
         }
     }
 
-    const endIndex = childIdxByField(node, falseBranch ? "falseBranch" : "trueBranch")
+    const endIndex = childIdxByField(node, falseBranchOpt ? "falseBranch" : "trueBranch")
     formatTrailingComments(code, node, endIndex, true)
 }
 
 export const formatWhileStatement: FormatRule = (code, node) => {
+    formatLoopStatement(code, node, "while")
+}
+
+export const formatRepeatStatement: FormatRule = (code, node) => {
+    formatLoopStatement(code, node, "repeat")
+}
+
+const formatLoopStatement = (code: CodeBuilder, node: CstNode, kind: "repeat" | "while"): void => {
     // while (true) {}
+    //        ^^^^  ^^
+    //        |     |
+    //        |     body
+    //        condition
+    // or
+    // repeat(true) {}
     //        ^^^^  ^^
     //        |     |
     //        |     body
@@ -454,10 +478,11 @@ export const formatWhileStatement: FormatRule = (code, node) => {
         throw new Error("Invalid while statement")
     }
 
-    code.add("while").space()
-    formatExpression(code, condition)
-    code.space()
-    formatStatements(code, body)
+    // prettier-ignore
+    code.add(kind).space()
+        .apply(formatExpression, condition)
+        .space()
+        .apply(formatStatements, body)
 
     const endIndex = childIdxByField(node, "body")
     formatTrailingComments(code, node, endIndex, true)
@@ -532,48 +557,25 @@ export const formatDestructStatement: FormatStatementRule = (code, node, needSem
     formatTrailingComments(code, node, endIndex, true)
 }
 
-export const formatRepeatStatement: FormatRule = (code, node) => {
-    // repeat(true) {}
-    //        ^^^^  ^^
-    //        |     |
-    //        |     body
-    //        condition
-    const condition = childByField(node, "condition")
-    const body = childByField(node, "body")
-
-    if (!condition || !body) {
-        throw new Error("Invalid repeat statement")
-    }
-
-    code.add("repeat").space()
-    formatExpression(code, condition)
-    code.space()
-    formatStatements(code, body)
-
-    const endIndex = childIdxByField(node, "body")
-    formatTrailingComments(code, node, endIndex, true)
-}
-
 export const formatUntilStatement: FormatStatementRule = (code, node, needSemicolon) => {
     // do {} until (true);
     //    ^^       ^^^^^^
     //    |        |
-    //    |        conditionNode
+    //    |        condition
     //    body
     const body = childByField(node, "body")
-    const conditionNode = childByField(node, "condition")
-    const condition = nonLeafChild(conditionNode)
+    const condition = childByField(node, "condition")
 
-    if (!body || !conditionNode || !condition) {
+    if (!body || !condition) {
         throw new Error("Invalid until statement")
     }
 
+    // prettier-ignore
     code.add("do").space()
-    formatStatements(code, body)
-    code.space().add("until (")
-    formatExpression(code, condition)
-    code.add(")")
-    code.addIf(needSemicolon, ";")
+        .apply(formatStatements, body)
+        .space().add("until").space()
+        .apply(formatExpression, condition)
+        .addIf(needSemicolon, ";")
 
     const endIndex = childIdxByField(node, "condition")
     formatTrailingComments(code, node, endIndex, true)
