@@ -1195,6 +1195,19 @@ describe('should format', () => {
             fun foo() {}
         `));
 
+        it('multiple imports with empty line 5', intact(`
+            import "stdlib";
+            import "stdlib2";
+
+            import "stdlib3";
+            import "stdlib4";
+
+            import "stdlib5";
+            import "stdlib6";
+
+            fun foo() {}
+        `));
+
         it('imports with complex paths', intact(`
             import "stdlib/contracts";
             import "custom/path/to/module";
