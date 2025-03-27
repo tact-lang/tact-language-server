@@ -12,9 +12,9 @@ import {formatExpression} from "./format-expressions"
 import {visit, childByField, trailingNewlines} from "../cst/cst-helpers"
 import {formatContract, formatTrait} from "./format-contracts"
 import {formatMessage, formatStruct} from "./format-structs"
-import {formatImport} from "./format-imports"
 import {containsSeveralNewlines} from "./helpers"
 import {formatComment} from "./format-comments"
+import {formatImports} from "./format-imports"
 
 export type FormatRule = (code: CodeBuilder, node: CstNode) => void
 export type FormatStatementRule = (code: CodeBuilder, node: CstNode, needSemicolon: boolean) => void
@@ -66,17 +66,9 @@ const formatNode = (code: CodeBuilder, node: Cst): void => {
             break
         }
         case "Module": {
-            const importsNode = childByField(node, "imports")
-            if (importsNode) {
-                const imports = importsNode.children
-                for (const item of imports) {
-                    if (item.$ === "node" && item.type === "Import") {
-                        formatImport(code, item)
-                        code.newLine()
-                    }
-                }
-
-                code.newLine()
+            const imports = childByField(node, "imports")
+            if (imports) {
+                formatImports(code, imports)
             }
 
             const itemsNode = childByField(node, "items")

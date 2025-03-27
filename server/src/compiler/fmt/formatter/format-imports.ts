@@ -1,8 +1,41 @@
-import {childByField, childLeafIdxWithText} from "../cst/cst-helpers"
+import {
+    childByField,
+    childLeafIdxWithText,
+    childrenByType,
+    trailingNewlines,
+} from "../cst/cst-helpers"
 import {formatExpression} from "./format-expressions"
 import {formatDocComments} from "./format-doc-comments"
 import {formatTrailingComments} from "./format-comments"
 import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
+
+export const formatImports: FormatRule = (code, importsNode) => {
+    const imports = childrenByType(importsNode, "Import")
+    if (imports.length === 0) return
+
+    let needNewLine = false
+
+    for (const item of importsNode.children) {
+        if (item.$ === "leaf") continue
+
+        if (needNewLine) {
+            code.newLine()
+            needNewLine = false
+        }
+
+        if (item.type === "Import") {
+            formatImport(code, item)
+            code.newLine()
+
+            const newlines = trailingNewlines(item)
+            if (newlines > 1) {
+                needNewLine = true
+            }
+        }
+    }
+
+    code.newLine()
+}
 
 export const formatImport: FormatRule = (code, node) => {
     formatDocComments(code, node)

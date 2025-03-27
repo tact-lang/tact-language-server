@@ -1154,6 +1154,47 @@ describe('should format', () => {
             fun foo() {}
         `));
 
+        it('multiple imports 2', test(`
+            import "stdlib";
+            import "stdlib2";
+
+
+
+            fun foo() {}
+        `, `
+            import "stdlib";
+            import "stdlib2";
+
+            fun foo() {}
+        `));
+
+        it('multiple imports with empty line', intact(`
+            import "stdlib";
+
+            import "stdlib2";
+
+            fun foo() {}
+        `));
+
+        it('multiple imports with empty line 2', intact(`
+            import "stdlib";
+
+            import "stdlib2";
+            import "stdlib3";
+
+            fun foo() {}
+        `));
+
+        it('multiple imports with empty line 4', intact(`
+            import "stdlib";
+
+            import "stdlib2";
+
+            import "stdlib3";
+
+            fun foo() {}
+        `));
+
         it('imports with complex paths', intact(`
             import "stdlib/contracts";
             import "custom/path/to/module";
