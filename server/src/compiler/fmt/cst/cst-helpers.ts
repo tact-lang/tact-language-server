@@ -186,3 +186,21 @@ export function filterComments(nodes: Cst[]): CstNode[] {
 export function containsComments(nodes: Cst[]): boolean {
     return nodes.some(it => isComment(it))
 }
+
+export function commentText(node: CstNode): string {
+    const firstChild = node.children.at(0)
+    if (!firstChild) return ""
+    const textChild = node.children.at(1)
+    const text = textChild ? visit(textChild) : ""
+
+    if (firstChild.$ === "leaf" && firstChild.text === "//") {
+        if (text.startsWith("/")) {
+            return text.slice(1).trim()
+        }
+        return text.trim()
+    }
+    if (firstChild.$ === "leaf" && firstChild.text === "/*") {
+        return text.trim()
+    }
+    return ""
+}

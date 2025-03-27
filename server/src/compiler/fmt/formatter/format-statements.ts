@@ -19,6 +19,7 @@ import {
     formatId,
     formatSeparatedList,
     getLeafsBetween,
+    isIgnoreDirective,
     multilineComments,
 } from "./helpers"
 import {formatTrailingComments, formatInlineComments, formatComment} from "./format-comments"
@@ -57,6 +58,7 @@ export const formatStatements: FormatRule = (code, node) => {
     let seenFirstNewline = false
 
     let needNewLine = false
+    let skipNextStatement = false
 
     for (let i = 0; i < endIndex; i++) {
         const statement = node.children[i]
@@ -71,6 +73,7 @@ export const formatStatements: FormatRule = (code, node) => {
             // don't add extra leading line
             if (i !== 1 && containsSeveralNewlines(statement.text)) {
                 needNewLine = true
+                skipNextStatement = false
             }
             continue
         }
@@ -87,6 +90,9 @@ export const formatStatements: FormatRule = (code, node) => {
             }
 
             formatComment(code, statement)
+            if (isIgnoreDirective(statement)) {
+                skipNextStatement = true
+            }
 
             if (!seenFirstNewline) {
                 // don't add new line for inline comment
@@ -99,11 +105,16 @@ export const formatStatements: FormatRule = (code, node) => {
                 seenFirstNewline = true
             }
 
-            formatStatement(code, statement, true)
+            if (skipNextStatement) {
+                code.add(visit(statement).trim())
+            } else {
+                formatStatement(code, statement, true)
+            }
 
             const newlines = trailingNewlines(statement)
             if (newlines > 1) {
                 needNewLine = true
+                skipNextStatement = false
             }
         }
 

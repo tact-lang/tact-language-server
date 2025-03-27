@@ -1,6 +1,6 @@
 import {Cst, CstNode} from "../cst/cst-parser"
 import {CodeBuilder} from "./code-builder"
-import {childByField, visit} from "../cst/cst-helpers"
+import {childByField, commentText, filterComments, visit} from "../cst/cst-helpers"
 import {formatComment, formatTrailingComments} from "./format-comments"
 
 interface CommentWithNewline {
@@ -345,4 +345,16 @@ export function containsSeveralNewlines(text: string): boolean {
 
 export function multilineComments(comments: Cst[]): boolean {
     return comments.some(it => visit(it).includes("\n"))
+}
+
+export function isIgnoreDirective(statement: CstNode): boolean {
+    return commentText(statement).startsWith("fmt-ignore")
+}
+
+export function hasIgnoreDirective(declaration: CstNode): boolean {
+    const doc = childByField(declaration, "doc")
+    if (!doc) return false
+
+    const comments = filterComments(doc.children)
+    return comments.some(it => isIgnoreDirective(it))
 }

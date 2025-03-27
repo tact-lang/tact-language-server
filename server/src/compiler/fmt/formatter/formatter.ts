@@ -12,7 +12,7 @@ import {formatExpression} from "./format-expressions"
 import {visit, childByField, trailingNewlines} from "../cst/cst-helpers"
 import {formatContract, formatTrait} from "./format-contracts"
 import {formatMessage, formatStruct} from "./format-structs"
-import {containsSeveralNewlines} from "./helpers"
+import {hasIgnoreDirective, containsSeveralNewlines} from "./helpers"
 import {formatComment} from "./format-comments"
 import {formatImports} from "./format-imports"
 
@@ -98,7 +98,13 @@ const formatNode = (code: CodeBuilder, node: Cst): void => {
                     code.newLine()
                     needNewLine = false
                 }
-                formatNode(code, item)
+
+                if (hasIgnoreDirective(item)) {
+                    code.add(visit(item).trim())
+                } else {
+                    formatNode(code, item)
+                }
+
                 if (index < items.length - 1) {
                     code.newLine()
                 }
