@@ -1,4 +1,4 @@
-import * as lsp from "vscode-languageserver/node"
+import * as lsp from "vscode-languageserver"
 import type {Node as SyntaxNode, Point} from "web-tree-sitter"
 
 export function asNullableLspRange(node: SyntaxNode | null | undefined): lsp.Range {

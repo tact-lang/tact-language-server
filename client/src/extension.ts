@@ -1,4 +1,5 @@
 import * as vscode from "vscode"
+import {Position, Range, Uri} from "vscode"
 import * as fs from "node:fs"
 import * as path from "node:path"
 import {Utils as vscode_uri} from "vscode-uri"
@@ -27,7 +28,6 @@ import {BocEditorProvider} from "./providers/BocEditorProvider"
 import {BocFileSystemProvider} from "./providers/BocFileSystemProvider"
 import {BocDecompilerProvider} from "./providers/BocDecompilerProvider"
 import {registerSaveBocDecompiledCommand} from "./commands/saveBocDecompiledCommand"
-import {Range, Position} from "vscode"
 import {detectPackageManager, PackageManager} from "./utils/package-manager"
 
 let client: LanguageClient | null = null
@@ -136,6 +136,16 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
 
         langStatusBar.text = `Tact ${version.version.number}${hash}`
         langStatusBar.show()
+    })
+
+    client.onRequest("tact.readFile", async (params: {uri: string}) => {
+        try {
+            const data = await vscode.workspace.fs.readFile(Uri.parse(params.uri))
+            return Buffer.from(data).toString("utf8")
+        } catch {}
+
+        // eslint-disable-next-line unicorn/no-useless-undefined
+        return undefined
     })
 
     return new vscode.Disposable(() => {

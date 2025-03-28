@@ -127,6 +127,7 @@ import {generateExitCodeDocumentation} from "@server/documentation/exit_code_doc
 import {RewriteInspection} from "@server/inspections/RewriteInspection"
 import {TypeTlbSerializationCompletionProvider} from "@server/completion/providers/TypeTlbSerializationCompletionProvider"
 import {DontUseDeployableInspection} from "@server/inspections/DontUseDeployableInspection"
+import {createVfs} from "@server/vfs/vfs"
 
 /**
  * Whenever LS is initialized.
@@ -385,6 +386,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         clientInfo = initParams.clientInfo
     }
 
+    createVfs(clientInfo.name)
+
     workspaceFolders = initParams.workspaceFolders ?? []
     const opts = initParams.initializationOptions as ClientOptions | undefined
     const treeSitterUri = opts?.treeSitterWasmUri ?? `${__dirname}/tree-sitter.wasm`
@@ -402,7 +405,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             await initializeFallback(uri)
         }
 
-        const file = findFile(uri)
+        const text = event.document.getText()
+        const file = findFile(uri, text)
         index.addFile(uri, file)
 
         if (event.document.languageId === "tact" || uri.endsWith(".tact")) {

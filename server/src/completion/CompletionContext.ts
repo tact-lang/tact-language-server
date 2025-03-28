@@ -1,5 +1,5 @@
 import {Expression, Node} from "@server/psi/Node"
-import type * as lsp from "vscode-languageserver/node"
+import type * as lsp from "vscode-languageserver"
 import {parentOfType} from "@server/psi/utils"
 import {MapTy, NullTy, OptionTy, Ty} from "@server/types/BaseTy"
 import {TypeInferer} from "@server/TypeInferer"

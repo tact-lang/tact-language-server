@@ -5,6 +5,7 @@ import {URI} from "vscode-uri"
 import {createTactParser, createFiftParser} from "./parser"
 import {index} from "./indexes"
 import {measureTime} from "@server/psi/utils"
+import {readFile} from "@server/vfs/vfs"
 
 export const PARSED_FILES_CACHE: Map<string, File> = new Map()
 
@@ -57,7 +58,9 @@ export class IndexingRoot {
         for (const filePath of files) {
             console.info("Indexing:", filePath)
             const uri = this.root + "/" + filePath
-            const file = findFile(uri)
+            const content = await readFile(uri)
+
+            const file = findFile(uri, content)
             index.addFile(uri, file, false)
         }
     }
@@ -69,6 +72,10 @@ export function findFile(uri: string, content?: string, changed: boolean = false
     const cached = PARSED_FILES_CACHE.get(normalizedUri)
     if (cached !== undefined && !changed) {
         return cached
+    }
+
+    if (!content) {
+        throw new Error("dont use fs")
     }
 
     const fsPath = URI.parse(normalizedUri).fsPath
