@@ -87,7 +87,10 @@ import {collectFift as collectFiftInlays} from "./fift/inlays/collect"
 import {FiftReferent} from "@server/fift/psi/FiftReferent"
 import {generateFiftDocFor} from "./fift/documentation/documentation"
 import {UnusedContractMembersInspection} from "./inspections/UnusedContractMembersInspection"
-import {generateKeywordDoc} from "@server/documentation/keywords_documentation"
+import {
+    generateKeywordDoc,
+    generateAttributeKeywordDoc,
+} from "@server/documentation/keywords_documentation"
 import {UnusedImportInspection} from "./inspections/UnusedImportInspection"
 import {ImportResolver} from "@server/psi/ImportResolver"
 import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsCompletionProvider"
@@ -604,20 +607,44 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         }
 
         if (
-            (hoverNode.type === "const" &&
-                (parent?.type === "storage_constant" || parent?.type === "global_constant")) ||
-            parent?.type === "constant_attributes"
+            hoverNode.type === "const" &&
+            (parent?.type === "storage_constant" || parent?.type === "global_constant")
+        ) {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "constant_attributes") {
+            const doc = generateAttributeKeywordDoc(hoverNode.text, "const")
+            if (doc === null) return null
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        if (
+            hoverNode.type === "fun" &&
+            (parent?.type === "storage_function" || parent?.type === "global_function")
         ) {
             return generateMarkdownHoverDocFor(hoverNode)
         }
 
         if (
-            (hoverNode.type === "fun" &&
-                (parent?.type === "storage_function" || parent?.type === "global_function")) ||
             parent?.type === "function_attributes" ||
-            parent?.type === "get_attribute"
+            (parent?.type === "get_attribute" && hoverNode.type === "get")
         ) {
-            return generateMarkdownHoverDocFor(hoverNode)
+            const doc = generateAttributeKeywordDoc(hoverNode.text, "fun")
+            if (doc === null) return null
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
         }
 
         if (parent?.type === "native_function" && hoverNode.type === "native") {
