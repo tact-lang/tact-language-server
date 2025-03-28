@@ -10,7 +10,7 @@
         "noImplicitOverride": true,
         "noImplicitReturns": true,
         "noPropertyAccessFromIndexSignature": true,
-        "noUnusedParameters": true,
+        // "noUnusedParameters": true,
         "baseUrl": ".",
         "paths": {
             "@server/*": ["server/src/*"],
