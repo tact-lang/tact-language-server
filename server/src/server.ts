@@ -501,17 +501,42 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const hoverNode = nodeAtPosition(params, file)
         if (!hoverNode) return null
 
-        if (hoverNode.type === "initOf") {
-            const doc = generateKeywordDoc("initOf")
-            if (doc === null) return null
+        function isEqualNodeTypeAndText(node: SyntaxNode, text: string): boolean {
+            return node.type === text && node.text === text
+        }
 
+        function generateMarkdownHoverDocFor(node: SyntaxNode): lsp.Hover | null {
+            const doc = generateKeywordDoc(node.text)
+            if (doc === null) return null
             return {
-                range: asLspRange(hoverNode),
+                range: asLspRange(node),
                 contents: {
                     kind: "markdown",
                     value: doc,
                 },
             }
+        }
+
+        // Keyword hover docs, literally:
+        // - initOf and codeOf
+        // - null
+        // - import
+        // - primitive
+        // - struct and message
+        // - contract and trait
+
+        if (
+            isEqualNodeTypeAndText(hoverNode, "initOf") ||
+            isEqualNodeTypeAndText(hoverNode, "codeOf") ||
+            isEqualNodeTypeAndText(hoverNode, "null") ||
+            isEqualNodeTypeAndText(hoverNode, "import") ||
+            isEqualNodeTypeAndText(hoverNode, "primitive") ||
+            isEqualNodeTypeAndText(hoverNode, "struct") ||
+            isEqualNodeTypeAndText(hoverNode, "message") ||
+            isEqualNodeTypeAndText(hoverNode, "contract") ||
+            isEqualNodeTypeAndText(hoverNode, "trait")
+        ) {
+            return generateMarkdownHoverDocFor(hoverNode)
         }
 
         if (hoverNode.type === "tvm_instruction") {
@@ -547,6 +572,122 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 },
             }
         }
+
+        // TODO: Support @interface("...") attribute of contracts and traits elsewhere
+        // See: https://docs.tact-lang.org/book/contracts/#interfaces
+        //
+        // if (parent?.type === "contract_attributes" &&
+        //     hoverNode.type === "@interface") {
+        //     // TODO: here we need to see whether the
+        //     //       attribute is for the trait or for the contract
+        //     const doc = generateAnnotationKeywordDoc(hoverNode.text, "contract" | "trait")
+        //     if (doc === null) return null
+        //     return mkMarkdownRangeDoc(doc, hoverNode)
+        // }
+
+        // Keyword hover docs, with different type and text and/or other specifics:
+        // - true and false (type "boolean")
+        // - with (inside trait lists)
+        // - const, several types of nodes: definitions and declarations
+        // - constant attributes: virtual, override, abstract
+        // - fun, several types of nodes: declarations and definitions
+        // - native functions
+        // - asm functions
+        // - function attributes: virtual, override, abstract, get, extends, mutates, inline
+
+        if (hoverNode.type === "boolean") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "trait_list" && hoverNode.type === "with") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (
+            (hoverNode.type === "const" &&
+                (parent?.type === "storage_constant" || parent?.type === "global_constant")) ||
+            parent?.type === "constant_attributes"
+        ) {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (
+            (hoverNode.type === "fun" &&
+                (parent?.type === "storage_function" || parent?.type === "global_function")) ||
+            parent?.type === "function_attributes" ||
+            parent?.type === "get_attribute"
+        ) {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "native_function" && hoverNode.type === "native") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "name_attribute" && hoverNode.type === "@name") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "asm_function" && hoverNode.type === "asm") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "asm_arrangement_rets" && hoverNode.type === "->") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        // Keywords within statements:
+        // - let statement, destructuring assignment let
+        // - return statement
+        // - branches: if...else, try...catch
+        // - loops: repeat, while, do...until, foreach (and "in")
+
+        if (parent?.type === "let_statement" && hoverNode.type === "let") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "destruct_statement" && hoverNode.type === "let") {
+            // A pseudo-keyword let_destruct just for the generateKeywordDoc()
+            const doc = generateKeywordDoc("let_destruct")
+            if (doc === null) return null
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
+        if (
+            isEqualNodeTypeAndText(hoverNode, "return") ||
+            isEqualNodeTypeAndText(hoverNode, "if") ||
+            isEqualNodeTypeAndText(hoverNode, "else") ||
+            isEqualNodeTypeAndText(hoverNode, "try") ||
+            isEqualNodeTypeAndText(hoverNode, "catch") ||
+            isEqualNodeTypeAndText(hoverNode, "repeat") ||
+            isEqualNodeTypeAndText(hoverNode, "while") ||
+            isEqualNodeTypeAndText(hoverNode, "do") ||
+            isEqualNodeTypeAndText(hoverNode, "until") ||
+            isEqualNodeTypeAndText(hoverNode, "foreach")
+        ) {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "foreach_statement" && hoverNode.type === "in") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        // NOTE/TODO(novusnota):
+        // The following things require support of the latest tree-sitter-tact,
+        // so I've only added the documentation itself,
+        // but not the logic of showing it for them:
+        //
+        // Keywords within type ascriptions:
+        // - as
+        // - map<K, V>
+        // - bounced<M>
+        // - ? for optionals (not a keyword per se, but just in case)
 
         if (
             hoverNode.type === "receive" ||
