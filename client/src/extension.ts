@@ -1,6 +1,5 @@
 import * as vscode from "vscode"
 import {Position, Range, Uri} from "vscode"
-import * as fs from "node:fs"
 import * as path from "node:path"
 import {Utils as vscode_uri} from "vscode-uri"
 import {
@@ -32,9 +31,9 @@ import {detectPackageManager, PackageManager} from "./utils/package-manager"
 
 let client: LanguageClient | null = null
 
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
     startServer(context).catch(consoleError)
-    registerBuildTasks(context)
+    await registerBuildTasks(context)
     registerOpenBocCommand(context)
     registerSaveBocDecompiledCommand(context)
     registerMistiCommand(context)
@@ -273,14 +272,16 @@ function getInstallCommandForMisti(packageManager: PackageManager): string {
     }
 }
 
-function projectUsesMisti(): boolean {
+async function projectUsesMisti(): Promise<boolean> {
     const workspaceFolders = vscode.workspace.workspaceFolders
     if (!workspaceFolders || workspaceFolders.length === 0) return false
 
     const packageJsonPath = path.join(workspaceFolders[0].uri.fsPath, "package.json")
 
     try {
-        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
+        const contentArray = await vscode.workspace.fs.readFile(Uri.parse(packageJsonPath))
+        const content = Buffer.from(contentArray).toString("utf8")
+        const packageJson = JSON.parse(content) as {
             dependencies?: Record<string, unknown>
             devDependencies?: Record<string, unknown>
         }
@@ -298,8 +299,8 @@ function projectUsesMisti(): boolean {
 function registerMistiCommand(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand("tact.runMisti", async () => {
-            if (!projectUsesMisti()) {
-                const packageManager = detectPackageManager()
+            if (!(await projectUsesMisti())) {
+                const packageManager = await detectPackageManager()
                 const installCommand = getInstallCommandForMisti(packageManager)
 
                 const result = await vscode.window.showErrorMessage(

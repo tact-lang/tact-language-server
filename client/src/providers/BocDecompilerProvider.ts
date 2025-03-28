@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
+import * as fs from "../utils/fs"
 import {AssemblyWriter, Cell, debugSymbols, disassembleRoot} from "@tact-lang/opcode"
-import {readFileSync} from "node:fs"
 
 export class BocDecompilerProvider implements vscode.TextDocumentContentProvider {
     private readonly _onDidChange: vscode.EventEmitter<vscode.Uri> = new vscode.EventEmitter()
@@ -8,11 +8,11 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
 
     public static scheme: string = "boc-decompiled"
 
-    public provideTextDocumentContent(uri: vscode.Uri): string {
+    public async provideTextDocumentContent(uri: vscode.Uri): Promise<string> {
         const bocPath = this.getBocPath(uri)
 
         try {
-            return this.decompileBoc(bocPath)
+            return await this.decompileBoc(bocPath)
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
             return this.formatError(errorMessage)
@@ -26,10 +26,10 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
         return bocPath
     }
 
-    private decompileBoc(bocPath: string): string {
+    private async decompileBoc(bocPath: string): Promise<string> {
         try {
-            const content = readFileSync(bocPath).toString("base64")
-            const cell = Cell.fromBase64(content)
+            const content = await fs.readFileRaw(bocPath)
+            const cell = Cell.fromBase64(content.toString("base64"))
             const program = disassembleRoot(cell, {
                 computeRefs: true,
             })
@@ -64,10 +64,5 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
             "// Error: " + error,
             "// Time: " + new Date().toISOString(),
         ].join("\n")
-    }
-
-    // Метод для обновления содержимого
-    public update(uri: vscode.Uri): void {
-        this._onDidChange.fire(uri)
     }
 }

@@ -1,32 +1,32 @@
 import * as vscode from "vscode"
-import * as fs from "node:fs"
 import * as path from "node:path"
+import {fileExists, readFile} from "./fs"
 
 export type PackageManager = "yarn" | "npm" | "pnpm" | "bun"
 
-export function detectPackageManager(): PackageManager {
+export async function detectPackageManager(): Promise<PackageManager> {
     const workspaceFolders = vscode.workspace.workspaceFolders
     if (!workspaceFolders || workspaceFolders.length === 0) return "npm"
 
     const workspaceRoot = workspaceFolders[0].uri.fsPath
 
     // Check for lock files
-    if (fs.existsSync(path.join(workspaceRoot, "bun.lockb"))) {
+    if (await fileExists(path.join(workspaceRoot, "bun.lockb"))) {
         return "bun"
     }
-    if (fs.existsSync(path.join(workspaceRoot, "yarn.lock"))) {
+    if (await fileExists(path.join(workspaceRoot, "yarn.lock"))) {
         return "yarn"
     }
-    if (fs.existsSync(path.join(workspaceRoot, "pnpm-lock.yaml"))) {
+    if (await fileExists(path.join(workspaceRoot, "pnpm-lock.yaml"))) {
         return "pnpm"
     }
-    if (fs.existsSync(path.join(workspaceRoot, "package-lock.json"))) {
+    if (await fileExists(path.join(workspaceRoot, "package-lock.json"))) {
         return "npm"
     }
 
     try {
         const packageJsonPath = path.join(workspaceRoot, "package.json")
-        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
+        const packageJson = JSON.parse(await readFile(packageJsonPath)) as {
             packageManager?: string
         }
 

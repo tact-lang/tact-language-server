@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import * as path from "node:path"
-import * as fs from "node:fs"
+import * as fs from "../utils/fs"
 import {BocDecompilerProvider} from "../providers/BocDecompilerProvider"
 import {Disposable} from "vscode"
 
@@ -44,11 +44,11 @@ async function saveBoc(fileUri: vscode.Uri | undefined): Promise<void> {
         scheme: BocDecompilerProvider.scheme,
         path: actualFileUri.path + ".decompiled.fif",
     })
-    const content = decompiler.provideTextDocumentContent(decompileUri)
+    const content = await decompiler.provideTextDocumentContent(decompileUri)
 
     const outputPath = actualFileUri.fsPath + ".decompiled.fif"
 
-    fs.writeFileSync(outputPath, content)
+    await fs.writeFile(outputPath, content)
 
     const relativePath = path.relative(
         vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? "",
