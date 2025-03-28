@@ -29,7 +29,7 @@ export class BocFileSystemProvider implements vscode.FileSystemProvider {
     public async readFile(uri: vscode.Uri): Promise<Uint8Array> {
         console.log("Reading BOC file:", uri.fsPath)
         try {
-            const fileContent = await fs.readFile(uri.fsPath)
+            const fileContent = await fs.readFile(uri)
             console.log("File content length:", fileContent.length)
 
             const decompileUri = uri.with({

@@ -1,9 +1,8 @@
 import * as vscode from "vscode"
 import {BocDecompilerProvider} from "../providers/BocDecompilerProvider"
 import {openBocFilePicker} from "./saveBocDecompiledCommand"
-import {Disposable} from "vscode"
 
-export function registerOpenBocCommand(_context: vscode.ExtensionContext): Disposable {
+export function registerOpenBocCommand(_context: vscode.ExtensionContext): vscode.Disposable {
     return vscode.commands.registerCommand(
         "tact.openBocFile",
         async (fileUri: vscode.Uri | undefined) => {

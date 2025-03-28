@@ -1,6 +1,5 @@
 import * as vscode from "vscode"
 import {Position, Range, Uri} from "vscode"
-import * as path from "node:path"
 import {Utils as vscode_uri} from "vscode-uri"
 import {
     LanguageClient,
@@ -98,7 +97,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         } as ClientOptions,
     }
 
-    const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
+    const serverModule = context.asAbsolutePath("dist/server.js")
 
     const serverOptions: ServerOptions = {
         run: {
@@ -276,10 +275,10 @@ async function projectUsesMisti(): Promise<boolean> {
     const workspaceFolders = vscode.workspace.workspaceFolders
     if (!workspaceFolders || workspaceFolders.length === 0) return false
 
-    const packageJsonPath = path.join(workspaceFolders[0].uri.fsPath, "package.json")
+    const packageJsonPath = vscode.Uri.joinPath(workspaceFolders[0].uri, "package.json")
 
     try {
-        const contentArray = await vscode.workspace.fs.readFile(Uri.parse(packageJsonPath))
+        const contentArray = await vscode.workspace.fs.readFile(packageJsonPath)
         const content = Buffer.from(contentArray).toString("utf8")
         const packageJson = JSON.parse(content) as {
             dependencies?: Record<string, unknown>

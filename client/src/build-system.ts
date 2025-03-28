@@ -1,7 +1,5 @@
 import * as vscode from "vscode"
-import * as path from "node:path"
 import {TaskDefinition} from "vscode"
-
 import {readFile} from "./utils/fs"
 
 interface TaskProviderBase extends vscode.TaskProvider {
@@ -214,7 +212,7 @@ async function projectUsesBlueprint(): Promise<boolean> {
     const workspaceFolders = vscode.workspace.workspaceFolders
     if (!workspaceFolders || workspaceFolders.length === 0) return false
 
-    const packageJsonPath = path.join(workspaceFolders[0].uri.fsPath, "package.json")
+    const packageJsonPath = vscode.Uri.joinPath(workspaceFolders[0].uri, "package.json")
 
     try {
         const packageJson = JSON.parse(await readFile(packageJsonPath)) as {
