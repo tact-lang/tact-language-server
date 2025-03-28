@@ -18,7 +18,7 @@ import {
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
 } from "@shared/shared-msgtypes"
-import type {Location} from "vscode-languageclient"
+import type {Location} from "vscode-languageclient/browser"
 import type {ClientOptions} from "@shared/config-scheme"
 import {registerBuildTasks} from "./build-system"
 import {registerOpenBocCommand} from "./commands/openBocCommand"
@@ -31,7 +31,11 @@ import {detectPackageManager, PackageManager} from "./utils/package-manager"
 let client: LanguageClient | null = null
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-    startServer(context).catch(consoleError)
+    const params: LanguageServerCreationParams = {
+        environment: typeof globalThis === "undefined" ? "node" : "browser"
+    }
+
+    startServer(context, params).catch(consoleError)
     await registerBuildTasks(context)
     registerOpenBocCommand(context)
     registerSaveBocDecompiledCommand(context)
@@ -67,7 +71,15 @@ export function deactivate(): Thenable<void> | undefined {
     return client.stop()
 }
 
-async function startServer(context: vscode.ExtensionContext): Promise<vscode.Disposable> {
+export type LanguageServerCreationParams =
+    | {
+          environment: "node"
+      }
+    | {
+          environment: "browser"
+      }
+
+export async function startServer(context: vscode.ExtensionContext, _params: LanguageServerCreationParams): Promise<vscode.Disposable> {
     const disposables: vscode.Disposable[] = []
 
     const clientOptions: LanguageClientOptions = {
