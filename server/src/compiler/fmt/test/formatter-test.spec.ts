@@ -286,6 +286,60 @@ describe('should format', () => {
         }
     `));
 
+    it('if else statement with comment before else', intact(`
+        fun some() {
+            if (a > 10) {
+                return 1;
+            }
+            // comment
+            else {
+                return 3;
+            }
+        }
+    `));
+
+    it('if statement with comments', intact(`
+        fun some() {
+            if (a > 10) {
+                return 1;
+            } // comment
+        }
+    `));
+
+    it('if else statement with comment before else 2', intact(`
+        fun some() {
+            if (a > 10) {
+                return 1;
+            } // comment
+            else {
+                return 3;
+            }
+        }
+    `));
+
+    it('if else statement with comment before else 3', intact(`
+        fun some() {
+            if (a > 10) {
+                return 1;
+            } /* comment */
+            else {
+                return 3;
+            }
+        }
+    `));
+
+    it('if else-if statement with comment before else', intact(`
+        fun some() {
+            if (a > 10) {
+                return 1;
+            }
+            // comment
+            else if (true) {
+                return 3;
+            }
+        }
+    `));
+
 //     it('5', intact(`fun some() {
 //     if (a > 10)/* comment */ {
 //         return 1;
@@ -1251,6 +1305,15 @@ describe('should format', () => {
                 {
                     10;
                 } // comment
+            }
+        `));
+
+        it('inline comment after a block statement 2', intact(`
+            fun foo() {
+                {
+                    10;
+                }
+                // comment
             }
         `));
 

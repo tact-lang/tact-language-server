@@ -433,8 +433,17 @@ export const formatConditionStatement: FormatRule = (code, node) => {
 
     formatStatements(code, trueBranch)
 
+    const trueBranchEndIndex = childLeafIdxWithText(trueBranch, "}")
+    const trueBranchLeafs = trueBranch.children.slice(trueBranchEndIndex + 1)
+    // if (true) {
+    //     ...
+    // }
+    // // comment here
+    // else { ... }
+    const trueBranchComments = filterComments(trueBranchLeafs)
+
     if (falseBranchOpt) {
-        if (isSingleLineStatement(trueBranch)) {
+        if (isSingleLineStatement(trueBranch) || trueBranchComments.length > 0) {
             // add a new line to format like this:
             // if (true) { return 10 }
             // else { return 20 }
