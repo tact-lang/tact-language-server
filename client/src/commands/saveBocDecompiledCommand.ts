@@ -2,7 +2,9 @@ import * as vscode from "vscode"
 import * as fs from "../utils/fs"
 import {BocDecompilerProvider} from "../providers/BocDecompilerProvider"
 
-export function registerSaveBocDecompiledCommand(_context: vscode.ExtensionContext): vscode.Disposable {
+export function registerSaveBocDecompiledCommand(
+    _context: vscode.ExtensionContext,
+): vscode.Disposable {
     return vscode.commands.registerCommand(
         "tact.saveBocDecompiled",
         async (fileUri: vscode.Uri | undefined) => {
@@ -51,10 +53,7 @@ async function saveBoc(fileUri: vscode.Uri | undefined): Promise<void> {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri
     if (!workspaceRoot) return
 
-    const relativePath = vscode.Uri.joinPath(
-        workspaceRoot,
-        outputPath,
-    )
+    const relativePath = vscode.Uri.joinPath(workspaceRoot, outputPath)
     vscode.window.showInformationMessage(`Decompiled BOC saved to: ${relativePath.fsPath}`)
 
     const savedFileUri = vscode.Uri.file(outputPath)
