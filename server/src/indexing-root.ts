@@ -1,6 +1,5 @@
 import {File} from "@server/psi/File"
 import {glob} from "glob"
-import * as fs from "node:fs"
 import {URI} from "vscode-uri"
 import {createTactParser, createFiftParser} from "./parser"
 import {index} from "./indexes"
@@ -79,7 +78,7 @@ export function findFile(uri: string, content?: string, changed: boolean = false
     }
 
     const fsPath = URI.parse(normalizedUri).fsPath
-    let realContent = content ?? safeFileRead(fsPath)
+    let realContent = content // ?? safeFileRead(fsPath)
     if (!realContent) {
         console.error(`cannot read ${normalizedUri} file, path: ${fsPath}`)
         realContent = ""
@@ -102,7 +101,12 @@ export function findFiftFile(uri: string, content?: string): File {
         return cached
     }
 
-    let realContent = content ?? safeFileRead(URI.parse(uri).fsPath)
+    if (!content) {
+        throw new Error("dont use fs")
+    }
+
+
+    let realContent = content // ?? safeFileRead(URI.parse(uri).fsPath)
     if (!realContent) {
         console.error(`cannot read ${uri} file`)
         realContent = ""
@@ -118,11 +122,11 @@ export function findFiftFile(uri: string, content?: string): File {
     FIFT_PARSED_FILES_CACHE.set(uri, file)
     return file
 }
-
-function safeFileRead(path: string): string | null {
-    try {
-        return fs.readFileSync(path).toString()
-    } catch {
-        return null
-    }
-}
+//
+// function safeFileRead(path: string): string | null {
+//     try {
+//         return fs.readFileSync(path).toString()
+//     } catch {
+//         return null
+//     }
+// }

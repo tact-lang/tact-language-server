@@ -306,7 +306,7 @@ export class GlobalIndex {
         }
 
         console.warn(`cannot find index root for ${path}`)
-        return undefined
+        return this.allRoots().at(0)
     }
 
     public addFile(uri: string, file: File, clearCache: boolean = true): void {

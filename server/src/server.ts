@@ -127,7 +127,7 @@ import {generateExitCodeDocumentation} from "@server/documentation/exit_code_doc
 import {RewriteInspection} from "@server/inspections/RewriteInspection"
 import {TypeTlbSerializationCompletionProvider} from "@server/completion/providers/TypeTlbSerializationCompletionProvider"
 import {DontUseDeployableInspection} from "@server/inspections/DontUseDeployableInspection"
-import {createVfs} from "@server/vfs/vfs"
+import {createVfs, readFile} from "@server/vfs/vfs"
 
 /**
  * Whenever LS is initialized.
@@ -220,50 +220,52 @@ async function initialize(): Promise<void> {
 
     const settings = await getDocumentSettings(rootUri)
 
-    try {
-        setToolchain(
-            settings.toolchain.compilerPath === ""
-                ? Toolchain.autoDetect(rootDir)
-                : Toolchain.fromPath(settings.toolchain.compilerPath),
-        )
-        console.info(`using toolchain ${toolchain.toString()}`)
+    // try {
+    //     setToolchain(
+    //         settings.toolchain.compilerPath === ""
+    //             ? Toolchain.autoDetect(rootDir)
+    //             : Toolchain.fromPath(settings.toolchain.compilerPath),
+    //     )
+    //     console.info(`using toolchain ${toolchain.toString()}`)
+    //
+    //     await connection.sendNotification(SetToolchainVersionNotification, {
+    //         version: toolchain.version,
+    //     } satisfies SetToolchainVersionParams)
+    // } catch (error) {
+    //     if (error instanceof InvalidToolchainError) {
+    //         console.info(`toolchain is invalid ${error.message}`)
+    //         showErrorMessage(error.message)
+    //     }
+    // }
+    //
+    // const stdlibPath = findStdlib(settings, rootDir)
+    // if (stdlibPath !== null) {
+    //     reporter.report(50, "Indexing: (1/3) Standard Library")
+    //     const stdlibUri = `file://${stdlibPath}`
+    //     index.withStdlibRoot(new IndexRoot("stdlib", stdlibUri))
+    //
+    //     const stdlibRoot = new IndexingRoot(stdlibUri, IndexingRootKind.Stdlib)
+    //     await stdlibRoot.index()
+    // }
+    //
+    // setProjectStdlibPath(stdlibPath)
+    //
+    // reporter.report(55, "Indexing: (2/3) Stubs")
+    // const stubsPath = findStubs()
+    // if (stubsPath !== null) {
+    //     const stubsUri = `file://${stubsPath}`
+    //     index.withStubsRoot(new IndexRoot("stubs", stubsUri))
+    //
+    //     const stubsRoot = new IndexingRoot(stubsUri, IndexingRootKind.Stdlib)
+    //     await stubsRoot.index()
+    // }
+    //
+    // reporter.report(80, "Indexing: (3/3) Workspace")
+    // index.withRoots([new IndexRoot("workspace", rootUri)])
+    // const workspaceRoot = new IndexingRoot(rootUri, IndexingRootKind.Workspace)
+    // await workspaceRoot.index()
 
-        await connection.sendNotification(SetToolchainVersionNotification, {
-            version: toolchain.version,
-        } satisfies SetToolchainVersionParams)
-    } catch (error) {
-        if (error instanceof InvalidToolchainError) {
-            console.info(`toolchain is invalid ${error.message}`)
-            showErrorMessage(error.message)
-        }
-    }
-
-    const stdlibPath = findStdlib(settings, rootDir)
-    if (stdlibPath !== null) {
-        reporter.report(50, "Indexing: (1/3) Standard Library")
-        const stdlibUri = `file://${stdlibPath}`
-        index.withStdlibRoot(new IndexRoot("stdlib", stdlibUri))
-
-        const stdlibRoot = new IndexingRoot(stdlibUri, IndexingRootKind.Stdlib)
-        await stdlibRoot.index()
-    }
-
-    setProjectStdlibPath(stdlibPath)
-
-    reporter.report(55, "Indexing: (2/3) Stubs")
-    const stubsPath = findStubs()
-    if (stubsPath !== null) {
-        const stubsUri = `file://${stubsPath}`
-        index.withStubsRoot(new IndexRoot("stubs", stubsUri))
-
-        const stubsRoot = new IndexingRoot(stubsUri, IndexingRootKind.Stdlib)
-        await stubsRoot.index()
-    }
-
-    reporter.report(80, "Indexing: (3/3) Workspace")
     index.withRoots([new IndexRoot("workspace", rootUri)])
-    const workspaceRoot = new IndexingRoot(rootUri, IndexingRootKind.Workspace)
-    await workspaceRoot.index()
 
     reporter.report(100, "Ready")
 
@@ -444,21 +446,31 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             if (change.type === FileChangeType.Created) {
                 console.info(`Find external create of ${uri}`)
-                const file = findFile(uri)
-                index.addFile(uri, file)
+                readFile(uri).then(content => {
+                    console.log(`content (${uri}): ${content}`)
+                    const file = findFile(uri, content)
+                    index.addFile(uri, file)
+                }).catch((error: unknown) => {
+                    console.error(error)
+                })
                 continue
             }
 
-            if (!PARSED_FILES_CACHE.has(uri)) {
-                // we don't care about this file
-                continue
-            }
+            // if (!PARSED_FILES_CACHE.has(uri)) {
+            //     // we don't care about this file
+            //     continue
+            // }
 
             if (change.type === FileChangeType.Changed) {
                 console.info(`Find external change of ${uri}`)
                 index.fileChanged(uri)
-                const file = findFile(uri, undefined, true)
-                index.addFile(uri, file, false)
+                readFile(uri).then(content => {
+                    console.log(`content (${uri}): ${content}`)
+                    const file = findFile(uri, content, true)
+                    index.addFile(uri, file, false)
+                }).catch((error: unknown) => {
+                    console.error(error)
+                })
             }
 
             if (change.type === FileChangeType.Deleted) {
@@ -911,7 +923,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 new SnippetsCompletionProvider(),
                 new KeywordsCompletionProvider(),
                 new AsKeywordCompletionProvider(),
-                new ImportPathCompletionProvider(),
+                // new ImportPathCompletionProvider(),
                 new MapTypeCompletionProvider(),
                 new BouncedTypeCompletionProvider(),
                 new GetterCompletionProvider(),
@@ -927,7 +939,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 new SelfCompletionProvider(),
                 new ReturnCompletionProvider(),
                 new ReferenceCompletionProvider(ref),
-                new AsmInstructionCompletionProvider(),
+                // new AsmInstructionCompletionProvider(),
                 new PostfixCompletionProvider(),
                 new TypeTlbSerializationCompletionProvider(),
             ]

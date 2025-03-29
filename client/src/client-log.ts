@@ -20,6 +20,12 @@ export function consoleError(...items: unknown[]): void {
     )
 }
 
+export function consoleLog(...items: unknown[]): void {
+    consoleLogChannel?.appendLine(
+        "[LOG] " + items.map(element => itemToString(element)).join(" "),
+    )
+}
+
 function itemToString(item: unknown): string {
     if (item === null) return "null"
     if (item === undefined) return "undefined"

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
 import type {Connection} from "vscode-languageserver"
 import * as fs from "node:fs"
-import * as path from "node:path"
 
 export class Logger {
     private logFile: fs.WriteStream | null = null
@@ -9,15 +8,15 @@ export class Logger {
 
     private constructor(
         private readonly connection: Connection,
-        logPath?: string,
+        _logPath?: string,
     ) {
-        if (logPath !== undefined) {
-            const logDir = path.dirname(logPath)
-            if (!fs.existsSync(logDir)) {
-                fs.mkdirSync(logDir, {recursive: true})
-            }
-            this.logFile = fs.createWriteStream(logPath, {flags: "a"})
-        }
+        // if (logPath !== undefined) {
+        //     const logDir = path.dirname(logPath)
+        //     if (!fs.existsSync(logDir)) {
+        //         fs.mkdirSync(logDir, {recursive: true})
+        //     }
+        //     this.logFile = fs.createWriteStream(logPath, {flags: "a"})
+        // }
     }
 
     public static initialize(connection: Connection, logPath?: string): Logger {
