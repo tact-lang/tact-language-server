@@ -18,7 +18,8 @@ import {getDocumentSettings, TactSettings} from "@server/utils/settings"
 import {File} from "@server/psi/File"
 import {Position} from "vscode-languageclient"
 import {asLspPosition} from "@server/utils/position"
-import {FieldsOwnerTy, sizeOfPresentation} from "@server/types/BaseTy"
+import {FieldsOwnerTy, MessageTy, sizeOfPresentation} from "@server/types/BaseTy"
+import {generateTlb} from "@server/compiler/tlb/tlb"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -158,7 +159,13 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const body = message.body()?.text ?? ""
             const value = message.value()
             const sizeDoc = documentationSizeOf(message)
-            return defaultResult(`message${value} ${node.name()} ${body}`, doc + sizeDoc)
+
+            const tlb = generateTlb(new MessageTy(message.name(), message))
+
+            return defaultResult(
+                `message${value} ${node.name()} ${body}`,
+                `${CODE_FENCE}tlb\n${tlb}\n${CODE_FENCE}` + doc + sizeDoc,
+            )
         }
         case "primitive": {
             const doc = extractCommentsDoc(node)

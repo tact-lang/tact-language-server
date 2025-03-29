@@ -488,6 +488,7 @@
     "dependencies": {
         "@tact-lang/opcode": "^0.2.0",
         "@textlint/markdown-to-ast": "^14.4.2",
+        "change-case": "^5.4.4",
         "glob": "^11.0.1",
         "vscode-languageclient": "^8.0.2",
         "vscode-languageserver": "^8.0.2",
@@ -497,6 +498,8 @@
     },
     "devDependencies": {
         "@scaleton/func-debug-symbols": "^0.1.5",
+        "@ton-community/tlb-codegen": "^1.1.0",
+        "@ton/core": "^0.60.1",
         "@types/jest": "^29.5.12",
         "@types/mocha": "^10.0.6",
         "@types/node": "^22.2.0",

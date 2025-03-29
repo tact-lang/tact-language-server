@@ -299,7 +299,11 @@ async function initializeFallback(uri: string): Promise<void> {
     await initialize()
 }
 
-async function runInspections(uri: string, file: File): Promise<void> {
+async function runInspections(
+    uri: string,
+    file: File,
+    includeLinters: boolean = true,
+): Promise<void> {
     const inspections = [
         new UnusedParameterInspection(),
         new EmptyBlockInspection(),
@@ -321,22 +325,24 @@ async function runInspections(uri: string, file: File): Promise<void> {
         diagnostics.push(...inspection.inspect(file))
     }
 
-    const asyncInspections = [
-        ...(settings.linters.compiler.enable ? [new CompilerInspection()] : []),
-        ...(settings.linters.misti.enable ? [new MistiInspection()] : []),
-    ]
+    if (includeLinters) {
+        const asyncInspections = [
+            ...(settings.linters.compiler.enable ? [new CompilerInspection()] : []),
+            ...(settings.linters.misti.enable ? [new MistiInspection()] : []),
+        ]
 
-    for (const inspection of asyncInspections) {
-        if (settings.inspections.disabled.includes(inspection.id)) {
-            continue
+        for (const inspection of asyncInspections) {
+            if (settings.inspections.disabled.includes(inspection.id)) {
+                continue
+            }
+
+            const allDiagnostics = diagnostics
+
+            void inspection.inspect(file).then(diagnostics => {
+                allDiagnostics.push(...diagnostics)
+                void connection.sendDiagnostics({uri, diagnostics: allDiagnostics})
+            })
         }
-
-        const allDiagnostics = diagnostics
-
-        void inspection.inspect(file).then(diagnostics => {
-            allDiagnostics.push(...diagnostics)
-            void connection.sendDiagnostics({uri, diagnostics: allDiagnostics})
-        })
     }
 
     await connection.sendDiagnostics({uri, diagnostics})
@@ -371,7 +377,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const file = findFile(uri)
         index.addFile(uri, file)
 
-        await runInspections(uri, file)
+        await runInspections(uri, file, true)
+    })
+
+    documents.onDidSave(async event => {
+        const uri = event.document.uri
+        const file = findFile(uri)
+        await runInspections(uri, file, true)
     })
 
     documents.onDidChangeContent(async event => {
@@ -392,7 +404,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const file = findFile(uri, event.document.getText(), true)
         index.addFile(uri, file, false)
 
-        await runInspections(uri, file)
+        await runInspections(uri, file, false) // linters require saved files
     })
 
     connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams) => {
