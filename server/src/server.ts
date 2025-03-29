@@ -73,6 +73,7 @@ import {
     findFile,
     IndexingRoot,
     IndexingRootKind,
+    findTlbFile,
     PARSED_FILES_CACHE,
 } from "./indexing-root"
 import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
@@ -82,7 +83,6 @@ import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/
 import {ContractDeclCompletionProvider} from "./completion/providers/ContractDeclCompletionProvider"
 import {collectFift} from "./fift/foldings/collect"
 import {collectFift as collectFiftSemanticTokens} from "./fift/semantic_tokens/collect"
-import {FiftReference} from "@server/fift/psi/FiftReference"
 import {collectFift as collectFiftInlays} from "./fift/inlays/collect"
 import {FiftReferent} from "@server/fift/psi/FiftReferent"
 import {generateFiftDocFor} from "./fift/documentation/documentation"
@@ -127,6 +127,9 @@ import {generateExitCodeDocumentation} from "@server/documentation/exit_code_doc
 import {RewriteInspection} from "@server/inspections/RewriteInspection"
 import {TypeTlbSerializationCompletionProvider} from "@server/completion/providers/TypeTlbSerializationCompletionProvider"
 import {DontUseDeployableInspection} from "@server/inspections/DontUseDeployableInspection"
+import * as tlbSemantic from "./tlb/semantic_tokens/collect"
+import {TlbReference} from "./tlb/psi/TlbReference"
+import {TlbReferent} from "@server/tlb/psi/TlbReferent"
 
 /**
  * Whenever LS is initialized.
@@ -390,7 +393,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     const treeSitterUri = opts?.treeSitterWasmUri ?? `${__dirname}/tree-sitter.wasm`
     const tactLangUri = opts?.tactLangWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
     const fiftLangUri = opts?.fiftLangWasmUri ?? `${__dirname}/tree-sitter-fift.wasm`
-    await initParser(treeSitterUri, tactLangUri, fiftLangUri)
+    const tlbLangUri = opts?.tlbLangWasmUri ?? `${__dirname}/tree-sitter-tlb.wasm`
+    await initParser(treeSitterUri, tactLangUri, fiftLangUri, tlbLangUri)
 
     const documents = new DocumentStore(connection)
 
@@ -495,6 +499,10 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                     value: doc,
                 },
             }
+        }
+
+        if (!uri.endsWith(".tact")) {
+            return null
         }
 
         const file = findFile(params.textDocument.uri)
@@ -664,21 +672,24 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.DefinitionRequest.type,
         (params: lsp.DefinitionParams): lsp.Location[] | lsp.LocationLink[] => {
             const uri = params.textDocument.uri
+            if (uri.endsWith(".tlb")) {
+                const file = findTlbFile(uri)
+                const hoverNode = nodeAtPosition(params, file)
+                if (!hoverNode) return []
 
-            if (uri.endsWith(".fif")) {
-                const file = findFiftFile(uri)
-                const node = nodeAtPosition(params, file)
-                if (!node || node.type !== "identifier") return []
-
-                const definition = FiftReference.resolve(node, file)
-                if (!definition) return []
-
-                return [
-                    {
-                        uri: file.uri,
-                        range: asLspRange(definition),
-                    },
-                ]
+                if (hoverNode.type === "identifier" || hoverNode.type === "type_identifier") {
+                    const ref = new TlbReference(hoverNode, file)
+                    const target = ref.resolve()
+                    if (target) {
+                        return [
+                            {
+                                uri: file.uri,
+                                range: asLspRange(target),
+                            },
+                        ]
+                    }
+                }
+                return []
             }
 
             const file = findFile(uri)
@@ -1109,6 +1120,22 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 }))
             }
 
+            if (uri.endsWith(".tlb")) {
+                const file = findTlbFile(uri)
+                const node = nodeAtPosition(params, file)
+                if (!node || (node.type !== "identifier" && node.type !== "type_identifier")) {
+                    return []
+                }
+
+                const result = new TlbReferent(node, file).findReferences(false)
+                if (result.length === 0) return null
+
+                return result.map(n => ({
+                    uri: file.uri,
+                    range: asLspRange(n),
+                }))
+            }
+
             const file = findFile(uri)
             const referenceNode = nodeAtPosition(params, file)
             if (!referenceNode) return null
@@ -1395,6 +1422,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
                 return collectFiftSemanticTokens(file, settings.fift.semanticHighlighting)
+            } else if (uri.endsWith(".tlb")) {
+                const file = findTlbFile(uri)
+                return tlbSemantic.collect(file)
             }
 
             const file = findFile(uri)
@@ -1630,6 +1660,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.DocumentSymbolRequest.type,
         async (params: lsp.DocumentSymbolParams): Promise<lsp.DocumentSymbol[]> => {
             const uri = params.textDocument.uri
+
+            if (!uri.endsWith(".tact")) {
+                return []
+            }
+
             const file = findFile(uri)
 
             const settings = await getDocumentSettings(file.uri)

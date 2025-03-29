@@ -79,10 +79,11 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
             {scheme: "file", language: "tact"},
             {scheme: "file", language: "fift"},
             {scheme: "untitled", language: "tact"},
+            {scheme: "file", language: "tlb"},
         ],
         synchronize: {
             configurationSection: "tact",
-            fileEvents: vscode.workspace.createFileSystemWatcher("**/*.tact"),
+            fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{tact,tlb}"),
         },
         initializationOptions: {
             clientConfig: getClientConfiguration(),
@@ -96,6 +97,8 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
                 context.extensionUri,
                 "./dist/tree-sitter-fift.wasm",
             ).fsPath,
+            tlbLangWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter-tlb.wasm")
+                .fsPath,
         } as ClientOptions,
     }
 
