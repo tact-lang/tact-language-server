@@ -5,14 +5,11 @@ const CODE_FENCE = "```"
  */
 export function generateKeywordDoc(word: string): string | null {
     if (word === "initOf") {
-        return `${CODE_FENCE}tact
-initOf ContractName(...arguments)
-${CODE_FENCE}
-
+        return `
 The expression \`initOf\` computes initial state, i.e. \`StateInit\` of a contract:
 
 ${CODE_FENCE}tact
-//                     argument values for the init() function of the contract
+//                     argument values of contract or init() parameters
 //                     ↓   ↓
 initOf ExampleContract(42, 100); // returns a Struct StateInit{}
 //     ---------------
@@ -31,10 +28,7 @@ Learn more in documentation: https://docs.tact-lang.org/book/expressions#initof
     }
 
     if (word === "codeOf") {
-        return `${CODE_FENCE}tact
-codeOf ContractName
-${CODE_FENCE}
-
+        return `
 The expression \`codeOf\` returns a \`Cell\` containing the code of a contract:
 
 ${CODE_FENCE}tact
@@ -49,10 +43,7 @@ Learn more in documentation: https://docs.tact-lang.org/book/expressions#codeof
     }
 
     if (word === "null") {
-        return `${CODE_FENCE}tact
-null
-${CODE_FENCE}
-
+        return `
 The literal \`null\` represents the intentional absence of value:
 
 ${CODE_FENCE}tact
@@ -68,10 +59,7 @@ Learn more in documentation: https://docs.tact-lang.org/book/expressions#null-li
     }
 
     if (word === "primitive") {
-        return `${CODE_FENCE}tact
-primitive TypeIdentifier;
-${CODE_FENCE}
-
+        return `
 The top-level \`primitive\` declaration is used to introduce a non-composite type,
 which is useful primarily in Tact's standard library and its tests:
 
@@ -83,16 +71,13 @@ ${CODE_FENCE}
     }
 
     if (word === "import") {
-        return `${CODE_FENCE}tact
-import "...";
-${CODE_FENCE}
-
-The top-level \`import\` keyword is used to include everything from local file or standard library:
+        return `
+The top-level \`import\` keyword is used to include everything from a local file or standard library:
 
 ${CODE_FENCE}tact
-import "@stdlib/deploy"; // imports from the standard library
-import "./utils";        // imports from a local file (utils.tact)
-import "./file.fc";      // imports from a local FunC file (file.fc)
+import "@stdlib/deploy"; // everything from the standard library
+import "./utils";        // everything from a local file (utils.tact)
+import "./file.fc";      // everything from a local FunC file (file.fc)
 ${CODE_FENCE}
 
 Import statements must be placed at the beginning of a file before any other constructs.
@@ -103,25 +88,15 @@ Learn more in documentation: https://docs.tact-lang.org/book/import
 
     // TODO: TODO: TODO: TODO: edit and refine
     if (word === "struct") {
-        return `${CODE_FENCE}tact
-struct StructIdentifier { /* field definitions */ }
-${CODE_FENCE}
-
+        return `
 The top-level \`struct\` keyword creates a user-defined composite type:
 
 ${CODE_FENCE}tact
-// TODO: better example!
 struct Point {
-    x: Int;
-    y: Int;
+    x: Int as uint8;
+    y: Int as uint8 = 0;
 }
-
-let p: Point = Point{x: 10, y: 20};
-let offsetX: Int = p.x + 5;
 ${CODE_FENCE}
-
-TODO: ...
-Structs can be used for data storage, as message types, and as return values from functions.
 
 Learn more in documentation: https://docs.tact-lang.org/book/structs-and-messages#structs
 `
@@ -134,14 +109,14 @@ Learn more in documentation: https://docs.tact-lang.org/book/structs-and-message
 
     // TODO:
     if (word === "contract") {
-        return `${CODE_FENCE}tact
-contract ContractIdentifier(/* parameters */) { /* receivers, getters and methods */ }
-${CODE_FENCE}
-
+        return `
 The top-level \`contract\` keyword defines a contract with its state variables and methods:
 
 ${CODE_FENCE}tact
-contract Counter {
+contract ContractIdentifier(/* parameters */) { /* receivers, getters and methods */ }
+
+contract Counter() {
+
     // State variables are stored in persistent contract storage
     val: Int;
 
@@ -327,42 +302,34 @@ export function generateAnnotationKeywordDoc(
     if (word === "@interface") {
         switch (anno) {
             case "contract": {
-                // TODO: ...
-                return `${CODE_FENCE}tact
-@interface("org.ton.test")
-contract ContractName {}
-${CODE_FENCE}
-
-The annotation \`@interface\` can be applied to contracts to define a unique interface identifier:
+                return `
+The annotation \`@interface\` can be applied to contracts to extend their \`supported_interfaces\` getter:
 
 ${CODE_FENCE}tact
-@interface("org.ton.counter")
-contract Counter {
-    val: Int;
-
-    init(initVal: Int) {
-        self.val = initVal;
-    }
-
-    receive("increment") {
-        self.val = self.val + 1;
-    }
-
-    get fun value(): Int {
-        return self.val;
-    }
-}
+@interface("org_or_project_name.counter")
+contract Counter {}
 ${CODE_FENCE}
 
-TODO: ... determine this, ok. And put to trait.
-Interface identifiers help with contract verification and interaction, ensuring that a contract follows a specific interface standard.
+The \`supported_interfaces\` getter composed from \`@interface\` annotations is an optional,
+off-chain, and verifiable promise indicating that a contract might contain some specific code or public interfaces.
 
-Learn more in documentation: https://docs.tact-lang.org/book/contracts#contract-annotations
+Learn more in documentation: https://docs.tact-lang.org/book/contracts#interfaces
 `
             }
             case "trait": {
-                // TODO: ...
-                return ``
+                return `
+The annotation \`@interface\` can be applied to traits to extend their \`supported_interfaces\` getter:
+
+${CODE_FENCE}tact
+@interface("org.ton.ownable")
+trait Ownable {}
+${CODE_FENCE}
+
+The \`supported_interfaces\` getter composed from \`@interface\` annotations is an optional,
+off-chain, and verifiable promise indicating that a trait might contain some specific code or public interfaces.
+
+Learn more in documentation: https://docs.tact-lang.org/book/contracts#interfaces
+`
             }
             default: {
                 throw new Error("Unreachable!")
@@ -383,41 +350,51 @@ export function generateAttributeKeywordDoc(word: string, attr: "fun" | "const")
         case "fun": {
             switch (word) {
                 case "get": {
-                    return `${CODE_FENCE}tact
-get fun getterName(): ReturnType { /* body */ }
-${CODE_FENCE}
-
-// TODO: ...
-The attribute \`get\` defines a getter function that allows reading contract state without sending a message:
+                    return `
+The attribute \`get\` defines a getter function that can be called off-chain to read contract's state:
 
 ${CODE_FENCE}tact
-contract Counter {
-    val: Int;
-
-    init(initVal: Int) {
-        self.val = initVal;
+contract Example(val: Int) {
+    // Returns values of all persistent state variables of this contract
+    get fun state(): Example {
+        return self;
     }
 
-    // Getter function can be called via read methods
-    get fun value(): Int {
-        return self.val;
-    }
-
-    // Getters can take parameters
-    get fun valueWithOffset(offset: Int): Int {
-        return self.val + offset;
+    // Parameters and arbitrary return types are allowed too
+    get fun valPlus(val2: Int): Int {
+        // You can perform some calculations that do not affect the contract's state
+        return self.val + val2;
     }
 }
 ${CODE_FENCE}
 
-// TODO: ...
 Getter functions are read-only and cannot modify contract state.
 
 Learn more in documentation: https://docs.tact-lang.org/book/functions
 `
                 }
                 case "inline": {
-                    return ``
+                    return `
+The attribute \`inline\` defines a function that is inlined at each call site during compilation:
+
+${CODE_FENCE}tact
+contract Example() {
+    // This function will be inlined at each call site
+    inline fun add(a: Int, b: Int): Int {
+        return a + b;
+    }
+
+    receive("test") {
+        let c = self.add(1, 2); // The function code is inlined here
+    }
+}
+${CODE_FENCE}
+
+Inlining functions can reduce gas consumption by removing the function call overhead,
+but may increase the compiled contract size if the function is called from multiple places.
+
+Learn more in documentation: https://docs.tact-lang.org/book/functions
+`
                 }
                 case "extends": {
                     return ``
@@ -442,10 +419,7 @@ Learn more in documentation: https://docs.tact-lang.org/book/functions
         case "const": {
             switch (word) {
                 case "virtual": {
-                    return `${CODE_FENCE}tact
-virtual const X: Int = 0;
-${CODE_FENCE}
-
+                    return `
 The attribute \`virtual\` allows a constant to be overridden in derived contracts or traits:
 
 ${CODE_FENCE}tact
@@ -462,10 +436,7 @@ Learn more in documentation: https://docs.tact-lang.org/book/constants
 `
                 }
                 case "override": {
-                    return `${CODE_FENCE}tact
-override const X: Int = 42;
-${CODE_FENCE}
-
+                    return `
 The attribute \`override\` allows overriding an inherited constant from derived contracts or traits:
 
 ${CODE_FENCE}tact
@@ -482,10 +453,7 @@ Learn more in documentation: https://docs.tact-lang.org/book/constants
 `
                 }
                 case "abstract": {
-                    return `${CODE_FENCE}tact
-abstract const X: Int;
-${CODE_FENCE}
-
+                    return `
 The attribute \`abstract\` requires a constant to be overridden in derived contracts or traits,
 and does not specifying its value upon declaration:
 
