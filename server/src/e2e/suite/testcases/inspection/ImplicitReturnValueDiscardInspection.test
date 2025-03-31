@@ -1,0 +1,149 @@
+========================================================================
+Function call with implicit discard
+========================================================================
+contract Contract {
+    owner: Address;
+
+    get fun owner(): Address {
+        bar(10);
+        return self.owner;
+    }
+}
+
+fun bar(a: Int): Bool {
+    return a == 10;
+}
+------------------------------------------------------------------------
+1 4:8 to 4:11 Return value of the function call is not used, if you don't need the value, add `let _ = ...` (tact)
+
+========================================================================
+Function call with implicit discard and void return type
+========================================================================
+contract Contract {
+    owner: Address;
+
+    get fun owner(): Address {
+        bar(10);
+        return self.owner;
+    }
+}
+
+fun bar(a: Int) {
+    dump(a);
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Function call with explicit discard
+========================================================================
+contract Contract {
+    owner: Address;
+
+    get fun owner(): Address {
+        let _ = bar(10);
+        return self.owner;
+    }
+}
+
+fun bar(a: Int): Bool {
+    return a == 10;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Function call with usage
+========================================================================
+contract Contract {
+    owner: Address;
+
+    get fun owner(): Address {
+        let res = bar(10);
+        dump(res);
+        return self.owner;
+    }
+}
+
+fun bar(a: Int): Bool {
+    return a == 10;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Method call with implicit discard
+========================================================================
+contract Contract {
+    owner: Address;
+
+    fun bar(a: Int): Bool {
+        self.owner;
+        return a == 10;
+    }
+
+    get fun owner(): Address {
+        self.bar(10);
+        return self.owner;
+    }
+}
+------------------------------------------------------------------------
+1 9:13 to 9:16 Return value of the function call is not used, if you don't need the value, add `let _ = ...` (tact)
+
+========================================================================
+Method call with implicit discard and void return type
+========================================================================
+contract Contract {
+    owner: Address;
+
+    fun bar(a: Int) {
+        self.owner;
+        dump(a);
+    }
+
+    get fun owner(): Address {
+        self.bar(10);
+        return self.owner;
+    }
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Method call with explicit discard
+========================================================================
+contract Contract {
+    owner: Address;
+
+    fun bar(a: Int): Bool {
+        self.owner;
+        return a == 10;
+    }
+
+    get fun owner(): Address {
+        let _ = self.bar(10);
+        return self.owner;
+    }
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Method call with usage
+========================================================================
+contract Contract {
+    owner: Address;
+
+    fun bar(a: Int): Bool {
+        self.owner;
+        return a == 10;
+    }
+
+    get fun owner(): Address {
+        let res = self.bar(10);
+        dump(res);
+        return self.owner;
+    }
+}
+------------------------------------------------------------------------
+no issues
