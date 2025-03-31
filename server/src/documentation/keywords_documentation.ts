@@ -86,7 +86,6 @@ Learn more in documentation: https://docs.tact-lang.org/book/import
 `
     }
 
-    // TODO: TODO: TODO: TODO: edit and refine
     if (word === "struct") {
         return `
 The top-level \`struct\` keyword creates a user-defined composite type:
@@ -102,39 +101,56 @@ Learn more in documentation: https://docs.tact-lang.org/book/structs-and-message
 `
     }
 
-    // TODO: same as before, but now with a opcode header and a simplified msg model
     if (word === "message") {
-        return `Defines a message struct.`
-    }
-
-    // TODO:
-    if (word === "contract") {
         return `
-The top-level \`contract\` keyword defines a contract with its state variables and methods:
+The top-level \`message\` keyword creates a user-defined composite type:
 
 ${CODE_FENCE}tact
-contract ContractIdentifier(/* parameters */) { /* receivers, getters and methods */ }
+message(42) Point {
+    x: Int as uint8;
+    y: Int as uint8 = 0;
+}
+${CODE_FENCE}
 
-contract Counter() {
+Unlike regular structs, message structs have a 32-bit integer header in their serialization
+containing their unique numeric ID (opcode). This allows message structs to be used with
+contract receivers, because contracts differentiate incoming
+messages based on said opcodes in their bodies.
 
-    // State variables are stored in persistent contract storage
-    val: Int;
-
-    // Constructor initializes the contract state
-    init(initVal: Int) {
-        self.val = initVal;
+Learn more in documentation: https://docs.tact-lang.org/book/structs-and-messages#messages
+`
     }
 
-    // Receive function handles incoming messages
-    receive("increment") {
-        self.val = self.val + 1;
+    if (word === "contract") {
+        return `
+The top-level \`contract\` keyword defines a contract with its persistent state variables,
+receiver functions, getters, and internal functions:
+
+${CODE_FENCE}tact
+contract SimpleCounter(counter: Int as uint32) {
+    // Empty receiver for the deployment
+    receive() {
+        // Forward the remaining value in the
+        // incoming message back to the sender
+        cashback(sender());
     }
 
-    // Getter function allows reading state without sending messages
-    get fun value(): Int {
-        return self.val;
+    // Receive function handles certain incoming messages
+    receive(msg: Add) {
+        self.counter += msg.amount;
+
+        // Forward the remaining value in the
+        // incoming message back to the sender
+        cashback(sender());
+    }
+
+    // Getter function allows reading parts of the contract state off-chain
+    get fun counter(): Int {
+        return self.counter;
     }
 }
+
+message Add { amount: Int as uint32 }
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/contracts
@@ -153,17 +169,12 @@ Learn more in documentation: https://docs.tact-lang.org/book/contracts
 
     // TODO:
     if (word === "true") {
-        return ``
+        return `true`
     }
 
     // TODO:
     if (word === "false") {
-        return ``
-    }
-
-    // TODO:
-    if (word === "with") {
-        return ``
+        return `false`
     }
 
     // TODO: ...
@@ -173,7 +184,7 @@ Learn more in documentation: https://docs.tact-lang.org/book/contracts
 
     // TODO: ...
     if (word === "fun") {
-        return ``
+        return `Declares a function`
     }
 
     // TODO:
@@ -188,44 +199,44 @@ Learn more in documentation: https://docs.tact-lang.org/book/contracts
 
     // TODO:
     if (word === "asm") {
-        return ``
+        return `Declares an assembly function`
     }
 
     // TODO:
     if (word === "->") {
-        return ``
+        return `Arrangement separator`
     }
 
     // Keywords within statements
 
     // TODO:
     if (word === "let") {
-        return ``
+        return `Defines a variable`
     }
 
     // TODO: a pseudo-keyword
     if (word === "let_destruct") {
-        return ``
+        return `Unpacks a struct into variables`
     }
 
     // TODO:
     if (word === "return") {
-        return ``
+        return `Stops the execution of the current function and, optionally, produces some results`
     }
 
     // TODO:
     if (word === "if") {
-        return ``
+        return `Conditional branching`
     }
 
     // TODO:
     if (word === "else") {
-        return ``
+        return `Alternative branch`
     }
 
     // TODO:
     if (word === "try") {
-        return ``
+        return `Attempt to execute certain statements and rollback in case of errors`
     }
 
     // TODO:
@@ -235,27 +246,27 @@ Learn more in documentation: https://docs.tact-lang.org/book/contracts
 
     // TODO:
     if (word === "repeat") {
-        return ``
+        return `Execute a block of code a specified number of times`
     }
 
     // TODO:
     if (word === "while") {
-        return ``
+        return `Execute a block of code as long as the given condition is \`true\``
     }
 
     // TODO:
     if (word === "do") {
-        return ``
+        return `Execute a block of code at least once and then continue until the given condition becomes \`true\``
     }
 
     // TODO:
     if (word === "until") {
-        return ``
+        return `Condition clause of the do...until`
     }
 
     // TODO:
     if (word === "foreach") {
-        return ``
+        return `Execute a block of code for each entry in the given map`
     }
 
     // TODO:
@@ -265,26 +276,46 @@ Learn more in documentation: https://docs.tact-lang.org/book/contracts
 
     // Keywords within type ascriptions
 
-    // TODO:
     if (word === "as") {
-        return ``
+        return `
+The keyword \`as\` is used for specifying serialization formats for values in the contract's
+persistent state and (de)serializing structs and message structs to and from message body Cells:
+
+${CODE_FENCE}tact
+struct Point {
+    x: Int as uint32; // 32-bit unsigned integer
+    y: Int as coins;  // variable-width format for nanoToncoin
+}
+
+contract Pointy(
+    val1: Int as uint7,   // you can specify odd values too
+    val2: Int as uint240, // anything works as long as its within the boundaries
+                          // of the 257-bit signed or 256-bit unsigned integer type
+) {}
+${CODE_FENCE}
+
+Common type ascriptions include:
+- \`as uint8\`, \`as uint16\`, \`as uint32\`, \`as uint64\`, \`as uint256\`
+- \`as coins\` for nanoToncoin amounts
+
+Learn more in documentation: https://docs.tact-lang.org/book/integers#serialization`
     }
 
     // TODO:
     if (word === "map") {
-        return ``
+        return `map<K, V>`
     }
 
     // TODO:
     if (word === "bounced") {
-        return ``
+        return `map<K, V>`
     }
 
     // TODO:
     if (word === "?") {
         // ? -> An optional type, which allows setting this value to null.
         //      Learn more in documentation: ...link
-        return ``
+        return `Optionals`
     }
 
     return null
