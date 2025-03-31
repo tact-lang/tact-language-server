@@ -117,29 +117,29 @@ __metadata:
   linkType: hard
 
 "@azure/msal-browser@npm:^4.2.0":
-  version: 4.7.0
-  resolution: "@azure/msal-browser@npm:4.7.0"
+  version: 4.9.1
+  resolution: "@azure/msal-browser@npm:4.9.1"
   dependencies:
-    "@azure/msal-common": "npm:15.2.1"
-  checksum: 10c0/3eca15b36eff6334bbae1340207b3ce7632a84ecd87aeefc931c4a430d550001cd8b1de55dfef18c89af3bc64b36a63228160edfd918425c020f97fe9926c417
+    "@azure/msal-common": "npm:15.4.0"
+  checksum: 10c0/ad903b87bee867506703e1c1a9dbc30c3d22756d5fa0dedf412242a5be6dfdbc362c626eac816a7a710e342d3ca4c24b0af2c7a8bee4a9febde924534cd92738
   languageName: node
   linkType: hard
 
-"@azure/msal-common@npm:15.2.1":
-  version: 15.2.1
-  resolution: "@azure/msal-common@npm:15.2.1"
-  checksum: 10c0/5b4a14383a415b5c19c707c3136e485720ec066120bffbc1ceead1cb5b387d5f9ebdb2924975227eb67dce8718fae981fefe897704deac00f4e1fa0451b5d4da
+"@azure/msal-common@npm:15.4.0":
+  version: 15.4.0
+  resolution: "@azure/msal-common@npm:15.4.0"
+  checksum: 10c0/3039af0b3db4a2b4b09120e446def7e95dced7ef94a029effd5f21f990d75eb123217f8fcadfdc599e2429e01fda3558cb7a697734882266f30d2a8c73a8151f
   languageName: node
   linkType: hard
 
 "@azure/msal-node@npm:^3.2.3":
-  version: 3.3.0
-  resolution: "@azure/msal-node@npm:3.3.0"
+  version: 3.4.1
+  resolution: "@azure/msal-node@npm:3.4.1"
   dependencies:
-    "@azure/msal-common": "npm:15.2.1"
+    "@azure/msal-common": "npm:15.4.0"
     jsonwebtoken: "npm:^9.0.0"
     uuid: "npm:^8.3.0"
-  checksum: 10c0/83720437dd471340a33362ae58dc3ebcb92b476095e0d95190c592936c426a95f1fca65142380c440fa68303dffc4a391cad83b02099ca608a982b417af031e2
+  checksum: 10c0/b57410c8b2f46f03f59bccfd4ab27b32417dcee653791422a1b540124c6f403e92df844a71fc2d84581e0b636ace8e13ce9f0a09bf09d5a3cc7057fe8c2ac02e
   languageName: node
   linkType: hard
 
@@ -1099,12 +1099,12 @@ __metadata:
   linkType: hard
 
 "@tact-lang/opcode@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "@tact-lang/opcode@npm:0.3.0"
+  version: 0.3.1
+  resolution: "@tact-lang/opcode@npm:0.3.1"
   dependencies:
     "@ton/core": "npm:^0.60.0"
     "@ton/crypto": "npm:^3.3.0"
-  checksum: 10c0/7bf118c78ae2aba4774d1a6fc1dd019acbceb24353f0e67b60cf1d17fe8df687028436b6d6bc300d62bc42fa4a12bea10ffe7c6dd5864a6674290c6898af8b43
+  checksum: 10c0/fb55a9ea65db5e6ac694ce488984e902ecc928edceadd2ec268aaafbf479f05b09cc7cd3631be85a82265922409920588de5cd1eb03d56192e4f67910321c88d
   languageName: node
   linkType: hard
 
@@ -2483,6 +2483,13 @@ __metadata:
   version: 5.4.1
   resolution: "chalk@npm:5.4.1"
   checksum: 10c0/b23e88132c702f4855ca6d25cb5538b1114343e41472d5263ee8a37cccfccd9c4216d111e1097c6a27830407a1dc81fecdf2a56f2c63033d4dbbd88c10b0dcef
+  languageName: node
+  linkType: hard
+
+"change-case@npm:^5.4.4":
+  version: 5.4.4
+  resolution: "change-case@npm:5.4.4"
+  checksum: 10c0/2a9c2b9c9ad6ab2491105aaf506db1a9acaf543a18967798dcce20926c6a173aa63266cb6189f3086e3c14bf7ae1f8ea4f96ecc466fcd582310efa00372f3734
   languageName: node
   linkType: hard
 
@@ -6793,7 +6800,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.5.2, semver@npm:^7.5.3, semver@npm:^7.5.4, semver@npm:^7.6.0, semver@npm:^7.6.2, semver@npm:^7.6.3, semver@npm:^7.7.1":
+"semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.5.3, semver@npm:^7.5.4, semver@npm:^7.6.0, semver@npm:^7.6.2, semver@npm:^7.6.3":
+  version: 7.7.0
+  resolution: "semver@npm:7.7.0"
+  bin:
+    semver: bin/semver.js
+  checksum: 10c0/bcd1c03209b4be7d8ca86c976a0410beba7d4ec1d49d846a4be154b958db1ff5eaee50760c1d4f4070b19dee3236b8672d3e09642c53ea23740398bba2538a2d
+  languageName: node
+  linkType: hard
+
+"semver@npm:^7.5.2, semver@npm:^7.7.1":
   version: 7.7.1
   resolution: "semver@npm:7.7.1"
   bin:
@@ -7412,8 +7428,8 @@ __metadata:
   linkType: hard
 
 "ts-jest@npm:^29.2.6":
-  version: 29.2.6
-  resolution: "ts-jest@npm:29.2.6"
+  version: 29.3.1
+  resolution: "ts-jest@npm:29.3.1"
   dependencies:
     bs-logger: "npm:^0.2.6"
     ejs: "npm:^3.1.10"
@@ -7423,6 +7439,7 @@ __metadata:
     lodash.memoize: "npm:^4.1.2"
     make-error: "npm:^1.3.6"
     semver: "npm:^7.7.1"
+    type-fest: "npm:^4.38.0"
     yargs-parser: "npm:^21.1.1"
   peerDependencies:
     "@babel/core": ">=7.0.0-beta.0 <8"
@@ -7444,7 +7461,7 @@ __metadata:
       optional: true
   bin:
     ts-jest: cli.js
-  checksum: 10c0/2a79bdb2631bbd004cd6ec171d62dc3681b86e7d1c20eece7f56e7c3df11a0f5a14f4831960b1ba8d1836787395c8f9dcbd084fd7f59246bbee8048feb93f892
+  checksum: 10c0/5df9239223b974fc61bbe018d4e72bbdbea530c4b624fab0936a152438a58e97ce0d0cee2258d10e7ecebbf0ab699ab41d0a52fc5b5f13201cdac4419ab0fe04
   languageName: node
   linkType: hard
 
@@ -7589,6 +7606,13 @@ __metadata:
   version: 0.8.1
   resolution: "type-fest@npm:0.8.1"
   checksum: 10c0/dffbb99329da2aa840f506d376c863bd55f5636f4741ad6e65e82f5ce47e6914108f44f340a0b74009b0cb5d09d6752ae83203e53e98b1192cf80ecee5651636
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^4.38.0":
+  version: 4.38.0
+  resolution: "type-fest@npm:4.38.0"
+  checksum: 10c0/db9990d682a08697cf8ae67ac3cdbca734c742c96615e8888401d7d54e376b390e6a5d3be25fe3b4b439e1bb88a7da461da678a614ece8caccd9c0a07dd2e5f4
   languageName: node
   linkType: hard
 
@@ -7894,6 +7918,7 @@ __metadata:
     "@vscode/test-electron": "npm:^2.4.1"
     "@vscode/vsce": "npm:^2.15.0"
     c8: "npm:^10.1.3"
+    change-case: "npm:^5.4.4"
     copy-webpack-plugin: "npm:^12.0.2"
     eslint: "npm:^9.19.0"
     eslint-plugin-unicorn: "npm:^56.0.1"

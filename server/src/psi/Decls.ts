@@ -142,9 +142,16 @@ export class StorageMembersOwner extends NamedNode {
     }
 
     public fields(): Field[] {
-        const own = this.ownFields()
-        const inherited = this.inheritTraits().flatMap(trait => trait.fields())
-        return [...own, ...inherited]
+        const fields: Map<string, Field> = new Map()
+        for (const value of this.ownFields()) {
+            fields.set(value.name(), value)
+        }
+        for (const trait of this.inheritTraits()) {
+            for (const value of trait.fields()) {
+                fields.set(value.name(), value)
+            }
+        }
+        return [...fields.values()]
     }
 
     public constants(): Constant[] {

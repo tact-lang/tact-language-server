@@ -15,6 +15,15 @@ struct Foo {
 }
 ```
 
+---
+**TL-B**:
+
+```tlb
+_ value:int257
+  value2:int257 = Foo
+```
+---
+
 
 **Size**: 514 bits
 
@@ -36,6 +45,15 @@ struct Foo {
 }
 ```
 
+---
+**TL-B**:
+
+```tlb
+_ value:int257
+  value2:Bool = Foo
+```
+---
+
 
 **Size**: 258 bits
 
@@ -55,6 +73,15 @@ struct Foo {
     value2: Int;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+_ value:Coins
+  value2:int257 = Foo
+```
+---
 
 
 **Size**: 261 bits plus up to 120 bits
@@ -76,6 +103,15 @@ struct Foo {
 }
 ```
 
+---
+**TL-B**:
+
+```tlb
+_ value:VarUInteger 16
+  value2:VarUInteger 32 = Foo
+```
+---
+
 
 **Size**: 9 bits plus up to 368 bits
 
@@ -95,6 +131,15 @@ struct Foo {
     value2: Int as varint32;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+_ value:VarInteger 16
+  value2:VarInteger 32 = Foo
+```
+---
 
 
 **Size**: 9 bits plus up to 368 bits
@@ -116,6 +161,15 @@ struct Foo {
 }
 ```
 
+---
+**TL-B**:
+
+```tlb
+_ value:int32
+  value2:int257 = Foo
+```
+---
+
 
 **Size**: 289 bits
 
@@ -135,6 +189,15 @@ struct Foo {
     value2: Int;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+_ value:int99
+  value2:int257 = Foo
+```
+---
 
 
 **Size**: 356 bits
@@ -157,6 +220,15 @@ struct Foo {
 }
 ```
 
+---
+**TL-B**:
+
+```tlb
+_ value:int257
+  value2:^Cell = Foo
+```
+---
+
 
 **Size**: 257 bits plus up to 1023 bits
 
@@ -177,6 +249,15 @@ struct Foo {
     value2: String;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+_ value:int257
+  value2:^Cell = Foo
+```
+---
 
 
 **Size**: 257 bits plus up to 1023 bits
@@ -199,6 +280,15 @@ struct Foo {
 }
 ```
 
+---
+**TL-B**:
+
+```tlb
+_ value:int257
+  value2:MsgAddress = Foo
+```
+---
+
 
 **Size**: 524 bits
 
@@ -220,6 +310,15 @@ struct Foo {
 }
 ```
 
+---
+**TL-B**:
+
+```tlb
+_ value:int257
+  value2:Maybe ^Cell = Foo
+```
+---
+
 
 **Size**: 258 bits plus up to 1023 bits
 
@@ -240,6 +339,15 @@ struct Foo {
     value2: map<Int, Int>;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+_ value:int257
+  value2:^Cell = Foo
+```
+---
 
 
 **Size**: 257 bits plus up to 1023 bits
@@ -266,6 +374,18 @@ message(0x7bdd97de) TokenBurnNotification {
 }
 ```
 
+---
+**TL-B**:
+
+```tlb
+token_burn_notification#7bdd97de
+    query_id:uint64
+    amount:Coins
+    sender:MsgAddress
+    response_destination:MsgAddress = TokenBurnNotification
+```
+---
+
 
 **Size**: 634 bits plus up to 120 bits
 
@@ -289,6 +409,17 @@ message(0xd1735400) TakeWalletAddress {
     owner_address: Cell?; // It is Maybe ^Address, just encoded it like this
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+take_wallet_address#d1735400
+    query_id:uint64
+    wallet_address:MsgAddress
+    owner_address:Maybe ^Cell = TakeWalletAddress
+```
+---
 
 
 **Size**: 364 bits plus up to 1023 bits
@@ -322,6 +453,21 @@ message(0xf8a7ea5) TokenTransfer {
     forward_payload: Slice as remaining; // 0-1023
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+token_transfer#f8a7ea5
+    query_id:uint64
+    amount:Coins
+    destination:MsgAddress
+    response_destination:Maybe MsgAddress
+    custom_payload:Maybe ^Cell
+    forward_ton_amount:Coins
+    forward_payload:^Cell = TokenTransfer
+```
+---
 
 
 **Size**: 640 bits plus up to 2286 bits

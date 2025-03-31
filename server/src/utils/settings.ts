@@ -47,6 +47,9 @@ export interface TactSettings {
     inspections: {
         disabled: string[] // list of disabled inspection ids
     }
+    documentation: {
+        showTlb: boolean
+    }
     fift: {
         hints: {
             showGasConsumption: boolean
@@ -119,6 +122,9 @@ const defaultSettings: TactSettings = {
     },
     inspections: {
         disabled: [], // no disabled inspections by default
+    },
+    documentation: {
+        showTlb: true,
     },
     fift: {
         hints: {
@@ -222,6 +228,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
         },
         inspections: {
             disabled: vsSettings.inspections?.disabled ?? defaultSettings.inspections.disabled,
+        },
+        documentation: {
+            showTlb: vsSettings.documentation?.showTlb ?? defaultSettings.documentation.showTlb,
         },
         fift: {
             hints: {

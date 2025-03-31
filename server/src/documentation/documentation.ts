@@ -19,7 +19,15 @@ import {getDocumentSettings, TactSettings} from "@server/utils/settings"
 import {File} from "@server/psi/File"
 import {Position} from "vscode-languageclient"
 import {asLspPosition} from "@server/utils/position"
-import {FieldsOwnerTy, sizeOfPresentation} from "@server/types/BaseTy"
+import {
+    ContractTy,
+    FieldsOwnerTy,
+    MessageTy,
+    sizeOfPresentation,
+    StructTy,
+    Ty,
+} from "@server/types/BaseTy"
+import {generateTlb} from "@server/compiler/tlb/tlb"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -45,6 +53,13 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
         const owner = symbol.dataOwner()
         if (!owner) return null // not possible in correct code
         return owner.kind() + " " + owner.name() + "\n"
+    }
+
+    function genTlb(ty: Ty): string {
+        if (!settings.documentation.showTlb) return ""
+
+        const tlb = generateTlb(ty)
+        return `\n---\n**TL-B**:\n\n${CODE_FENCE}tlb\n${tlb}\n${CODE_FENCE}\n---\n`
     }
 
     switch (astNode.type) {
@@ -125,7 +140,9 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
 
             const body = members === "" ? "{}" : `{\n${members}\n}`
 
-            return defaultResult(`contract ${node.name()}${inheritedString} ${body}`, doc)
+            const tlb = genTlb(new ContractTy(contract.name(), contract))
+
+            return defaultResult(`contract ${node.name()}${inheritedString} ${body}`, tlb + doc)
         }
         case "trait": {
             const trait = new Trait(astNode, node.file)
@@ -151,7 +168,9 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const struct = new Struct(node.node, node.file)
             const body = struct.body()?.text ?? ""
             const sizeDoc = documentationSizeOf(struct)
-            return defaultResult(`struct ${node.name()} ${body}`, doc + sizeDoc)
+            const tlb = genTlb(new StructTy(struct.name(), struct))
+
+            return defaultResult(`struct ${node.name()} ${body}`, tlb + doc + sizeDoc)
         }
         case "message": {
             const doc = extractCommentsDoc(node)
@@ -159,7 +178,9 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const body = message.body()?.text ?? ""
             const value = message.value()
             const sizeDoc = documentationSizeOf(message)
-            return defaultResult(`message${value} ${node.name()} ${body}`, doc + sizeDoc)
+            const tlb = genTlb(new MessageTy(message.name(), message))
+
+            return defaultResult(`message${value} ${node.name()} ${body}`, tlb + doc + sizeDoc)
         }
         case "primitive": {
             const doc = extractCommentsDoc(node)
