@@ -1,0 +1,45 @@
+========================================================================
+Function without self
+========================================================================
+contract Contract {
+    owner: Address;
+
+    fun bar(a: Int): Bool {
+        return a == 10;
+    }
+
+    get fun owner(): Address {
+        return self.owner;
+    }
+}
+------------------------------------------------------------------------
+3 3:8 to 3:11 Method 'bar' is never used (tact)
+1 3:8 to 3:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
+Function with self
+========================================================================
+contract Contract {
+    owner: Address;
+
+    fun bar(): Bool {
+        return self.owner == sender();
+    }
+
+    get fun owner(): Address {
+        return self.owner;
+    }
+}
+------------------------------------------------------------------------
+3 3:8 to 3:11 Method 'bar' is never used (tact)
+
+========================================================================
+Get function without self
+========================================================================
+contract Contract {
+    get fun data(): Int {
+        return 100;
+    }
+}
+------------------------------------------------------------------------
+no issues

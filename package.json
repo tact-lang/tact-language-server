@@ -401,7 +401,8 @@
                                 "dont-use-text-receivers",
                                 "rewrite",
                                 "dont-use-deployable",
-                                "rewrite-as-augmented-assignment"
+                                "rewrite-as-augmented-assignment",
+                                "can-be-standalone-function"
                             ]
                         },
                         "default": [],

@@ -312,6 +312,10 @@ export class Fun extends NamedNode {
         return body.text
     }
 
+    public get body(): SyntaxNode | null {
+        return this.node.childForFieldName("body")
+    }
+
     public get hasOneLineBody(): boolean {
         const body = this.node.childForFieldName("body")
         if (!body) return false
