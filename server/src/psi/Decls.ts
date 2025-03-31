@@ -290,8 +290,21 @@ export class MessageFunction extends Node {
         return `${kindIdent.text}(${parametersNode.text})`
     }
 
+    public isStringFallback(): boolean {
+        const parameter = this.parameter()
+        if (!parameter) return false
+        const parameterType = new Expression(parameter, this.file).type()
+        if (!parameterType) return false
+        return parameterType.name() === "String"
+    }
+
     public parameter(): SyntaxNode | null {
         return this.node.childForFieldName("parameter")
+    }
+
+    public parameterName(): string | null {
+        const param = this.node.childForFieldName("parameter")
+        return param?.childForFieldName("name")?.text ?? null
     }
 
     public kindIdentifier(): SyntaxNode | null {

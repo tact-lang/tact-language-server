@@ -129,6 +129,7 @@ import {TypeTlbSerializationCompletionProvider} from "@server/completion/provide
 import {DontUseDeployableInspection} from "@server/inspections/DontUseDeployableInspection"
 import {RewriteAsAugmentedAssignment} from "@server/inspections/RewriteAsAugmentedAssignment"
 import {CanBeStandaloneFunctionInspection} from "@server/inspections/CanBeStandaloneFunctionInspection"
+import {UseExplicitStringReceiverInspection} from "@server/inspections/UseExplicitStringReceiverInspection"
 
 /**
  * Whenever LS is initialized.
@@ -346,6 +347,7 @@ async function runInspections(uri: string, file: File): Promise<void> {
         new DontUseDeployableInspection(),
         new RewriteAsAugmentedAssignment(),
         new CanBeStandaloneFunctionInspection(),
+        new UseExplicitStringReceiverInspection(),
         new RewriteInspection(),
     ]
 
