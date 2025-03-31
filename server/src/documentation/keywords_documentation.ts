@@ -159,119 +159,320 @@ Learn more in documentation: https://docs.tact-lang.org/book/contracts
 
     // TODO:
     if (word === "trait") {
-        return `Defines a trait.`
+        return `
+Defines a trait.
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/types#traits
+`
     }
 
     // TODO:
     if (word === "with") {
-        return `Inherits a trait.`
+        return `
+Inherits a trait.
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/contracts#traits
+`
     }
 
     // TODO:
     if (word === "true") {
-        return `true`
+        return `
+true
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/types#booleans
+`
     }
 
     // TODO:
     if (word === "false") {
-        return `false`
+        return `
+false
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/types#booleans
+`
     }
 
     // TODO: ...
     if (word === "const") {
-        return ``
+        return `
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/constants
+`
     }
 
     // TODO: ...
     if (word === "fun") {
-        return `Declares a function`
+        return `Declares a function
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/functions
+`
     }
 
     // TODO:
     if (word === "native") {
-        return ``
+        return `
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/functions
+`
     }
 
     // TODO:
     if (word === "@name") {
-        return ``
+        return `
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/functions
+`
     }
 
     // TODO:
     if (word === "asm") {
-        return `Declares an assembly function`
+        return `
+Declares an assembly function
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/assembly-functions
+`
     }
 
     // TODO:
     if (word === "->") {
-        return `Arrangement separator`
+        return `
+Arrangement separator
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/assembly-functions#arrangements
+`
     }
 
     // Keywords within statements
 
     // TODO:
     if (word === "let") {
-        return `Defines a variable`
+        return `
+Defines a variable
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#assignment
+`
     }
 
     // TODO: a pseudo-keyword
     if (word === "let_destruct") {
-        return `Unpacks a struct into variables`
+        return `
+Unpacks a struct into variables
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#destructuring-assignment
+`
     }
 
     // TODO:
     if (word === "return") {
-        return `Stops the execution of the current function and, optionally, produces some results`
+        return `
+Stops the execution of the current function and, optionally, produces some results
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#return
+`
     }
 
     // TODO:
     if (word === "if") {
-        return `Conditional branching`
+        return `
+Conditional branching
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#if-else
+`
     }
 
     // TODO:
     if (word === "else") {
-        return `Alternative branch`
+        return `
+Alternative branch
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/if-else
+`
     }
 
     // TODO:
     if (word === "try") {
-        return `Attempt to execute certain statements and rollback in case of errors`
+        return `
+Attempt to execute certain statements and rollback in case of errors
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#try-catch
+`
     }
 
     // TODO:
     if (word === "catch") {
-        return ``
+        return `
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#try-catch
+`
     }
 
     // TODO:
     if (word === "repeat") {
-        return `Execute a block of code a specified number of times`
+        return `
+Execute a block of code a specified number of times
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#repeat-loop
+`
     }
 
     // TODO:
     if (word === "while") {
-        return `Execute a block of code as long as the given condition is \`true\``
+        return `
+Execute a block of code as long as the given condition is \`true\`
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#while-loop
+`
     }
 
     // TODO:
     if (word === "do") {
-        return `Execute a block of code at least once and then continue until the given condition becomes \`true\``
+        return `
+Execute a block of code at least once and then continue until the given condition becomes \`true\`
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#do-until-loop
+`
     }
 
     // TODO:
     if (word === "until") {
-        return `Condition clause of the do...until`
+        return `
+Condition clause of the do...until
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#do-until-loop
+`
     }
 
     // TODO:
     if (word === "foreach") {
-        return `Execute a block of code for each entry in the given map`
+        return `
+TODO: description
+Execute a block of code for each entry in the given map
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#foreach-loop
+`
     }
 
     // TODO:
     if (word === "in") {
-        return ``
+        return `
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/statements#foreach-loop
+`
     }
 
     // Keywords within type ascriptions
@@ -301,21 +502,63 @@ Common type ascriptions include:
 Learn more in documentation: https://docs.tact-lang.org/book/integers#serialization`
     }
 
-    // TODO:
     if (word === "map") {
-        return `map<K, V>`
+        return `
+The composite type \`map<K, V>\` associates keys of type \`K\` with corresponding
+values of type \`V\`, creating a collection of key-value pairs:
+
+${CODE_FENCE}tact
+let m1: map<Int, Bool> = emptyMap(); // empty map from Int to Bool
+m1.set(42, true);
+m1.set(27, false);
+m1.exists(42)
+    ? m2.exists(27)
+        ? m1.get(42)!! || m2.get(27)!!
+        : null
+    : null;
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/maps
+`
     }
 
-    // TODO:
     if (word === "bounced") {
-        return `map<K, V>`
+        return `
+The special type constructor \`bounced<M>\` is used within bounced message receivers
+to construct a partial representation of the message body to fit in 256 bit limits:
+
+${CODE_FENCE}tact
+// First 32 bits are taken by the message opcode,
+// so the bounced message body would only have 224 usable bits left
+message Add {
+    field1: Int as uint 224 = 0xBABECAFE;
+    field2: Int = 0xDEADBEEF;
+}
+
+contract Example {
+    bounced(msg: bounced<Add>) {
+        // Only the field1 is accessible — subsequent ones are not
+        msg.field1;
+    }
+}
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/bounced
+`
     }
 
-    // TODO:
     if (word === "?") {
         // ? -> An optional type, which allows setting this value to null.
         //      Learn more in documentation: ...link
-        return `Optionals`
+        return `
+TODO: description
+
+${CODE_FENCE}tact
+// TODO: ...
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/optionals
+`
     }
 
     return null
