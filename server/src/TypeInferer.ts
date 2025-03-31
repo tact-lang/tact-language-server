@@ -230,6 +230,12 @@ export class TypeInferer {
             return this.inferTypeFromResolved(resolved)
         }
 
+        if (node.node.type === "argument") {
+            const inner = node.node.firstChild
+            if (!inner) return null
+            return this.inferType(new Expression(inner, node.file))
+        }
+
         if (
             node.node.type === "static_call_expression" ||
             node.node.type === "method_call_expression"
