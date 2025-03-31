@@ -1,0 +1,84 @@
+========================================================================
+crc32 with string
+========================================================================
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32("transfer(slice, int)");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32(/* str: */"transfer(slice, int)")/*  Evaluates to: 0x8541fde8 */;
+
+========================================================================
+crc32 with string 2
+========================================================================
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32("000DEADBEEF000");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32(/* str: */"000DEADBEEF000")/*  Evaluates to: 0x6c98571a */;
+
+========================================================================
+crc32 with string 3
+========================================================================
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32("👋 Tact");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32(/* str: */"👋 Tact")/*  Evaluates to: 0x6e94735d */;
+
+========================================================================
+crc32 with string 4
+========================================================================
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32("\u0000");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32(/* str: */"\u0000")/*  Evaluates to: 0xd6631dfe */;
+
+========================================================================
+crc32 with string 5
+========================================================================
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32("⚡");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32(/* str: */"⚡")/*  Evaluates to: 0x7f582c32 */;

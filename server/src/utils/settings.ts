@@ -29,6 +29,7 @@ export interface TactSettings {
         showContinuationGas: boolean
         showToCellSize: boolean
         showAsciiEvaluationResult: boolean
+        showCrc32EvaluationResult: boolean
     }
     gas: {
         loopGasCoefficient: number
@@ -100,6 +101,7 @@ const defaultSettings: TactSettings = {
         showContinuationGas: true,
         showToCellSize: true,
         showAsciiEvaluationResult: true,
+        showCrc32EvaluationResult: true,
     },
     gas: {
         loopGasCoefficient: 5,
@@ -189,6 +191,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             showAsciiEvaluationResult:
                 vsSettings.hints?.showAsciiEvaluationResult ??
                 defaultSettings.hints.showAsciiEvaluationResult,
+            showCrc32EvaluationResult:
+                vsSettings.hints?.showCrc32EvaluationResult ??
+                defaultSettings.hints.showCrc32EvaluationResult,
         },
         gas: {
             loopGasCoefficient:

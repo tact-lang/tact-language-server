@@ -22,7 +22,7 @@ import {InlayHintLabelPart, MarkupContent, MarkupKind} from "vscode-languageserv
 import {Location} from "vscode-languageclient"
 import {asLspRange} from "@server/utils/position"
 import {URI} from "vscode-uri"
-import {evalAsciiBuiltin} from "@server/compiler/utils"
+import {evalAsciiBuiltin, evalCrc32Builtin} from "@server/compiler/utils"
 
 function processParameterHints(
     shift: number,
@@ -162,6 +162,7 @@ export function collect(
         showContinuationGas: boolean
         showToCellSize: boolean
         showAsciiEvaluationResult: boolean
+        showCrc32EvaluationResult: boolean
     },
     gasSettings: {
         loopGasCoefficient: number
@@ -389,18 +390,17 @@ export function collect(
                     const content = arg.text.slice(1, -1)
                     const realValue = evalAsciiBuiltin(content)
 
-                    result.push({
-                        kind: InlayHintKind.Parameter,
-                        label: ` Evaluates to: 0x${realValue.toString(16)}`,
-                        position: {
-                            line: call.node.endPosition.row,
-                            character: call.node.endPosition.column,
-                        },
-                        tooltip: {
-                            kind: "markdown",
-                            value: `Evaluates to:\n - 0x${realValue.toString(16)}\n- ${realValue}`,
-                        },
-                    })
+                    evaluateResultHint(result, call, realValue)
+                }
+            }
+
+            if (call.name() === "crc32" && hints.showCrc32EvaluationResult) {
+                const arg = args[0]?.firstChild
+                if (arg?.type === "string") {
+                    const content = arg.text.slice(1, -1)
+                    const realValue = evalCrc32Builtin(content)
+
+                    evaluateResultHint(result, call, realValue)
                 }
             }
 
@@ -607,4 +607,19 @@ function toLocation(node: Node | null | undefined): Location | undefined {
         uri: URI.parse(node.file.uri).toString(true),
         range: asLspRange(node.node),
     }
+}
+
+function evaluateResultHint(result: InlayHint[], anchor: CallLike, value: bigint): void {
+    result.push({
+        kind: InlayHintKind.Parameter,
+        label: ` Evaluates to: 0x${value.toString(16)}`,
+        position: {
+            line: anchor.node.endPosition.row,
+            character: anchor.node.endPosition.column,
+        },
+        tooltip: {
+            kind: "markdown",
+            value: `Evaluates to:\n - 0x${value.toString(16)}\n- ${value}`,
+        },
+    })
 }
