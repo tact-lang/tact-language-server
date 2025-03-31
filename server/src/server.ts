@@ -130,6 +130,7 @@ import {DontUseDeployableInspection} from "@server/inspections/DontUseDeployable
 import {RewriteAsAugmentedAssignment} from "@server/inspections/RewriteAsAugmentedAssignment"
 import {CanBeStandaloneFunctionInspection} from "@server/inspections/CanBeStandaloneFunctionInspection"
 import {UseExplicitStringReceiverInspection} from "@server/inspections/UseExplicitStringReceiverInspection"
+import {ImplicitReturnValueDiscardInspection} from "@server/inspections/ImplicitReturnValueDiscardInspection"
 
 /**
  * Whenever LS is initialized.
@@ -348,6 +349,7 @@ async function runInspections(uri: string, file: File): Promise<void> {
         new RewriteAsAugmentedAssignment(),
         new CanBeStandaloneFunctionInspection(),
         new UseExplicitStringReceiverInspection(),
+        new ImplicitReturnValueDiscardInspection(),
         new RewriteInspection(),
     ]
 

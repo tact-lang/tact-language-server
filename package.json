@@ -403,7 +403,8 @@
                                 "dont-use-deployable",
                                 "rewrite-as-augmented-assignment",
                                 "can-be-standalone-function",
-                                "use-explicit-string-receiver"
+                                "use-explicit-string-receiver",
+                                "implicit-return-value-discard"
                             ]
                         },
                         "default": [],
