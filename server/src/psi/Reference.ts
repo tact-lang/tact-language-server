@@ -603,7 +603,7 @@ export class Reference {
     }
 
     private resolveSha256(proc: ScopeProcessor, state: ResolveState): boolean {
-        // We need to result `sha256("hello")` to `sha256` declaration with `String` argument.
+        // We need to resolve `sha256("hello")` to `sha256` declaration with `String` argument.
         // sha256("hello")
         // ^^^^^^
 
@@ -616,6 +616,7 @@ export class Reference {
         // ^^^^^^^^^^^^^^^
         const callNode = this.element.node.parent
         if (callNode?.type !== "static_call_expression") {
+            // some odd reference?
             return true
         }
 
@@ -625,11 +626,14 @@ export class Reference {
         //        ^^^^^^^^
         const arg = call.arguments().at(0)
         if (!arg) {
+            // incomplete call
             return true
         }
 
         const argType = new Expression(arg, this.element.file).type()
         if (argType?.name() !== "String") {
+            // use the default resolver which resolved `sha256`
+            // to the version with the `Slice` argument
             return true
         }
 
@@ -641,8 +645,7 @@ export class Reference {
         })
 
         if (stringSha256) {
-            proc.execute(stringSha256, state)
-            return false
+            return proc.execute(stringSha256, state)
         }
 
         return true

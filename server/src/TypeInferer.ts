@@ -231,9 +231,9 @@ export class TypeInferer {
         }
 
         if (node.node.type === "argument") {
-            const anchor = node.node.firstChild
-            if (!anchor) return null
-            return this.inferType(new Expression(anchor, node.file))
+            const inner = node.node.firstChild
+            if (!inner) return null
+            return this.inferType(new Expression(inner, node.file))
         }
 
         if (
