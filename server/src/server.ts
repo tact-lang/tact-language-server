@@ -1832,6 +1832,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 ]
             }
 
+            if (formatted.message === "cannot parse code") {
+                showErrorMessage(`Cannot format file: ${formatted.message}`)
+                return null
+            }
+
             showErrorMessage(
                 `Cannot format file: ${formatted.message}, please open a new issue with the file content: https://github.com/tact-lang/tact-language-server/issues`,
             )
