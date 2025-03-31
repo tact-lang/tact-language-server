@@ -512,11 +512,16 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const hoverNode = nodeAtPosition(params, file)
         if (!hoverNode) return null
 
-        function isEqualNodeTypeAndText(node: SyntaxNode, text: string): boolean {
+        const settings = await getDocumentSettings(params.textDocument.uri)
+
+        function isKeyword(node: SyntaxNode, text: string): boolean {
             return node.type === text && node.text === text
         }
 
-        function generateMarkdownHoverDocFor(node: SyntaxNode): lsp.Hover | null {
+        function generateKeywordMarkdownHoverDocFor(node: SyntaxNode): lsp.Hover | null {
+            if (!settings.documentation.showKeywordDocumentation) {
+                return null
+            }
             const doc = generateKeywordDoc(node.text)
             if (doc === null) return null
             return {
@@ -537,17 +542,17 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         // - contract and trait
 
         if (
-            isEqualNodeTypeAndText(hoverNode, "initOf") ||
-            isEqualNodeTypeAndText(hoverNode, "codeOf") ||
-            isEqualNodeTypeAndText(hoverNode, "null") ||
-            isEqualNodeTypeAndText(hoverNode, "import") ||
-            isEqualNodeTypeAndText(hoverNode, "primitive") ||
-            isEqualNodeTypeAndText(hoverNode, "struct") ||
-            isEqualNodeTypeAndText(hoverNode, "message") ||
-            isEqualNodeTypeAndText(hoverNode, "contract") ||
-            isEqualNodeTypeAndText(hoverNode, "trait")
+            isKeyword(hoverNode, "initOf") ||
+            isKeyword(hoverNode, "codeOf") ||
+            isKeyword(hoverNode, "null") ||
+            isKeyword(hoverNode, "import") ||
+            isKeyword(hoverNode, "primitive") ||
+            isKeyword(hoverNode, "struct") ||
+            isKeyword(hoverNode, "message") ||
+            isKeyword(hoverNode, "contract") ||
+            isKeyword(hoverNode, "trait")
         ) {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (hoverNode.type === "tvm_instruction") {
@@ -595,6 +600,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         //     if (doc === null) return null
         //     return mkMarkdownRangeDoc(doc, hoverNode)
         // }
+        //
+        // NOTE: perhaps, the following checks can be simplified and the checks for parent nodes
+        //       can be removed for the majority of the following if clauses.
 
         // Keyword hover docs, with different type and text and/or other specifics:
         // - true and false (type "boolean")
@@ -607,18 +615,18 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         // - function attributes: virtual, override, abstract, get, extends, mutates, inline
 
         if (hoverNode.type === "boolean") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (parent?.type === "trait_list" && hoverNode.type === "with") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (
             hoverNode.type === "const" &&
             (parent?.type === "storage_constant" || parent?.type === "global_constant")
         ) {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (parent?.type === "constant_attributes") {
@@ -639,7 +647,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 parent?.type === "global_function" ||
                 parent?.type === "asm_function")
         ) {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (
@@ -658,19 +666,19 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         }
 
         if (parent?.type === "native_function" && hoverNode.type === "native") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (parent?.type === "name_attribute" && hoverNode.type === "@name") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (parent?.type === "asm_function" && hoverNode.type === "asm") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (parent?.type === "asm_arrangement_rets" && hoverNode.type === "->") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         // Keywords within statements:
@@ -680,7 +688,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         // - loops: repeat, while, do...until, foreach (and "in")
 
         if (parent?.type === "let_statement" && hoverNode.type === "let") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (parent?.type === "destruct_statement" && hoverNode.type === "let") {
@@ -697,22 +705,22 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         }
 
         if (
-            isEqualNodeTypeAndText(hoverNode, "return") ||
-            isEqualNodeTypeAndText(hoverNode, "if") ||
-            isEqualNodeTypeAndText(hoverNode, "else") ||
-            isEqualNodeTypeAndText(hoverNode, "try") ||
-            isEqualNodeTypeAndText(hoverNode, "catch") ||
-            isEqualNodeTypeAndText(hoverNode, "repeat") ||
-            isEqualNodeTypeAndText(hoverNode, "while") ||
-            isEqualNodeTypeAndText(hoverNode, "do") ||
-            isEqualNodeTypeAndText(hoverNode, "until") ||
-            isEqualNodeTypeAndText(hoverNode, "foreach")
+            isKeyword(hoverNode, "return") ||
+            isKeyword(hoverNode, "if") ||
+            isKeyword(hoverNode, "else") ||
+            isKeyword(hoverNode, "try") ||
+            isKeyword(hoverNode, "catch") ||
+            isKeyword(hoverNode, "repeat") ||
+            isKeyword(hoverNode, "while") ||
+            isKeyword(hoverNode, "do") ||
+            isKeyword(hoverNode, "until") ||
+            isKeyword(hoverNode, "foreach")
         ) {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (parent?.type === "foreach_statement" && hoverNode.type === "in") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         // Keywords within type ascriptions:
@@ -725,15 +733,15 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
         // TODO: debug me pls
         if (parent?.type === "tlb_serialization" && hoverNode.type === "as") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (parent?.type === "map_type" && hoverNode.type === "map") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (parent?.type === "bounced_type" && hoverNode.type === "bounced") {
-            return generateMarkdownHoverDocFor(hoverNode)
+            return generateKeywordMarkdownHoverDocFor(hoverNode)
         }
 
         if (
