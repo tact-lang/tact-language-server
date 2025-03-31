@@ -112,10 +112,9 @@ message(42) Point {
 }
 ${CODE_FENCE}
 
-Unlike regular structs, message structs have a 32-bit integer header in their serialization
-containing their unique numeric ID (opcode). This allows message structs to be used with
-contract receivers, because contracts differentiate incoming
-messages based on said opcodes in their bodies.
+Unlike regular structs, message structs have a 32-bit integer header in their
+serialization containing their unique numeric ID (opcode). This allows contracts
+to differentiate incoming messages in receiver functions by message opcodes.
 
 Learn more in documentation: https://docs.tact-lang.org/book/structs-and-messages#messages
 `
@@ -295,70 +294,114 @@ Learn more in documentation: https://docs.tact-lang.org/book/assembly-functions#
 
     // Keywords within statements
 
-    // TODO:
     if (word === "let") {
         return `
-Defines a variable
-TODO: description
+The \`let\` statement defines local and block-scoped variables:
 
 ${CODE_FENCE}tact
-// TODO: ...
+// A variable of type Int
+let x: Int = 42;
+
+// Type ascriptions are optional for most cases,
+// and the type will be inferred from the initial value
+let y = 27;
+
+// However, you must specify the type for maps and optionals
+// because they default to null and cannot be inferred
+let m: map<Int, Int> = emptyMap();
+let opt: Int? = x + y;
 ${CODE_FENCE}
 
-Learn more in documentation: https://docs.tact-lang.org/book/statements#assignment
+Learn more in documentation: https://docs.tact-lang.org/book/statements#let
 `
     }
 
-    // TODO: a pseudo-keyword
+    // A pseudo-keyword for the destruct_statement node type
     if (word === "let_destruct") {
         return `
-Unpacks a struct into variables
-TODO: description
+The destructuring \`let\` statement unpacks fields of structures into distinct variables:
 
 ${CODE_FENCE}tact
-// TODO: ...
+struct Point { x: Int; y: Int }
+
+fun showcase() {
+    let point = Point { x: 5, y: 25 };
+    // Destructuring let statement, which defines
+    // a variable secondComponent from the field y
+    let Point { y: secondComponent, .. };
+    secondComponent; // 25
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#destructuring-assignment
 `
     }
 
-    // TODO:
     if (word === "return") {
         return `
-Stops the execution of the current function and, optionally, produces some results
-TODO: description
+The \`return\` statement stops the execution of the current function and,
+optionally, produces some results that match the function's return type:
 
 ${CODE_FENCE}tact
-// TODO: ...
+fun one() {
+    return;
+    // The following statements would throw
+    // an "unreachable code" compiler error
+    return;
+}
+
+fun two(): Int {
+    let x = 42 + 27;
+    let y = (x << 5) | 24;
+    return y;
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#return
 `
     }
 
-    // TODO:
     if (word === "if") {
         return `
-Conditional branching
-TODO: description
+The \`if\` statement conditionally executes the following block or the \`else\` block
+depending on the resulting value of the specified condition:
 
 ${CODE_FENCE}tact
-// TODO: ...
+if (x) {
+    // executes this block if x evaluates to true
+} else {
+    // executes this block if x evaluates to false
+}
+
+// You can omit the else block
+if (x) {
+    // executes this block if x evaluates to true and does nothing otherwise
+}
+
+// You can further nest conditional branches after the else keyword:
+if (x) {}
+else if (y) {}
+else if (z) {}
+else {}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#if-else
 `
     }
 
-    // TODO:
     if (word === "else") {
         return `
-Alternative branch
-TODO: description
+The \`else\` keyword allows specifying an alternative branch that is executed
+when the condition in the \`if\` clause is false:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let x = 1;
+if (false) { // this block won't be executed
+    x += 1000;
+} else { // but this — will
+    x <<= 20;
+}
+x; // 1048576
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/if-else
@@ -368,6 +411,11 @@ Learn more in documentation: https://docs.tact-lang.org/book/if-else
     // TODO:
     if (word === "try") {
         return `
+The \`try\` statement...
+
+statement conditionally executes the following block or the \`else\` block
+depending on the resulting value of the specified condition:
+
 Attempt to execute certain statements and rollback in case of errors
 TODO: description
 
@@ -547,14 +595,18 @@ Learn more in documentation: https://docs.tact-lang.org/book/bounced
 `
     }
 
+    // In context of type ascription only and is unrelated to ternary operators
     if (word === "?") {
-        // ? -> An optional type, which allows setting this value to null.
-        //      Learn more in documentation: ...link
         return `
-TODO: description
+The \`?\` in the type ascription denotes an optional type which can hold \`null\` value
+in addition to the value of the non-optional type of that type ascription:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let valOr: Int? = 5;
+if (valOr != null) {
+    valOr!!; // 5
+}
+valOr = null;
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/optionals

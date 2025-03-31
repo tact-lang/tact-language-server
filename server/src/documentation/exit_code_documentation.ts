@@ -94,7 +94,9 @@ export const DATA: Record<number, {origin: string; description: string} | undefi
     },
     "133": {
         origin: "Tact compiler (Compute phase)",
-        description: "Contract stopped. Reserved, but never thrown.",
+        description:
+            "Contract stopped — a message was received by a contract that inherits the Stoppable trait" +
+            " and has the self.stopped flag set to true.",
     },
     "134": {origin: "Tact compiler (Compute phase)", description: "Invalid argument."},
     "135": {
