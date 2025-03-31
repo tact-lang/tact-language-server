@@ -62,9 +62,25 @@ export class UnusedImportInspection implements Inspection {
     }
 
     private static usedInFile(names: Set<string>, file: File): boolean {
-        for (const name of names) {
-            if (file.content.includes(name)) {
-                return true
+        const lines = file.content.split(/\r?\n/)
+
+        for (const line of lines) {
+            for (const name of names) {
+                if (line.includes("//")) {
+                    // handle a case like this:
+                    // ```
+                    // contract Foo with Ownable { // comment about Ownable
+                    // ```
+                    const beforeComment = line.slice(0, line.indexOf("//"))
+                    if (beforeComment.includes(name)) {
+                        return true
+                    }
+                    continue
+                }
+
+                if (line.includes(name)) {
+                    return true
+                }
             }
         }
         return false
