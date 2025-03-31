@@ -311,7 +311,8 @@ contract Counter {}
 ${CODE_FENCE}
 
 The \`supported_interfaces\` getter composed from \`@interface\` annotations is an optional,
-off-chain, and verifiable promise indicating that a contract might contain some specific code or public interfaces.
+off-chain, and verifiable promise indicating that a contract might contain some specific
+code or public interfaces.
 
 Learn more in documentation: https://docs.tact-lang.org/book/contracts#interfaces
 `
@@ -326,7 +327,8 @@ trait Ownable {}
 ${CODE_FENCE}
 
 The \`supported_interfaces\` getter composed from \`@interface\` annotations is an optional,
-off-chain, and verifiable promise indicating that a trait might contain some specific code or public interfaces.
+off-chain, and verifiable promise indicating that a trait might contain some specific
+code or public interfaces.
 
 Learn more in documentation: https://docs.tact-lang.org/book/contracts#interfaces
 `
@@ -351,7 +353,8 @@ export function generateAttributeKeywordDoc(word: string, attr: "fun" | "const")
             switch (word) {
                 case "get": {
                     return `
-The attribute \`get\` defines a getter function that can be called off-chain to read contract's state:
+The attribute \`get\` defines a contract-level getter function
+that can be called off-chain to read contract's state:
 
 ${CODE_FENCE}tact
 contract Example(val: Int) {
@@ -397,19 +400,123 @@ Learn more in documentation: https://docs.tact-lang.org/book/functions
 `
                 }
                 case "extends": {
-                    return ``
+                    return `
+The attribute \`extends\` allows a top-level, global function to extend values of a certain type:
+
+${CODE_FENCE}tact
+// This defines an extension function for the type Int
+extends fun customPow(self: Int, c: Int): Int {
+    let res: Int = 1;
+    repeat(c) {
+        res *= self;
+    }
+    return res;
+}
+
+fun showcase() {
+    // Then, you can call that extension function on any values of the Int type:
+    5.customPow(2); // 25
+}
+${CODE_FENCE}
+
+Extension functions allow adding functionality to builtin types, structs and message structs,
+but do not allow mutations. For those, use extension mutation functions with an
+additional \`mutates\` attribute applied.
+
+Learn more in documentation: https://docs.tact-lang.org/book/functions
+`
                 }
                 case "mutates": {
-                    return ``
+                    return `
+The attribute \`mutates\` allows an extension functions with an \`extends\`
+attribute to mutate values of a certain type:
+
+${CODE_FENCE}tact
+// This defines an extension mutation function for the type Int
+extends mutates fun customPow(self: Int, c: Int) {
+    let res: Int = 1;
+    repeat(c) {
+        res *= self;
+    }
+    self = res;
+}
+
+fun showcase() {
+    // Then, you can call that extension mutation function on any values of the Int type:
+    let val: Int = 5;
+    val.customPow(2);
+    val; // 25
+}
+${CODE_FENCE}
+
+Extension mutation functions allow mutations by replacing the original value with the execution result.
+
+Learn more in documentation: https://docs.tact-lang.org/book/functions
+`
                 }
                 case "virtual": {
-                    return ``
+                    return `
+The attribute \`virtual\` allows a function to be overridden in derived contracts or traits:
+
+${CODE_FENCE}tact
+trait Baseline {
+    virtual fun increment(val: Int): Int {
+        return val + 1;
+    }
+}
+
+contract Implementation with Baseline {
+    override fun increment(val: Int): Int {
+        return val + 2; // Different implementation
+    }
+}
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/functions
+`
                 }
                 case "override": {
-                    return ``
+                    return `
+The attribute \`override\` allows overriding an inherited function from derived contracts or traits:
+
+${CODE_FENCE}tact
+trait Baseline {
+    virtual fun increment(val: Int): Int {
+        return val + 1;
+    }
+}
+
+contract Implementation with Baseline {
+    override fun increment(val: Int): Int {
+        return val + 2; // Different implementation
+    }
+}
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/functions
+`
                 }
                 case "abstract": {
-                    return ``
+                    return `
+The attribute \`abstract\` does not allow defining the function body upon declaration,
+requiring it to be overridden in derived contracts or traits:
+
+${CODE_FENCE}tact
+trait Baseline {
+    // Declaration only
+    abstract fun increment(val: Int): Int;
+}
+
+contract Implementation with Baseline {
+    // Specific implementation
+    override fun increment(val: Int): Int {
+        return val + 2;
+    }
+}
+${CODE_FENCE}
+
+Learn more in documentation: https://docs.tact-lang.org/book/functions
+`
                 }
                 default: {
                     return null
@@ -454,8 +561,8 @@ Learn more in documentation: https://docs.tact-lang.org/book/constants
                 }
                 case "abstract": {
                     return `
-The attribute \`abstract\` requires a constant to be overridden in derived contracts or traits,
-and does not specifying its value upon declaration:
+The attribute \`abstract\` does not allow specifying a value of the constant upon declaration,
+requiring it to be overridden in derived contracts or traits:
 
 ${CODE_FENCE}tact
 trait Baseline {
