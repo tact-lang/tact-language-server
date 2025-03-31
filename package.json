@@ -402,7 +402,8 @@
                                 "rewrite",
                                 "dont-use-deployable",
                                 "rewrite-as-augmented-assignment",
-                                "can-be-standalone-function"
+                                "can-be-standalone-function",
+                                "use-explicit-string-receiver"
                             ]
                         },
                         "default": [],

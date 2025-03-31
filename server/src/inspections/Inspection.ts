@@ -16,6 +16,7 @@ export const InspectionIds = {
     DONT_USE_DEPLOYABLE: "dont-use-deployable",
     REWRITE_AS_AUGMENTED_ASSIGNMENT: "rewrite-as-augmented-assignment",
     CAN_BE_STANDALONE_FUNCTION: "can-be-standalone-function",
+    USE_EXPLICIT_STRING_RECEIVER: "use-explicit-string-receiver",
     MISTI: "misti",
 } as const
 
