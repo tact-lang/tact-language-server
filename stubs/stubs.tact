@@ -254,10 +254,6 @@ primitive AnyMessage;
 ///
 /// Converts a `Cell` into the specified `Struct` and returns that `Struct`.
 ///
-/// Attempts to pass a `Cell` with a layout different from the specified `Struct` or 
-/// to load more data than the `Cell` contains throw an exception with 
-/// [exit code 9]: `Cell underflow`.
-/// 
 /// ```tact
 /// struct GuessCoin {
 ///     probably: Int as coins;
@@ -279,6 +275,11 @@ primitive AnyMessage;
 /// }
 /// ```
 ///
+/// #### Exit codes
+///
+/// * 9: [Cell underflow] — Thrown when attempting to pass a `Cell` with a layout different
+///   from the specified `Struct` or to load more data than `Cell` contains.
+///
 /// See: https://docs.tact-lang.org/ref/core-cells/#structfromcell
 ///
 /// [exit code 9]: https://docs.tact-lang.org/book/exit-codes#9
@@ -289,10 +290,6 @@ fun AnyStruct_fromCell(cell: Cell): S;
 ///
 /// Converts a `Slice` into the specified `Struct` and returns that `Struct`.
 ///
-/// Attempts to pass a `Slice` with a layout different from the specified `Struct` or
-/// to load more data than the `Slice` contains throw an exception with 
-/// [exit code 9]: `Cell underflow`.
-/// 
 /// ```tact
 /// struct GuessCoin {
 ///     probably: Int as coins;
@@ -314,6 +311,11 @@ fun AnyStruct_fromCell(cell: Cell): S;
 /// }
 /// ```
 /// 
+/// #### Exit codes
+///
+/// * 9: [Cell underflow] — Thrown when attempting to pass a `Slice` with a layout different
+///   from the specified `Struct` or to load more data than `Slice` contains.
+///
 /// See: https://docs.tact-lang.org/ref/core-cells/#structfromslice
 /// 
 /// [exit code 9]: https://docs.tact-lang.org/book/exit-codes#9
@@ -324,10 +326,6 @@ fun AnyStruct_fromSlice(slice: Slice): S;
 ///
 /// Converts a `Cell` into the specified `Message` and returns that `Message`.
 ///
-/// Attempts to pass a `Cell` with a layout different from the specified `Message` or 
-/// to load more data than the `Cell` contains throw an exception with 
-/// [exit code 9]: `Cell underflow`.
-/// 
 /// ```tact
 /// message(0x777) TripleAxe {
 ///     prize: Int as uint32;
@@ -348,6 +346,11 @@ fun AnyStruct_fromSlice(slice: Slice): S;
 /// }
 /// ```
 ///
+/// #### Exit codes
+///
+/// * 9: [Cell underflow] — Thrown when attempting to pass a `Cell` with a layout different
+///   from the specified `Message` or to load more data than `Cell` contains.
+///
 /// See: https://docs.tact-lang.org/ref/core-cells/#messagefromcell
 ///
 /// [exit code 9]: https://docs.tact-lang.org/book/exit-codes#9
@@ -358,10 +361,6 @@ fun AnyMessage_fromCell(cell: Cell): M;
 ///
 /// Converts a `Slice` into the specified `Message` and returns that `Message`.
 ///
-/// Attempts to pass a `Slice` with a layout different from the specified `Message` or
-/// to load more data than the `Slice` contains throw an exception with 
-/// [exit code 9]: `Cell underflow`.
-/// 
 /// ```tact
 /// message(0x777) TripleAxe {
 ///     prize: Int as uint32;
@@ -382,6 +381,11 @@ fun AnyMessage_fromCell(cell: Cell): M;
 /// }
 /// ```
 /// 
+/// #### Exit codes
+///
+/// * 9: [Cell underflow] — Thrown when attempting to pass a `Slice` with a layout different
+/// from the specified `Message` or to load more data than `Slice` contains.
+///
 /// See: https://docs.tact-lang.org/ref/core-cells/#messagefromslice
 /// 
 /// [exit code 9]: https://docs.tact-lang.org/book/exit-codes#9

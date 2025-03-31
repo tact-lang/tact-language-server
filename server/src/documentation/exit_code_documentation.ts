@@ -94,7 +94,9 @@ export const DATA: Record<number, {origin: string; description: string} | undefi
     },
     "133": {
         origin: "Tact compiler (Compute phase)",
-        description: "Contract stopped. Reserved, but never thrown.",
+        description:
+            "Contract stopped — a message was received by a contract that inherits the Stoppable trait" +
+            " and has the self.stopped flag set to true.",
     },
     "134": {origin: "Tact compiler (Compute phase)", description: "Invalid argument."},
     "135": {
@@ -106,5 +108,9 @@ export const DATA: Record<number, {origin: string; description: string} | undefi
         origin: "Tact compiler (Compute phase)",
         description:
             "Masterchain support is not enabled for this contract. Removed since Tact 1.6.",
+    },
+    "138": {
+        origin: "Tact compiler (Compute phase)",
+        description: "Not a basechain address. Available since Tact 1.6.3.",
     },
 }
