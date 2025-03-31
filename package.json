@@ -257,6 +257,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Show size in bits for `toCell()` calls"
+                    },
+                    "tact.hints.showAsciiEvaluationResult": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show the result of evaluation for `ascii()` builtin function"
                     }
                 }
             },
