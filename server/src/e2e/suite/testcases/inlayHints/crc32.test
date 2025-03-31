@@ -50,7 +50,7 @@ fun crc32(str: String): Int;
 const A: Int = crc32(/* str: */"👋 Tact")/*  Evaluates to: 0x6e94735d */;
 
 ========================================================================
-crc32 with string 3
+crc32 with string 4
 ========================================================================
 primitive Int;
 primitive String;
@@ -64,10 +64,10 @@ primitive String;
 
 fun crc32(str: String): Int;
 
-const A: Int = crc32(/* str: */"👋 Tact")/*  Evaluates to: 0x6e94735d */;
+const A: Int = crc32(/* str: */"\u0000")/*  Evaluates to: 0xd6631dfe */;
 
 ========================================================================
-crc32 with string 4
+crc32 with string 5
 ========================================================================
 primitive Int;
 primitive String;
