@@ -127,7 +127,6 @@ import {generateExitCodeDocumentation} from "@server/documentation/exit_code_doc
 import {RewriteInspection} from "@server/inspections/RewriteInspection"
 import {TypeTlbSerializationCompletionProvider} from "@server/completion/providers/TypeTlbSerializationCompletionProvider"
 import {DontUseDeployableInspection} from "@server/inspections/DontUseDeployableInspection"
-import {formatCode} from "@server/compiler/fmt/fmt"
 import {RewriteAsAugmentedAssignment} from "@server/inspections/RewriteAsAugmentedAssignment"
 import {CanBeStandaloneFunctionInspection} from "@server/inspections/CanBeStandaloneFunctionInspection"
 import {UseExplicitStringReceiverInspection} from "@server/inspections/UseExplicitStringReceiverInspection"
