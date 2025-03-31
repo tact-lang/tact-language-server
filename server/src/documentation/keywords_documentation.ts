@@ -408,115 +408,171 @@ Learn more in documentation: https://docs.tact-lang.org/book/if-else
 `
     }
 
-    // TODO:
     if (word === "try") {
         return `
-The \`try\` statement...
-
-statement conditionally executes the following block or the \`else\` block
-depending on the resulting value of the specified condition:
-
-Attempt to execute certain statements and rollback in case of errors
-TODO: description
+The \`try\` statement allows executing a statement block with an optional following
+\`catch\` statement to handle potential exceptions:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let myMap: map<Int, Int> = emptyMap();
+let val: Int? = null;
+
+// Map access may fail at runtime if the key doesn't exist
+try {
+    // This will throw because 7 isn't in the map
+    val = myMap.get(7)!!;
+} catch (exitCode) {
+    // The catch block that can catch runtime exit code integers
+    // of an exceptions occured will roll back almost all changes
+    // made in the try block, except for: codepage changes, gas usage counters, etc.
+    exitCode; // 128: null reference exception
+    val = 0; // set a default value
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#try-catch
 `
     }
 
-    // TODO:
     if (word === "catch") {
         return `
-TODO: description
+The \`catch\` statement is used in combination with the prior \`try\` statement
+to handle exceptions and capture their exit codes in the \`catch\` clause:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let myMap: map<Int, Int> = emptyMap();
+myMap.set(1, 100);
+
+try {
+    // Attempt to access a key that doesn't exist
+    myMap.get(2)!!;
+} catch (errorCode) {
+    // This code executes if an exception occurs
+    errorCode; // 128: null reference exception
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#try-catch
 `
     }
 
-    // TODO:
     if (word === "repeat") {
         return `
-Execute a block of code a specified number of times
-TODO: description
+The \`repeat\` loop statement executes a block of code a specified number of times:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let count = 0;
+repeat (5) {
+    // Code here will run 5 times
+    count += 1;
+}
+count; // 5
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#repeat-loop
 `
     }
 
-    // TODO:
     if (word === "while") {
         return `
-Execute a block of code as long as the given condition is \`true\`
-TODO: description
+The \`while\` loop statement executes a block of code as long as
+the given condition is \`true\`:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let i = 0;
+while (i < 5) {
+    // This block will execute as long as i is less than 5
+    i += 1;
+}
+i; // 5
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#while-loop
 `
     }
 
-    // TODO:
     if (word === "do") {
         return `
-Execute a block of code at least once and then continue until the given condition becomes \`true\`
-TODO: description
+The \`do...until\` loop statement executes a block of code at least once
+and then continues until the condition in the \`until\` clause is \`true\`:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let i = 0;
+do {
+    // This block always executes at least once
+    // even if the condition is initially false
+    i += 1;
+} until (i > 5); // loop continues until condition is true
+i; // 6
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#do-until-loop
 `
     }
 
-    // TODO:
     if (word === "until") {
         return `
-Condition clause of the do...until
-TODO: description
+The \`until\` clause is used in combination with the prior \`do\` block
+to continue executing it as long as the condition remains \`false\`:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let i = 0;
+do {
+    // This block always executes at least once
+    // even if the condition is initially false
+    i += 1;
+} until (i > 5); // loop continues until condition is true
+i; // 6
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#do-until-loop
 `
     }
 
-    // TODO:
     if (word === "foreach") {
         return `
-TODO: description
-Execute a block of code for each entry in the given map
+The \`foreach\` loop statement executes a block of code for each entry in the given map,
+capturing a key and a value from each map entry per iteration:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let myMap: map<Int, Int> = emptyMap();
+myMap.set(1, 100);
+myMap.set(2, 200);
+myMap.set(3, 300);
+
+// 'key' and 'value' are named arbitrarily,
+// you can provide different names for your keys and values
+foreach (key, value in myMap) {
+    // This block executes once for each key-value pair in the map
+    key;   // access the current key (1, 2, or 3)
+    value; // access the current value (100, 200, or 300)
+}
+
+// Use wildcards to ignore key, value, or whole entries
+foreach (k, _ in myMap) {
+    k; // access the current key (1, 2, or 3),
+    // but the value of the entry is discarded due to the wildcard _
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#foreach-loop
 `
     }
 
-    // TODO:
     if (word === "in") {
         return `
-TODO: description
+The keyword \`in\` is used in the \`foreach\` loop to indicate the map being iterated:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let myMap: map<Int, Int> = emptyMap();
+myMap.set(1, 100);
+myMap.set(2, 200);
+
+// The 'in' keyword separates the iteration variables from the map name
+foreach (key, value in myMap) {
+    key;   // current key
+    value; // current value
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/statements#foreach-loop
