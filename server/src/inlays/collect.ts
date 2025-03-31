@@ -184,13 +184,14 @@ export function collect(
             const decl = new VarDeclaration(n, file)
             if (decl.hasTypeHint()) return true // already have typehint
 
+            const name = decl.nameIdentifier()
+            if (!name) return true
+            if (name.text === "_") return true
+
             const expr = decl.value()
             if (!expr) return true
 
             if (hasObviousType(expr.node)) return true
-
-            const name = decl.nameIdentifier()
-            if (!name) return true
 
             const type = TypeInferer.inferType(expr)
             if (!type) return true
