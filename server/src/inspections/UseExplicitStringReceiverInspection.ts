@@ -53,10 +53,9 @@ export class UseExplicitStringReceiverInspection implements Inspection {
                 const operator = condition.childForFieldName("operator")
                 const right = condition.childForFieldName("right")
                 if (!left || !right || !operator) return
+
                 if (operator.text !== "==") return
-
                 if (left.text !== paramName) return
-
                 if (right.type !== "string") return
 
                 diagnostics.push({
