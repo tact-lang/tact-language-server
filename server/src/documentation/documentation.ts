@@ -379,52 +379,7 @@ export function extractCommentsDocContent(node: Node): {
 export function extractCommentsDoc(node: Node): string {
     const content = extractCommentsDocContent(node)
     if (!content) return ""
-
-    const lines = content.lines
-
-    let result = ""
-    let insideCodeBlock = false
-
-    for (const rawLine of lines) {
-        const line = rawLine.trimEnd()
-
-        if (line.replace(/-/g, "").length === 0 && line.length > 0) {
-            result += "\n\n"
-            continue
-        }
-
-        const isEndOfSentence = /[!.:?]$/.test(line)
-        const isList = line.startsWith("-") || line.startsWith("*")
-        const isHeader = line.startsWith("#")
-        const isTable = line.startsWith("|")
-        const isCodeBlock = line.startsWith("```")
-
-        if (isCodeBlock && !insideCodeBlock) {
-            result += "\n"
-        }
-
-        if (isList) {
-            result += "\n"
-        }
-
-        result += line
-
-        if (insideCodeBlock || isCodeBlock || isTable || isList) {
-            result += "\n"
-        }
-
-        if ((isEndOfSentence || isHeader) && !insideCodeBlock) {
-            result += "\n\n"
-        } else if (!insideCodeBlock && !isCodeBlock && !isList) {
-            result += " "
-        }
-
-        if (isCodeBlock) {
-            insideCodeBlock = !insideCodeBlock
-        }
-    }
-
-    return result.trimEnd()
+    return content.lines.join("\n")
 }
 
 function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSettings): string | null {

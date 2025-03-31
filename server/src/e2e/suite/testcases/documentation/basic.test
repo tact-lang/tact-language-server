@@ -151,7 +151,5 @@ contract <caret>Foo {
 contract Foo {}
 ```
 Some comment. And other!
-
-
-
+------------
 Continue
