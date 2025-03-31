@@ -262,6 +262,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Show the result of evaluation for `ascii()` builtin function"
+                    },
+                    "tact.hints.showCrc32EvaluationResult": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show the result of evaluation for `crc32()` builtin function"
                     }
                 }
             },

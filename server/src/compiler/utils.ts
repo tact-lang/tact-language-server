@@ -2,6 +2,7 @@ import type {Node as SyntaxNode} from "web-tree-sitter"
 import type {File} from "@server/psi/File"
 import {CallLike} from "@server/psi/Node"
 import {createHash} from "node:crypto"
+import {crc32BigInt} from "@server/compiler/crc32"
 
 export function requireFunctionExitCode(
     callNode: SyntaxNode,
@@ -30,6 +31,10 @@ export function requireFunctionExitCode(
     }
 
     return null
+}
+
+export function evalCrc32Builtin(rawStr: string): bigint {
+    return crc32BigInt(rawStr)
 }
 
 export function evalAsciiBuiltin(rawStr: string): bigint {
