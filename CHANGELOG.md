@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2025-03-31
+
+- Formatter in https://github.com/tact-lang/tact-language-server/pull/476
+
+### Improvements
+
+- feat(inlay-hints): show evaluation result for `ascii()` builtin function in https://github.com/tact-lang/tact-language-server/pull/502
+- feat(inlay-hints): setting to disable all inlay-hints at once in https://github.com/tact-lang/tact-language-server/pull/519
+- feat(inlay-hints): show evaluation result for `crc32()` builtin function in https://github.com/tact-lang/tact-language-server/pull/508
+- feat(inspections): add inspection for `a = a + 10` with quickfix to `a += 10` in https://github.com/tact-lang/tact-language-server/pull/507
+- feat(inspections): add an inspection for a function that does not use contract state and can be made standalone in https://github.com/tact-lang/tact-language-server/pull/509
+- feat(inspections): add an inspection for fallback string receiver with branching for message text in https://github.com/tact-lang/tact-language-server/pull/512
+- feat(inspections): add an inspection for implicitly discarded return value of a function call in https://github.com/tact-lang/tact-language-server/pull/514
+- feat(documentation): show TL-B definition for structs, messages and contracts in documentation in https://github.com/tact-lang/tact-language-server/pull/521
+- feat(documentation): add a setting to disable keyword documentation in https://github.com/tact-lang/tact-language-server/pull/523
+- feat(documentation): hover docs for built-in keywords by @novusnota in https://github.com/tact-lang/tact-language-server/pull/493
+
+### Fixed
+
+- fix(documentation): `dump()` cannot be applied to values of `StringBuilder` type by @novusnota in https://github.com/tact-lang/tact-language-server/pull/475
+- fix(indexing): fix "URL.parse is not a function" error in https://github.com/tact-lang/tact-language-server/pull/478
+- fix(resolving): correctly resolve `sha256` with `String` argument in https://github.com/tact-lang/tact-language-server/pull/498
+- fix(hover): don't process doc comments content in https://github.com/tact-lang/tact-language-server/pull/500
+- fix(hover): don't process inline comments of previous declaration as doc comment in https://github.com/tact-lang/tact-language-server/pull/503
+- fix(completion): don't add all methods to override completion in https://github.com/tact-lang/tact-language-server/pull/504
+- fix(completion): show TL-B type completion in structs, messages and traits in https://github.com/tact-lang/tact-language-server/pull/506
+- fix(inspections): better heuristic for unused imports in https://github.com/tact-lang/tact-language-server/pull/501
+- fix(inspections): `StructInitializationInspection` now correctly resolves struct/message declarations in https://github.com/tact-lang/tact-language-server/pull/510
+- fix(inlay-hints): don't show type hint for discard variable in https://github.com/tact-lang/tact-language-server/pull/516
+
 ## [0.4.1] - 2025-03-20
 
 - fix(indexing): search of stdlib for new projects, and Tact toolchain in Tact compiler repo in https://github.com/tact-lang/tact-language-server/pull/470
