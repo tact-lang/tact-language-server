@@ -172,3 +172,4 @@ contract Test {
 ------------------------------------------------------------------------
 3 3:8 to 3:14 Method 'method' is never used (tact)
 3 11:8 to 11:19 Method 'controlFlow' is never used (tact)
+2 17:12 to 17:21 Can be rewritten as `x -= 1` (tact)
