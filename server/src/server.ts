@@ -134,6 +134,7 @@ import {RewriteAsAugmentedAssignment} from "@server/inspections/RewriteAsAugment
 import {CanBeStandaloneFunctionInspection} from "@server/inspections/CanBeStandaloneFunctionInspection"
 import {UseExplicitStringReceiverInspection} from "@server/inspections/UseExplicitStringReceiverInspection"
 import {ImplicitReturnValueDiscardInspection} from "@server/inspections/ImplicitReturnValueDiscardInspection"
+import {formatCode} from "@server/compiler/fmt/fmt"
 
 /**
  * Whenever LS is initialized.
@@ -1984,6 +1985,53 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
+    connection.onRequest(
+        lsp.DocumentFormattingRequest.type,
+        (params: lsp.DocumentFormattingParams): lsp.TextEdit[] | null => {
+            const uri = params.textDocument.uri
+            if (uri.endsWith(".fif")) {
+                return null
+            }
+
+            const file = findFile(uri)
+            const formatted = formatCode(file.content)
+
+            if (formatted.$ === "FormattedCode") {
+                if (formatted.code === file.content) {
+                    // already formatted
+                    return null
+                }
+
+                const lines = file.content.split("\n")
+                return [
+                    {
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 0,
+                            },
+                            end: {
+                                line: lines.length,
+                                character: (lines.at(-1) ?? "").length,
+                            },
+                        },
+                        newText: formatted.code,
+                    },
+                ]
+            }
+
+            if (formatted.message === "cannot parse code") {
+                showErrorMessage(`Cannot format file: ${formatted.message}`)
+                return null
+            }
+
+            showErrorMessage(
+                `Cannot format file: ${formatted.message}, please open a new issue with the file content: https://github.com/tact-lang/tact-language-server/issues`,
+            )
+            return null
+        },
+    )
+
     // eslint-disable-next-line @typescript-eslint/unbound-method
     const _needed = TypeInferer.inferType
 
@@ -1992,6 +2040,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     return {
         capabilities: {
             textDocumentSync: lsp.TextDocumentSyncKind.Incremental,
+            documentFormattingProvider: true,
             documentSymbolProvider: true,
             workspaceSymbolProvider: true,
             definitionProvider: true,
