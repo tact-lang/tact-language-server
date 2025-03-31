@@ -1,0 +1,92 @@
+========================================================================
+Ascii with ascii symbol
+========================================================================
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii("a");
+const FOO: Int = ascii("1");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii(/* str: */"a")/*  Evaluates to: 0x61 */;
+const FOO: Int = ascii(/* str: */"1")/*  Evaluates to: 0x31 */;
+
+========================================================================
+Ascii with emoji
+========================================================================
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii("⚡");
+const FOO: Int = ascii("⚡⚡");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii(/* str: */"⚡")/*  Evaluates to: 0xe29aa1 */;
+const FOO: Int = ascii(/* str: */"⚡⚡")/*  Evaluates to: 0xe29aa1e29aa1 */;
+
+========================================================================
+Ascii with hex escapes
+========================================================================
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii("\x0EX\x0EX");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii(/* str: */"\x0EX\x0EX")/*  Evaluates to: 0xe580e58 */;
+
+========================================================================
+Ascii with unicode code point
+========================================================================
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii("\u26A1\u26A1");
+const FOO: Int = ascii("⚡⚡"); // same value
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii(/* str: */"\u26A1\u26A1")/*  Evaluates to: 0xe29aa1e29aa1 */;
+const FOO: Int = ascii(/* str: */"⚡⚡")/*  Evaluates to: 0xe29aa1e29aa1 */; // same value
+
+========================================================================
+Ascii with unicode code point 2
+========================================================================
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii("\u{1F602}");
+const FOO: Int = ascii("😂"); // same value
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii(/* str: */"\u{1F602}")/*  Evaluates to: 0xf09f9882 */;
+const FOO: Int = ascii(/* str: */"😂")/*  Evaluates to: 0xf09f9882 */; // same value

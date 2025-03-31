@@ -22,6 +22,7 @@ import {InlayHintLabelPart, MarkupContent, MarkupKind} from "vscode-languageserv
 import {Location} from "vscode-languageclient"
 import {asLspRange} from "@server/utils/position"
 import {URI} from "vscode-uri"
+import {evalAsciiBuiltin} from "@server/compiler/utils"
 
 function processParameterHints(
     shift: number,
@@ -160,6 +161,7 @@ export function collect(
         gasFormat: string
         showContinuationGas: boolean
         showToCellSize: boolean
+        showAsciiEvaluationResult: boolean
     },
     gasSettings: {
         loopGasCoefficient: number
@@ -363,7 +365,7 @@ export function collect(
 
             const params = res.parameters()
 
-            // We want to show the actual exit code for message in require
+            // We want to show the actual exit code for a message in require
             // require(true, "message")
             // =>
             // require(true, "message" exit code: 999)
@@ -376,6 +378,27 @@ export function collect(
                         position: {
                             line: exitCode.node.endPosition.row,
                             character: exitCode.node.endPosition.column,
+                        },
+                    })
+                }
+            }
+
+            if (call.name() === "ascii" && hints.showAsciiEvaluationResult) {
+                const arg = args[0]?.firstChild
+                if (arg?.type === "string") {
+                    const content = arg.text.slice(1, -1)
+                    const realValue = evalAsciiBuiltin(content)
+
+                    result.push({
+                        kind: InlayHintKind.Parameter,
+                        label: ` Evaluates to: 0x${realValue.toString(16)}`,
+                        position: {
+                            line: call.node.endPosition.row,
+                            character: call.node.endPosition.column,
+                        },
+                        tooltip: {
+                            kind: "markdown",
+                            value: `Evaluates to:\n - 0x${realValue.toString(16)}\n- ${realValue}`,
                         },
                     })
                 }
