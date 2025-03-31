@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
 import * as fs from "node:fs"
 import * as path from "node:path"
-import { spawn } from "child_process"
-import { promisify } from "util"
+import {spawn} from "child_process"
+import {promisify} from "util"
 
 const mkdir = promisify(fs.mkdir)
 
@@ -10,11 +10,11 @@ async function runCommand(command: string, args: string[], cwd: string): Promise
     return new Promise((resolve, reject) => {
         const process = spawn(command, args, {
             cwd,
-            stdio: 'inherit',
-            shell: true
+            stdio: "inherit",
+            shell: true,
         })
 
-        process.on('close', (code) => {
+        process.on("close", code => {
             if (code === 0) {
                 resolve()
             } else {
@@ -22,14 +22,14 @@ async function runCommand(command: string, args: string[], cwd: string): Promise
             }
         })
 
-        process.on('error', (err) => {
+        process.on("error", err => {
             reject(err)
         })
     })
 }
 
 // Helper function to delay execution
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export function registerCreateTactProjectCommand(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
@@ -37,7 +37,7 @@ export function registerCreateTactProjectCommand(context: vscode.ExtensionContex
             const projectName = await vscode.window.showInputBox({
                 prompt: "Enter project name",
                 placeHolder: "my-tact-project",
-                validateInput: (value) => {
+                validateInput: value => {
                     if (!value) {
                         return "Project name cannot be empty"
                     }
@@ -54,12 +54,12 @@ export function registerCreateTactProjectCommand(context: vscode.ExtensionContex
 
             const template = await vscode.window.showQuickPick(
                 [
-                    { label: "Blueprint", description: "TON Blueprint template", value: "blueprint" },
-                    { label: "Tact Template", description: "Tact template", value: "tact-template" }
+                    {label: "Blueprint", description: "TON Blueprint template", value: "blueprint"},
+                    {label: "Tact Template", description: "Tact template", value: "tact-template"},
                 ],
                 {
-                    placeHolder: "Select project template"
-                }
+                    placeHolder: "Select project template",
+                },
             )
 
             if (!template) {
@@ -77,70 +77,89 @@ export function registerCreateTactProjectCommand(context: vscode.ExtensionContex
             }
 
             const projectPath = path.join(workspaceFolder[0].fsPath, projectName)
-            
+
             try {
                 if (template.value === "blueprint") {
                     // Create project directory
                     await mkdir(projectPath)
-                    
+
                     // First open the folder
-                    await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath))
-                    
+                    await vscode.commands.executeCommand(
+                        "vscode.openFolder",
+                        vscode.Uri.file(projectPath),
+                    )
+
                     // Wait for the folder to be fully opened
-                    await delay(2000);
-                    
+                    await delay(2000)
+
                     // Get or create terminal
-                    let terminal = vscode.window.activeTerminal;
+                    let terminal = vscode.window.activeTerminal
                     if (!terminal) {
                         terminal = vscode.window.createTerminal({
                             name: "Blueprint Setup",
-                            cwd: projectPath
-                        });
+                            cwd: projectPath,
+                        })
                     }
-                    
-                    terminal.show();
-                    
+
+                    terminal.show()
+
                     // Wait for terminal to be ready
-                    await delay(1000);
-                    
+                    await delay(1000)
+
                     // Send command to terminal
-                    terminal.sendText(`npm init ton@latest ${projectName}`);
-                    
+                    terminal.sendText(`npm init ton@latest ${projectName}`)
+
                     // Wait for user to complete the setup
-                    await new Promise<void>((resolve) => {
-                        const disposable = vscode.window.onDidCloseTerminal((closedTerminal) => {
+                    await new Promise<void>(resolve => {
+                        const disposable = vscode.window.onDidCloseTerminal(closedTerminal => {
                             if (closedTerminal === terminal) {
-                                disposable.dispose();
-                                resolve();
+                                disposable.dispose()
+                                resolve()
                             }
-                        });
-                    });
+                        })
+                    })
 
                     // Install dependencies after user completes setup
-                    await runCommand('yarn', ['install'], projectPath)
+                    await runCommand("yarn", ["install"], projectPath)
                 } else if (template.value === "tact-template") {
-                    await vscode.window.withProgress({
-                        location: vscode.ProgressLocation.Notification,
-                        title: `Creating Tact project: ${projectName}`,
-                        cancellable: false
-                    }, async (progress) => {
-                        // Create project directory
-                        progress.report({ message: "Creating project directory..." })
-                        await mkdir(projectPath)
+                    await vscode.window.withProgress(
+                        {
+                            location: vscode.ProgressLocation.Notification,
+                            title: `Creating Tact project: ${projectName}`,
+                            cancellable: false,
+                        },
+                        async progress => {
+                            // Create project directory
+                            progress.report({message: "Creating project directory..."})
+                            await mkdir(projectPath)
 
-                        progress.report({ message: "Cloning Tact template..." })
-                        await runCommand('git', ['clone', 'https://github.com/tact-lang/tact-template.git', projectName], workspaceFolder[0].fsPath)
+                            progress.report({message: "Cloning Tact template..."})
+                            await runCommand(
+                                "git",
+                                [
+                                    "clone",
+                                    "https://github.com/tact-lang/tact-template.git",
+                                    projectName,
+                                ],
+                                workspaceFolder[0].fsPath,
+                            )
 
-                        // Install dependencies
-                        progress.report({ message: "Installing dependencies..." })
-                        await runCommand('yarn', ['install'], projectPath)
-                    })
-                    
+                            // Install dependencies
+                            progress.report({message: "Installing dependencies..."})
+                            await runCommand("yarn", ["install"], projectPath)
+                        },
+                    )
+
                     // Open the new project in VS Code
-                    await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath))
+                    await vscode.commands.executeCommand(
+                        "vscode.openFolder",
+                        vscode.Uri.file(projectPath),
+                    )
                 }
-                
-                vscode.window.showInformationMessage(`Successfully created Tact project: ${projectName}`)
+
+                vscode.window.showInformationMessage(
+                    `Successfully created Tact project: ${projectName}`,
+                )
             } catch (error: unknown) {
                 // @ts-expect-error error is unknown
                 vscode.window.showErrorMessage(`Failed to create project: ${error.message}`)
