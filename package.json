@@ -215,6 +215,11 @@
             {
                 "title": "Editor › Hints",
                 "properties": {
+                    "tact.hints.disable": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Disable all inlay hints"
+                    },
                     "tact.hints.types": {
                         "type": "boolean",
                         "default": true,
