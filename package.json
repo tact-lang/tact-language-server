@@ -424,6 +424,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Show TL-B definition for structs, messages and contracts"
+                    },
+                    "tact.documentation.showKeywordDocumentation": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show documentation for keywords"
                     }
                 }
             },

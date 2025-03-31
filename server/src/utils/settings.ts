@@ -49,6 +49,7 @@ export interface TactSettings {
     }
     documentation: {
         showTlb: boolean
+        showKeywordDocumentation: boolean
     }
     fift: {
         hints: {
@@ -125,6 +126,7 @@ const defaultSettings: TactSettings = {
     },
     documentation: {
         showTlb: true,
+        showKeywordDocumentation: true,
     },
     fift: {
         hints: {
@@ -231,6 +233,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
         },
         documentation: {
             showTlb: vsSettings.documentation?.showTlb ?? defaultSettings.documentation.showTlb,
+            showKeywordDocumentation:
+                vsSettings.documentation?.showKeywordDocumentation ??
+                defaultSettings.documentation.showKeywordDocumentation,
         },
         fift: {
             hints: {
