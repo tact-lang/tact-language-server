@@ -14,7 +14,8 @@
     },
     "icon": "logo.png",
     "activationEvents": [
-        "onLanguage:tact"
+        "onLanguage:tact",
+        "onCommand:tact.createProject"
     ],
     "categories": [
         "Programming Languages"
@@ -163,6 +164,12 @@
                 "problemMatcher": [
                     "$tact"
                 ]
+            },
+            {
+                "command": "tact.createProject",
+                "title": "Create New Tact Project",
+                "category": "Tact",
+                "icon": "$(new-folder)"
             }
         ],
         "keybindings": [

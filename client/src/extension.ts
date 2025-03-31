@@ -27,6 +27,7 @@ import {BocEditorProvider} from "./providers/BocEditorProvider"
 import {BocFileSystemProvider} from "./providers/BocFileSystemProvider"
 import {BocDecompilerProvider} from "./providers/BocDecompilerProvider"
 import {registerSaveBocDecompiledCommand} from "./commands/saveBocDecompiledCommand"
+import {registerCreateTactProjectCommand} from "./commands/createTactProjectCommand"
 import {Range, Position} from "vscode"
 import {detectPackageManager, PackageManager} from "./utils/package-manager"
 
@@ -37,6 +38,7 @@ export function activate(context: vscode.ExtensionContext): void {
     registerBuildTasks(context)
     registerOpenBocCommand(context)
     registerSaveBocDecompiledCommand(context)
+    registerCreateTactProjectCommand(context)
     registerMistiCommand(context)
 
     const config = vscode.workspace.getConfiguration("tact")
