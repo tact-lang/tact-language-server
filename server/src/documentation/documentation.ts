@@ -322,13 +322,13 @@ function generateMemberDocFor(node: Node): string | null {
         }
         case "init_function": {
             const func = new InitFunction(astNode, node.file)
-            return func.nameLike() + "{}"
+            return func.nameLike() + ";"
         }
         case "receive_function":
         case "external_function":
         case "bounced_function": {
             const func = new MessageFunction(astNode, node.file)
-            return func.nameLike() + "{}"
+            return func.nameLike() + ";"
         }
         case "parameter": {
             const field = new Field(node.node, node.file)

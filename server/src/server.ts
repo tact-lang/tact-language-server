@@ -627,7 +627,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
         if (
             hoverNode.type === "fun" &&
-            (parent?.type === "storage_function" || parent?.type === "global_function")
+            (parent?.type === "storage_function" ||
+                parent?.type === "global_function" ||
+                parent?.type === "asm_function")
         ) {
             return generateMarkdownHoverDocFor(hoverNode)
         }
