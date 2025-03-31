@@ -360,6 +360,13 @@ export function extractCommentsDocContent(node: Node): {
             break
         }
 
+        // possibly inline comment
+        const prev = comment.previousSibling
+        if (prev?.endPosition.row === commentStartLine) {
+            // same line with the previous node, inline comment
+            break
+        }
+
         comments.push(comment)
         comment = comment.previousSibling
     }
