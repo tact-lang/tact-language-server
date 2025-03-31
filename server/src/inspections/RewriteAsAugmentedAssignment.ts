@@ -1,18 +1,19 @@
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/psi/File"
+import {File} from "@server/psi/File"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {UnusedInspection} from "./UnusedInspection"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspPosition, asLspRange} from "@server/utils/position"
 import {FileDiff} from "@server/utils/FileDiff"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 
-export class RewriteAsAugmentedAssignment extends UnusedInspection implements Inspection {
+export class RewriteAsAugmentedAssignment implements Inspection {
     public readonly id: "rewrite-as-augmented-assignment" =
         InspectionIds.REWRITE_AS_AUGMENTED_ASSIGNMENT
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
-        if (file.fromStdlib) return
+    public inspect(file: File): lsp.Diagnostic[] {
+        if (file.fromStdlib) return []
+
+        const diagnostics: lsp.Diagnostic[] = []
 
         RecursiveVisitor.visit(file.rootNode, node => {
             if (node.type !== "assignment_statement") {
@@ -81,6 +82,8 @@ export class RewriteAsAugmentedAssignment extends UnusedInspection implements In
                 })
             }
         })
+
+        return diagnostics
     }
 
     private isIdenticalNode(left: SyntaxNode, right: SyntaxNode): boolean {
