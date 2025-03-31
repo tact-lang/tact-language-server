@@ -395,7 +395,8 @@
                                 "not-imported-symbol",
                                 "dont-use-text-receivers",
                                 "rewrite",
-                                "dont-use-deployable"
+                                "dont-use-deployable",
+                                "rewrite-as-augmented-assignment"
                             ]
                         },
                         "default": [],

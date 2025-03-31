@@ -14,6 +14,7 @@ export const InspectionIds = {
     NOT_IMPORTED_SYMBOL: "not-imported-symbol",
     DONT_USE_TEXT_RECEIVERS: "dont-use-text-receivers",
     DONT_USE_DEPLOYABLE: "dont-use-deployable",
+    REWRITE_AS_AUGMENTED_ASSIGNMENT: "rewrite-as-augmented-assignment",
     MISTI: "misti",
 } as const
 
