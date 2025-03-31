@@ -7,7 +7,7 @@ import {asLspPosition, asLspRange} from "@server/utils/position"
 import {FileDiff} from "@server/utils/FileDiff"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 
-export class RewriteAssignmentInspection extends UnusedInspection implements Inspection {
+export class RewriteAsAugmentedAssignment extends UnusedInspection implements Inspection {
     public readonly id: "rewrite-as-augmented-assignment" =
         InspectionIds.REWRITE_AS_AUGMENTED_ASSIGNMENT
 
@@ -33,6 +33,12 @@ export class RewriteAssignmentInspection extends UnusedInspection implements Ins
                 return
             }
 
+            //             operator
+            //             |
+            // some = some + 10
+            //        |      |
+            //        |      binRight
+            //        binLeft
             const binLeft = this.unwrapParen(right.childForFieldName("left"))
             const binRight = this.unwrapParen(right.childForFieldName("right"))
             const operator = right.childForFieldName("operator")
