@@ -28,11 +28,13 @@ export class TypeTlbSerializationCompletionProvider implements CompletionProvide
         const node = ctx.element.node
         const parent = node.parent
         if (!parent) return false
-        const insideFieldOwner =
-            parent.parent?.type === "contract_body" ||
-            parent.parent?.type === "trait_body" ||
-            parent.parent?.type === "struct_body" ||
-            parent.parent?.type === "message_body"
+
+        const grandType = parent.parent?.type
+        const insideFieldsOwner =
+            grandType === "contract_body" ||
+            grandType === "trait_body" ||
+            grandType === "struct_body" ||
+            grandType === "message_body"
 
         if (parent.type === "storage_variable" || parent.type === "field") {
             const field = new Field(parent, ctx.element.file)
@@ -44,7 +46,7 @@ export class TypeTlbSerializationCompletionProvider implements CompletionProvide
             //     foo: <caret>;
             //     ^^^^^^^^^^^^^ field is complete
             // }
-            return insideFieldOwner && typeNode.node.equals(node)
+            return insideFieldsOwner && typeNode.node.equals(node)
         }
 
         // contract Foo {
@@ -57,7 +59,7 @@ export class TypeTlbSerializationCompletionProvider implements CompletionProvide
         // }   |                          |
         //     field is not complete ------
         //
-        return parent.type === "ERROR" && insideFieldOwner && node.previousSibling?.text === ":"
+        return parent.type === "ERROR" && insideFieldsOwner && node.previousSibling?.text === ":"
     }
 
     public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
