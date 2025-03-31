@@ -26,6 +26,7 @@ export class OverrideCompletionProvider implements CompletionProvider {
         }
 
         for (const method of inheritMethods) {
+            if (!method.isOverride() && !method.isVirtual() && !method.isAbstract()) continue
             if (added.has(method.name())) continue
 
             const methodOwner = method.owner()

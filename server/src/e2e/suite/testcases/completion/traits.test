@@ -3,6 +3,8 @@ Completion of override methods in trait
 ========================================================================
 trait Parent {
     fun foo(): Int {}
+    virtual fun bar(): Int {}
+    abstract fun baz(): Int {}
 }
 
 trait Child with Parent {
@@ -19,7 +21,8 @@ trait Child with Parent {
 13 get fun name() {}
 13 init() {}
 13 inline fun name() {}
-2  override fun foo(): Int {} of Parent
+2  override fun bar(): Int {} of Parent
+2  override fun baz(): Int {} of Parent
 13 receive(msg: <type>) {}
 13 receive("<message>") {}
 13 receive() {}
@@ -29,11 +32,11 @@ trait Child with Parent {
 Completion of override methods in trait with deep inheritance
 ========================================================================
 trait Grand {
-    fun bar(name: String): Bool {}
+    abstract fun bar(name: String): Bool {}
 }
 
 trait Parent with Grand {
-    fun foo(): Int {}
+    virtual fun foo(): Int {}
 }
 
 trait Child with Parent {
@@ -62,7 +65,7 @@ Completion of override methods in trait with method
 ========================================================================
 trait Parent {
     fun foo(): Int {}
-    fun bar(): Int {}
+    virtual fun bar(): Int {}
 }
 
 trait Child with Parent {
