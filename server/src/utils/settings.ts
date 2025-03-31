@@ -17,6 +17,7 @@ export interface TactSettings {
         scope: FindUsagesScope
     }
     hints: {
+        disable: boolean
         types: boolean
         parameters: boolean
         exitCodeFormat: "decimal" | "hex"
@@ -89,6 +90,7 @@ const defaultSettings: TactSettings = {
         scope: "workspace",
     },
     hints: {
+        disable: false,
         types: true,
         parameters: true,
         exitCodeFormat: "decimal",
@@ -169,6 +171,7 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             scope: vsSettings.findUsages?.scope ?? defaultSettings.findUsages.scope,
         },
         hints: {
+            disable: vsSettings.hints?.disable ?? defaultSettings.hints.disable,
             types: vsSettings.hints?.types ?? defaultSettings.hints.types,
             parameters: vsSettings.hints?.parameters ?? defaultSettings.hints.parameters,
             exitCodeFormat:

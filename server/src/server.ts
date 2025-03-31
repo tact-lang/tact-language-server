@@ -949,14 +949,17 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.InlayHintRequest.type,
         async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
             const uri = params.textDocument.uri
+            const settings = await getDocumentSettings(uri)
+            if (settings.hints.disable) {
+                return null
+            }
+
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
-                const settings = await getDocumentSettings(uri)
                 return collectFiftInlays(file, settings.hints.gasFormat, settings.fift.hints)
             }
 
             const file = findFile(uri)
-            const settings = await getDocumentSettings(uri)
             return inlays.collect(file, settings.hints, settings.gas)
         },
     )
