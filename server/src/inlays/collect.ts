@@ -22,6 +22,7 @@ import {InlayHintLabelPart, MarkupContent, MarkupKind} from "vscode-languageserv
 import {Location} from "vscode-languageclient"
 import {asLspRange} from "@server/utils/position"
 import {URI} from "vscode-uri"
+import {evalAsciiBuiltin, evalCrc32Builtin} from "@server/compiler/utils"
 
 function processParameterHints(
     shift: number,
@@ -160,6 +161,8 @@ export function collect(
         gasFormat: string
         showContinuationGas: boolean
         showToCellSize: boolean
+        showAsciiEvaluationResult: boolean
+        showCrc32EvaluationResult: boolean
     },
     gasSettings: {
         loopGasCoefficient: number
@@ -181,13 +184,14 @@ export function collect(
             const decl = new VarDeclaration(n, file)
             if (decl.hasTypeHint()) return true // already have typehint
 
+            const name = decl.nameIdentifier()
+            if (!name) return true
+            if (name.text === "_") return true
+
             const expr = decl.value()
             if (!expr) return true
 
             if (hasObviousType(expr.node)) return true
-
-            const name = decl.nameIdentifier()
-            if (!name) return true
 
             const type = TypeInferer.inferType(expr)
             if (!type) return true
@@ -363,7 +367,7 @@ export function collect(
 
             const params = res.parameters()
 
-            // We want to show the actual exit code for message in require
+            // We want to show the actual exit code for a message in require
             // require(true, "message")
             // =>
             // require(true, "message" exit code: 999)
@@ -378,6 +382,26 @@ export function collect(
                             character: exitCode.node.endPosition.column,
                         },
                     })
+                }
+            }
+
+            if (call.name() === "ascii" && hints.showAsciiEvaluationResult) {
+                const arg = args[0]?.firstChild
+                if (arg?.type === "string") {
+                    const content = arg.text.slice(1, -1)
+                    const realValue = evalAsciiBuiltin(content)
+
+                    evaluateResultHint(result, call, realValue)
+                }
+            }
+
+            if (call.name() === "crc32" && hints.showCrc32EvaluationResult) {
+                const arg = args[0]?.firstChild
+                if (arg?.type === "string") {
+                    const content = arg.text.slice(1, -1)
+                    const realValue = evalCrc32Builtin(content)
+
+                    evaluateResultHint(result, call, realValue)
                 }
             }
 
@@ -584,4 +608,19 @@ function toLocation(node: Node | null | undefined): Location | undefined {
         uri: URI.parse(node.file.uri).toString(true),
         range: asLspRange(node.node),
     }
+}
+
+function evaluateResultHint(result: InlayHint[], anchor: CallLike, value: bigint): void {
+    result.push({
+        kind: InlayHintKind.Parameter,
+        label: ` Evaluates to: 0x${value.toString(16)}`,
+        position: {
+            line: anchor.node.endPosition.row,
+            character: anchor.node.endPosition.column,
+        },
+        tooltip: {
+            kind: "markdown",
+            value: `Evaluates to:\n - 0x${value.toString(16)}\n- ${value}`,
+        },
+    })
 }

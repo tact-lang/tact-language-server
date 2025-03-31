@@ -194,5 +194,6 @@ contract Test(
     }
 }
 ------------------------------------------------------------------------
-3 4:4 to 4:9 Field 'other' is never used (tact)
 3 6:8 to 6:11 Method 'foo' is never used (tact)
+3 14:4 to 14:9 Field 'other' is never used (tact)
+3 16:8 to 16:11 Method 'foo' is never used (tact)

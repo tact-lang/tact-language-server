@@ -142,9 +142,16 @@ export class StorageMembersOwner extends NamedNode {
     }
 
     public fields(): Field[] {
-        const own = this.ownFields()
-        const inherited = this.inheritTraits().flatMap(trait => trait.fields())
-        return [...own, ...inherited]
+        const fields: Map<string, Field> = new Map()
+        for (const value of this.ownFields()) {
+            fields.set(value.name(), value)
+        }
+        for (const trait of this.inheritTraits()) {
+            for (const value of trait.fields()) {
+                fields.set(value.name(), value)
+            }
+        }
+        return [...fields.values()]
     }
 
     public constants(): Constant[] {
@@ -290,8 +297,21 @@ export class MessageFunction extends Node {
         return `${kindIdent.text}(${parametersNode.text})`
     }
 
+    public isStringFallback(): boolean {
+        const parameter = this.parameter()
+        if (!parameter) return false
+        const parameterType = new Expression(parameter, this.file).type()
+        if (!parameterType) return false
+        return parameterType.name() === "String"
+    }
+
     public parameter(): SyntaxNode | null {
         return this.node.childForFieldName("parameter")
+    }
+
+    public parameterName(): string | null {
+        const param = this.node.childForFieldName("parameter")
+        return param?.childForFieldName("name")?.text ?? null
     }
 
     public kindIdentifier(): SyntaxNode | null {
@@ -310,6 +330,10 @@ export class Fun extends NamedNode {
         const body = this.node.childForFieldName("body")
         if (!body) return ""
         return body.text
+    }
+
+    public get body(): SyntaxNode | null {
+        return this.node.childForFieldName("body")
     }
 
     public get hasOneLineBody(): boolean {

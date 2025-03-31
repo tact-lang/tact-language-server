@@ -2,6 +2,7 @@ import type {Node as SyntaxNode} from "web-tree-sitter"
 import type {File} from "@server/psi/File"
 import {CallLike} from "@server/psi/Node"
 import {createHash} from "node:crypto"
+import {crc32BigInt} from "@server/compiler/crc32"
 
 export function requireFunctionExitCode(
     callNode: SyntaxNode,
@@ -30,4 +31,45 @@ export function requireFunctionExitCode(
     }
 
     return null
+}
+
+export function evalCrc32Builtin(rawStr: string): bigint {
+    return crc32BigInt(rawStr)
+}
+
+export function evalAsciiBuiltin(rawStr: string): bigint {
+    const str = processEscapes(rawStr)
+
+    const encoded = new TextEncoder().encode(str)
+    if (encoded.length > 32) {
+        return -1n
+    }
+
+    if (encoded.length === 0) {
+        return 0n
+    }
+
+    let hexString = ""
+    for (const byte of encoded) {
+        hexString += byte.toString(16).padStart(2, "0")
+    }
+
+    return BigInt(`0x${hexString}`)
+}
+
+function processEscapes(str: string): string {
+    if (!str.includes("\\")) {
+        return str
+    }
+
+    return str
+        .replace(/\\x([\dA-Fa-f]{2})/g, (_, hex: string) =>
+            String.fromCodePoint(Number.parseInt(hex, 16)),
+        )
+        .replace(/\\u([\dA-Fa-f]{4})/g, (_, hex: string) =>
+            String.fromCodePoint(Number.parseInt(hex, 16)),
+        )
+        .replace(/\\u{([\dA-Fa-f]+)}/g, (_, hex: string) =>
+            String.fromCodePoint(Number.parseInt(hex, 16)),
+        )
 }

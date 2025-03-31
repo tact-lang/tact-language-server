@@ -12,7 +12,7 @@ import {
     Ty,
 } from "@server/types/BaseTy"
 import {index, IndexFinder, IndexKey} from "@server/indexes"
-import {Expression, NamedNode, Node} from "./Node"
+import {CallLike, Expression, NamedNode, Node} from "./Node"
 import type {File} from "./File"
 import {Contract, Field, FieldsOwner, Fun, Message, Struct, Trait} from "./Decls"
 import {isFunNode, parentOfType} from "./utils"
@@ -592,7 +592,60 @@ export class Reference {
         }
 
         if (index.stubsRoot) {
+            if (this.element.node.text === "sha256") {
+                if (!this.resolveSha256(proc, state)) return false
+            }
+
             if (!this.processElsInIndex(proc, state, index.stubsRoot)) return false
+        }
+
+        return true
+    }
+
+    private resolveSha256(proc: ScopeProcessor, state: ResolveState): boolean {
+        // We need to resolve `sha256("hello")` to `sha256` declaration with `String` argument.
+        // sha256("hello")
+        // ^^^^^^
+
+        const stubsRoot = index.stubsRoot
+        if (!stubsRoot) return true
+
+        const sha256Impls = stubsRoot.elementsByName(IndexKey.Funs, "sha256")
+
+        // sha256("hello")
+        // ^^^^^^^^^^^^^^^
+        const callNode = this.element.node.parent
+        if (callNode?.type !== "static_call_expression") {
+            // some odd reference?
+            return true
+        }
+
+        const call = new CallLike(callNode, this.element.file)
+
+        // sha256("hello")
+        //        ^^^^^^^^
+        const arg = call.arguments().at(0)
+        if (!arg) {
+            // incomplete call
+            return true
+        }
+
+        const argType = new Expression(arg, this.element.file).type()
+        if (argType?.name() !== "String") {
+            // use the default resolver which resolved `sha256`
+            // to the version with the `Slice` argument
+            return true
+        }
+
+        const stringSha256 = sha256Impls.find(it => {
+            const param = it.parameters().at(0)
+            if (!param) return false
+            const paramType = TypeInferer.inferType(param)
+            return paramType?.name() === "String"
+        })
+
+        if (stringSha256) {
+            return proc.execute(stringSha256, state)
         }
 
         return true

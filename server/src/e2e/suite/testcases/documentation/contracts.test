@@ -10,6 +10,14 @@ contract <caret>Foo {}
 ```tact
 contract Foo {}
 ```
+
+---
+**TL-B**:
+
+```tlb
+_  = Foo
+```
+---
 Some cool contract
 
 ========================================================================
@@ -55,6 +63,15 @@ contract Foo {
     get fun counter(): Int;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+_ name:^Cell
+  value:int257 = Foo
+```
+---
 Some cool contract
 
 ========================================================================
@@ -77,6 +94,15 @@ contract Foo with Other {
     value: Int;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+_ name:^Cell
+  value:int257 = Foo
+```
+---
 Some cool contract
 
 ========================================================================
@@ -211,3 +237,11 @@ contract Test {
     some: Int;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+_ some:int257 = Test
+```
+---
