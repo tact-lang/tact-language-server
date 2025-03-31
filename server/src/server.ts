@@ -707,16 +707,26 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             return generateMarkdownHoverDocFor(hoverNode)
         }
 
-        // NOTE/TODO(novusnota):
-        // The following things require support of the latest tree-sitter-tact,
-        // so I've only added the documentation itself,
-        // but not the logic of showing it for them:
-        //
         // Keywords within type ascriptions:
         // - as
         // - map<K, V>
         // - bounced<M>
         // - ? for optionals (not a keyword per se, but just in case)
+        //   TODO: optional_type node from the latest tree-sitter-tact
+        //         is not supported here yet
+
+        // TODO: debug me pls
+        if (parent?.type === "tlb_serialization" && hoverNode.type === "as") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "map_type" && hoverNode.type === "map") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
+
+        if (parent?.type === "bounced_type" && hoverNode.type === "bounced") {
+            return generateMarkdownHoverDocFor(hoverNode)
+        }
 
         if (
             hoverNode.type === "receive" ||

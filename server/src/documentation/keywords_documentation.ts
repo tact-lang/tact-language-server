@@ -1028,7 +1028,7 @@ The attribute \`virtual\` allows a constant to be overridden in derived contract
 
 ${CODE_FENCE}tact
 trait Baseline {
-    virtual const MIN_VALUE: Int = now(); // compile-time expression
+    virtual const MIN_VALUE: Int = ascii("⚡"); // compile-time expression
 }
 
 contract Implementation with Baseline {
@@ -1045,7 +1045,7 @@ The attribute \`override\` allows overriding an inherited constant from derived 
 
 ${CODE_FENCE}tact
 trait Baseline {
-    virtual const MIN_VALUE: Int = now(); // compile-time expression
+    virtual const MIN_VALUE: Int = ascii("⚡"); // compile-time expression
 }
 
 contract Implementation with Baseline {
