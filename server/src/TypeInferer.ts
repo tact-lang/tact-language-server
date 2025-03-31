@@ -117,7 +117,7 @@ export class TypeInferer {
             if (isTypeOwnerNode(resolved.node)) {
                 const typeNode = resolved.node.childForFieldName("type")
                 if (!typeNode) return null
-                return this.inferTypeMaybeOption(typeNode, resolved)
+                return this.inferTypeMaybeTlB(typeNode, resolved)
             }
 
             return this.inferTypeFromResolved(resolved)

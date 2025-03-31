@@ -136,6 +136,14 @@ contract <caret>Foo {
 ```tact
 contract Foo {}
 ```
+
+---
+**TL-B**:
+
+```tlb
+_  = Foo
+```
+---
 And this is documentation comment
 
 ========================================================================
@@ -150,6 +158,14 @@ contract <caret>Foo {
 ```tact
 contract Foo {}
 ```
+
+---
+**TL-B**:
+
+```tlb
+_  = Foo
+```
+---
 Some comment. And other!
 ------------
 Continue
