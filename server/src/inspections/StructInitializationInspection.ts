@@ -3,8 +3,10 @@ import type {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {index, IndexKey} from "@server/indexes"
 import {Inspection, InspectionIds} from "./Inspection"
+import {Reference} from "@server/psi/Reference"
+import {NamedNode} from "@server/psi/Node"
+import {FieldsOwner} from "@server/psi/Decls"
 
 export class StructInitializationInspection implements Inspection {
     public readonly id: "struct-initialization" = InspectionIds.STRUCT_INITIALIZATION
@@ -15,23 +17,22 @@ export class StructInitializationInspection implements Inspection {
 
         RecursiveVisitor.visit(file.rootNode, node => {
             if (node.type === "instance_expression") {
-                this.checkStructLiteral(node, diagnostics)
+                this.checkStructLiteral(node, file, diagnostics)
             }
         })
 
         return diagnostics
     }
 
-    private checkStructLiteral(node: SyntaxNode, diagnostics: lsp.Diagnostic[]): void {
+    private checkStructLiteral(node: SyntaxNode, file: File, diagnostics: lsp.Diagnostic[]): void {
         const structName = node.childForFieldName("name")
         if (!structName) return
         const args = node.childForFieldName("arguments")
         if (!args) return
 
-        const structDef =
-            index.elementByName(IndexKey.Structs, structName.text) ??
-            index.elementByName(IndexKey.Messages, structName.text)
+        const structDef = Reference.resolve(new NamedNode(structName, file))
         if (!structDef) return
+        if (!(structDef instanceof FieldsOwner)) return
 
         const fields = structDef.fields()
         const requiredFields = fields.filter(f => f.defaultValue() === null).map(f => f.name())
