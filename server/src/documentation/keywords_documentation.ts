@@ -156,136 +156,250 @@ Learn more in documentation: https://docs.tact-lang.org/book/contracts
 `
     }
 
-    // TODO:
     if (word === "trait") {
         return `
-Defines a trait.
-TODO: description
+The top-level \`trait\` keyword defines a trait, which is a reusable collection
+of persisten state variables (contract fields), constants, and various functions
+that can be inherited by other traits or by contracts:
 
 ${CODE_FENCE}tact
-// TODO: ...
+trait CustomOwnable {
+    // A persistent state variable that the contract would inherit with this trait
+    owner: Address;
+
+    // An internal function that can be overridden
+    virtual fun requireOwner() {
+        require(sender() == self.owner, "Only owner is allowed to call this function");
+    }
+}
+
+contract Showcase(
+    owner: Address, // inherited from trait CustomOwnable
+) with CustomOwnable {
+    receive() {
+        // Call an internal function inherited from a trait
+        self.requireOwner();
+    }
+}
 ${CODE_FENCE}
+
+Traits have the same structure as contracts, but they cannot initialize
+persistent state variables with default values or via an init() function.
 
 Learn more in documentation: https://docs.tact-lang.org/book/types#traits
 `
     }
 
-    // TODO:
     if (word === "with") {
         return `
-Inherits a trait.
-TODO: description
+The \`with\` keyword allows contracts to inherit traits, which are reusable collections
+of persistent state variables (contract fields), constants and various functions:
 
 ${CODE_FENCE}tact
-// TODO: ...
+contract Contract(
+    field1: Int, // inherited from Trait1 via 'with' keyword
+    field2: Int, // inherited from Trait2 via 'with' keyword
+) with Trait1, Trait2 {
+    // Inherited internal 'add()' and 'mul()' functions,
+    // which can be overridden if needed
+}
+
+trait Trait1 {
+    field1: Int;
+
+    virtual fun add(val: Int): Int {
+        return self.field1 + val;
+    }
+}
+
+trait Trait2 {
+    field2: Int;
+
+    virtual fun mul(val: Int): Int {
+        return self.field2 * val;
+    }
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/contracts#traits
 `
     }
 
-    // TODO:
     if (word === "true") {
         return `
-true
-TODO: description
+The literal \`false\` represents a value of type \`Bool\` indicating logical truth:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let a: Bool = true;
+let b = false;
+let c = a && b; // false
+let d = a || b; // true
+let e = !a;     // false
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/types#booleans
 `
     }
 
-    // TODO:
     if (word === "false") {
         return `
-false
-TODO: description
+The literal \`false\` represents a value of type \`Bool\` indicating logical falsehood:
 
 ${CODE_FENCE}tact
-// TODO: ...
+let a: Bool = false;
+let b = true;
+let c = a && b; // false
+let d = a || b; // true
+let e = !a;     // true
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/types#booleans
 `
     }
 
-    // TODO: ...
     if (word === "const") {
         return `
-TODO: description
+The \`const\` keyword defines a global, a trair or a contract constant value
+obtained by evaluating a compile-time expression:
 
 ${CODE_FENCE}tact
-// TODO: ...
+// Global constant
+const ZAP: Int = ascii("⚡"); // compile-time expression
+
+trait Constants {
+    // Trait constant, can be inherited in contracts
+    const PLANET_RADIUS_KM: Int = 6378;
+}
+
+contract Mars() with Constants {
+    // Contract constant
+    const MIN_VALUE: Int = 100 + ZAP;
+
+    // Overriding an inherited constant from a trait
+    override const PLANET_RADIUS_KM: Int = 3396;
+
+    // Empty receiver for the deployment
+    receive() {
+        let value = self.MIN_VALUE + ZAP + self.PLANET_RADIUS_KM;
+    }
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/constants
 `
     }
 
-    // TODO: ...
     if (word === "fun") {
-        return `Declares a function
-TODO: description
+        return `
+The \`fun\` keyword declares a function, which can be global, internal to traits
+and contracts, a getter, or an an extension for a specific type:
 
 ${CODE_FENCE}tact
-// TODO: ...
+// Global function
+fun add(a: Int, b: Int): Int {
+    return a + b;
+}
+
+// Extension function
+extends fun raiseTo(self: Int, power: Int): Int {
+    return pow(self, power);
+}
+
+contract Showcase(
+    owner: Address,
+) {
+    // Internal contract function
+    fun requireOwner() {
+        require(sender() == self.owner, "Only owner is allowed to call this function");
+    }
+
+    // Getter function, which can be called off-chain
+    get fun owner(): Address {
+        return self.owner;
+    }
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/functions
 `
     }
 
-    // TODO:
     if (word === "native") {
         return `
-TODO: description
+The top-level \`native\` keyword declares a global Tact function through a
+binding to an imported FunC function, providing simple and direct access
+to existing code bases:
 
 ${CODE_FENCE}tact
-// TODO: ...
+// This Tact function 'getData()' is a binding to the FunC function 'get_data()',
+// which can be located in the imported sources or in the auto-imported stdlib.fc
+@name(get_data)
+native getData(): Cell;
+
+// They can be used like regular Tact functions
+fun example() {
+    getData(); // a Cell with the contract's persistent state data
+}
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/functions
 `
     }
 
-    // TODO:
     if (word === "@name") {
         return `
-TODO: description
+The annotation \`@name\` binds a FunC function identifier to its Tact counterpart
+in the native function definition:
 
 ${CODE_FENCE}tact
-// TODO: ...
+@name(get_data) // the 'get_data()' here is a FunC function identifier
+native getData(): Cell;
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/functions
 `
     }
 
-    // TODO:
     if (word === "asm") {
         return `
-Declares an assembly function
-TODO: description
+The top-level \`asm\` keyword defines an assembly-level function that allows
+writing TVM assembly directly in Tact, with the support of parameter and return
+value arrangements:
 
 ${CODE_FENCE}tact
-// TODO: ...
+// An assembly function binding to a TVM instruction DIV
+asm fun muldiv(a: Int, b: Int, c: Int): Int {
+    MULDIV // (a * b) / c, with rounding down
+}
+
+// The '->' here distinguishes arrangement of 's' and 'len' parameters
+// from the arrangement of s1 and s0 stack registers for return values
+asm(s len -> 1 0) fun asmLoadInt(len: Int, s: Slice): SliceInt { LDIX }
 ${CODE_FENCE}
+
+These are very advanced functions that require experience and vigilance
+in both definitions and usage. Logical errors in them are extremely hard to spot,
+and error messages are abysmal. Proceed only if you know what you're doing.
 
 Learn more in documentation: https://docs.tact-lang.org/book/assembly-functions
 `
     }
 
-    // TODO:
     if (word === "->") {
         return `
-Arrangement separator
-TODO: description
+The symbol \`->\` in Tact is used within assembly functions to visually separate
+the arrangement of function parameters and the arrangement of return values:
 
 ${CODE_FENCE}tact
-// TODO: ...
+// The '->' here distinguishes arrangement of 's' and 'len' parameters
+// from the arrangement of s1 and s0 stack registers for return values
+asm(s len -> 1 0) fun asmLoadInt(len: Int, s: Slice): SliceInt { LDIX }
+
+// If there's an arrangement of return values, it must be prefixed by the '->' symbol
+asm(-> 1 0) extends fun asmLoadCoins(self: Slice): SliceInt { LDVARUINT16 }
+
+// A helper struct
+struct SliceInt { s: Slice; val: Int }
 ${CODE_FENCE}
 
 Learn more in documentation: https://docs.tact-lang.org/book/assembly-functions#arrangements
@@ -367,18 +481,19 @@ The \`if\` statement conditionally executes the following block or the \`else\` 
 depending on the resulting value of the specified condition:
 
 ${CODE_FENCE}tact
+let x = true || (!false || !true);
 if (x) {
-    // executes this block if x evaluates to true
+    // executes this block if 'x' evaluates to true
 } else {
-    // executes this block if x evaluates to false
+    // executes this block if 'x' evaluates to false
 }
 
-// You can omit the else block
+// You can omit the 'else' block
 if (x) {
-    // executes this block if x evaluates to true and does nothing otherwise
+    // executes this block if 'x' evaluates to true and does nothing otherwise
 }
 
-// You can further nest conditional branches after the else keyword:
+// You can further nest conditional branches after the 'else' keyword:
 if (x) {}
 else if (y) {}
 else if (z) {}
@@ -398,7 +513,7 @@ ${CODE_FENCE}tact
 let x = 1;
 if (false) { // this block won't be executed
     x += 1000;
-} else { // but this — will
+} else { // but this one — will
     x <<= 20;
 }
 x; // 1048576
