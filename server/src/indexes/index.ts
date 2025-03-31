@@ -136,8 +136,59 @@ export class FileIndex {
         }
     }
 
+    public elementsByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K][] {
+        switch (key) {
+            case IndexKey.Contracts: {
+                return this.findElements(
+                    this.elements[IndexKey.Contracts],
+                    name,
+                ) as IndexKeyToType[K][]
+            }
+            case IndexKey.Funs: {
+                return this.findElements(this.elements[IndexKey.Funs], name) as IndexKeyToType[K][]
+            }
+            case IndexKey.Messages: {
+                return this.findElements(
+                    this.elements[IndexKey.Messages],
+                    name,
+                ) as IndexKeyToType[K][]
+            }
+            case IndexKey.Structs: {
+                return this.findElements(
+                    this.elements[IndexKey.Structs],
+                    name,
+                ) as IndexKeyToType[K][]
+            }
+            case IndexKey.Traits: {
+                return this.findElements(
+                    this.elements[IndexKey.Traits],
+                    name,
+                ) as IndexKeyToType[K][]
+            }
+            case IndexKey.Primitives: {
+                return this.findElements(
+                    this.elements[IndexKey.Primitives],
+                    name,
+                ) as IndexKeyToType[K][]
+            }
+            case IndexKey.Constants: {
+                return this.findElements(
+                    this.elements[IndexKey.Constants],
+                    name,
+                ) as IndexKeyToType[K][]
+            }
+            default: {
+                return []
+            }
+        }
+    }
+
     private findElement<T extends NamedNode>(elements: T[], name: string): T | null {
         return elements.find(value => value.name() === name) ?? null
+    }
+
+    private findElements<T extends NamedNode>(elements: T[], name: string): T[] {
+        return elements.filter(value => value.name() === name)
     }
 }
 
@@ -226,6 +277,16 @@ export class IndexRoot {
             }
         }
         return null
+    }
+
+    public elementsByName<K extends IndexKey>(key: K, name: string): IndexKeyToType[K][] {
+        for (const value of this.files.values()) {
+            const result = value.elementsByName(key, name)
+            if (result.length > 0) {
+                return result
+            }
+        }
+        return []
     }
 
     public hasDeclaration(name: string): boolean {
