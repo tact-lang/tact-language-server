@@ -128,6 +128,11 @@ import {RewriteInspection} from "@server/inspections/RewriteInspection"
 import {TypeTlbSerializationCompletionProvider} from "@server/completion/providers/TypeTlbSerializationCompletionProvider"
 import {DontUseDeployableInspection} from "@server/inspections/DontUseDeployableInspection"
 import {formatCode} from "@server/compiler/fmt/fmt"
+import {RewriteAsAugmentedAssignment} from "@server/inspections/RewriteAsAugmentedAssignment"
+import {CanBeStandaloneFunctionInspection} from "@server/inspections/CanBeStandaloneFunctionInspection"
+import {UseExplicitStringReceiverInspection} from "@server/inspections/UseExplicitStringReceiverInspection"
+import {ImplicitReturnValueDiscardInspection} from "@server/inspections/ImplicitReturnValueDiscardInspection"
+import {formatCode} from "@server/compiler/fmt/fmt"
 
 /**
  * Whenever LS is initialized.
@@ -343,6 +348,10 @@ async function runInspections(uri: string, file: File): Promise<void> {
         new NotImportedSymbolInspection(),
         new DontUseTextReceiversInspection(),
         new DontUseDeployableInspection(),
+        new RewriteAsAugmentedAssignment(),
+        new CanBeStandaloneFunctionInspection(),
+        new UseExplicitStringReceiverInspection(),
+        new ImplicitReturnValueDiscardInspection(),
         new RewriteInspection(),
     ]
 
@@ -942,14 +951,17 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.InlayHintRequest.type,
         async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
             const uri = params.textDocument.uri
+            const settings = await getDocumentSettings(uri)
+            if (settings.hints.disable) {
+                return null
+            }
+
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
-                const settings = await getDocumentSettings(uri)
                 return collectFiftInlays(file, settings.hints.gasFormat, settings.fift.hints)
             }
 
             const file = findFile(uri)
-            const settings = await getDocumentSettings(uri)
             return inlays.collect(file, settings.hints, settings.gas)
         },
     )

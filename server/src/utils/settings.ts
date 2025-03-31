@@ -17,6 +17,7 @@ export interface TactSettings {
         scope: FindUsagesScope
     }
     hints: {
+        disable: boolean
         types: boolean
         parameters: boolean
         exitCodeFormat: "decimal" | "hex"
@@ -28,6 +29,8 @@ export interface TactSettings {
         gasFormat: string
         showContinuationGas: boolean
         showToCellSize: boolean
+        showAsciiEvaluationResult: boolean
+        showCrc32EvaluationResult: boolean
     }
     gas: {
         loopGasCoefficient: number
@@ -43,6 +46,9 @@ export interface TactSettings {
     }
     inspections: {
         disabled: string[] // list of disabled inspection ids
+    }
+    documentation: {
+        showTlb: boolean
     }
     fift: {
         hints: {
@@ -87,6 +93,7 @@ const defaultSettings: TactSettings = {
         scope: "workspace",
     },
     hints: {
+        disable: false,
         types: true,
         parameters: true,
         exitCodeFormat: "decimal",
@@ -98,6 +105,8 @@ const defaultSettings: TactSettings = {
         gasFormat: ": {gas}",
         showContinuationGas: true,
         showToCellSize: true,
+        showAsciiEvaluationResult: true,
+        showCrc32EvaluationResult: true,
     },
     gas: {
         loopGasCoefficient: 5,
@@ -113,6 +122,9 @@ const defaultSettings: TactSettings = {
     },
     inspections: {
         disabled: [], // no disabled inspections by default
+    },
+    documentation: {
+        showTlb: true,
     },
     fift: {
         hints: {
@@ -165,6 +177,7 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             scope: vsSettings.findUsages?.scope ?? defaultSettings.findUsages.scope,
         },
         hints: {
+            disable: vsSettings.hints?.disable ?? defaultSettings.hints.disable,
             types: vsSettings.hints?.types ?? defaultSettings.hints.types,
             parameters: vsSettings.hints?.parameters ?? defaultSettings.hints.parameters,
             exitCodeFormat:
@@ -184,6 +197,12 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
                 vsSettings.hints?.showContinuationGas ?? defaultSettings.hints.showContinuationGas,
             showToCellSize:
                 vsSettings.hints?.showToCellSize ?? defaultSettings.hints.showToCellSize,
+            showAsciiEvaluationResult:
+                vsSettings.hints?.showAsciiEvaluationResult ??
+                defaultSettings.hints.showAsciiEvaluationResult,
+            showCrc32EvaluationResult:
+                vsSettings.hints?.showCrc32EvaluationResult ??
+                defaultSettings.hints.showCrc32EvaluationResult,
         },
         gas: {
             loopGasCoefficient:
@@ -209,6 +228,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
         },
         inspections: {
             disabled: vsSettings.inspections?.disabled ?? defaultSettings.inspections.disabled,
+        },
+        documentation: {
+            showTlb: vsSettings.documentation?.showTlb ?? defaultSettings.documentation.showTlb,
         },
         fift: {
             hints: {

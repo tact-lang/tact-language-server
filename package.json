@@ -215,6 +215,11 @@
             {
                 "title": "Editor › Hints",
                 "properties": {
+                    "tact.hints.disable": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Disable all inlay hints"
+                    },
                     "tact.hints.types": {
                         "type": "boolean",
                         "default": true,
@@ -257,6 +262,16 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Show size in bits for `toCell()` calls"
+                    },
+                    "tact.hints.showAsciiEvaluationResult": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show the result of evaluation for `ascii()` builtin function"
+                    },
+                    "tact.hints.showCrc32EvaluationResult": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show the result of evaluation for `crc32()` builtin function"
                     }
                 }
             },
@@ -390,11 +405,25 @@
                                 "not-imported-symbol",
                                 "dont-use-text-receivers",
                                 "rewrite",
-                                "dont-use-deployable"
+                                "dont-use-deployable",
+                                "rewrite-as-augmented-assignment",
+                                "can-be-standalone-function",
+                                "use-explicit-string-receiver",
+                                "implicit-return-value-discard"
                             ]
                         },
                         "default": [],
                         "description": "List of disabled code inspections. All inspections are enabled by default."
+                    }
+                }
+            },
+            {
+                "title": "Editor › Documentation",
+                "properties": {
+                    "tact.documentation.showTlb": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show TL-B definition for structs, messages and contracts"
                     }
                 }
             },
@@ -529,6 +558,7 @@
     "dependencies": {
         "@tact-lang/opcode": "^0.3.0",
         "@textlint/markdown-to-ast": "^14.4.2",
+        "change-case": "^5.4.4",
         "glob": "^11.0.1",
         "vscode-languageclient": "^8.0.2",
         "vscode-languageserver": "^8.0.2",

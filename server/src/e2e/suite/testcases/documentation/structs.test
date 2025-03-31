@@ -16,6 +16,15 @@ struct Foo {
     value: Int;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+_ name:^Cell
+  value:int257 = Foo
+```
+---
 Some cool struct
 
 **Size**: 257 bits plus up to 1023 bits
@@ -38,6 +47,16 @@ message Foo {
     value: Int;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+foo#NaN
+    name:^Cell
+    value:int257 = Foo
+```
+---
 Some cool message
 
 **Size**: 289 bits plus up to 1023 bits
@@ -60,6 +79,16 @@ message(0x178d4519) Foo {
     value: Int;
 }
 ```
+
+---
+**TL-B**:
+
+```tlb
+foo#178d4519
+    name:^Cell
+    value:int257 = Foo
+```
+---
 Some cool message
 
 **Size**: 289 bits plus up to 1023 bits

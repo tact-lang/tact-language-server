@@ -1,86 +1,84 @@
 ========================================================================
-Local variable
-========================================================================
-primitive Int;
-
-fun foo() {
-    let a = 10;
-}
-------------------------------------------------------------------------
-primitive Int;
-
-fun foo() {
-    let a/* : Int */ = 10;
-}
-
-========================================================================
-Discard variable
-========================================================================
-primitive Int;
-
-fun foo() {
-    let _ = 10;
-}
-------------------------------------------------------------------------
-primitive Int;
-
-fun foo() {
-    let _ = 10;
-}
-
-========================================================================
-Foreach variables
+crc32 with string
 ========================================================================
 primitive Int;
 primitive String;
 
-fun foo() {
-    let a: map<Int, String> = emptyMap();
-    foreach (key, value in a) {}
-}
+fun crc32(str: String): Int;
+
+const A: Int = crc32("transfer(slice, int)");
 ------------------------------------------------------------------------
 primitive Int;
 primitive String;
 
-fun foo() {
-    let a: map<Int, String> = emptyMap();
-    foreach (key/* : Int */, value/* : String */ in a) {}
-}
+fun crc32(str: String): Int;
+
+const A: Int = crc32(/* str: */"transfer(slice, int)")/*  Evaluates to: 0x8541fde8 */;
 
 ========================================================================
-Local variable initialized with struct init
+crc32 with string 2
 ========================================================================
 primitive Int;
+primitive String;
 
-struct Foo { value: Int }
+fun crc32(str: String): Int;
 
-fun foo() {
-    let a = Foo { value: 10 };
-}
+const A: Int = crc32("000DEADBEEF000");
 ------------------------------------------------------------------------
 primitive Int;
+primitive String;
 
-struct Foo { value: Int/*  as int257 */ }
+fun crc32(str: String): Int;
 
-fun foo() {
-    let a = Foo { value: 10 };
-}
+const A: Int = crc32(/* str: */"000DEADBEEF000")/*  Evaluates to: 0x6c98571a */;
 
 ========================================================================
-Local variable initialized with fromCell call
+crc32 with string 3
 ========================================================================
 primitive Int;
+primitive String;
 
-struct Foo { value: Int }
+fun crc32(str: String): Int;
 
-fun foo() {
-    let a = Foo.fromCell(emptyCell());
-}
+const A: Int = crc32("👋 Tact");
 ------------------------------------------------------------------------
 primitive Int;
+primitive String;
 
-struct Foo { value: Int/*  as int257 */ }
+fun crc32(str: String): Int;
 
-fun foo() {
-    let a = Foo.fromCell(emptyCell());
-}
+const A: Int = crc32(/* str: */"👋 Tact")/*  Evaluates to: 0x6e94735d */;
+
+========================================================================
+crc32 with string 4
+========================================================================
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32("\u0000");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32(/* str: */"\u0000")/*  Evaluates to: 0xd6631dfe */;
+
+========================================================================
+crc32 with string 5
+========================================================================
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32("⚡");
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun crc32(str: String): Int;
+
+const A: Int = crc32(/* str: */"⚡")/*  Evaluates to: 0x7f582c32 */;

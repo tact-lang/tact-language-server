@@ -67,6 +67,7 @@ contract Test {
 }
 ------------------------------------------------------------------------
 3 1:8 to 1:12 Method 'test' is never used (tact)
+1 1:8 to 1:12 The function does not use contract state, extract it into a standalone function for better performance (tact)
 1 2:19 to 2:20 Empty code block (tact)
 
 ========================================================================
@@ -82,6 +83,7 @@ contract Test {
 }
 ------------------------------------------------------------------------
 3 1:8 to 1:12 Method 'test' is never used (tact)
+1 1:8 to 1:12 The function does not use contract state, extract it into a standalone function for better performance (tact)
 1 4:15 to 4:16 Empty code block (tact)
 
 ========================================================================
@@ -95,6 +97,7 @@ contract Test {
 }
 ------------------------------------------------------------------------
 3 1:8 to 1:12 Method 'test' is never used (tact)
+1 1:8 to 1:12 The function does not use contract state, extract it into a standalone function for better performance (tact)
 1 2:22 to 2:23 Empty code block (tact)
 
 ========================================================================
@@ -122,6 +125,7 @@ contract Test {
 }
 ------------------------------------------------------------------------
 3 1:8 to 1:12 Method 'test' is never used (tact)
+1 1:8 to 1:12 The function does not use contract state, extract it into a standalone function for better performance (tact)
 1 2:12 to 2:13 Empty code block (tact)
 1 3:20 to 3:21 Empty code block (tact)
 
@@ -137,6 +141,7 @@ contract Test {
 }
 ------------------------------------------------------------------------
 3 1:8 to 1:12 Method 'test' is never used (tact)
+1 1:8 to 1:12 The function does not use contract state, extract it into a standalone function for better performance (tact)
 1 3:27 to 3:28 Empty code block (tact)
 
 ========================================================================
@@ -172,3 +177,5 @@ contract Test {
 ------------------------------------------------------------------------
 3 3:8 to 3:14 Method 'method' is never used (tact)
 3 11:8 to 11:19 Method 'controlFlow' is never used (tact)
+1 11:8 to 11:19 The function does not use contract state, extract it into a standalone function for better performance (tact)
+2 17:12 to 17:21 Can be rewritten as `x -= 1` (tact)

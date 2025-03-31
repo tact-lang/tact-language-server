@@ -19,7 +19,15 @@ import {getDocumentSettings, TactSettings} from "@server/utils/settings"
 import {File} from "@server/psi/File"
 import {Position} from "vscode-languageclient"
 import {asLspPosition} from "@server/utils/position"
-import {FieldsOwnerTy, sizeOfPresentation} from "@server/types/BaseTy"
+import {
+    ContractTy,
+    FieldsOwnerTy,
+    MessageTy,
+    sizeOfPresentation,
+    StructTy,
+    Ty,
+} from "@server/types/BaseTy"
+import {generateTlb} from "@server/compiler/tlb/tlb"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -45,6 +53,13 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
         const owner = symbol.dataOwner()
         if (!owner) return null // not possible in correct code
         return owner.kind() + " " + owner.name() + "\n"
+    }
+
+    function genTlb(ty: Ty): string {
+        if (!settings.documentation.showTlb) return ""
+
+        const tlb = generateTlb(ty)
+        return `\n---\n**TL-B**:\n\n${CODE_FENCE}tlb\n${tlb}\n${CODE_FENCE}\n---\n`
     }
 
     switch (astNode.type) {
@@ -125,7 +140,9 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
 
             const body = members === "" ? "{}" : `{\n${members}\n}`
 
-            return defaultResult(`contract ${node.name()}${inheritedString} ${body}`, doc)
+            const tlb = genTlb(new ContractTy(contract.name(), contract))
+
+            return defaultResult(`contract ${node.name()}${inheritedString} ${body}`, tlb + doc)
         }
         case "trait": {
             const trait = new Trait(astNode, node.file)
@@ -151,7 +168,9 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const struct = new Struct(node.node, node.file)
             const body = struct.body()?.text ?? ""
             const sizeDoc = documentationSizeOf(struct)
-            return defaultResult(`struct ${node.name()} ${body}`, doc + sizeDoc)
+            const tlb = genTlb(new StructTy(struct.name(), struct))
+
+            return defaultResult(`struct ${node.name()} ${body}`, tlb + doc + sizeDoc)
         }
         case "message": {
             const doc = extractCommentsDoc(node)
@@ -159,7 +178,9 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const body = message.body()?.text ?? ""
             const value = message.value()
             const sizeDoc = documentationSizeOf(message)
-            return defaultResult(`message${value} ${node.name()} ${body}`, doc + sizeDoc)
+            const tlb = genTlb(new MessageTy(message.name(), message))
+
+            return defaultResult(`message${value} ${node.name()} ${body}`, tlb + doc + sizeDoc)
         }
         case "primitive": {
             const doc = extractCommentsDoc(node)
@@ -360,6 +381,13 @@ export function extractCommentsDocContent(node: Node): {
             break
         }
 
+        // possibly inline comment
+        const prev = comment.previousSibling
+        if (prev?.endPosition.row === commentStartLine) {
+            // same line with the previous node, inline comment
+            break
+        }
+
         comments.push(comment)
         comment = comment.previousSibling
     }
@@ -379,52 +407,7 @@ export function extractCommentsDocContent(node: Node): {
 export function extractCommentsDoc(node: Node): string {
     const content = extractCommentsDocContent(node)
     if (!content) return ""
-
-    const lines = content.lines
-
-    let result = ""
-    let insideCodeBlock = false
-
-    for (const rawLine of lines) {
-        const line = rawLine.trimEnd()
-
-        if (line.replace(/-/g, "").length === 0 && line.length > 0) {
-            result += "\n\n"
-            continue
-        }
-
-        const isEndOfSentence = /[!.:?]$/.test(line)
-        const isList = line.startsWith("-") || line.startsWith("*")
-        const isHeader = line.startsWith("#")
-        const isTable = line.startsWith("|")
-        const isCodeBlock = line.startsWith("```")
-
-        if (isCodeBlock && !insideCodeBlock) {
-            result += "\n"
-        }
-
-        if (isList) {
-            result += "\n"
-        }
-
-        result += line
-
-        if (insideCodeBlock || isCodeBlock || isTable || isList) {
-            result += "\n"
-        }
-
-        if ((isEndOfSentence || isHeader) && !insideCodeBlock) {
-            result += "\n\n"
-        } else if (!insideCodeBlock && !isCodeBlock && !isList) {
-            result += " "
-        }
-
-        if (isCodeBlock) {
-            insideCodeBlock = !insideCodeBlock
-        }
-    }
-
-    return result.trimEnd()
+    return content.lines.join("\n")
 }
 
 function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSettings): string | null {

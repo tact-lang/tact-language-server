@@ -14,6 +14,10 @@ export const InspectionIds = {
     NOT_IMPORTED_SYMBOL: "not-imported-symbol",
     DONT_USE_TEXT_RECEIVERS: "dont-use-text-receivers",
     DONT_USE_DEPLOYABLE: "dont-use-deployable",
+    REWRITE_AS_AUGMENTED_ASSIGNMENT: "rewrite-as-augmented-assignment",
+    CAN_BE_STANDALONE_FUNCTION: "can-be-standalone-function",
+    USE_EXPLICIT_STRING_RECEIVER: "use-explicit-string-receiver",
+    IMPLICIT_RETURN_VALUE_DISCARD: "implicit-return-value-discard",
     MISTI: "misti",
 } as const
 
