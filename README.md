@@ -30,8 +30,8 @@ Tact is a next-generation programming language for building secure, scalable, an
 - Signature help inside calls, `initOf` and struct initialization
 - [Lenses] with implementation/reference counts
 - [Gas estimates] for assembly functions
-- Build and test projects based on Blueprint and [Tact template]
-- Integration with Tact compiler and Misti static analyzer
+- Build and test projects based on [Blueprint] and [Tact template]
+- Integration with [Tact compiler] and [Misti] static analyzer
 - Formatting
 
 [Semantic syntax highlighting]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/highlighting.md
@@ -47,7 +47,10 @@ Tact is a next-generation programming language for building secure, scalable, an
 [inspections]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/inspections.md
 [Lenses]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/code-lenses.md
 [Gas estimates]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/gas-calculation.md
+[Blueprint]: https://docs.ton.org/v3/documentation/smart-contracts/getting-started/javascript
 [Tact template]: https://github.com/tact-lang/tact-template
+[Tact compiler]: https://github.com/tact-lang/tact
+[Misti]: https://nowarp.io/tools/misti/
 
 ## Quick start
 
