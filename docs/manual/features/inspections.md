@@ -1,11 +1,9 @@
 # Inspections
 
 This document describes available inspections in Language Server and their functionality.
-
 Some inspections have auto-fix functionality.
 
 All inspections are enabled by default. To disable an inspection, you can use the `tact.inspections.disabled` setting.
-
 For example, to disable the `unused-import` inspection, you can add the following to your settings:
 
 ```json
@@ -19,7 +17,6 @@ For example, to disable the `unused-import` inspection, you can add the followin
 ### Performance Inspections
 
 - [Can Be Standalone Function](#can-be-a-standalone-function)
-- [Rewrite As Augmented Assignment](#rewrite-as-augmented-assignment)
 - [Rewrite](#rewrite)
 - [Don't Use Text Receivers](#dont-use-text-receivers)
 - [Use Explicit String Receiver](#use-explicit-string-receiver)
@@ -27,6 +24,7 @@ For example, to disable the `unused-import` inspection, you can add the followin
 
 ### Code Quality Inspections
 
+- [Rewrite As Augmented Assignment](#rewrite-as-augmented-assignment)
 - [Unused Import](#unused-import)
 - [Unused Variable](#unused-variable)
 - [Unused Parameter](#unused-parameter)
@@ -48,8 +46,11 @@ For example, to disable the `unused-import` inspection, you can add the followin
 ### Can Be a Standalone Function
 
 **ID**: `can-be-standalone-function`
+
 **Severity**: Warning
+
 **Category**: Performance
+
 **Auto-fix**: Available
 
 This inspection identifies contract methods that don't use contract state (don't use `self`) and can be extracted into
@@ -90,58 +91,14 @@ fun bar(a: Int): Bool {
 **Note**: Only non-get methods that don't use contract state can be extracted as standalone functions. Get methods are
 always part of the contract interface and cannot be extracted.
 
-### Rewrite As Augmented Assignment
-
-**ID**: `rewrite-as-augmented-assignment`
-**Severity**: Hint
-**Category**: Readability
-**Auto-fix**: Available
-
-Suggests using augmented assignment operators (like `+=`, `-=`, `*=`, etc.) instead of regular assignment with
-arithmetic operations. This makes the code more concise and readable.
-
-**Before**:
-
-```tact
-fun foo() {
-    let a = 100;
-    a = a + 10;
-    a = a - 5;
-    a = a * 2;
-    a = a / 3;
-    a = a % 4;
-    a = a & 0xFF;
-    a = a | 0x0F;
-    a = a << 2;
-    a = a >> 1;
-}
-```
-
-**After**:
-
-```tact
-fun foo() {
-    let a = 100;
-    a += 10;
-    a -= 5;
-    a *= 2;
-    a /= 3;
-    a %= 4;
-    a &= 0xFF;
-    a |= 0x0F;
-    a <<= 2;
-    a >>= 1;
-}
-```
-
-**Note**: The inspection also works with field access expressions (e.g., `a.field = a.field + 10` to `a.field += 10`)and
-with reversed operand order (e.g., `a = 10 + a` to `a += 10`).
-
 ### Rewrite
 
 **ID**: `rewrite`
+
 **Severity**: Information
+
 **Category**: Performance
+
 **Auto-fix**: Available
 
 Suggests rewriting certain code patterns for better performance or clarity. Current rewrites include:
@@ -203,8 +160,11 @@ contract MyContract {
 ### Don't Use Text Receivers
 
 **ID**: `dont-use-text-receivers`
+
 **Severity**: Warning
+
 **Category**: Performance
+
 **Auto-fix**: Not available
 
 Warns against using text receivers in contract methods. Text messages are less efficient than binary messages and should
@@ -240,8 +200,11 @@ messages because:
 ### Use Explicit String Receiver
 
 **ID**: `use-explicit-string-receiver`
+
 **Severity**: Warning
+
 **Category**: Performance
+
 **Auto-fix**: Available
 
 Suggests using explicit string receivers instead of checking string parameters in a fallback string receiver. This helps
@@ -289,8 +252,11 @@ trigger for other comparison operators or dynamic string comparisons.
 ### Don't Use Deployable
 
 **ID**: `dont-use-deployable`
+
 **Severity**: Warning
+
 **Category**: Performance
+
 **Auto-fix**: Available
 
 Warns against using the deprecated `Deployable` and `FactoryDeployable` traits. Since Tact 1.6.0, these traits are
@@ -321,11 +287,64 @@ contract MyContract {
 
 ## Code Quality Inspections
 
+### Rewrite As Augmented Assignment
+
+**ID**: `rewrite-as-augmented-assignment`
+
+**Severity**: Info
+
+**Category**: Code Quality
+
+**Auto-fix**: Available
+
+Suggests using augmented assignment operators (like `+=`, `-=`, `*=`, etc.) instead of regular assignment with
+arithmetic operations. This makes the code more concise and readable.
+
+**Before**:
+
+```tact
+fun foo() {
+    let a = 100;
+    a = a + 10;
+    a = a - 5;
+    a = a * 2;
+    a = a / 3;
+    a = a % 4;
+    a = a & 0xFF;
+    a = a | 0x0F;
+    a = a << 2;
+    a = a >> 1;
+}
+```
+
+**After**:
+
+```tact
+fun foo() {
+    let a = 100;
+    a += 10;
+    a -= 5;
+    a *= 2;
+    a /= 3;
+    a %= 4;
+    a &= 0xFF;
+    a |= 0x0F;
+    a <<= 2;
+    a >>= 1;
+}
+```
+
+**Note**: The inspection also works with field access expressions (e.g., `a.field = a.field + 10` to `a.field += 10`)and
+with reversed operand order (e.g., `a = 10 + a` to `a += 10`).
+
 ### Unused Import
 
 **ID**: `unused-import`
+
 **Severity**: Hint
+
 **Category**: Code Quality
+
 **Auto-fix**: Not available
 
 Detects imported modules that are not used in the code. This helps keep the codebase clean and reduces unnecessary
@@ -345,8 +364,11 @@ contract MyContract {
 ### Unused Variable
 
 **ID**: `unused-variable`
+
 **Severity**: Warning
+
 **Category**: Code Quality
+
 **Auto-fix**: Not available
 
 Identifies variables that are declared but never used in the code. Variables named `_` are ignored.
@@ -382,8 +404,11 @@ fun process(p: Point) {
 ### Unused Parameter
 
 **ID**: `unused-parameter`
+
 **Severity**: Warning
+
 **Category**: Code Quality
+
 **Auto-fix**: Not available
 
 Identifies function parameters that are declared but never used in the function body.
@@ -408,8 +433,11 @@ contract MyContract {
 ### Struct Initialization
 
 **ID**: `struct-initialization`
+
 **Severity**: Error
+
 **Category**: Code Quality
+
 **Auto-fix**: Not available
 
 Checks if all required fields are properly initialized when creating struct instances. Fields with default values are
@@ -441,8 +469,11 @@ fun createPoints() {
 ### Implicit Return Value Discard
 
 **ID**: `implicit-return-value-discard`
+
 **Severity**: Warning
+
 **Category**: Code Quality
+
 **Auto-fix**: Available
 
 Warns when a function's return value is not used. Functions that return a value should either have their result used or
@@ -492,8 +523,11 @@ fun bar(a: Int): Bool {
 ### Empty Block
 
 **ID**: `empty-block`
+
 **Severity**: Warning
+
 **Category**: Code Quality
+
 **Auto-fix**: Not available
 
 Identifies empty code blocks that might indicate incomplete implementation.
@@ -524,8 +558,11 @@ contract MyContract {
 ### Unused Contract Members
 
 **ID**: `unused-contract-members`
+
 **Severity**: Warning
+
 **Category**: Code Quality
+
 **Auto-fix**: Not available
 
 Identifies contract members (fields, constants, methods) that are never used in the code. Members that override parent
@@ -543,8 +580,11 @@ trait members are not considered unused.
 ### Missed Field in Contract
 
 **ID**: `missed-field-in-contract`
+
 **Severity**: Error
+
 **Category**: Contract Safety
+
 **Auto-fix**: Not available
 
 Identifies fields that are required by inherited traits but not implemented in the contract. This ensures that all
@@ -582,8 +622,11 @@ errors.
 ### Not Imported Symbol
 
 **ID**: `not-imported-symbol`
+
 **Severity**: Error
+
 **Category**: Compilation
+
 **Auto-fix**: Available
 
 Reports usage of symbols that haven't been imported.
