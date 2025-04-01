@@ -148,9 +148,9 @@ contract MyContract {
 
 ### Don't Use Text Receivers
 
-| **ID**                    | **Severity** | **Category** | **Auto-fix**  |
-| ------------------------- | ------------ | ------------ | ------------- |
-| `dont-use-text-receivers` | Warning      | Performance  | Not available |
+| **ID**                    | **Severity** | **Category** | **Auto-fix** |
+| ------------------------- | ------------ | ------------ | ------------ |
+| `dont-use-text-receivers` | Warning      | Performance  | Available    |
 
 Warns against using text receivers in contract methods. Text messages are less efficient than binary messages and should be avoided for better performance.
 
