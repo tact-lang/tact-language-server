@@ -45,16 +45,11 @@ For example, to disable the `unused-import` inspection, you can add the followin
 
 ### Can Be a Standalone Function
 
-**ID**: `can-be-standalone-function`
+| **ID**                       | **Severity** | **Category** | **Auto-fix** |
+| ---------------------------- | ------------ | ------------ | ------------ |
+| `can-be-standalone-function` | Warning      | Performance  | Available    |
 
-**Severity**: Warning
-
-**Category**: Performance
-
-**Auto-fix**: Available
-
-This inspection identifies contract methods that don't use contract state (don't use `self`) and can be extracted into
-standalone functions for better performance.
+This inspection identifies contract methods that don't use contract state (don't use `self`) and can be extracted into standalone functions for better performance.
 
 **Before**:
 
@@ -88,24 +83,18 @@ fun bar(a: Int): Bool {
 }
 ```
 
-**Note**: Only non-get methods that don't use contract state can be extracted as standalone functions. Get methods are
-always part of the contract interface and cannot be extracted.
+**Note**: Only non-get methods that don't use contract state can be extracted as standalone functions. Get methods are always part of the contract interface and cannot be extracted.
 
 ### Rewrite
 
-**ID**: `rewrite`
-
-**Severity**: Information
-
-**Category**: Performance
-
-**Auto-fix**: Available
+| **ID**    | **Severity** | **Category** | **Auto-fix** |
+| --------- | ------------ | ------------ | ------------ |
+| `rewrite` | Information  | Performance  | Available    |
 
 Suggests rewriting certain code patterns for better performance or clarity. Current rewrites include:
 
 - Replacing `context().sender` with `sender()`.
-- Replacing `send(SendParameters { ... })` with `message(MessageParameters { ... })` or
-  `deploy(DeployParameters { ... })` where applicable (since Tact 1.6.0).
+- Replacing `send(SendParameters { ... })` with `message(MessageParameters { ... })` or `deploy(DeployParameters { ... })` where applicable (since Tact 1.6.0).
 
 **Example 1 (context().sender)**:
 **Before**:
@@ -159,16 +148,11 @@ contract MyContract {
 
 ### Don't Use Text Receivers
 
-**ID**: `dont-use-text-receivers`
+| **ID**                    | **Severity** | **Category** | **Auto-fix**  |
+| ------------------------- | ------------ | ------------ | ------------- |
+| `dont-use-text-receivers` | Warning      | Performance  | Not available |
 
-**Severity**: Warning
-
-**Category**: Performance
-
-**Auto-fix**: Not available
-
-Warns against using text receivers in contract methods. Text messages are less efficient than binary messages and should
-be avoided for better performance.
+Warns against using text receivers in contract methods. Text messages are less efficient than binary messages and should be avoided for better performance.
 
 **Example**:
 
@@ -190,8 +174,7 @@ message IncrementMessage {
 }
 ```
 
-**Note**: While text receivers can be useful for debugging or simple interactions, they are less efficient than binary
-messages because:
+**Note**: While text receivers can be useful for debugging or simple interactions, they are less efficient than binary messages because:
 
 - Text messages require additional processing and encoding
 - Binary messages are more compact and faster to process
@@ -199,16 +182,11 @@ messages because:
 
 ### Use Explicit String Receiver
 
-**ID**: `use-explicit-string-receiver`
+| **ID**                         | **Severity** | **Category** | **Auto-fix** |
+| ------------------------------ | ------------ | ------------ | ------------ |
+| `use-explicit-string-receiver` | Warning      | Performance  | Available    |
 
-**Severity**: Warning
-
-**Category**: Performance
-
-**Auto-fix**: Available
-
-Suggests using explicit string receivers instead of checking string parameters in a fallback string receiver. This helps
-improve code clarity and performance.
+Suggests using explicit string receivers instead of checking string parameters in a fallback string receiver. This helps improve code clarity and performance.
 
 **Before**:
 
@@ -246,21 +224,15 @@ contract Contract {
 }
 ```
 
-**Note**: This inspection only triggers for equality checks (`==`) with string literals in string receivers. It won't
-trigger for other comparison operators or dynamic string comparisons.
+**Note**: This inspection only triggers for equality checks (`==`) with string literals in string receivers. It won't trigger for other comparison operators or dynamic string comparisons.
 
 ### Don't Use Deployable
 
-**ID**: `dont-use-deployable`
+| **ID**                | **Severity** | **Category** | **Auto-fix** |
+| --------------------- | ------------ | ------------ | ------------ |
+| `dont-use-deployable` | Warning      | Performance  | Available    |
 
-**Severity**: Warning
-
-**Category**: Performance
-
-**Auto-fix**: Available
-
-Warns against using the deprecated `Deployable` and `FactoryDeployable` traits. Since Tact 1.6.0, these traits are
-deprecated and should not be used unless you specifically need the `queryId` functionality.
+Warns against using the deprecated `Deployable` and `FactoryDeployable` traits. Since Tact 1.6.0, these traits are deprecated and should not be used unless you specifically need the `queryId` functionality.
 
 Instead of using these traits, you should use an empty message body receiver for deployments.
 
@@ -289,16 +261,11 @@ contract MyContract {
 
 ### Rewrite As Augmented Assignment
 
-**ID**: `rewrite-as-augmented-assignment`
+| **ID**                            | **Severity** | **Category** | **Auto-fix** |
+| --------------------------------- | ------------ | ------------ | ------------ |
+| `rewrite-as-augmented-assignment` | Info         | Code Quality | Available    |
 
-**Severity**: Info
-
-**Category**: Code Quality
-
-**Auto-fix**: Available
-
-Suggests using augmented assignment operators (like `+=`, `-=`, `*=`, etc.) instead of regular assignment with
-arithmetic operations. This makes the code more concise and readable.
+Suggests using augmented assignment operators (like `+=`, `-=`, `*=`, etc.) instead of regular assignment with arithmetic operations. This makes the code more concise and readable.
 
 **Before**:
 
@@ -334,21 +301,15 @@ fun foo() {
 }
 ```
 
-**Note**: The inspection also works with field access expressions (e.g., `a.field = a.field + 10` to `a.field += 10`)and
-with reversed operand order (e.g., `a = 10 + a` to `a += 10`).
+**Note**: The inspection also works with field access expressions (e.g., `a.field = a.field + 10` to `a.field += 10`)and with reversed operand order (e.g., `a = 10 + a` to `a += 10`).
 
 ### Unused Import
 
-**ID**: `unused-import`
+| **ID**          | **Severity** | **Category** | **Auto-fix**  |
+| --------------- | ------------ | ------------ | ------------- |
+| `unused-import` | Hint         | Code Quality | Not available |
 
-**Severity**: Hint
-
-**Category**: Code Quality
-
-**Auto-fix**: Not available
-
-Detects imported modules that are not used in the code. This helps keep the codebase clean and reduces unnecessary
-dependencies.
+Detects imported modules that are not used in the code. This helps keep the codebase clean and reduces unnecessary dependencies.
 
 **Example**:
 
@@ -363,13 +324,9 @@ contract MyContract {
 
 ### Unused Variable
 
-**ID**: `unused-variable`
-
-**Severity**: Warning
-
-**Category**: Code Quality
-
-**Auto-fix**: Not available
+| **ID**            | **Severity** | **Category** | **Auto-fix**  |
+| ----------------- | ------------ | ------------ | ------------- |
+| `unused-variable` | Warning      | Code Quality | Not available |
 
 Identifies variables that are declared but never used in the code. Variables named `_` are ignored.
 
@@ -403,13 +360,9 @@ fun process(p: Point) {
 
 ### Unused Parameter
 
-**ID**: `unused-parameter`
-
-**Severity**: Warning
-
-**Category**: Code Quality
-
-**Auto-fix**: Not available
+| **ID**             | **Severity** | **Category** | **Auto-fix**  |
+| ------------------ | ------------ | ------------ | ------------- |
+| `unused-parameter` | Warning      | Code Quality | Not available |
 
 Identifies function parameters that are declared but never used in the function body.
 
@@ -432,16 +385,11 @@ contract MyContract {
 
 ### Struct Initialization
 
-**ID**: `struct-initialization`
+| **ID**                  | **Severity** | **Category** | **Auto-fix**  |
+| ----------------------- | ------------ | ------------ | ------------- |
+| `struct-initialization` | Error        | Code Quality | Not available |
 
-**Severity**: Error
-
-**Category**: Code Quality
-
-**Auto-fix**: Not available
-
-Checks if all required fields are properly initialized when creating struct instances. Fields with default values are
-optional.
+Checks if all required fields are properly initialized when creating struct instances. Fields with default values are optional.
 
 **Example**:
 
@@ -468,16 +416,11 @@ fun createPoints() {
 
 ### Implicit Return Value Discard
 
-**ID**: `implicit-return-value-discard`
+| **ID**                          | **Severity** | **Category** | **Auto-fix** |
+| ------------------------------- | ------------ | ------------ | ------------ |
+| `implicit-return-value-discard` | Warning      | Code Quality | Available    |
 
-**Severity**: Warning
-
-**Category**: Code Quality
-
-**Auto-fix**: Available
-
-Warns when a function's return value is not used. Functions that return a value should either have their result used or
-explicitly discarded.
+Warns when a function's return value is not used. Functions that return a value should either have their result used or explicitly discarded.
 
 **Example**:
 
@@ -522,13 +465,9 @@ fun bar(a: Int): Bool {
 
 ### Empty Block
 
-**ID**: `empty-block`
-
-**Severity**: Warning
-
-**Category**: Code Quality
-
-**Auto-fix**: Not available
+| **ID**        | **Severity** | **Category** | **Auto-fix**  |
+| ------------- | ------------ | ------------ | ------------- |
+| `empty-block` | Warning      | Code Quality | Not available |
 
 Identifies empty code blocks that might indicate incomplete implementation.
 
@@ -557,16 +496,11 @@ contract MyContract {
 
 ### Unused Contract Members
 
-**ID**: `unused-contract-members`
+| **ID**                    | **Severity** | **Category** | **Auto-fix**  |
+| ------------------------- | ------------ | ------------ | ------------- |
+| `unused-contract-members` | Warning      | Code Quality | Not available |
 
-**Severity**: Warning
-
-**Category**: Code Quality
-
-**Auto-fix**: Not available
-
-Identifies contract members (fields, constants, methods) that are never used in the code. Members that override parent
-trait members are not considered unused.
+Identifies contract members (fields, constants, methods) that are never used in the code. Members that override parent trait members are not considered unused.
 
 **Note**: The following members are not considered unused:
 
@@ -579,16 +513,11 @@ trait members are not considered unused.
 
 ### Missed Field in Contract
 
-**ID**: `missed-field-in-contract`
+| **ID**                     | **Severity** | **Category**    | **Auto-fix**  |
+| -------------------------- | ------------ | --------------- | ------------- |
+| `missed-field-in-contract` | Error        | Contract Safety | Not available |
 
-**Severity**: Error
-
-**Category**: Contract Safety
-
-**Auto-fix**: Not available
-
-Identifies fields that are required by inherited traits but not implemented in the contract. This ensures that all
-required fields from traits are properly implemented.
+Identifies fields that are required by inherited traits but not implemented in the contract. This ensures that all required fields from traits are properly implemented.
 
 **Example**:
 
@@ -614,20 +543,15 @@ contract ValidContract with Ownable, WithValue {  // OK: All required fields imp
 }
 ```
 
-**Note**: All fields defined in traits must be implemented in the contract. Missed fields will result in compilation
-errors.
+**Note**: All fields defined in traits must be implemented in the contract. Missed fields will result in compilation errors.
 
 ## Syntax and Compilation Inspections
 
 ### Not Imported Symbol
 
-**ID**: `not-imported-symbol`
-
-**Severity**: Error
-
-**Category**: Compilation
-
-**Auto-fix**: Available
+| **ID**                | **Severity** | **Category** | **Auto-fix** |
+| --------------------- | ------------ | ------------ | ------------ |
+| `not-imported-symbol` | Error        | Compilation  | Available    |
 
 Reports usage of symbols that haven't been imported.
 
