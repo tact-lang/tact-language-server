@@ -26,7 +26,7 @@ Tact is a next-generation programming language for building secure, scalable, an
 - Find all references, workspace symbol search, symbol renaming
 - Types and documentation on hover
 - Inlay hints [for types], [parameter names] and [more]
-- On-the-fly inspections with quick fixes
+- On-the-fly [inspections] with quick fixes
 - Signature help inside calls, `initOf` and struct initialization
 - [Lenses] with implementation/reference counts
 - [Gas estimates] for assembly functions
@@ -43,6 +43,7 @@ Tact is a next-generation programming language for building secure, scalable, an
 [for types]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/inlay-hints.md#type-hints
 [parameter names]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/inlay-hints.md#parameter-hints
 [more]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/inlay-hints.md#additional-hints
+[inspections]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/inspections.md
 [Lenses]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/code-lenses.md
 [Gas estimates]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/gas-calculation.md
 [Tact template]: https://github.com/tact-lang/tact-template
