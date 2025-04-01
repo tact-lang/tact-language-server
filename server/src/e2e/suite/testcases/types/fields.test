@@ -15,6 +15,7 @@ ok
 Message field type with Tl-B 2
 ========================================================================
 primitive Int;
+primitive Slice;
 
 message Point {
     x: Int as coins;
@@ -22,7 +23,7 @@ message Point {
 //! ^ Slice as remaining
 }
 ------------------------------------------------------------------------
-type inference error at line 5:4: expected Slice as remaining, got unknown
+ok
 
 ========================================================================
 Message field map type with Tl-B

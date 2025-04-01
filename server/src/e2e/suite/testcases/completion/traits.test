@@ -189,7 +189,6 @@ trait Child with Parent {
 13 virtual fun name() {}
 13 age  generate getter for "age" field
 13 name  generate getter for "name" field
-13 name  generate getter for "name" field
 
 ========================================================================
 Completion of methods and fields without self
