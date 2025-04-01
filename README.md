@@ -32,6 +32,7 @@ Tact is a next-generation programming language for building secure, scalable, an
 - [Gas estimates] for assembly functions
 - Build and test projects based on Blueprint and [Tact template]
 - Integration with Tact compiler and Misti static analyzer
+- Formatting
 
 [Semantic syntax highlighting]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/highlighting.md
 [Code completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md
