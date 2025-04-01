@@ -385,9 +385,9 @@ contract MyContract {
 
 ### Struct Initialization
 
-| **ID**                  | **Severity** | **Category** | **Auto-fix**  |
-| ----------------------- | ------------ | ------------ | ------------- |
-| `struct-initialization` | Error        | Code Quality | Not available |
+| **ID**                  | **Severity** | **Category** | **Auto-fix** |
+| ----------------------- | ------------ | ------------ | ------------ |
+| `struct-initialization` | Error        | Code Quality | Available    |
 
 Checks if all required fields are properly initialized when creating struct instances. Fields with default values are optional.
 
