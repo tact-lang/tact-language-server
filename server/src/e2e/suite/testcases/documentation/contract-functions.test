@@ -116,7 +116,7 @@ contract Foo {
 contract Foo
 get fun foo()
 ```
-Method ID: `0x103fc`
+Method ID: `0x1af96`
 
 ========================================================================
 get function with method ID
