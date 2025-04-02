@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2025-04-02
+
+- Fixed method ID calculation in https://github.com/tact-lang/tact-language-server/pull/539
+
 ## [0.5.0] - 2025-03-31
 
 - Formatter in https://github.com/tact-lang/tact-language-server/pull/476
