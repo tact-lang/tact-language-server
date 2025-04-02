@@ -48,7 +48,7 @@ contract Foo {
 primitive Int;
 
 contract Foo {
-    get/* (0x1ab79) */ fun bar(){
+    get/* (0x193c5) */ fun bar(){
         const a: Int;
     }
 }
@@ -140,7 +140,7 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 contract Foo {
-    get/* (0x1c89d) */ fun test1(value: Int) {
+    get/* (0x112a0) */ fun test1(value: Int) {
         return value;
     }
 
