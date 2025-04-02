@@ -14,7 +14,8 @@
     },
     "icon": "logo.png",
     "activationEvents": [
-        "onLanguage:tact"
+        "onLanguage:tact",
+        "onLanguage:tasm"
     ],
     "categories": [
         "Programming Languages"
@@ -84,6 +85,16 @@
                 ],
                 "aliases": [
                     "TON BoC"
+                ]
+            },
+            {
+                "id": "tasm",
+                "aliases": [
+                    "TASM",
+                    "Tact Assembly"
+                ],
+                "extensions": [
+                    ".tasm"
                 ]
             }
         ],
@@ -186,6 +197,57 @@
                 }
             ]
         },
+        "debuggers": [
+            {
+                "type": "tact-tasm",
+                "label": "Tact TASM Debugger",
+                "languages": [
+                    "tasm"
+                ],
+                "program": "./dist/debugAdapter.js",
+                "runtime": "node",
+                "configurationAttributes": {
+                    "launch": {
+                        "required": [
+                            "tasmPath",
+                            "tracePath"
+                        ],
+                        "properties": {
+                            "tasmPath": {
+                                "type": "string",
+                                "description": "Absolute path to the compiled .tasm file.",
+                                "default": "${workspaceFolder}/build/output.tasm"
+                            },
+                            "tracePath": {
+                                "type": "string",
+                                "description": "Absolute path to the execution trace JSON file.",
+                                "default": "${workspaceFolder}/build/trace.json"
+                            },
+                            "stopOnEntry": {
+                                "type": "boolean",
+                                "description": "Automatically stop after launch.",
+                                "default": true
+                            },
+                            "trace": {
+                                "type": "boolean",
+                                "description": "Enable logging of the Debug Adapter Protocol to a file.",
+                                "default": false
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "tact-tasm",
+                        "request": "launch",
+                        "name": "Debug Tact TASM Trace",
+                        "tasmPath": "${workspaceFolder}/build/output.tasm",
+                        "tracePath": "${workspaceFolder}/build/trace.json",
+                        "stopOnEntry": true
+                    }
+                ]
+            }
+        ],
         "configuration": [
             {
                 "title": "General",
@@ -577,6 +639,8 @@
         "@types/mocha": "^10.0.6",
         "@types/node": "^22.2.0",
         "@types/vscode": "^1.63.0",
+        "@vscode/debugadapter": "^1.68.0",
+        "@vscode/debugprotocol": "^1.68.0",
         "@vscode/test-cli": "^0.0.10",
         "@vscode/test-electron": "^2.4.1",
         "@vscode/vsce": "^2.15.0",

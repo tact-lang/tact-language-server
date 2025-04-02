@@ -1491,6 +1491,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vscode/debugadapter@npm:^1.68.0":
+  version: 1.68.0
+  resolution: "@vscode/debugadapter@npm:1.68.0"
+  dependencies:
+    "@vscode/debugprotocol": "npm:1.68.0"
+  checksum: 10c0/68aaaf283eaabff42c89055221f9602c1e2560027b474a8b109c89129e5d37145b98c0d496b37f1058dc6fdbcdc02e28e2191bf82bfb10832199106ca9d5dfaf
+  languageName: node
+  linkType: hard
+
+"@vscode/debugprotocol@npm:1.68.0, @vscode/debugprotocol@npm:^1.68.0":
+  version: 1.68.0
+  resolution: "@vscode/debugprotocol@npm:1.68.0"
+  checksum: 10c0/e4b21bad518f7db66f7bd5c07b8303af36dbee920c9250d0f5d3910fb181ee1f7e83c536004b3258041d54d18c86fc361de3c2225958a458dbf5ece99c317870
+  languageName: node
+  linkType: hard
+
 "@vscode/test-cli@npm:^0.0.10":
   version: 0.0.10
   resolution: "@vscode/test-cli@npm:0.0.10"
@@ -7905,6 +7921,8 @@ __metadata:
     "@types/mocha": "npm:^10.0.6"
     "@types/node": "npm:^22.2.0"
     "@types/vscode": "npm:^1.63.0"
+    "@vscode/debugadapter": "npm:^1.68.0"
+    "@vscode/debugprotocol": "npm:^1.68.0"
     "@vscode/test-cli": "npm:^0.0.10"
     "@vscode/test-electron": "npm:^2.4.1"
     "@vscode/vsce": "npm:^2.15.0"
