@@ -218,6 +218,7 @@ export class Referent {
 
             if (
                 res.node.type === resolved.node.type &&
+                res.file.uri === resolved.file.uri &&
                 res.node.startPosition.row === resolved.node.startPosition.row &&
                 (identifier.text === resolved.name() || identifier.text === "self")
             ) {
