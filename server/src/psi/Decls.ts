@@ -358,12 +358,11 @@ export class Fun extends NamedNode {
         const body = this.node.childForFieldName("body")
         if (!body) return false
 
-        const children = body.namedChildren.filter(value => value !== null)
-        const len = children.reduce((prev, el) => {
-            return prev + el.endPosition.row - el.startPosition.row + 1
-        }, 0)
+        const firstChild = body.firstChild
+        const lastChild = body.lastChild
+        if (!firstChild || !lastChild) return false
 
-        return len <= maxLines
+        return firstChild.startPosition.row - lastChild.startPosition.row <= maxLines
     }
 
     public smallBodyPresentation(maxLines: number): string {

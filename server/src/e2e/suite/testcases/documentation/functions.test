@@ -10,10 +10,10 @@ native <caret>test3();
 native <caret>test4();
 ------------------------------------------------------------------------
 ```tact
-fun test1()
+fun test1() {}
 ```
 ```tact
-extends fun test2()
+extends fun test2() {}
 ```
 ```tact
 @name(__foo)
@@ -32,7 +32,7 @@ primitive Int;
 fun <caret>test(name: String, age: Int) {}
 ------------------------------------------------------------------------
 ```tact
-fun test(name: String, age: Int)
+fun test(name: String, age: Int) {}
 ```
 
 ========================================================================
@@ -44,7 +44,7 @@ primitive Int;
 fun <caret>test(name: String): String {}
 ------------------------------------------------------------------------
 ```tact
-fun test(name: String): String
+fun test(name: String): String {}
 ```
 
 ========================================================================
@@ -80,7 +80,9 @@ asm fun <caret>test() {
 }
 ------------------------------------------------------------------------
 ```tact
-asm fun test()
+asm fun test() {
+    ONE
+}
 ```
 Gas: `18`
 
@@ -93,7 +95,9 @@ fun <caret>test() {
 }
 ------------------------------------------------------------------------
 ```tact
-fun test()
+fun test() {
+    test();
+}
 ```
 This is one line comment
 
@@ -106,7 +110,9 @@ fun <caret>test() {
 }
 ------------------------------------------------------------------------
 ```tact
-fun test()
+fun test() {
+    test();
+}
 ```
 This is one line comment
 
@@ -176,7 +182,7 @@ Function documentation with list
 fun <caret>foo(): Int {}
 ------------------------------------------------------------------------
 ```tact
-fun foo(): Int
+fun foo(): Int {}
 ```
 Some interesting list
 - Point 1
@@ -189,5 +195,5 @@ Function documentation with T? type
 fun <caret>foo(): Int? {}
 ------------------------------------------------------------------------
 ```tact
-fun foo(): Int?
+fun foo(): Int? {}
 ```

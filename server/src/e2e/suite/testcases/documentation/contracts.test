@@ -117,7 +117,7 @@ contract Foo {
 ------------------------------------------------------------------------
 ```tact
 contract Foo
-get fun foo()
+get fun foo() {}
 ```
 Method ID: `0x1af96`
 
@@ -133,7 +133,7 @@ contract Foo {
 ------------------------------------------------------------------------
 ```tact
 contract Foo
-fun foo()
+fun foo() {}
 ```
 Some cool function
 

@@ -11,6 +11,6 @@ fun foo() {
 }
 ------------------------------------------------------------------------
 ```tact
-fun require(that: Bool, msg: String)
+fun require(that: Bool, msg: String) {}
 ```
 Exit code: **44401**
