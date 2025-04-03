@@ -1,0 +1,205 @@
+========================================================================
+context().sender rewrite
+========================================================================
+contract MyContract {
+    fun foo() {
+        let addr = context().sender;
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'foo' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+3 2:12 to 2:16 Variable 'addr' is never used (tact)
+2 2:19 to 2:35 Can be rewritten as more efficient `sender()` (quickfix available) (tact)
+
+========================================================================
+context().sender - no rewrite (different object)
+========================================================================
+contract MyContract {
+    fun foo(ctx: SomeType) {
+        let addr = ctx.sender;
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'foo' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+3 2:12 to 2:16 Variable 'addr' is never used (tact)
+
+========================================================================
+send(SendParameters) rewrite to message()
+========================================================================
+contract MyContract {
+    fun sendMessage(to: Address, amount: Int) {
+        send(SendParameters{
+            to: to,
+            value: amount,
+            body: "Hello"
+        });
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:19 Method 'sendMessage' is never used (tact)
+1 1:8 to 1:19 The function does not use contract state, extract it into a standalone function for better performance (tact)
+2 2:8 to 2:12 Can be rewritten as more efficient `message(MessageParameters { ... })` (quickfix available) (tact)
+
+========================================================================
+send(SendParameters) rewrite to deploy()
+========================================================================
+contract MyContract {
+    init(owner: Address) {
+        let initState = initOf MyContract(owner);
+        send(SendParameters{
+            value: 0,
+            code: initState.code,
+            data: initState.data
+        });
+    }
+}
+------------------------------------------------------------------------
+2 3:8 to 3:12 Can be rewritten as more efficient `deploy(DeployParameters { ... })` (quickfix available) (tact)
+
+========================================================================
+send(SendParameters) - no rewrite (has code/data)
+========================================================================
+contract MyContract {
+    fun sendWithCode(to: Address, code: Cell) {
+        send(SendParameters{
+            to: to,
+            value: 0,
+            code: code
+        });
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:20 Method 'sendWithCode' is never used (tact)
+1 1:8 to 1:20 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
+send(SendParameters) - no rewrite (has to)
+========================================================================
+contract MyContract {
+    fun sendWithTo(to: Address, init: StateInit) {
+        send(SendParameters{
+            to: to,
+            value: 0,
+            code: init.code,
+            data: init.data
+        });
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:18 Method 'sendWithTo' is never used (tact)
+1 1:8 to 1:18 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
+self.reply rewrite
+========================================================================
+contract MyContract {
+    receive() {
+        self.reply("Pong".asComment());
+    }
+}
+------------------------------------------------------------------------
+2 2:8 to 2:38 Can be rewritten as more efficient `message(MessageParameters { ... })` (quickfix available) (tact)
+
+========================================================================
+self.notify(null) rewrite
+========================================================================
+contract MyContract {
+    receive() {
+        self.notify(null);
+    }
+}
+------------------------------------------------------------------------
+2 2:8 to 2:25 Can be rewritten as more efficient `cashback(sender())` (quickfix available) (tact)
+
+========================================================================
+self.notify(message) - no rewrite
+========================================================================
+message MyMsg { value: Int; }
+
+contract MyContract {
+    receive() {
+        self.notify(MyMsg { value: 1 }.toCell());
+    }
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+self.forward for deploy rewrite
+========================================================================
+contract MyFactory {
+    fun deployContract(owner: Address) {
+        let init: initOf MyContract = initOf MyContract(owner);
+        self.forward(sender(), null, false, init);
+    }
+}
+contract MyContract {
+    owner: Address;
+    init(owner: Address) {
+        self.owner = owner;
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:22 Method 'deployContract' is never used (tact)
+2 3:8 to 3:49 Can be rewritten as more efficient `send(SendParameters{...})` (quickfix available) (tact)
+
+========================================================================
+self.forward different args - rewrite (body not null)
+========================================================================
+contract MyFactory {
+    fun deployContract(owner: Address) {
+        let init: initOf MyContract = initOf MyContract(owner);
+        self.forward(sender(), "Comment", false, init);
+    }
+}
+contract MyContract { owner: Address; init(owner: Address) { self.owner = owner; } }
+------------------------------------------------------------------------
+3 1:8 to 1:22 Method 'deployContract' is never used (tact)
+2 3:8 to 3:54 Can be rewritten as more efficient `send(SendParameters{...})` (quickfix available) (tact)
+
+========================================================================
+self.forward different args - rewrite (bounce not false)
+========================================================================
+contract MyFactory {
+    fun deployContract(owner: Address) {
+        let init: initOf MyContract = initOf MyContract(owner);
+        self.forward(sender(), null, true, init);
+    }
+}
+contract MyContract { owner: Address; init(owner: Address) { self.owner = owner; } }
+------------------------------------------------------------------------
+3 1:8 to 1:22 Method 'deployContract' is never used (tact)
+2 3:8 to 3:48 Can be rewritten as more efficient `send(SendParameters{...})` (quickfix available) (tact)
+
+========================================================================
+self.forward different args - rewrite (to not sender())
+========================================================================
+contract MyFactory {
+    fun deployContract(owner: Address, someAddr: Address) {
+        let init: initOf MyContract = initOf MyContract(owner);
+        self.forward(someAddr, null, false, init);
+    }
+}
+contract MyContract { owner: Address; init(owner: Address) { self.owner = owner; } }
+------------------------------------------------------------------------
+3 1:8 to 1:22 Method 'deployContract' is never used (tact)
+2 3:8 to 3:49 Can be rewritten as more efficient `send(SendParameters{...})` (quickfix available) (tact)
+
+========================================================================
+self.forward different args - rewrite (init not initOf)
+========================================================================
+contract MyFactory {
+    fun deployContract(owner: Address) {
+        let code: Cell = emptyCell();
+        let data: Cell = emptyCell();
+        let init: StateInit = StateInit{code: code, data: data};
+        self.forward(sender(), null, false, init);
+    }
+}
+contract MyContract { owner: Address; init(owner: Address) { self.owner = owner; } }
+------------------------------------------------------------------------
+3 1:8 to 1:22 Method 'deployContract' is never used (tact)
+3 1:23 to 1:28 Parameter 'owner' is never used (tact)
+2 5:8 to 5:49 Can be rewritten as more efficient `send(SendParameters{...})` (quickfix available) (tact)

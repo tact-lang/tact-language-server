@@ -12,7 +12,7 @@ export class RewriteInspection implements Inspection {
     public readonly id: "rewrite" = InspectionIds.REWRITE
 
     public inspect(file: File): lsp.Diagnostic[] {
-        if (!toolchain.isTact16()) return []
+        if (!toolchain.isTact16() && process.env["TACT_TESTS"] !== "true") return []
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 
@@ -21,7 +21,7 @@ export class RewriteInspection implements Inspection {
                 diagnostics.push({
                     severity: lsp.DiagnosticSeverity.Information,
                     range: asLspRange(node),
-                    message: "Can be rewritten as more efficient `sender()`",
+                    message: "Can be rewritten as more efficient `sender()` (quickfix available)",
                     source: "tact",
                     code: "performance",
                     data: this.rewriteContextSenderAction(node, file),
@@ -37,7 +37,7 @@ export class RewriteInspection implements Inspection {
                     severity: lsp.DiagnosticSeverity.Information,
                     range: asLspRange(name),
                     message:
-                        "Can be rewritten as more efficient `message(MessageParameters { ... })`",
+                        "Can be rewritten as more efficient `message(MessageParameters { ... })` (quickfix available)",
                     source: "tact",
                     code: "performance",
                     data: this.rewriteSendWithAction(node, file, "message", "MessageParameters"),
@@ -52,7 +52,7 @@ export class RewriteInspection implements Inspection {
                     severity: lsp.DiagnosticSeverity.Information,
                     range: asLspRange(name),
                     message:
-                        "Can be rewritten as more efficient `deploy(DeployParameters { ... })`",
+                        "Can be rewritten as more efficient `deploy(DeployParameters { ... })` (quickfix available)",
                     source: "tact",
                     code: "performance",
                     data: this.rewriteSendWithAction(node, file, "deploy", "DeployParameters"),

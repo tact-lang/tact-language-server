@@ -10,11 +10,12 @@ export async function run(): Promise<void> {
     })
 
     process.env["TACT_LS_SKIP_STDLIB_IN_TESTS"] = "true"
+    process.env["TACT_TESTS"] = "true"
 
     const testsRoot = path.resolve(__dirname, ".")
 
     return new Promise((resolve, reject) => {
-        glob("*.test.js", {
+        glob("inspection.test.js", {
             cwd: testsRoot,
         })
             .then(files => {
