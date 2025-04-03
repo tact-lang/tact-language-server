@@ -247,14 +247,7 @@ export class Trait extends StorageMembersOwner {}
 
 export class Contract extends StorageMembersOwner {
     public hasLazyInitializationBit(): boolean {
-        const hasParameters = this.parametersNode() !== undefined
-        if (hasParameters) {
-            // if contract has parameters (even empty), lazy bit is not used
-            return false
-        }
-
-        // and in any other cases we have lazy bit
-        return true
+        return this.parametersNode() === undefined
     }
 }
 

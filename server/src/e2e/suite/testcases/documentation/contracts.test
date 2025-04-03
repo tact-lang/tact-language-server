@@ -263,6 +263,6 @@ contract Test {}
 **TL-B**:
 
 ```tlb
-_  = Test
+_ = Test
 ```
 ---

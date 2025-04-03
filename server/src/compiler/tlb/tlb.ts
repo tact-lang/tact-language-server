@@ -118,7 +118,8 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
             fields.splice(0, 0, "lazy_deployment_bit:Bool")
         }
 
-        return "_ " + fields.join("\n  ") + " = " + name
+        const space = fields.length > 0 ? " " : ""
+        return "_" + space + fields.join("\n  ").trim() + " = " + name
     }
 
     return ""
