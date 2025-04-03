@@ -7,6 +7,8 @@ import {crc16} from "@server/utils/crc16"
 import {Position} from "vscode-languageclient"
 import {asLspPosition} from "@server/utils/position"
 import {computeGasConsumption, GasConsumption} from "@server/asm/gas"
+import {messageOpcode} from "@server/compiler/tlb/compiler-tlb"
+import {MessageTy} from "@server/types/BaseTy"
 
 export class FieldsOwner extends NamedNode {
     public kind(): string {
@@ -31,10 +33,20 @@ export class Message extends FieldsOwner {
         return this.node.childForFieldName("body")
     }
 
-    public value(): string {
+    public explicitOpcode(): string {
         const value = this.node.childForFieldName("value")
         if (!value) return ""
         return value.text
+    }
+
+    public opcode(): string {
+        const explicitOpcode = this.explicitOpcode()
+        if (explicitOpcode) {
+            return explicitOpcode
+        }
+
+        const opcode = messageOpcode(new MessageTy(this.name(), this))
+        return "0x" + opcode.toString(16)
     }
 }
 
