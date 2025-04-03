@@ -9,6 +9,7 @@ import {asLspPosition} from "@server/utils/position"
 import {computeGasConsumption, GasConsumption} from "@server/asm/gas"
 import {messageOpcode} from "@server/compiler/tlb/compiler-tlb"
 import {MessageTy} from "@server/types/BaseTy"
+import {normalizeIndentation} from "@server/utils/strings"
 
 export class FieldsOwner extends NamedNode {
     public kind(): string {
@@ -349,25 +350,28 @@ export class Fun extends NamedNode {
         return this.node.childForFieldName("body") !== null
     }
 
-    public get bodyPresentation(): string {
-        const body = this.node.childForFieldName("body")
-        if (!body) return ""
-        return body.text
-    }
-
     public get body(): SyntaxNode | null {
         return this.node.childForFieldName("body")
     }
 
-    public get hasOneLineBody(): boolean {
+    public hasSmallBody(maxLines: number): boolean {
         const body = this.node.childForFieldName("body")
         if (!body) return false
 
-        const firstChild = body.firstChild
-        const lastChild = body.lastChild
-        if (!firstChild || !lastChild) return false
+        const children = body.namedChildren.filter(value => value !== null)
+        const len = children.reduce((prev, el) => {
+            return prev + el.endPosition.row - el.startPosition.row + 1
+        }, 0)
 
-        return firstChild.startPosition.row === lastChild.startPosition.row
+        return len <= maxLines
+    }
+
+    public smallBodyPresentation(maxLines: number): string {
+        if (!this.hasSmallBody(maxLines)) return ""
+
+        const body = this.node.childForFieldName("body")
+        if (!body) return ""
+        return " " + normalizeIndentation(body.text)
     }
 
     public get isGetMethod(): boolean {

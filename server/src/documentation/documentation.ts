@@ -41,6 +41,7 @@ export const tactCodeBlock = (s: string): string => `${CODE_FENCE}tact\n${s}\n${
  */
 export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promise<string | null> {
     const settings = await getDocumentSettings(node.file.uri)
+    const maxLinesBody = settings.documentation.maximumLinesBodyToShowInDocumentation
     const astNode = node.node
 
     function renderOwnerPresentation(symbol: Fun | Constant | Field): string | null {
@@ -84,7 +85,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const name = trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyStruct_")
 
             return defaultResult(
-                `${func.modifiers()}fun ${name}${func.signaturePresentation()}`,
+                `${func.modifiers()}fun ${name}${func.signaturePresentation()}${func.smallBodyPresentation(maxLinesBody)}`,
                 extraDoc + doc,
             )
         }
@@ -100,7 +101,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const idPresentation = func.isGetMethod ? actualIdPresentation : ""
 
             return defaultResult(
-                `${ownerPresentation}${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}`,
+                `${ownerPresentation}${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}${func.smallBodyPresentation(maxLinesBody)}`,
                 idPresentation + doc,
             )
         }
@@ -108,14 +109,13 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const func = new Fun(astNode, node.file)
             const doc = extractCommentsDoc(node)
 
-            const bodyPresentation = func.hasOneLineBody ? ` ${func.bodyPresentation}` : ""
             const gas = func.computeGasConsumption(settings.gas)
 
             const presentation = gas.exact ? gas.value.toString() : `~${gas.value}`
             const gasPresentation = gas.unknown ? "" : `Gas: \`${presentation}\``
 
             return defaultResult(
-                `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}${bodyPresentation}`,
+                `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}${func.smallBodyPresentation(maxLinesBody)}`,
                 gasPresentation + "\n\n" + doc,
             )
         }
