@@ -7,7 +7,7 @@ message Foo {
 }
 ------------------------------------------------------------------------
 primitive Int;
-message Foo {
+message/* (0x73aa61f6) */ Foo {
    a: Int/*  as int257 */;
 }
 
@@ -21,7 +21,7 @@ message Foo {
 }
 ------------------------------------------------------------------------
 primitive Int;
-message Foo {
+message/* (0x970fe985) */ Foo {
    a: Int/*  as int257 */;
    b: Int/*  as int257 */;
 }
@@ -38,7 +38,7 @@ message Foo {
 }
 ------------------------------------------------------------------------
 primitive Int;
-message Foo {
+message/* (0xa5424397) */ Foo {
    a: Int/*  as int257 */;
    b: Int/*  as int257 */;
    c: Int as uint32;
@@ -49,13 +49,531 @@ message Foo {
 No hint for optional
 ========================================================================
 primitive Int;
+primitive Address;
+
 message Foo {
    a: Int?;
    b: Address?;
 }
 ------------------------------------------------------------------------
 primitive Int;
-message Foo {
+primitive Address;
+
+message/* (0x46ac39e7) */ Foo {
    a: Int?;
    b: Address?;
+}
+
+========================================================================
+Known method IDs
+========================================================================
+primitive Int;
+primitive Address;
+primitive Cell;
+primitive String;
+
+message BinaryIntOperation { // 0x3177103a
+    op: String;
+    val1: Int;
+    val2: Int;
+}
+
+message BinaryIntResult { // 0xfc632810
+    val: Int;
+}
+
+message SendCellToAddress { // 0x7f9e1f09
+    address: Address;
+    body: Cell;
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive Cell;
+primitive String;
+
+message/* (0x3177103a) */ BinaryIntOperation { // 0x3177103a
+    op: String;
+    val1: Int/*  as int257 */;
+    val2: Int/*  as int257 */;
+}
+
+message/* (0xfc632810) */ BinaryIntResult { // 0xfc632810
+    val: Int/*  as int257 */;
+}
+
+message/* (0x7f9e1f09) */ SendCellToAddress { // 0x7f9e1f09
+    address: Address;
+    body: Cell;
+}
+
+========================================================================
+Known method IDs 2
+========================================================================
+primitive Int;
+primitive Address;
+primitive Cell;
+primitive String;
+primitive Bool;
+
+message EntryFirst { // 0xa45b74a8
+    amountToAdd: Int as uint32;
+    toAddress: Address;
+}
+
+message EntrySecond { // 0xff40dc10
+    amountToAdd: Int as uint32;
+    toAddress: Address;
+}
+
+message First { // 0xbec08f38
+    amount: Int as uint32;
+    myCoins: Int as coins;
+    myBool3: Bool;
+    anAddress: Address;
+}
+
+message Second { // 0x17571ec8
+    amount_bigger: Int as uint64;
+    myBool: Bool;
+    thisDoesNotFit: Int as uint256;
+    myAddress: Address;
+    myBool2: Bool;
+    myStruct: MyStruct;
+    myStruct2: MyStruct;
+}
+
+message Large { // 0x24dd4543
+    address: Address;
+    value: Int as coins;
+}
+
+message SmallBounce { // 0xc0dee6d6
+    amount: Int as uint32;
+    myBool3: Bool;
+}
+
+struct MyStruct {
+    amount: Int;
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive Cell;
+primitive String;
+primitive Bool;
+
+message/* (0xa45b74a8) */ EntryFirst { // 0xa45b74a8
+    amountToAdd: Int as uint32;
+    toAddress: Address;
+}
+
+message/* (0xff40dc10) */ EntrySecond { // 0xff40dc10
+    amountToAdd: Int as uint32;
+    toAddress: Address;
+}
+
+message/* (0xbec08f38) */ First { // 0xbec08f38
+    amount: Int as uint32;
+    myCoins: Int as coins;
+    myBool3: Bool;
+    anAddress: Address;
+}
+
+message/* (0x17571ec8) */ Second { // 0x17571ec8
+    amount_bigger: Int as uint64;
+    myBool: Bool;
+    thisDoesNotFit: Int as uint256;
+    myAddress: Address;
+    myBool2: Bool;
+    myStruct: MyStruct;
+    myStruct2: MyStruct;
+}
+
+message/* (0x24dd4543) */ Large { // 0x24dd4543
+    address: Address;
+    value: Int as coins;
+}
+
+message/* (0xc0dee6d6) */ SmallBounce { // 0xc0dee6d6
+    amount: Int as uint32;
+    myBool3: Bool;
+}
+
+struct MyStruct {
+    amount: Int/*  as int257 */;
+}
+
+========================================================================
+Known method IDs 3
+========================================================================
+primitive Int;
+primitive Address;
+primitive Cell;
+primitive String;
+primitive Bool;
+
+message SetAllMaps { // 0x51f18191
+    // Key fields
+    keyInt: Int;
+    keyInt8: Int;
+    keyInt42: Int;
+    keyInt256: Int;
+    keyUint8: Int;
+    keyUint42: Int;
+    keyUint256: Int;
+    keyAddress: Address;
+
+    // Value fields
+    valueInt: Int?;
+    valueInt8: Int?;
+    valueInt42: Int?;
+    valueInt256: Int?;
+    valueUint8: Int?;
+    valueUint42: Int?;
+    valueUint256: Int?;
+    valueCoins: Int?;
+}
+
+message DelAllMaps { // 0x4b2bbe7f
+    // Key fields
+    keyInt: Int;
+    keyInt8: Int;
+    keyInt42: Int;
+    keyInt256: Int;
+    keyUint8: Int;
+    keyUint42: Int;
+    keyUint256: Int;
+    keyAddress: Address;
+}
+
+message ReplaceAllMaps { 0x9f15cd96
+    // Key fields
+    keyInt: Int;
+    keyInt8: Int;
+    keyInt42: Int;
+    keyInt256: Int;
+    keyUint8: Int;
+    keyUint42: Int;
+    keyUint256: Int;
+    keyAddress: Address;
+
+    // Value fields
+    valueInt: Int?;
+    valueInt8: Int?;
+    valueInt42: Int?;
+    valueInt256: Int?;
+    valueUint8: Int?;
+    valueUint42: Int?;
+    valueUint256: Int?;
+    valueCoins: Int?;
+}
+
+message ReplaceGetAllMaps { // 0xcc16c9da
+    // Key fields
+    keyInt: Int;
+    keyInt8: Int;
+    keyInt42: Int;
+    keyInt256: Int;
+    keyUint8: Int;
+    keyUint42: Int;
+    keyUint256: Int;
+    keyAddress: Address;
+
+    // Value fields
+    valueInt: Int?;
+    valueInt8: Int?;
+    valueInt42: Int?;
+    valueInt256: Int?;
+    valueUint8: Int?;
+    valueUint42: Int?;
+    valueUint256: Int?;
+    valueCoins: Int?;
+}
+
+message CheckNullReference { // 0xb182fee0
+
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive Cell;
+primitive String;
+primitive Bool;
+
+message/* (0x51f18191) */ SetAllMaps { // 0x51f18191
+    // Key fields
+    keyInt: Int/*  as int257 */;
+    keyInt8: Int/*  as int257 */;
+    keyInt42: Int/*  as int257 */;
+    keyInt256: Int/*  as int257 */;
+    keyUint8: Int/*  as int257 */;
+    keyUint42: Int/*  as int257 */;
+    keyUint256: Int/*  as int257 */;
+    keyAddress: Address;
+
+    // Value fields
+    valueInt: Int?;
+    valueInt8: Int?;
+    valueInt42: Int?;
+    valueInt256: Int?;
+    valueUint8: Int?;
+    valueUint42: Int?;
+    valueUint256: Int?;
+    valueCoins: Int?;
+}
+
+message/* (0x4b2bbe7f) */ DelAllMaps { // 0x4b2bbe7f
+    // Key fields
+    keyInt: Int/*  as int257 */;
+    keyInt8: Int/*  as int257 */;
+    keyInt42: Int/*  as int257 */;
+    keyInt256: Int/*  as int257 */;
+    keyUint8: Int/*  as int257 */;
+    keyUint42: Int/*  as int257 */;
+    keyUint256: Int/*  as int257 */;
+    keyAddress: Address;
+}
+
+message/* (0x9f15cd96) */ ReplaceAllMaps { 0x9f15cd96
+    // Key fields
+    keyInt: Int/*  as int257 */;
+    keyInt8: Int/*  as int257 */;
+    keyInt42: Int/*  as int257 */;
+    keyInt256: Int/*  as int257 */;
+    keyUint8: Int/*  as int257 */;
+    keyUint42: Int/*  as int257 */;
+    keyUint256: Int/*  as int257 */;
+    keyAddress: Address;
+
+    // Value fields
+    valueInt: Int?;
+    valueInt8: Int?;
+    valueInt42: Int?;
+    valueInt256: Int?;
+    valueUint8: Int?;
+    valueUint42: Int?;
+    valueUint256: Int?;
+    valueCoins: Int?;
+}
+
+message/* (0xcc16c9da) */ ReplaceGetAllMaps { // 0xcc16c9da
+    // Key fields
+    keyInt: Int/*  as int257 */;
+    keyInt8: Int/*  as int257 */;
+    keyInt42: Int/*  as int257 */;
+    keyInt256: Int/*  as int257 */;
+    keyUint8: Int/*  as int257 */;
+    keyUint42: Int/*  as int257 */;
+    keyUint256: Int/*  as int257 */;
+    keyAddress: Address;
+
+    // Value fields
+    valueInt: Int?;
+    valueInt8: Int?;
+    valueInt42: Int?;
+    valueInt256: Int?;
+    valueUint8: Int?;
+    valueUint42: Int?;
+    valueUint256: Int?;
+    valueCoins: Int?;
+}
+
+message/* (0xb182fee0) */ CheckNullReference { // 0xb182fee0
+
+}
+
+========================================================================
+Known method IDs 4
+========================================================================
+primitive Int;
+primitive Address;
+primitive Cell;
+primitive String;
+primitive Bool;
+
+struct SomeStruct {
+    int: Int;
+    bool: Bool;
+    address: Address;
+    a: Int;
+    b: Int;
+}
+
+message SetAllMaps { // 0x679c6fdc
+    // Key fields
+    keyInt: Int;
+    keyInt8: Int;
+    keyInt42: Int;
+    keyInt256: Int;
+    keyUint8: Int;
+    keyUint42: Int;
+    keyUint256: Int;
+    keyAddress: Address;
+
+    // Value fields
+    valueVarint16: Int?;
+    valueVarint32: Int?;
+    valueVaruint16: Int?;
+    valueVaruint32: Int?;
+    valueBool: Bool?;
+    valueCell: Cell?;
+    valueAddress: Address?;
+    valueStruct: SomeStruct?;
+}
+
+message DelAllMaps { // 0x4b2bbe7f
+    // Key fields
+    keyInt: Int;
+    keyInt8: Int;
+    keyInt42: Int;
+    keyInt256: Int;
+    keyUint8: Int;
+    keyUint42: Int;
+    keyUint256: Int;
+    keyAddress: Address;
+}
+
+message ReplaceAllMaps { // 0x38bebe54
+    // Key fields
+    keyInt: Int;
+    keyInt8: Int;
+    keyInt42: Int;
+    keyInt256: Int;
+    keyUint8: Int;
+    keyUint42: Int;
+    keyUint256: Int;
+    keyAddress: Address;
+
+    // Value fields
+    valueVarint16: Int?;
+    valueVarint32: Int?;
+    valueVaruint16: Int?;
+    valueVaruint32: Int?;
+    valueBool: Bool?;
+    valueCell: Cell?;
+    valueAddress: Address?;
+    valueStruct: SomeStruct?;
+}
+
+message ReplaceGetAllMaps { // 0xeca7515a
+    // Key fields
+    keyInt: Int;
+    keyInt8: Int;
+    keyInt42: Int;
+    keyInt256: Int;
+    keyUint8: Int;
+    keyUint42: Int;
+    keyUint256: Int;
+    keyAddress: Address;
+
+    // Value fields
+    valueVarint16: Int?;
+    valueVarint32: Int?;
+    valueVaruint16: Int?;
+    valueVaruint32: Int?;
+    valueBool: Bool?;
+    valueCell: Cell?;
+    valueAddress: Address?;
+    valueStruct: SomeStruct?;
+}
+
+message CheckNullReference { // 0xb182fee0
+
+}
+------------------------------------------------------------------------
+primitive Int;
+primitive Address;
+primitive Cell;
+primitive String;
+primitive Bool;
+
+struct SomeStruct {
+    int: Int/*  as int257 */;
+    bool: Bool;
+    address: Address;
+    a: Int/*  as int257 */;
+    b: Int/*  as int257 */;
+}
+
+message/* (0x679c6fdc) */ SetAllMaps { // 0x679c6fdc
+    // Key fields
+    keyInt: Int/*  as int257 */;
+    keyInt8: Int/*  as int257 */;
+    keyInt42: Int/*  as int257 */;
+    keyInt256: Int/*  as int257 */;
+    keyUint8: Int/*  as int257 */;
+    keyUint42: Int/*  as int257 */;
+    keyUint256: Int/*  as int257 */;
+    keyAddress: Address;
+
+    // Value fields
+    valueVarint16: Int?;
+    valueVarint32: Int?;
+    valueVaruint16: Int?;
+    valueVaruint32: Int?;
+    valueBool: Bool?;
+    valueCell: Cell?;
+    valueAddress: Address?;
+    valueStruct: SomeStruct?;
+}
+
+message/* (0x4b2bbe7f) */ DelAllMaps { // 0x4b2bbe7f
+    // Key fields
+    keyInt: Int/*  as int257 */;
+    keyInt8: Int/*  as int257 */;
+    keyInt42: Int/*  as int257 */;
+    keyInt256: Int/*  as int257 */;
+    keyUint8: Int/*  as int257 */;
+    keyUint42: Int/*  as int257 */;
+    keyUint256: Int/*  as int257 */;
+    keyAddress: Address;
+}
+
+message/* (0x38bebe54) */ ReplaceAllMaps { // 0x38bebe54
+    // Key fields
+    keyInt: Int/*  as int257 */;
+    keyInt8: Int/*  as int257 */;
+    keyInt42: Int/*  as int257 */;
+    keyInt256: Int/*  as int257 */;
+    keyUint8: Int/*  as int257 */;
+    keyUint42: Int/*  as int257 */;
+    keyUint256: Int/*  as int257 */;
+    keyAddress: Address;
+
+    // Value fields
+    valueVarint16: Int?;
+    valueVarint32: Int?;
+    valueVaruint16: Int?;
+    valueVaruint32: Int?;
+    valueBool: Bool?;
+    valueCell: Cell?;
+    valueAddress: Address?;
+    valueStruct: SomeStruct?;
+}
+
+message/* (0xeca7515a) */ ReplaceGetAllMaps { // 0xeca7515a
+    // Key fields
+    keyInt: Int/*  as int257 */;
+    keyInt8: Int/*  as int257 */;
+    keyInt42: Int/*  as int257 */;
+    keyInt256: Int/*  as int257 */;
+    keyUint8: Int/*  as int257 */;
+    keyUint42: Int/*  as int257 */;
+    keyUint256: Int/*  as int257 */;
+    keyAddress: Address;
+
+    // Value fields
+    valueVarint16: Int?;
+    valueVarint32: Int?;
+    valueVaruint16: Int?;
+    valueVaruint32: Int?;
+    valueBool: Bool?;
+    valueCell: Cell?;
+    valueAddress: Address?;
+    valueStruct: SomeStruct?;
+}
+
+message/* (0xb182fee0) */ CheckNullReference { // 0xb182fee0
+
 }

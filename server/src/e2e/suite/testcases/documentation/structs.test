@@ -42,7 +42,7 @@ message <caret>Foo {
 }
 ------------------------------------------------------------------------
 ```tact
-message Foo {
+message(0xd7c87fd7) Foo {
     name: String;
     value: Int;
 }
@@ -52,7 +52,7 @@ message Foo {
 **TL-B**:
 
 ```tlb
-foo#NaN
+foo#d7c87fd7
     name:^Cell
     value:int257 = Foo
 ```

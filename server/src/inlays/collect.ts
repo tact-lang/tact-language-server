@@ -3,7 +3,7 @@ import {RecursiveVisitor} from "@server/psi/visitor"
 import type {File} from "@server/psi/File"
 import {TypeInferer} from "@server/TypeInferer"
 import {Reference} from "@server/psi/Reference"
-import {Field, Fun, InitFunction} from "@server/psi/Decls"
+import {Field, Fun, InitFunction, Message} from "@server/psi/Decls"
 import {AsmInstr, CallLike, Expression, NamedNode, Node, VarDeclaration} from "@server/psi/Node"
 import {
     BaseTy,
@@ -163,6 +163,7 @@ export function collect(
         showToCellSize: boolean
         showAsciiEvaluationResult: boolean
         showCrc32EvaluationResult: boolean
+        showMessageId: boolean
     },
     gasSettings: {
         loopGasCoefficient: number
@@ -528,6 +529,41 @@ export function collect(
                 },
             })
             return true
+        }
+
+        if (type === "message" && n.text !== "message" && hints.showMessageId) {
+            const message = new Message(n, file)
+            if (message.explicitOpcode() !== "") {
+                // message(0x1000) Foo {}
+                //        ^^^^^^^^
+                return true
+            }
+
+            const opcode = message.opcode()
+            if (!opcode) {
+                return true
+            }
+
+            // message(0x1000) Foo {}
+            // ^^^^^^^
+            const anchor = n.firstChild
+            if (!anchor) return true
+
+            const position = {
+                line: anchor.endPosition.row,
+                character: anchor.endPosition.column,
+            }
+            const hintText = `(${opcode})`
+
+            const diff = FileDiff.forFile(file.uri)
+            diff.appendTo(position, hintText)
+
+            result.push({
+                kind: InlayHintKind.Type,
+                label: `(${opcode})`,
+                position: position,
+                textEdits: diff.toTextEdits(),
+            })
         }
 
         return true
