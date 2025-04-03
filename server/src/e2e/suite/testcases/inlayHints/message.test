@@ -49,13 +49,17 @@ message/* (0xa5424397) */ Foo {
 No hint for optional
 ========================================================================
 primitive Int;
+primitive Address;
+
 message Foo {
    a: Int?;
    b: Address?;
 }
 ------------------------------------------------------------------------
 primitive Int;
-message/* (0x9346e420) */ Foo {
+primitive Address;
+
+message/* (0x46ac39e7) */ Foo {
    a: Int?;
    b: Address?;
 }

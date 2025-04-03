@@ -36,16 +36,17 @@ export class Message extends FieldsOwner {
     public explicitOpcode(): string {
         const value = this.node.childForFieldName("value")
         if (!value) return ""
-        return value.text
+        return value.text.slice(1, -1)
     }
 
-    public opcode(): string {
+    public opcode(): undefined | string {
         const explicitOpcode = this.explicitOpcode()
         if (explicitOpcode) {
             return explicitOpcode
         }
 
         const opcode = messageOpcode(new MessageTy(this.name(), this))
+        if (opcode === undefined) return undefined
         return "0x" + opcode.toString(16)
     }
 }

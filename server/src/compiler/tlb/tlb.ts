@@ -77,8 +77,8 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
         }
 
         const name = anchor.name()
-        const opcode = anchor.opcode()
-        const header = `${changeCase.snakeCase(name)}#${opcode}`
+        const opcode = anchor.opcode() ?? "0x-1"
+        const header = `${changeCase.snakeCase(name)}#${opcode.slice(2)}`
 
         const fields = ty.fields().map(field => createTLBField(field))
 

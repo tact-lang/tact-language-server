@@ -11,12 +11,13 @@ import {Field} from "@server/psi/Decls"
 import {TypeInferer} from "@server/TypeInferer"
 import {highest32ofSha256, sha256} from "@server/compiler/sha256"
 
-export function messageOpcode(message: MessageTy): bigint {
+export function messageOpcode(message: MessageTy): undefined | bigint {
     const signature = generateCompilerTlb(message)
+    if (!signature) return undefined
     return calculateMessageOpcode(signature)
 }
 
-export function generateCompilerTlb(ty: Ty): string {
+export function generateCompilerTlb(ty: Ty): undefined | string {
     if (ty instanceof PrimitiveTy) {
         const tlb = ty.tlb
         switch (ty.name()) {
@@ -79,6 +80,10 @@ export function generateCompilerTlb(ty: Ty): string {
         const keyTypeTlb = generateCompilerTlb(ty.keyTy)
         const valueTypeTlb = generateCompilerTlb(ty.valueTy)
 
+        if (!keyTypeTlb || !valueTypeTlb) {
+            return undefined
+        }
+
         const normalizedKey = keyTypeTlb === "int257" ? "int" : keyTypeTlb
         const normalizedValue = valueTypeTlb === "int257" ? "int" : valueTypeTlb
 
@@ -87,13 +92,16 @@ export function generateCompilerTlb(ty: Ty): string {
 
     if (ty instanceof OptionTy) {
         const innerTypeTlb = generateCompilerTlb(ty.innerTy)
+        if (!innerTypeTlb) {
+            return undefined
+        }
         if (ty.innerTy.name() === "Address") {
             return innerTypeTlb
         }
         return `Maybe ${innerTypeTlb}`
     }
 
-    if (ty instanceof MessageTy) {
+    if (ty instanceof MessageTy || ty instanceof StructTy || ty instanceof ContractTy) {
         const anchor = ty.anchor
         if (!anchor) {
             return ty.name()
@@ -101,18 +109,9 @@ export function generateCompilerTlb(ty: Ty): string {
 
         const name = anchor.name()
         const fields = ty.fields().map(field => createTLBField(field))
-
-        return name + "{" + fields.join(",") + "}"
-    }
-
-    if (ty instanceof StructTy || ty instanceof ContractTy) {
-        const anchor = ty.anchor
-        if (!anchor) {
-            return ty.name()
+        if (fields.includes(undefined)) {
+            return undefined
         }
-
-        const name = anchor.name()
-        const fields = ty.fields().map(field => createTLBField(field))
 
         return name + "{" + fields.join(",") + "}"
     }
@@ -120,11 +119,11 @@ export function generateCompilerTlb(ty: Ty): string {
     return ""
 }
 
-function createTLBField(field: Field): string {
+function createTLBField(field: Field): undefined | string {
     const nameNode = field.nameNode()
-    if (!nameNode) return ""
+    if (!nameNode) return undefined
     const type = TypeInferer.inferType(nameNode)
-    if (!type) return ""
+    if (!type) return undefined
 
     const tlbType = generateCompilerTlb(type)
 

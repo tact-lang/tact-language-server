@@ -540,6 +540,9 @@ export function collect(
             }
 
             const opcode = message.opcode()
+            if (!opcode) {
+                return true
+            }
 
             // message(0x1000) Foo {}
             // ^^^^^^^

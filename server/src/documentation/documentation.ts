@@ -177,10 +177,14 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const message = new Message(node.node, node.file)
             const body = message.body()?.text ?? ""
             const opcode = message.opcode()
+            const opcodePresentation = opcode ? `(${opcode})` : ""
             const sizeDoc = documentationSizeOf(message)
             const tlb = genTlb(new MessageTy(message.name(), message))
 
-            return defaultResult(`message${opcode} ${node.name()} ${body}`, tlb + doc + sizeDoc)
+            return defaultResult(
+                `message${opcodePresentation} ${node.name()} ${body}`,
+                tlb + doc + sizeDoc,
+            )
         }
         case "primitive": {
             const doc = extractCommentsDoc(node)
