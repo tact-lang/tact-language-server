@@ -58,6 +58,44 @@ export class RewriteInspection implements Inspection {
                     data: this.rewriteSendWithAction(node, file, "deploy", "DeployParameters"),
                 })
             }
+
+            const replyArgNode = this.matchSelfReply(node)
+            if (replyArgNode) {
+                diagnostics.push({
+                    severity: lsp.DiagnosticSeverity.Information,
+                    range: asLspRange(node),
+                    message:
+                        "Can be rewritten as more efficient `message(MessageParameters { ... })` (quickfix available)",
+                    source: "tact",
+                    code: "performance",
+                    data: this.rewriteSelfReplyAction(node, replyArgNode, file),
+                })
+            }
+
+            if (this.isSelfNotifyNull(node)) {
+                diagnostics.push({
+                    severity: lsp.DiagnosticSeverity.Information,
+                    range: asLspRange(node),
+                    message:
+                        "Can be rewritten as more efficient `cashback(sender())` (quickfix available)",
+                    source: "tact",
+                    code: "performance",
+                    data: this.rewriteSelfNotifyAction(node, file),
+                })
+            }
+
+            const forwardArgs = this.matchSelfForward(node)
+            if (forwardArgs) {
+                diagnostics.push({
+                    severity: lsp.DiagnosticSeverity.Information,
+                    range: asLspRange(node),
+                    message:
+                        "Can be rewritten as more efficient `send(SendParameters{...})` (quickfix available)",
+                    source: "tact",
+                    code: "performance",
+                    data: this.rewriteSelfForwardAction(node, forwardArgs, file),
+                })
+            }
         })
 
         return diagnostics
@@ -189,6 +227,164 @@ export class RewriteInspection implements Inspection {
         return {
             edit,
             title: `Rewrite as \`${functionName}(${paramsName} { ... })\``,
+            isPreferred: true,
+        }
+    }
+
+    private matchSelfReply(node: SyntaxNode): SyntaxNode | undefined {
+        if (node.type !== "method_call_expression") return undefined
+
+        // self.reply(null)
+        // |    |    |
+        // |    |    argsNode
+        // |    nameNode
+        // objectNode
+        const nameNode = node.childForFieldName("name")
+        const objectNode = node.childForFieldName("object")
+        const argsNode = node.childForFieldName("arguments")
+
+        if (!nameNode || !objectNode || !argsNode) return undefined
+
+        if (nameNode.text !== "reply" || objectNode.type !== "self") {
+            return undefined
+        }
+
+        const argNodes = argsNode.children.filter(c => c?.type === "argument")
+        if (argNodes.length !== 1) {
+            return undefined
+        }
+
+        return argNodes[0]?.firstChild ?? undefined
+    }
+
+    private rewriteSelfReplyAction(
+        callNode: SyntaxNode,
+        dataArgNode: SyntaxNode,
+        file: File,
+    ): lsp.CodeAction {
+        const diff = FileDiff.forFile(file.uri)
+        const dataValue = dataArgNode.text
+
+        const replacement = `message(MessageParameters{
+            to: sender(),
+            mode: SendRemainingValue | SendIgnoreErrors,
+            bounce: true,
+            body: ${dataValue},
+            value: 0,
+        })`
+
+        diff.replace(asLspRange(callNode), replacement)
+
+        const edit = diff.toWorkspaceEdit()
+
+        return {
+            edit,
+            title: "Rewrite as `message(MessageParameters { ... })`",
+            isPreferred: true,
+        }
+    }
+
+    private isSelfNotifyNull(node: SyntaxNode): boolean {
+        if (node.type !== "method_call_expression") return false
+
+        // self.notify(null)
+        // |    |     |
+        // |    |     argsNode
+        // |    nameNode
+        // objectNode
+        const nameNode = node.childForFieldName("name")
+        const objectNode = node.childForFieldName("object")
+        const argsNode = node.childForFieldName("arguments")
+
+        if (!nameNode || !objectNode || !argsNode) return false
+
+        if (nameNode.text !== "notify" || objectNode.type !== "self") {
+            return false
+        }
+
+        const argNodes = argsNode.children.filter(c => c?.type === "argument")
+        if (argNodes.length !== 1) {
+            return false
+        }
+        const argValueNode = argNodes[0]?.firstChild
+        return argValueNode?.type === "null"
+    }
+
+    private rewriteSelfNotifyAction(callNode: SyntaxNode, file: File): lsp.CodeAction {
+        const diff = FileDiff.forFile(file.uri)
+        const replacement = `cashback(sender())`
+
+        diff.replace(asLspRange(callNode), replacement)
+        const edit = diff.toWorkspaceEdit()
+
+        return {
+            edit,
+            title: "Rewrite as `cashback(sender())`",
+            isPreferred: true,
+        }
+    }
+
+    private matchSelfForward(
+        node: SyntaxNode,
+    ): [SyntaxNode, SyntaxNode, SyntaxNode, SyntaxNode] | undefined {
+        if (node.type !== "method_call_expression") return undefined
+
+        // self.forward(sender(), null, false, initOf Proposal())
+        // |    |      |
+        // |    |      argsNode
+        // |    nameNode
+        // objectNode
+        const nameNode = node.childForFieldName("name")
+        const objectNode = node.childForFieldName("object")
+        const argsNode = node.childForFieldName("arguments")
+
+        if (!nameNode || !objectNode || !argsNode) return undefined
+
+        if (nameNode.text !== "forward" || objectNode.type !== "self") {
+            return undefined
+        }
+
+        const argNodes = argsNode.children.filter(c => c?.type === "argument")
+        if (argNodes.length !== 4) {
+            return undefined
+        }
+
+        const arg1 = argNodes[0]?.firstChild
+        const arg2 = argNodes[1]?.firstChild
+        const arg3 = argNodes[2]?.firstChild
+        const arg4 = argNodes[3]?.firstChild
+
+        if (!arg1 || !arg2 || !arg3 || !arg4) return undefined
+
+        return [arg1, arg2, arg3, arg4]
+    }
+
+    private rewriteSelfForwardAction(
+        callNode: SyntaxNode,
+        [to, body, bounced, initOf]: [SyntaxNode, SyntaxNode, SyntaxNode, SyntaxNode],
+        file: File,
+    ): lsp.CodeAction {
+        const diff = FileDiff.forFile(file.uri)
+        const tempVarName = "initState"
+
+        const replacement = `let ${tempVarName} = ${initOf.text};
+        send(SendParameters{
+            to: ${to.text},
+            mode: SendRemainingValue | SendIgnoreErrors,
+            bounce: ${bounced.text},
+            value: 0,
+            code: ${tempVarName}.code,
+            data: ${tempVarName}.data,
+            body: ${body.text}
+        })`
+
+        diff.replace(asLspRange(callNode), replacement)
+
+        const edit = diff.toWorkspaceEdit()
+
+        return {
+            edit,
+            title: "Rewrite as explicit `send(SendParameters{...})`",
             isPreferred: true,
         }
     }
