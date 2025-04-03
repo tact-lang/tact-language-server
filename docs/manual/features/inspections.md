@@ -32,6 +32,7 @@ For example, to disable the `unused-import` inspection, you can add the followin
 - [Implicit Return Value Discard](#implicit-return-value-discard)
 - [Empty Block](#empty-block)
 - [Unused Contract Members](#unused-contract-members)
+- [Implicit Message ID](#implicit-message-id)
 
 ### Contract-specific Inspections
 
@@ -508,6 +509,27 @@ Identifies contract members (fields, constants, methods) that are never used in 
 - Get methods (methods with `get` modifier)
 - Members that are used in contract initialization
 - Members that are part of the contract's public interface
+
+### Implicit Message ID
+
+| **ID**                | **Severity** | **Category** | **Auto-fix** |
+| --------------------- | ------------ | ------------ | ------------ |
+| `implicit-message-id` | Warning      | Code Quality | Available    |
+
+This inspection suggests setting message IDs explicitly instead of relying on implicit IDs. Explicit IDs improve code clarity, maintainability, and stability.
+
+**Example**:
+
+```tact
+message Foo {
+    // Implicit ID
+}
+
+// Suggested fix:
+message(0x1000) Foo {
+    // Explicit ID
+}
+```
 
 ## Contract-specific Inspections
 

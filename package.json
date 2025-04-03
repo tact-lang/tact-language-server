@@ -414,7 +414,8 @@
                                 "rewrite-as-augmented-assignment",
                                 "can-be-standalone-function",
                                 "use-explicit-string-receiver",
-                                "implicit-return-value-discard"
+                                "implicit-return-value-discard",
+                                "implicit-message-id"
                             ]
                         },
                         "default": [],

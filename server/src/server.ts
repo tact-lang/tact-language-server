@@ -135,6 +135,7 @@ import {CanBeStandaloneFunctionInspection} from "@server/inspections/CanBeStanda
 import {UseExplicitStringReceiverInspection} from "@server/inspections/UseExplicitStringReceiverInspection"
 import {ImplicitReturnValueDiscardInspection} from "@server/inspections/ImplicitReturnValueDiscardInspection"
 import {formatCode} from "@server/compiler/fmt/fmt"
+import {ImplicitMessageId} from "@server/inspections/ImplicitMessageId"
 
 /**
  * Whenever LS is initialized.
@@ -354,6 +355,7 @@ async function runInspections(uri: string, file: File): Promise<void> {
         new CanBeStandaloneFunctionInspection(),
         new UseExplicitStringReceiverInspection(),
         new ImplicitReturnValueDiscardInspection(),
+        new ImplicitMessageId(),
         new RewriteInspection(),
     ]
 

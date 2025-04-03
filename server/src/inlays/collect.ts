@@ -533,7 +533,7 @@ export function collect(
 
         if (type === "message" && n.text !== "message" && hints.showMessageId) {
             const message = new Message(n, file)
-            if (message.explicitOpcode() !== "") {
+            if (message.explicitOpcode() !== undefined) {
                 // message(0x1000) Foo {}
                 //        ^^^^^^^^
                 return true

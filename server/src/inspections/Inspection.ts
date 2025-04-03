@@ -18,6 +18,7 @@ export const InspectionIds = {
     CAN_BE_STANDALONE_FUNCTION: "can-be-standalone-function",
     USE_EXPLICIT_STRING_RECEIVER: "use-explicit-string-receiver",
     IMPLICIT_RETURN_VALUE_DISCARD: "implicit-return-value-discard",
+    IMPLICIT_MESSAGE_ID: "implicit-message-id",
     MISTI: "misti",
 } as const
 

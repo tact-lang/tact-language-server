@@ -33,15 +33,15 @@ export class Message extends FieldsOwner {
         return this.node.childForFieldName("body")
     }
 
-    public explicitOpcode(): string {
+    public explicitOpcode(): undefined | string {
         const value = this.node.childForFieldName("value")
-        if (!value) return ""
+        if (!value) return undefined
         return value.text.slice(1, -1)
     }
 
     public opcode(): undefined | string {
         const explicitOpcode = this.explicitOpcode()
-        if (explicitOpcode) {
+        if (explicitOpcode !== undefined) {
             return explicitOpcode
         }
 
