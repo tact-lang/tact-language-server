@@ -166,6 +166,7 @@ export function collect(
         showAsciiEvaluationResult: boolean
         showCrc32EvaluationResult: boolean
         showMessageId: boolean
+        showReceiverOpcode: boolean
     },
     gasSettings: {
         loopGasCoefficient: number
@@ -569,9 +570,10 @@ export function collect(
         }
 
         if (
-            type === "receive_function" ||
-            type === "bounced_function" ||
-            type === "external_function"
+            (type === "receive_function" ||
+                type === "bounced_function" ||
+                type === "external_function") &&
+            hints.showReceiverOpcode
         ) {
             const fun = new MessageFunction(n, file)
             const parameter = fun.parameter()

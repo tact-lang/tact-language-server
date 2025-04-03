@@ -32,6 +32,7 @@ export interface TactSettings {
         showAsciiEvaluationResult: boolean
         showCrc32EvaluationResult: boolean
         showMessageId: boolean
+        showReceiverOpcode: boolean
     }
     gas: {
         loopGasCoefficient: number
@@ -110,6 +111,7 @@ const defaultSettings: TactSettings = {
         showAsciiEvaluationResult: true,
         showCrc32EvaluationResult: true,
         showMessageId: true,
+        showReceiverOpcode: true,
     },
     gas: {
         loopGasCoefficient: 5,
@@ -208,6 +210,8 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
                 vsSettings.hints?.showCrc32EvaluationResult ??
                 defaultSettings.hints.showCrc32EvaluationResult,
             showMessageId: vsSettings.hints?.showMessageId ?? defaultSettings.hints.showMessageId,
+            showReceiverOpcode:
+                vsSettings.hints?.showReceiverOpcode ?? defaultSettings.hints.showReceiverOpcode,
         },
         gas: {
             loopGasCoefficient:
