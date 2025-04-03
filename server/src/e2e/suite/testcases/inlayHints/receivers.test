@@ -1,0 +1,124 @@
+========================================================================
+Receive with binary message
+========================================================================
+primitive Int;
+
+message Bar {}
+
+contract Foo {
+    receive(msg: Bar) {}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+message/* (0xfda11961) */ Bar {}
+
+contract Foo {
+    receive(msg: Bar)/*  opcode: 0xfda11961 */ {}
+}
+
+========================================================================
+Receive with binary message with explicit ID
+========================================================================
+primitive Int;
+
+message(0x1) Bar {}
+
+contract Foo {
+    receive(msg: Bar) {}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+message(0x1) Bar {}
+
+contract Foo {
+    receive(msg: Bar)/*  opcode: 0x1 */ {}
+}
+
+========================================================================
+bounced with binary message
+========================================================================
+primitive Int;
+
+message Bar {}
+
+contract Foo {
+    bounced(msg: Bar) {}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+message/* (0xfda11961) */ Bar {}
+
+contract Foo {
+    bounced(msg: Bar)/*  opcode: 0xfda11961 */ {}
+}
+
+========================================================================
+bounced with binary message inside bounced
+========================================================================
+primitive Int;
+
+message Bar {}
+
+contract Foo {
+    bounced(msg: bounced<Bar>) {}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+message/* (0xfda11961) */ Bar {}
+
+contract Foo {
+    bounced(msg: bounced<Bar>)/*  opcode: 0xfda11961 */ {}
+}
+
+========================================================================
+external with binary message
+========================================================================
+primitive Int;
+
+message Bar {}
+
+contract Foo {
+    external(msg: Bar) {}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+message/* (0xfda11961) */ Bar {}
+
+contract Foo {
+    external(msg: Bar)/*  opcode: 0xfda11961 */ {}
+}
+
+========================================================================
+Receive with text message
+========================================================================
+primitive Int;
+
+contract Foo {
+    receive("hello") {}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    receive("hello") {}
+}
+
+========================================================================
+External with text message
+========================================================================
+primitive Int;
+
+contract Foo {
+    external("hello") {}
+}
+------------------------------------------------------------------------
+primitive Int;
+
+contract Foo {
+    external("hello") {}
+}
