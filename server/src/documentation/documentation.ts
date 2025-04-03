@@ -85,7 +85,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const name = trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyStruct_")
 
             return defaultResult(
-                `${func.modifiers()}fun ${name}${func.signaturePresentation()}${func.smallBodyPresentation(maxLinesBody)}`,
+                `${func.modifiers()}fun ${name}${func.signaturePresentation()}${func.bodyPresentation(maxLinesBody)}`,
                 extraDoc + doc,
             )
         }
@@ -101,7 +101,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const idPresentation = func.isGetMethod ? actualIdPresentation : ""
 
             return defaultResult(
-                `${ownerPresentation}${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}${func.smallBodyPresentation(maxLinesBody)}`,
+                `${ownerPresentation}${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}${func.bodyPresentation(maxLinesBody)}`,
                 idPresentation + doc,
             )
         }
@@ -115,7 +115,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const gasPresentation = gas.unknown ? "" : `Gas: \`${presentation}\``
 
             return defaultResult(
-                `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}${func.smallBodyPresentation(maxLinesBody)}`,
+                `${func.modifiers()}fun ${node.name()}${func.signaturePresentation()}${func.bodyPresentation(maxLinesBody)}`,
                 gasPresentation + "\n\n" + doc,
             )
         }

@@ -365,7 +365,7 @@ export class Fun extends NamedNode {
         return firstChild.startPosition.row - lastChild.startPosition.row <= maxLines
     }
 
-    public smallBodyPresentation(maxLines: number): string {
+    public bodyPresentation(maxLines: number): string {
         if (!this.hasSmallBody(maxLines)) return ""
 
         const body = this.node.childForFieldName("body")
