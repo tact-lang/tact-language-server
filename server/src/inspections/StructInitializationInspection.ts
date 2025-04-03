@@ -6,7 +6,8 @@ import type {Node as SyntaxNode} from "web-tree-sitter"
 import {Inspection, InspectionIds} from "./Inspection"
 import {Reference} from "@server/psi/Reference"
 import {NamedNode} from "@server/psi/Node"
-import {FieldsOwner} from "@server/psi/Decls"
+import {Field, FieldsOwner} from "@server/psi/Decls"
+import {OptionTy} from "@server/types/BaseTy"
 
 export class StructInitializationInspection implements Inspection {
     public readonly id: "struct-initialization" = InspectionIds.STRUCT_INITIALIZATION
@@ -35,7 +36,7 @@ export class StructInitializationInspection implements Inspection {
         if (!(structDef instanceof FieldsOwner)) return
 
         const fields = structDef.fields()
-        const requiredFields = fields.filter(f => f.defaultValue() === null).map(f => f.name())
+        const requiredFields = fields.filter(f => !this.canBeOmitted(f)).map(f => f.name())
 
         const initializedFields: Set<string> = new Set()
         args.children.forEach(child => {
@@ -68,5 +69,14 @@ export class StructInitializationInspection implements Inspection {
                 code: "missing-fields",
             })
         }
+    }
+
+    private canBeOmitted(f: Field): boolean {
+        if (f.defaultValue() !== null) {
+            return true
+        }
+
+        const type = f.typeNode()?.type()
+        return type instanceof OptionTy
     }
 }
