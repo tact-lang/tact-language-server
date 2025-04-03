@@ -114,7 +114,7 @@ contract Foo {
 ------------------------------------------------------------------------
 ```tact
 contract Foo
-get fun foo()
+get fun foo() {}
 ```
 Method ID: `0x1af96`
 
@@ -127,7 +127,7 @@ contract Foo {
 ------------------------------------------------------------------------
 ```tact
 contract Foo
-get(0x10000) fun foo()
+get(0x10000) fun foo() {}
 ```
 Method ID: `0x10000`
 
@@ -140,7 +140,7 @@ contract Foo {
 ------------------------------------------------------------------------
 ```tact
 contract Foo
-get(0x10000 + 10 * 10) fun foo()
+get(0x10000 + 10 * 10) fun foo() {}
 ```
 Method ID: `0x10000 + 10 * 10`
 
@@ -155,6 +155,6 @@ contract Foo {
 ------------------------------------------------------------------------
 ```tact
 contract Foo
-get(METHOD_ID) fun foo()
+get(METHOD_ID) fun foo() {}
 ```
 Method ID: `METHOD_ID`

@@ -52,6 +52,7 @@ export interface TactSettings {
     documentation: {
         showTlb: boolean
         showKeywordDocumentation: boolean
+        maximumLinesBodyToShowInDocumentation: number
     }
     fift: {
         hints: {
@@ -131,6 +132,7 @@ const defaultSettings: TactSettings = {
     documentation: {
         showTlb: true,
         showKeywordDocumentation: true,
+        maximumLinesBodyToShowInDocumentation: 2,
     },
     fift: {
         hints: {
@@ -243,6 +245,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             showKeywordDocumentation:
                 vsSettings.documentation?.showKeywordDocumentation ??
                 defaultSettings.documentation.showKeywordDocumentation,
+            maximumLinesBodyToShowInDocumentation:
+                vsSettings.documentation?.maximumLinesBodyToShowInDocumentation ??
+                defaultSettings.documentation.maximumLinesBodyToShowInDocumentation,
         },
         fift: {
             hints: {

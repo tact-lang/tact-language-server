@@ -440,6 +440,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Show documentation for keywords"
+                    },
+                    "tact.documentation.maximumLinesBodyToShowInDocumentation": {
+                        "type": "number",
+                        "default": 2,
+                        "description": "If a function takes up less than or equal to the number of specified lines, it will be fully displayed in the documentation when hovered over. Set to 0 to always show only signature"
                     }
                 }
             },
