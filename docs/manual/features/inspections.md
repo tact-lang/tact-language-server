@@ -96,6 +96,9 @@ Suggests rewriting certain code patterns for better performance or clarity. Curr
 
 - Replacing `context().sender` with `sender()`.
 - Replacing `send(SendParameters { ... })` with `message(MessageParameters { ... })` or `deploy(DeployParameters { ... })` where applicable (since Tact 1.6.0).
+- Replacing `self.reply(<data>)` with `message(MessageParameters{...})`.
+- Replacing `self.notify(null)` with `cashback(sender())`.
+- Replacing `self.forward(sender(), null, false, initOf ...)` with an explicit `send(SendParameters{...})`.
 
 **Example 1 (context().sender)**:
 **Before**:
@@ -143,6 +146,107 @@ contract MyContract {
             value: amount,
             body: "Hello"
         });
+    }
+}
+```
+
+**Example 3 (self.reply)**:
+**Before**:
+
+```tact
+contract MyContract {
+    receive() {
+        self.reply("Pong".asComment());
+    }
+}
+```
+
+**After**:
+
+```tact
+import "@stdlib/deploy";
+
+contract MyContract {
+    receive() {
+        message(MessageParameters{
+            to: sender(),
+            mode: SendRemainingValue | SendIgnoreErrors,
+            bounce: true,
+            body: "Pong".asComment(),
+            value: 0,
+        });
+    }
+}
+```
+
+**Example 4 (self.notify(null))**:
+**Before**:
+
+```tact
+contract MyContract {
+    receive() {
+        self.notify(null); // Return remaining funds
+    }
+}
+```
+
+**After**:
+
+```tact
+import "@stdlib/deploy";
+
+contract MyContract {
+    receive() {
+        cashback(sender()); // Use cashback for clarity and efficiency
+    }
+}
+```
+
+**Example 5 (self.forward for deploy)**:
+**Before**:
+
+```tact
+import "@stdlib/deploy";
+
+contract MyFactory {
+    fun deployContract(owner: Address) {
+        let init: initOf MyContract = initOf MyContract(owner);
+        self.forward(sender(), null, false, init);
+    }
+}
+
+contract MyContract {
+    owner: Address;
+    init(owner: Address) {
+        self.owner = owner;
+    }
+}
+```
+
+**After**:
+
+```tact
+import "@stdlib/deploy";
+
+contract MyFactory {
+    fun deployContract(owner: Address) {
+        let initState: initOf MyContract = initOf MyContract(owner);
+        send(SendParameters{
+            to: sender(),
+            mode: SendRemainingValue | SendIgnoreErrors,
+            bounce: false,
+            value: 0,
+            code: initState.code,
+            data: initState.data,
+            body: null,
+        });
+    }
+}
+
+contract MyContract {
+    owner: Address;
+    init(owner: Address) {
+        self.owner = owner;
     }
 }
 ```
