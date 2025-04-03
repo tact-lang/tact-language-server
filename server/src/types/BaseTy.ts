@@ -289,3 +289,8 @@ export class NullTy implements Ty {
         return {fixed: 0, floating: 0}
     }
 }
+
+export function unwrapBounced(ty: Ty): Ty {
+    if (ty instanceof BouncedTy) return ty.innerTy
+    return ty
+}

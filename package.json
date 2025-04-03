@@ -277,6 +277,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Show calculated message ID"
+                    },
+                    "tact.hints.showReceiverOpcode": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show opcode for receiver"
                     }
                 }
             },

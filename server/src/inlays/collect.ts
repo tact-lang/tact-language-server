@@ -3,16 +3,18 @@ import {RecursiveVisitor} from "@server/psi/visitor"
 import type {File} from "@server/psi/File"
 import {TypeInferer} from "@server/TypeInferer"
 import {Reference} from "@server/psi/Reference"
-import {Field, Fun, InitFunction, Message} from "@server/psi/Decls"
+import {Field, Fun, InitFunction, Message, MessageFunction} from "@server/psi/Decls"
 import {AsmInstr, CallLike, Expression, NamedNode, Node, VarDeclaration} from "@server/psi/Node"
 import {
     BaseTy,
     BouncedTy,
     MapTy,
+    MessageTy,
     OptionTy,
     PrimitiveTy,
     sizeOfPresentation,
     Ty,
+    unwrapBounced,
 } from "@server/types/BaseTy"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {computeSeqGasConsumption, instructionPresentation} from "@server/asm/gas"
@@ -164,6 +166,7 @@ export function collect(
         showAsciiEvaluationResult: boolean
         showCrc32EvaluationResult: boolean
         showMessageId: boolean
+        showReceiverOpcode: boolean
     },
     gasSettings: {
         loopGasCoefficient: number
@@ -564,6 +567,48 @@ export function collect(
                 position: position,
                 textEdits: diff.toTextEdits(),
             })
+        }
+
+        if (
+            (type === "receive_function" ||
+                type === "bounced_function" ||
+                type === "external_function") &&
+            hints.showReceiverOpcode
+        ) {
+            const fun = new MessageFunction(n, file)
+            const parameter = fun.parameter()
+            const parameterType = parameter?.childForFieldName("type")
+            if (!parameterType) return true
+
+            const rawType = TypeInferer.inferType(new Expression(parameterType, file))
+            if (!rawType) return true
+
+            // bounced(msg: bounced<Bar>)
+            //              ^^^^^^^^^^^^ unwrap to Bar
+            const type = unwrapBounced(rawType)
+            if (!(type instanceof MessageTy)) return true
+
+            const message = type.anchor
+            if (!message) return true
+
+            const opcode = message.opcode()
+            if (!opcode) return true
+
+            // receive(msg: Foo)
+            //                 ^ this
+            const closeParen = n.child(3)
+            if (!closeParen) return true
+
+            result.push({
+                kind: InlayHintKind.Type,
+                label: ` opcode: ${opcode}`,
+                position: {
+                    line: closeParen.endPosition.row,
+                    character: closeParen.endPosition.column,
+                },
+                tooltip: opcode,
+            })
+            return true
         }
 
         return true
