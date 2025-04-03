@@ -119,6 +119,12 @@ export class StorageMembersOwner extends NamedNode {
             .map(value => new Fun(value, this.file))
     }
 
+    public parametersNode(): undefined | SyntaxNode {
+        const params = this.node.childForFieldName("parameters")
+        if (!params) return undefined
+        return params
+    }
+
     public parameters(): Field[] {
         const params = this.node.childForFieldName("parameters")
         if (!params) return []
@@ -239,7 +245,11 @@ export class StorageMembersOwner extends NamedNode {
 
 export class Trait extends StorageMembersOwner {}
 
-export class Contract extends StorageMembersOwner {}
+export class Contract extends StorageMembersOwner {
+    public hasLazyInitializationBit(): boolean {
+        return this.parametersNode() === undefined
+    }
+}
 
 export class InitFunction extends Node {
     public nameLike(): string {

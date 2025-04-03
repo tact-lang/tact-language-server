@@ -15,7 +15,7 @@ contract Foo {}
 **TL-B**:
 
 ```tlb
-_  = Foo
+_ lazy_deployment_bit:Bool = Foo
 ```
 ---
 Some cool contract
@@ -68,7 +68,8 @@ contract Foo {
 **TL-B**:
 
 ```tlb
-_ name:^Cell
+_ lazy_deployment_bit:Bool
+  name:^Cell
   value:int257 = Foo
 ```
 ---
@@ -99,7 +100,8 @@ contract Foo with Other {
 **TL-B**:
 
 ```tlb
-_ name:^Cell
+_ lazy_deployment_bit:Bool
+  name:^Cell
   value:int257 = Foo
 ```
 ---
@@ -243,5 +245,24 @@ contract Test {
 
 ```tlb
 _ some:int257 = Test
+```
+---
+
+========================================================================
+Contract with empty parameter list
+========================================================================
+primitive Int;
+
+contract <caret>Test() {}
+------------------------------------------------------------------------
+```tact
+contract Test {}
+```
+
+---
+**TL-B**:
+
+```tlb
+_ = Test
 ```
 ---

@@ -85,7 +85,7 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
         return header + "\n    " + fields.join("\n    ") + " = " + name
     }
 
-    if (ty instanceof StructTy || ty instanceof ContractTy) {
+    if (ty instanceof StructTy) {
         if (forField) {
             return ty.name()
         }
@@ -99,6 +99,27 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
         const fields = ty.fields().map(field => createTLBField(field))
 
         return "_ " + fields.join("\n  ") + " = " + name
+    }
+
+    if (ty instanceof ContractTy) {
+        if (forField) {
+            return ty.name()
+        }
+
+        const anchor = ty.anchor
+        if (!anchor) {
+            return ty.name()
+        }
+
+        const name = anchor.name()
+        const fields = ty.fields().map(field => createTLBField(field))
+
+        if (anchor.hasLazyInitializationBit()) {
+            fields.splice(0, 0, "lazy_deployment_bit:Bool")
+        }
+
+        const space = fields.length > 0 ? " " : ""
+        return "_" + space + fields.join("\n  ").trim() + " = " + name
     }
 
     return ""
