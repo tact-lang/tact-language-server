@@ -60,7 +60,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
         if (!settings.documentation.showTlb) return ""
 
         const tlb = generateTlb(ty)
-        return `\n---\n**TL-B**:\n\n${CODE_FENCE}tlb\n${tlb}\n${CODE_FENCE}\n---\n`
+        return `\n\n---\n**TL-B:**\n${CODE_FENCE}tlb\n${tlb}\n${CODE_FENCE}\n`
     }
 
     switch (astNode.type) {
@@ -170,7 +170,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const sizeDoc = documentationSizeOf(struct)
             const tlb = genTlb(new StructTy(struct.name(), struct))
 
-            return defaultResult(`struct ${node.name()} ${body}`, tlb + doc + sizeDoc)
+            return defaultResult(`struct ${node.name()} ${body}`, tlb + sizeDoc + doc)
         }
         case "message": {
             const doc = extractCommentsDoc(node)
@@ -183,7 +183,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
 
             return defaultResult(
                 `message${opcodePresentation} ${node.name()} ${body}`,
-                tlb + doc + sizeDoc,
+                tlb + sizeDoc + doc,
             )
         }
         case "primitive": {
@@ -427,7 +427,7 @@ function documentationSizeOf(fieldsOwner: FieldsOwner): string {
     const ty = new FieldsOwnerTy(fieldsOwner.name(), fieldsOwner)
     const sizeOf = ty.sizeOf()
     const sizeOfPres = sizeOfPresentation(sizeOf)
-    return `\n\n**Size**: ${sizeOfPres}`
+    return `\n**Size**: ${sizeOfPres}.\n\n---\n\n`
 }
 
 function defaultResult(signature: string, documentation: string = ""): string {
