@@ -501,7 +501,7 @@ fun emptyMap(): map<K, V>;
 ///
 /// See: https://docs.tact-lang.org/book/maps/#set
 ///
-extends mutates fun set(self: map<K, V>, key: K, val: V);
+extends mutates fun set(self: map<K, V>, key: K, val: V?);
 
 /// Gets a value by its `key` from the map. Returns `null` if the `key` is missing,
 /// or the value if the `key` is found.
