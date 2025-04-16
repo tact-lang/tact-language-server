@@ -139,10 +139,22 @@ codium --install-extension vscode-tact-VERSION.vsix
             },
         },
         "inhibit_snippet_completions": true,
+        "semantic_highlighting": true,
     }
     ```
 
-4. Create a new file with the `.tact` extension to verify the setup
+4. Add the following setting to your settings to enable highlighting of Tact code blocks in hover documentation (`Preferences > Settings`):
+
+    ```jsonc
+    {
+        // ...
+        "mdpopups.sublime_user_lang_map": {
+            "tact": [["tact"], ["Tact/package/Tact"]],
+        },
+    }
+    ```
+
+5. Create a new file or open an existing file with the `.tact` extension to verify the setup
 
 ### Neovim
 
