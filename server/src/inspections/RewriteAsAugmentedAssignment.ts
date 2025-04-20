@@ -65,7 +65,7 @@ export class RewriteAsAugmentedAssignment implements Inspection {
                 return
             }
 
-            if (this.isIdenticalNode(left, binRight)) {
+            if (this.isIdenticalNode(left, binRight) && this.isCommutative(operator)) {
                 // some = 10 + some
                 diagnostics.push({
                     severity: lsp.DiagnosticSeverity.Information,
@@ -104,6 +104,10 @@ export class RewriteAsAugmentedAssignment implements Inspection {
         return AUGMENTED_OPS.has(node.text)
     }
 
+    private isCommutative(node: SyntaxNode): boolean {
+        return COMMUTATIVE_OPS.has(node.text)
+    }
+
     private rewriteAssignment(
         operator: string,
         afterAssign: SyntaxNode,
@@ -140,3 +144,5 @@ const AUGMENTED_OPS: Set<string> = new Set([
     "<<",
     ">>",
 ])
+
+const COMMUTATIVE_OPS: Set<string> = new Set(["+", "*", "&", "^", "|", "&&", "||"])
