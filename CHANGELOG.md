@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2025-04-21
+
+### Improvements
+
+- feat: show hint with message ID inside message declaration in https://github.com/tact-lang/tact-language-server/pull/547
+- feat(inspections): add ImplicitMessageId inspection in https://github.com/tact-lang/tact-language-server/pull/550
+- feat(inlay-hints): add inlay hint for binary receivers in https://github.com/tact-lang/tact-language-server/pull/551
+- feat(inspection): add rewrite inspections for `self.forward`, `self.reply`, and `self.notify` in https://github.com/tact-lang/tact-language-server/pull/555
+- feat(documentation): expand small functions (<= 2 lines) in hover documentation in https://github.com/tact-lang/tact-language-server/pull/556
+- feat(vscode): support TASM language with highlighting in https://github.com/tact-lang/tact-language-server/pull/557
+- feat(documentation): re-organize struct and message struct hover info by @novusnota in https://github.com/tact-lang/tact-language-server/pull/568
+- feat(documentation): enable semantic tokens and better hover doc highlighting for sublime text by @novusnota in https://github.com/tact-lang/tact-language-server/pull/580
+
+### Fixes
+
+- fix(find-usages): correctly determine whether some reference is a reference to target declaration and not another in https://github.com/tact-lang/tact-language-server/pull/548
+- fix(documentation): show `lazy_deployment_bit` in TL-B for contracts in https://github.com/tact-lang/tact-language-server/pull/549
+- fix(inspection): don't require optional type fields in struct instance in https://github.com/tact-lang/tact-language-server/pull/553
+- fix(inspections): augmented assignment for non-commutative operations by @anton-trunov in https://github.com/tact-lang/tact-language-server/pull/587
+- fix(inlay-hints): do not show evaluation result for incorrect `ascii()` usage by @anton-trunov in https://github.com/tact-lang/tact-language-server/pull/591
+
 ## [0.5.1] - 2025-04-02
 
 - Fixed method ID calculation in https://github.com/tact-lang/tact-language-server/pull/539
