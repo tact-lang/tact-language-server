@@ -12,6 +12,7 @@ const KEYWORDS = {
     let: true,
     return: true,
     receive: true,
+    bounced: true,
     native: true,
     primitive: true,
     null: true,
@@ -78,7 +79,7 @@ const PUNCTUATION = {
     "?": true,
 }
 
-function processNode(
+export function processNode(
     n: SyntaxNode,
     tokens: Tokens,
     shift: {
@@ -96,6 +97,16 @@ function processNode(
     }
 
     switch (n.type) {
+        case "get": {
+            if (n.parent?.type === "get_attribute") {
+                tokens.node(n, lsp.SemanticTokenTypes.keyword, shift)
+            }
+            break
+        }
+        case "comment": {
+            tokens.node(n, lsp.SemanticTokenTypes.comment, shift)
+            break
+        }
         case "integer": {
             tokens.node(n, lsp.SemanticTokenTypes.number, shift)
             break
@@ -114,7 +125,13 @@ function processNode(
             tokens.node(n, lsp.SemanticTokenTypes.type, shift)
             break
         }
-        case "global_function": {
+        case "name_attribute": {
+            tokens.node(n, lsp.SemanticTokenTypes.decorator, shift)
+            break
+        }
+        case "global_function":
+        case "native_function":
+        case "asm_function": {
             const name = n.childForFieldName("name")
             if (!name) return true
             tokens.node(name, lsp.SemanticTokenTypes.function, shift)
@@ -132,6 +149,14 @@ function processNode(
             tokens.node(name, lsp.SemanticTokenTypes.function, shift)
             break
         }
+        case "instance_argument": {
+            const value = n.childForFieldName("value")
+            const name = n.childForFieldName("name")
+            if (value && name) {
+                tokens.node(name, lsp.SemanticTokenTypes.property, shift)
+            }
+            break
+        }
         case "field_access_expression": {
             const name = n.childForFieldName("name")
             if (!name) return true
@@ -145,7 +170,7 @@ function processNode(
             break
         }
         case "identifier": {
-            tokens.node(n, lsp.SemanticTokenTypes.variable, shift)
+            // tokens.node(n, lsp.SemanticTokenTypes.variable, shift)
             break
         }
     }

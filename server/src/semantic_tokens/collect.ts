@@ -7,7 +7,7 @@ import type {SemanticTokens} from "vscode-languageserver"
 import {isDocCommentOwner, isNamedFunNode} from "@server/psi/utils"
 import {createTactParser} from "@server/parser"
 import {extractCommentsDocContent} from "@server/documentation/documentation"
-import {processDocComment} from "@server/semantic_tokens/comments"
+import {processDocComment, processNode} from "@server/semantic_tokens/comments"
 import {Tokens} from "@server/semantic_tokens/tokens"
 
 export function collect(
@@ -22,6 +22,8 @@ export function collect(
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
         const type = n.type
+
+        processNode(n, tokens, {line: 0, character: 0})
 
         // asm fun foo() {}
         // ^^^ this

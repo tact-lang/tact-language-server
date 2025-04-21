@@ -1,3 +1,5 @@
+// This file contains the definitions of the built-in functions that are available in the Tact language.
+
 /// Checks the condition and throws an error with an exit code generated from
 /// the error message if the condition is false. Does nothing otherwise.
 ///

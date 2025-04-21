@@ -70,7 +70,7 @@
             "patterns": [
                 {
                     "match": "\\b([A-Z_][A-Z0-9_]*)\\b",
-                    "name": "keyword.control.instruction.tasm"
+                    "name": "keyword.other.command.tasm"
                 }
             ]
         },
