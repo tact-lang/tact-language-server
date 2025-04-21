@@ -395,6 +395,9 @@ export function collect(
                     const content = arg.text.slice(1, -1)
                     const realValue = evalAsciiBuiltin(content)
 
+                    if (realValue === undefined) {
+                        return true
+                    }
                     evaluateResultHint(result, call, realValue)
                 }
             }
