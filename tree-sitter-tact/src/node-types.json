@@ -121,6 +121,10 @@
           "named": true
         },
         {
+          "type": "asm_cont_name",
+          "named": true
+        },
+        {
           "type": "asm_control_register",
           "named": true
         },
@@ -3128,6 +3132,10 @@
   },
   {
     "type": "asm_bin_bitstring",
+    "named": true
+  },
+  {
+    "type": "asm_cont_name",
     "named": true
   },
   {

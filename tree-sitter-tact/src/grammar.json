@@ -594,6 +594,10 @@
         {
           "type": "SYMBOL",
           "name": "asm_integer"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "asm_cont_name"
         }
       ]
     },
@@ -735,6 +739,10 @@
           }
         ]
       }
+    },
+    "asm_cont_name": {
+      "type": "PATTERN",
+      "value": "[$%_]\\w[\\w#:'%$]*"
     },
     "tvm_instruction": {
       "type": "PATTERN",
