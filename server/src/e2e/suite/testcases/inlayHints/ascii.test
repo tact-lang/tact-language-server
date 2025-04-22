@@ -90,3 +90,37 @@ fun ascii(str: String): Int;
 
 const FOO: Int = ascii(/* str: */"\u{1F602}")/*  Evaluates to: 0xf09f9882 */;
 const FOO: Int = ascii(/* str: */"😂")/*  Evaluates to: 0xf09f9882 */; // same value
+
+========================================================================
+Ascii with empty string
+========================================================================
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii(""); // evaluation error
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii(""); // evaluation error
+
+========================================================================
+Ascii with more than 32 bytes
+========================================================================
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii("⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡"); // evaluation error
+------------------------------------------------------------------------
+primitive Int;
+primitive String;
+
+fun ascii(str: String): Int;
+
+const FOO: Int = ascii("⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡"); // evaluation error

@@ -37,16 +37,16 @@ export function evalCrc32Builtin(rawStr: string): bigint {
     return crc32BigInt(rawStr)
 }
 
-export function evalAsciiBuiltin(rawStr: string): bigint {
+export function evalAsciiBuiltin(rawStr: string): undefined | bigint {
     const str = processEscapes(rawStr)
 
     const encoded = new TextEncoder().encode(str)
     if (encoded.length > 32) {
-        return -1n
+        return undefined
     }
 
     if (encoded.length === 0) {
-        return 0n
+        return undefined
     }
 
     let hexString = ""
