@@ -60,7 +60,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
         if (!settings.documentation.showTlb) return ""
 
         const tlb = generateTlb(ty)
-        return `\n\n---\n**TL-B:**\n${CODE_FENCE}tlb\n${tlb}\n${CODE_FENCE}\n`
+        return `\n---\n\n**TL-B:**\n\n${CODE_FENCE}tlb\n${tlb}\n${CODE_FENCE}\n\n`
     }
 
     switch (astNode.type) {
@@ -420,14 +420,14 @@ function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSetting
 
     const exitCode = compiler.requireFunctionExitCode(callNode, file, settings.hints.exitCodeFormat)
     if (!exitCode) return ""
-    return `Exit code: **${exitCode.value}**\n\n`
+    return `**Exit code:** ${exitCode.value}.\n\n`
 }
 
 function documentationSizeOf(fieldsOwner: FieldsOwner): string {
     const ty = new FieldsOwnerTy(fieldsOwner.name(), fieldsOwner)
     const sizeOf = ty.sizeOf()
     const sizeOfPres = sizeOfPresentation(sizeOf)
-    return `\n**Size**: ${sizeOfPres}.\n\n---\n\n`
+    return `**Size:** ${sizeOfPres}.\n\n---\n\n`
 }
 
 function defaultResult(signature: string, documentation: string = ""): string {
