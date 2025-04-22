@@ -12,12 +12,13 @@ contract Foo {}
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ lazy_deployment_bit:Bool = Foo
 ```
----
+
 Some cool contract
 
 ========================================================================
@@ -65,14 +66,15 @@ contract Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ lazy_deployment_bit:Bool
   name:^Cell
   value:int257 = Foo
 ```
----
+
 Some cool contract
 
 ========================================================================
@@ -97,14 +99,15 @@ contract Foo with Other {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ lazy_deployment_bit:Bool
   name:^Cell
   value:int257 = Foo
 ```
----
+
 Some cool contract
 
 ========================================================================
@@ -241,12 +244,12 @@ contract Test {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ some:int257 = Test
 ```
----
 
 ========================================================================
 Contract with empty parameter list
@@ -260,9 +263,9 @@ contract Test {}
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ = Test
 ```
----

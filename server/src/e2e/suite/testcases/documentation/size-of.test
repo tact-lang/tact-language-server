@@ -16,16 +16,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:int257
   value2:int257 = Foo
 ```
+
+**Size:** 514 bits.
+
 ---
-
-
-**Size**: 514 bits
 
 ========================================================================
 Struct with Bool sizeof
@@ -46,16 +47,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:int257
   value2:Bool = Foo
 ```
+
+**Size:** 258 bits.
+
 ---
-
-
-**Size**: 258 bits
 
 ========================================================================
 Struct with coins sizeof
@@ -75,16 +77,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:Coins
   value2:int257 = Foo
 ```
+
+**Size:** 261 bits plus up to 120 bits.
+
 ---
-
-
-**Size**: 261 bits plus up to 120 bits
 
 ========================================================================
 Struct with varuint16 and varuint32 sizeof
@@ -104,16 +107,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:VarUInteger 16
   value2:VarUInteger 32 = Foo
 ```
+
+**Size:** 9 bits plus up to 368 bits.
+
 ---
-
-
-**Size**: 9 bits plus up to 368 bits
 
 ========================================================================
 Struct with varint16 and varint32 sizeof
@@ -133,16 +137,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:VarInteger 16
   value2:VarInteger 32 = Foo
 ```
+
+**Size:** 9 bits plus up to 368 bits.
+
 ---
-
-
-**Size**: 9 bits plus up to 368 bits
 
 ========================================================================
 Struct with int32 sizeof
@@ -162,16 +167,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:int32
   value2:int257 = Foo
 ```
+
+**Size:** 289 bits.
+
 ---
-
-
-**Size**: 289 bits
 
 ========================================================================
 Struct with int99 sizeof
@@ -191,16 +197,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:int99
   value2:int257 = Foo
 ```
+
+**Size:** 356 bits.
+
 ---
-
-
-**Size**: 356 bits
 
 ========================================================================
 Struct with Cell sizeof
@@ -221,16 +228,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:int257
   value2:^Cell = Foo
 ```
+
+**Size:** 257 bits plus up to 1023 bits.
+
 ---
-
-
-**Size**: 257 bits plus up to 1023 bits
 
 ========================================================================
 Struct with String sizeof
@@ -251,16 +259,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:int257
   value2:^Cell = Foo
 ```
+
+**Size:** 257 bits plus up to 1023 bits.
+
 ---
-
-
-**Size**: 257 bits plus up to 1023 bits
 
 ========================================================================
 Struct with Address sizeof
@@ -281,16 +290,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:int257
   value2:MsgAddress = Foo
 ```
+
+**Size:** 524 bits.
+
 ---
-
-
-**Size**: 524 bits
 
 ========================================================================
 Struct with Option Cell sizeof
@@ -311,16 +321,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:int257
   value2:Maybe ^Cell = Foo
 ```
+
+**Size:** 258 bits plus up to 1023 bits.
+
 ---
-
-
-**Size**: 258 bits plus up to 1023 bits
 
 ========================================================================
 Struct with Map sizeof
@@ -341,16 +352,17 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ value:int257
   value2:^Cell = Foo
 ```
+
+**Size:** 257 bits plus up to 1023 bits.
+
 ---
-
-
-**Size**: 257 bits plus up to 1023 bits
 
 ========================================================================
 Real message sizeof
@@ -375,7 +387,8 @@ message(0x7bdd97de) TokenBurnNotification {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 token_burn_notification#7bdd97de
@@ -384,10 +397,10 @@ token_burn_notification#7bdd97de
     sender:MsgAddress
     response_destination:MsgAddress = TokenBurnNotification
 ```
+
+**Size:** 634 bits plus up to 120 bits.
+
 ---
-
-
-**Size**: 634 bits plus up to 120 bits
 
 ========================================================================
 Real message sizeof 2
@@ -411,7 +424,8 @@ message(0xd1735400) TakeWalletAddress {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 take_wallet_address#d1735400
@@ -419,10 +433,10 @@ take_wallet_address#d1735400
     wallet_address:MsgAddress
     owner_address:Maybe ^Cell = TakeWalletAddress
 ```
+
+**Size:** 364 bits plus up to 1023 bits.
+
 ---
-
-
-**Size**: 364 bits plus up to 1023 bits
 
 ========================================================================
 Real message sizeof 3
@@ -455,7 +469,8 @@ message(0xf8a7ea5) TokenTransfer {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 token_transfer#f8a7ea5
@@ -467,7 +482,7 @@ token_transfer#f8a7ea5
     forward_ton_amount:Coins
     forward_payload:^Cell = TokenTransfer
 ```
+
+**Size:** 640 bits plus up to 2286 bits.
+
 ---
-
-
-**Size**: 640 bits plus up to 2286 bits
