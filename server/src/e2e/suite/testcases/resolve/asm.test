@@ -23,4 +23,4 @@ ASM function
 ========================================================================
 asm fun inlineCallDict() { __tact_context <caret>INLINECALLDICT }
 ------------------------------------------------------------------------
-0:42 unresolved
+2:42 unresolved

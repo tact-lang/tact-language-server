@@ -420,7 +420,7 @@ function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSetting
 
     const exitCode = compiler.requireFunctionExitCode(callNode, file, settings.hints.exitCodeFormat)
     if (!exitCode) return ""
-    return `**Exit code:** ${exitCode.value}.\n\n`
+    return `Exit code: **${exitCode.value}**.\n\n`
 }
 
 function documentationSizeOf(fieldsOwner: FieldsOwner): string {
