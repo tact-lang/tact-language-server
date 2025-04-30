@@ -205,6 +205,16 @@ export class Reference {
                         if (!proc.execute(fromSlice, newState)) return false
                     }
 
+                    const opcodeName = prefix + "opcode"
+                    const opcode = index.elementByName(IndexKey.Funs, opcodeName)
+                    if (opcode) {
+                        const newState = state.withValue(
+                            "search-name",
+                            prefix + this.element.name(),
+                        )
+                        if (!proc.execute(opcode, newState)) return false
+                    }
+
                     return true
                 }
             }
