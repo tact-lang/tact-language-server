@@ -46,7 +46,7 @@ fun test() {
 Rename key variable in foreach
 ========================================================================
 fun test() {
-    foreach (key, value in map) {
+    foreach (key, value in mp) {
     //!      ^ otherKey
         dump(key)
         dump(value)
@@ -54,7 +54,7 @@ fun test() {
 }
 ------------------------------------------------------------------------
 fun test() {
-    foreach (otherKey, value in map) {
+    foreach (otherKey, value in mp) {
     //!      ^ otherKey
         dump(otherKey)
         dump(value)
@@ -65,7 +65,7 @@ fun test() {
 Rename value variable in foreach
 ========================================================================
 fun test() {
-    foreach (key, value in map) {
+    foreach (key, value in mp) {
     //!           ^ otherValue
         dump(key)
         dump(value)
@@ -73,7 +73,7 @@ fun test() {
 }
 ------------------------------------------------------------------------
 fun test() {
-    foreach (key, otherValue in map) {
+    foreach (key, otherValue in mp) {
     //!           ^ otherValue
         dump(key)
         dump(otherValue)
