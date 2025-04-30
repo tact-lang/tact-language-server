@@ -827,8 +827,8 @@ module.exports = grammar({
         $.field_access_expression, // ExpressionFieldAccess
         $.static_call_expression, // ExpressionStaticCall
         $.parenthesized_expression, // ExpressionParens
-        $.map, // MapLiteral
-        $.set, // SetLiteral
+        $.map_literal, // MapLiteral
+        $.set_literal, // SetLiteral
         $.instance_expression, // ExpressionStructInstance
         $.integer, // integerLiteral
         $.boolean, // boolLiteral
@@ -911,7 +911,7 @@ module.exports = grammar({
         field("name", alias($._type_identifier, $.type_identifier)),
       ),
 
-    map: ($) =>
+    map_literal: ($) =>
       prec.right(
         "map_literal",
         seq(field("type", $.map_type), field("body", $.map_body)),
@@ -922,7 +922,7 @@ module.exports = grammar({
     map_field: ($) =>
       seq(field("key", $._expression), ":", field("value", $._expression)),
 
-    set: ($) =>
+    set_literal: ($) =>
       prec.right(
         "map_literal",
         seq(field("type", $.set_type), field("body", $.set_body)),

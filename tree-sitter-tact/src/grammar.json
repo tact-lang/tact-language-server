@@ -3587,11 +3587,11 @@
         },
         {
           "type": "SYMBOL",
-          "name": "map"
+          "name": "map_literal"
         },
         {
           "type": "SYMBOL",
-          "name": "set"
+          "name": "set_literal"
         },
         {
           "type": "SYMBOL",
@@ -4023,7 +4023,7 @@
         }
       ]
     },
-    "map": {
+    "map_literal": {
       "type": "PREC_RIGHT",
       "value": "map_literal",
       "content": {
@@ -4131,7 +4131,7 @@
         }
       ]
     },
-    "set": {
+    "set_literal": {
       "type": "PREC_RIGHT",
       "value": "map_literal",
       "content": {

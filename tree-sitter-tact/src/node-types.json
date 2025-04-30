@@ -32,7 +32,7 @@
         "named": true
       },
       {
-        "type": "map",
+        "type": "map_literal",
         "named": true
       },
       {
@@ -56,7 +56,7 @@
         "named": true
       },
       {
-        "type": "set",
+        "type": "set_literal",
         "named": true
       },
       {
@@ -1781,32 +1781,6 @@
     }
   },
   {
-    "type": "map",
-    "named": true,
-    "fields": {
-      "body": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "map_body",
-            "named": true
-          }
-        ]
-      },
-      "type": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "map_type",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
     "type": "map_body",
     "named": true,
     "fields": {},
@@ -1865,6 +1839,32 @@
           },
           {
             "type": "value_expression",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "map_literal",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "map_body",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "map_type",
             "named": true
           }
         ]
@@ -2365,32 +2365,6 @@
     }
   },
   {
-    "type": "set",
-    "named": true,
-    "fields": {
-      "body": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "set_body",
-            "named": true
-          }
-        ]
-      },
-      "type": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "set_type",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
     "type": "set_body",
     "named": true,
     "fields": {},
@@ -2415,6 +2389,32 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "set_literal",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "set_body",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "set_type",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
