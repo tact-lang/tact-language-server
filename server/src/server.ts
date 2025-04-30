@@ -136,6 +136,7 @@ import {UseExplicitStringReceiverInspection} from "@server/inspections/UseExplic
 import {ImplicitReturnValueDiscardInspection} from "@server/inspections/ImplicitReturnValueDiscardInspection"
 import {formatCode} from "@server/compiler/fmt/fmt"
 import {ImplicitMessageId} from "@server/inspections/ImplicitMessageId"
+import {fileURLToPath} from "node:url"
 
 /**
  * Whenever LS is initialized.
@@ -222,7 +223,7 @@ async function initialize(): Promise<void> {
     reporter.begin("Tact Language Server", 0)
 
     const rootUri = workspaceFolders[0].uri
-    const rootDir = rootUri.slice(7)
+    const rootDir = fileURLToPath(rootUri)
 
     setWorkspaceRoot(rootDir)
 
@@ -314,7 +315,7 @@ function findConfigFileDir(startPath: string, fileName: string): string | null {
 // So we need to find root first and then call initialize.
 async function initializeFallback(uri: string): Promise<void> {
     // let's try to initialize with this way
-    const filepath = uri.slice(7)
+    const filepath = fileURLToPath(uri)
     const projectDir = findConfigFileDir(path.dirname(filepath), "tact.config.json")
     if (projectDir === null) {
         console.info(`project directory not found, using file directory`)

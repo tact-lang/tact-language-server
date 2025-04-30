@@ -5,6 +5,7 @@ import type {Node as SyntaxNode, Tree} from "web-tree-sitter"
 import type {Position} from "vscode-languageclient"
 import {trimSuffix} from "@server/utils/strings"
 import {ImportResolver} from "@server/psi/ImportResolver"
+import {fileURLToPath} from "node:url"
 
 export class File {
     public constructor(
@@ -30,7 +31,7 @@ export class File {
     }
 
     public get path(): string {
-        return this.uri.slice(7)
+        return fileURLToPath(this.uri)
     }
 
     public get name(): string {

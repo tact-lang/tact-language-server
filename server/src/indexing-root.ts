@@ -5,6 +5,7 @@ import {URI} from "vscode-uri"
 import {createTactParser, createFiftParser} from "./parser"
 import {index} from "./indexes"
 import {measureTime} from "@server/psi/utils"
+import {fileURLToPath} from "node:url"
 
 export const PARSED_FILES_CACHE: Map<string, File> = new Map()
 
@@ -48,7 +49,7 @@ export class IndexingRoot {
                   ]
 
         const files = await glob("**/*.tact", {
-            cwd: new URL(this.root).pathname,
+            cwd: fileURLToPath(this.root),
             ignore: ignore,
         })
         if (files.length === 0) {
