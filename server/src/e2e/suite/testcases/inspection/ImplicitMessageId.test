@@ -3,7 +3,7 @@ Message without ID
 ========================================================================
 message Foo {}
 ------------------------------------------------------------------------
-1 0:8 to 0:11 Consider setting the message ID explicitly instead of the implicit 0xf7807639 (tact)
+1 0:8 to 0:11 Consider setting the message opcode explicitly instead of the implicit 0xf7807639 (tact)
 
 ========================================================================
 Message with ID

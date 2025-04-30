@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Improvements
 
-- feat: show hint with message ID inside message declaration in https://github.com/tact-lang/tact-language-server/pull/547
+- feat: show hint with message opcode inside message declaration in https://github.com/tact-lang/tact-language-server/pull/547
 - feat(inspections): add ImplicitMessageId inspection in https://github.com/tact-lang/tact-language-server/pull/550
 - feat(inlay-hints): add inlay hint for binary receivers in https://github.com/tact-lang/tact-language-server/pull/551
 - feat(inspection): add rewrite inspections for `self.forward`, `self.reply`, and `self.notify` in https://github.com/tact-lang/tact-language-server/pull/555

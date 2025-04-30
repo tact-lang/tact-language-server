@@ -32,7 +32,7 @@ For example, to disable the `unused-import` inspection, you can add the followin
 - [Implicit Return Value Discard](#implicit-return-value-discard)
 - [Empty Block](#empty-block)
 - [Unused Contract Members](#unused-contract-members)
-- [Implicit Message ID](#implicit-message-id)
+- [Implicit Message Opcode](#implicit-message-opcode)
 
 ### Contract-specific Inspections
 
@@ -210,7 +210,7 @@ import "@stdlib/deploy";
 
 contract MyFactory {
     fun deployContract(owner: Address) {
-        let init: initOf MyContract = initOf MyContract(owner);
+        let init: MyContract = initOf MyContract(owner);
         self.forward(sender(), null, false, init);
     }
 }
@@ -230,7 +230,7 @@ import "@stdlib/deploy";
 
 contract MyFactory {
     fun deployContract(owner: Address) {
-        let initState: initOf MyContract = initOf MyContract(owner);
+        let initState: MyContract = initOf MyContract(owner);
         send(SendParameters{
             to: sender(),
             mode: SendRemainingValue | SendIgnoreErrors,
@@ -621,13 +621,13 @@ Identifies contract members (fields, constants, methods) that are never used in 
 - Members that are part of the contract's public interface
 - Members that start with an `_` or are named `_`
 
-### Implicit Message ID
+### Implicit Message Opcode
 
-| **ID**                | **Severity** | **Category** | **Auto-fix** |
-| --------------------- | ------------ | ------------ | ------------ |
-| `implicit-message-id` | Warning      | Code Quality | Available    |
+| **ID**                    | **Severity** | **Category** | **Auto-fix** |
+| ------------------------- | ------------ | ------------ | ------------ |
+| `implicit-message-opcode` | Warning      | Code Quality | Available    |
 
-This inspection suggests setting message IDs explicitly instead of relying on implicit IDs. Explicit IDs improve code clarity, maintainability, and stability.
+This inspection suggests setting message opcodes explicitly instead of relying on implicit IDs. Explicit IDs improve code clarity, maintainability, and stability.
 
 **Example**:
 
