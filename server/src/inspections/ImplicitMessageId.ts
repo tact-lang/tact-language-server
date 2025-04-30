@@ -6,7 +6,7 @@ import {Message} from "@server/psi/Decls"
 import {FileDiff} from "@server/utils/FileDiff"
 
 export class ImplicitMessageId implements Inspection {
-    public readonly id: "implicit-message-id" = InspectionIds.IMPLICIT_MESSAGE_ID
+    public readonly id: "implicit-message-opcode" = InspectionIds.IMPLICIT_MESSAGE_OPCODE
 
     public inspect(file: File): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
@@ -35,7 +35,7 @@ export class ImplicitMessageId implements Inspection {
             diagnostics.push({
                 severity: lsp.DiagnosticSeverity.Warning,
                 range: asLspRange(nameNode),
-                message: `Consider setting the message ID explicitly instead of the implicit ${implicitOpcode}`,
+                message: `Consider setting the message opcode explicitly instead of the implicit ${implicitOpcode}`,
                 source: "tact",
                 data: this.insertExplicitId(message, implicitOpcode, file),
             })
@@ -57,7 +57,7 @@ export class ImplicitMessageId implements Inspection {
         const edit = diff.toWorkspaceEdit()
         return {
             edit,
-            title: `Add explicit message ID: ${opcode}`,
+            title: `Add explicit message opcode: ${opcode}`,
             isPreferred: true,
         }
     }
