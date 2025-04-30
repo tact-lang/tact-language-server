@@ -373,6 +373,12 @@ export class TypeInferer {
             return trueType
         }
 
+        if (node.node.type === "map" && node.node.text !== "map") {
+            const type = node.node.childForFieldName("type")
+            if (!type) return null
+            return new Expression(type, node.file).type()
+        }
+
         if (node instanceof NamedNode) {
             return this.inferTypeFromResolved(node)
         }

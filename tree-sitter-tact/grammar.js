@@ -97,6 +97,7 @@ module.exports = grammar({
       "static_call_expr",
       "parenthesized_expr",
       "instance_expr",
+      "map_literal",
 
       // "unary_suffix_expr",
       "unary_expr",
@@ -826,6 +827,8 @@ module.exports = grammar({
         $.field_access_expression, // ExpressionFieldAccess
         $.static_call_expression, // ExpressionStaticCall
         $.parenthesized_expression, // ExpressionParens
+        $.map, // MapLiteral
+        $.set, // SetLiteral
         $.instance_expression, // ExpressionStructInstance
         $.integer, // integerLiteral
         $.boolean, // boolLiteral
@@ -908,6 +911,25 @@ module.exports = grammar({
         field("name", alias($._type_identifier, $.type_identifier)),
       ),
 
+    map: ($) =>
+      prec.right(
+        "map_literal",
+        seq(field("type", $.map_type), field("body", $.map_body)),
+      ),
+
+    map_body: ($) => seq("{", commaSepWithTrailing($.map_field), "}"),
+
+    map_field: ($) =>
+      seq(field("key", $._expression), ":", field("value", $._expression)),
+
+    set: ($) =>
+      prec.right(
+        "map_literal",
+        seq(field("type", $.set_type), field("body", $.set_body)),
+      ),
+
+    set_body: ($) => seq("{", commaSepWithTrailing($._expression), "}"),
+
     /* Types */
 
     _type: ($) => choice($.map_type, $.bounced_type, $._simple_type),
@@ -916,11 +938,25 @@ module.exports = grammar({
       seq(
         "map",
         "<",
-        field("key", alias($._type_identifier, $.type_identifier)),
-        field("tlb_key", optional($.tlb_serialization)),
-        ",",
-        field("value", alias($._type_identifier, $.type_identifier)),
-        field("tlb_value", optional($.tlb_serialization)),
+        optional(
+          seq(
+            field("key", alias($._type_identifier, $.type_identifier)),
+            field("tlb_key", optional($.tlb_serialization)),
+            ",",
+            field("value", alias($._type_identifier, $.type_identifier)),
+            field("tlb_value", optional($.tlb_serialization)),
+          ),
+        ),
+        ">",
+      ),
+
+    set_type: ($) =>
+      seq(
+        "set",
+        "<",
+        field("type", optional($._type)),
+        field("tlb", optional($.tlb_serialization)),
+        optional(","),
         ">",
       ),
 
