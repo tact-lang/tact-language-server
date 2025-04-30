@@ -938,14 +938,12 @@ module.exports = grammar({
       seq(
         "map",
         "<",
-        optional(
-          seq(
-            field("key", alias($._type_identifier, $.type_identifier)),
-            field("tlb_key", optional($.tlb_serialization)),
-            ",",
-            field("value", alias($._type_identifier, $.type_identifier)),
-            field("tlb_value", optional($.tlb_serialization)),
-          ),
+        seq(
+          field("key", alias($._type_identifier, $.type_identifier)),
+          field("tlb_key", optional($.tlb_serialization)),
+          ",",
+          field("value", alias($._type_identifier, $.type_identifier)),
+          field("tlb_value", optional($.tlb_serialization)),
         ),
         ">",
       ),

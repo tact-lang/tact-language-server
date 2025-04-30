@@ -1877,7 +1877,7 @@
     "fields": {
       "key": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "type_identifier",
@@ -1907,7 +1907,7 @@
       },
       "value": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "type_identifier",

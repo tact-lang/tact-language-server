@@ -4243,77 +4243,69 @@
           "value": "<"
         },
         {
-          "type": "CHOICE",
+          "type": "SEQ",
           "members": [
             {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "FIELD",
-                  "name": "key",
-                  "content": {
-                    "type": "ALIAS",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "_type_identifier"
-                    },
-                    "named": true,
-                    "value": "type_identifier"
-                  }
+              "type": "FIELD",
+              "name": "key",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_type_identifier"
                 },
-                {
-                  "type": "FIELD",
-                  "name": "tlb_key",
-                  "content": {
-                    "type": "CHOICE",
-                    "members": [
-                      {
-                        "type": "SYMBOL",
-                        "name": "tlb_serialization"
-                      },
-                      {
-                        "type": "BLANK"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "type": "STRING",
-                  "value": ","
-                },
-                {
-                  "type": "FIELD",
-                  "name": "value",
-                  "content": {
-                    "type": "ALIAS",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "_type_identifier"
-                    },
-                    "named": true,
-                    "value": "type_identifier"
-                  }
-                },
-                {
-                  "type": "FIELD",
-                  "name": "tlb_value",
-                  "content": {
-                    "type": "CHOICE",
-                    "members": [
-                      {
-                        "type": "SYMBOL",
-                        "name": "tlb_serialization"
-                      },
-                      {
-                        "type": "BLANK"
-                      }
-                    ]
-                  }
-                }
-              ]
+                "named": true,
+                "value": "type_identifier"
+              }
             },
             {
-              "type": "BLANK"
+              "type": "FIELD",
+              "name": "tlb_key",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "tlb_serialization"
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "STRING",
+              "value": ","
+            },
+            {
+              "type": "FIELD",
+              "name": "value",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_type_identifier"
+                },
+                "named": true,
+                "value": "type_identifier"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "tlb_value",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "tlb_serialization"
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -4828,10 +4820,6 @@
       {
         "type": "STRING",
         "value": "map_literal"
-      },
-      {
-        "type": "STRING",
-        "value": "set_literal"
       },
       {
         "type": "STRING",
