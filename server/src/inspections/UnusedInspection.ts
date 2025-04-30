@@ -26,7 +26,7 @@ export abstract class UnusedInspection {
             skipIf?: () => boolean
         },
     ): void {
-        if (!node || node.text === "_") return
+        if (!node || node.text === "_" || node.text.startsWith("_")) return
 
         const references = new Referent(node, file).findReferences()
         if (references.length === 0) {
