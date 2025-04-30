@@ -30,6 +30,13 @@ export function collect(
             return true
         }
 
+        // message Name {}
+        // ^^^^^^^ this
+        if (type === "message" && n.parent?.type === "message") {
+            tokens.node(n, lsp.SemanticTokenTypes.keyword)
+            return true
+        }
+
         if (type === "global_constant") {
             const name = n.childForFieldName("name")
             if (!name) return true
