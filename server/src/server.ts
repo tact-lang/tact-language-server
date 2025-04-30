@@ -175,6 +175,7 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
         "node_modules/@tact-lang/compiler/src/stdlib",
         "node_modules/@tact-lang/compiler/stdlib",
         "node_modules/@tact-lang/compiler/dist/src/stdlib/stdlib",
+        "node_modules/@tact-lang/compiler/dist/stdlib/stdlib",
         "node_modules/@tact-lang/compiler/dist/src/stdlib",
         "node_modules/@tact-lang/compiler/dist/stdlib",
         "src/stdlib/stdlib", // path in compiler repo
