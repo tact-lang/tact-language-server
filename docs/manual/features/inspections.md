@@ -433,7 +433,7 @@ contract MyContract {
 | ----------------- | ------------ | ------------ | ------------- |
 | `unused-variable` | Warning      | Code Quality | Not available |
 
-Identifies variables that are declared but never used in the code. Variables named `_` are ignored.
+Identifies variables that are declared but never used in the code. Variables that start with an `_` or are named `_` are ignored.
 
 **Example**:
 
@@ -445,6 +445,7 @@ contract MyContract {
         send(used);       // OK: Variable is used
 
         let _ = someFunction();  // OK: Explicitly ignored variable
+        let _something = someFunction();  // OK: Explicitly ignored variable
     }
 }
 ```
@@ -469,7 +470,7 @@ fun process(p: Point) {
 | ------------------ | ------------ | ------------ | ------------- |
 | `unused-parameter` | Warning      | Code Quality | Not available |
 
-Identifies function parameters that are declared but never used in the function body.
+Identifies function parameters that are declared but never used in the function body. Parameters that start with an `_` or are named `_` are ignored.
 
 **Example**:
 
@@ -484,6 +485,11 @@ contract MyContract {
     // OK: All parameters are used
     fun sum(a: Int, b: Int): Int {
         return a + b;
+    }
+
+    // OK: All parameters are explicitly ignored
+    fun dummySum(_: Int, _b: Int): Int {
+        return 5 + 5;
     }
 }
 ```
@@ -613,6 +619,7 @@ Identifies contract members (fields, constants, methods) that are never used in 
 - Get methods (methods with `get` modifier)
 - Members that are used in contract initialization
 - Members that are part of the contract's public interface
+- Members that start with an `_` or are named `_`
 
 ### Implicit Message ID
 
