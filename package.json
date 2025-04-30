@@ -1,7 +1,7 @@
 {
     "name": "vscode-tact",
     "displayName": "Tact Language",
-    "description": "Support for Tact Language in VS Code",
+    "description": "Official support for Tact Language in VS Code",
     "keywords": [
         "TON",
         "The Open Network",
