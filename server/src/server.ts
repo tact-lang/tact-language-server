@@ -69,6 +69,7 @@ import {UnusedVariableInspection} from "./inspections/UnusedVariableInspection"
 import {CACHE} from "./cache"
 import {
     FIFT_PARSED_FILES_CACHE,
+    filePathToUri,
     findFiftFile,
     findFile,
     IndexingRoot,
@@ -898,7 +899,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 const hoverRange = asLspRange(hoverNode)
                 return [
                     {
-                        targetUri: `file://${importedFile}`,
+                        targetUri: filePathToUri(importedFile),
                         targetRange: startOfFile,
                         targetSelectionRange: startOfFile,
                         originSelectionRange: {

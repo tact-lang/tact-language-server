@@ -1,6 +1,6 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as path from "node:path"
-import {PARSED_FILES_CACHE} from "@server/indexing-root"
+import {filePathToUri, PARSED_FILES_CACHE} from "@server/indexing-root"
 import type {File} from "./File"
 import {existsSync} from "node:fs"
 import {trimPrefix, trimSuffix} from "@server/utils/strings"
@@ -43,7 +43,7 @@ export class ImportResolver {
     }
 
     private static toFile(targetPath: string): File | null {
-        const targetUri = "file://" + targetPath
+        const targetUri = filePathToUri(targetPath)
         return PARSED_FILES_CACHE.get(targetUri) ?? null
     }
 

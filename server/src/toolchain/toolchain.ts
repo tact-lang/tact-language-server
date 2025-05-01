@@ -53,7 +53,7 @@ export class Toolchain {
 
     private setVersion(): this {
         try {
-            const result = cp.execSync(`${this.compilerPath} -v`)
+            const result = cp.execSync(`"${this.compilerPath}" -v`)
             const rawVersion = result.toString()
             const lines = rawVersion.split("\n")
 
@@ -69,7 +69,7 @@ export class Toolchain {
 
     private validate(): this {
         try {
-            const result = cp.execSync(`${this.compilerPath} -v`)
+            const result = cp.execSync(`"${this.compilerPath}" -v`)
             const rawVersion = result.toString()
             const lines = rawVersion.split("\n")
 

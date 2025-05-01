@@ -98,7 +98,7 @@ export class File {
         const filePath = this.path
 
         if (this.fromStdlib) {
-            const candidates = ["stdlib/libs", "stdlib/std"]
+            const candidates = ["stdlib/libs", "stdlib/std", "stdlib\\libs", "stdlib\\std"]
             for (const candidate of candidates) {
                 if (filePath.includes(candidate)) {
                     const relative = filePath.slice(
