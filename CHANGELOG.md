@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2025-05-01
+
+This release adds support for Tact 1.6.7 and fixes path issues on Windows.
+
+### Improvements
+
+- feat(inspection): don't show "unused" hints for identifiers starting with `_` by @novusnota in https://github.com/tact-lang/tact-language-server/pull/604
+- feat: support `Message.opcode()` method in https://github.com/tact-lang/tact-language-server/pull/606
+- feat: support map literals in https://github.com/tact-lang/tact-language-server/pull/605
+
+### Fixes
+
+- fix(formatter): trailing comments after the last struct field by @novusnota in https://github.com/tact-lang/tact-language-server/pull/602
+- fix: fix path resolution for paths with special characters like @ or > in https://github.com/tact-lang/tact-language-server/pull/609
+- chore(syntaxes): sync Tact grammar with upstream by @novusnota in https://github.com/tact-lang/tact-language-server/pull/560
+- chore: port formatter changes from Tact (map literals and augmented assign) in https://github.com/tact-lang/tact-language-server/pull/607
+- chore: clarify in the description that this is an official extension in https://github.com/tact-lang/tact-language-server/pull/608
+
+### Other
+
+- refactor: use `message opcode` instead of `message ID` in https://github.com/tact-lang/tact-language-server/pull/610
+
 ## [0.6.0] - 2025-04-21
 
 ### Improvements
