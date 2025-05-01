@@ -95,7 +95,7 @@ export function findFile(uri: string, content?: string, changed: boolean = false
 
 export const filePathToUri = (filePath: string): string => {
     const url = pathToFileURL(filePath).toString()
-    return url.replace(/c|d:/g, "c%3A")
+    return url.replace(/([cd]):/g, "c%3A")
 }
 
 export function findFiftFile(uri: string, content?: string): File {
