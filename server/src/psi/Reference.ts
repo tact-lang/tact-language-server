@@ -18,6 +18,7 @@ import {Contract, Field, FieldsOwner, Fun, Message, Struct, Trait} from "./Decls
 import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "@server/cache"
 import {TypeInferer} from "@server/TypeInferer"
+import {filePathToUri} from "@server/indexing-root"
 
 export class ResolveState {
     private values: Map<string, string> = new Map()
@@ -591,7 +592,7 @@ export class Reference {
 
         // if not found, check all imported files
         for (const importedFile of file.importedFiles()) {
-            const fileIndex = index.findFile(`file://${importedFile}`)
+            const fileIndex = index.findFile(filePathToUri(importedFile))
             if (!fileIndex) continue
             if (!this.processElsInIndex(proc, state, fileIndex)) return false
         }

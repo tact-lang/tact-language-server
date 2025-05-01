@@ -5,6 +5,8 @@ import {URI} from "vscode-uri"
 import {createTactParser, createFiftParser} from "./parser"
 import {index} from "./indexes"
 import {measureTime} from "@server/psi/utils"
+import {fileURLToPath, pathToFileURL} from "node:url"
+import * as path from "node:path"
 
 export const PARSED_FILES_CACHE: Map<string, File> = new Map()
 
@@ -47,8 +49,9 @@ export class IndexingRoot {
                       "**/tact-lang/compiler/**",
                   ]
 
+        const rootDir = fileURLToPath(this.root)
         const files = await glob("**/*.tact", {
-            cwd: new URL(this.root).pathname,
+            cwd: rootDir,
             ignore: ignore,
         })
         if (files.length === 0) {
@@ -56,7 +59,8 @@ export class IndexingRoot {
         }
         for (const filePath of files) {
             console.info("Indexing:", filePath)
-            const uri = this.root + "/" + filePath
+            const absPath = path.join(rootDir, filePath)
+            const uri = filePathToUri(absPath)
             const file = findFile(uri)
             index.addFile(uri, file, false)
         }
@@ -87,6 +91,11 @@ export function findFile(uri: string, content?: string, changed: boolean = false
     const file = new File(normalizedUri, tree, realContent)
     PARSED_FILES_CACHE.set(normalizedUri, file)
     return file
+}
+
+export const filePathToUri = (filePath: string): string => {
+    const url = pathToFileURL(filePath).toString()
+    return url.replace(/c:/g, "c%3A").replace(/d:/g, "d%3A")
 }
 
 export function findFiftFile(uri: string, content?: string): File {

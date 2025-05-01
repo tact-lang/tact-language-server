@@ -5,6 +5,7 @@ import {isNamedFunNode} from "@server/psi/utils"
 import {ResolveState, ScopeProcessor} from "@server/psi/Reference"
 import {CACHE} from "@server/cache"
 import {PARSED_FILES_CACHE} from "@server/indexing-root"
+import {fileURLToPath} from "node:url"
 
 export interface IndexKeyToType {
     [IndexKey.Contracts]: Contract
@@ -203,7 +204,9 @@ export class IndexRoot {
     }
 
     public contains(file: string): boolean {
-        return file.startsWith(this.root)
+        const filepath = fileURLToPath(file)
+        const rootDir = fileURLToPath(this.root)
+        return filepath.startsWith(rootDir)
     }
 
     public addFile(uri: string, file: File, clearCache: boolean = true): void {
