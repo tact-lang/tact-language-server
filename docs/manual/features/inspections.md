@@ -32,7 +32,7 @@ For example, to disable the `unused-import` inspection, you can add the followin
 - [Implicit Return Value Discard](#implicit-return-value-discard)
 - [Empty Block](#empty-block)
 - [Unused Contract Members](#unused-contract-members)
-- [Implicit Message ID](#implicit-message-id)
+- [Implicit Message Opcode](#implicit-message-opcode)
 
 ### Contract-specific Inspections
 
@@ -210,7 +210,7 @@ import "@stdlib/deploy";
 
 contract MyFactory {
     fun deployContract(owner: Address) {
-        let init: initOf MyContract = initOf MyContract(owner);
+        let init: MyContract = initOf MyContract(owner);
         self.forward(sender(), null, false, init);
     }
 }
@@ -230,7 +230,7 @@ import "@stdlib/deploy";
 
 contract MyFactory {
     fun deployContract(owner: Address) {
-        let initState: initOf MyContract = initOf MyContract(owner);
+        let initState: MyContract = initOf MyContract(owner);
         send(SendParameters{
             to: sender(),
             mode: SendRemainingValue | SendIgnoreErrors,
@@ -433,7 +433,7 @@ contract MyContract {
 | ----------------- | ------------ | ------------ | ------------- |
 | `unused-variable` | Warning      | Code Quality | Not available |
 
-Identifies variables that are declared but never used in the code. Variables named `_` are ignored.
+Identifies variables that are declared but never used in the code. Variables that start with an `_` or are named `_` are ignored.
 
 **Example**:
 
@@ -445,6 +445,7 @@ contract MyContract {
         send(used);       // OK: Variable is used
 
         let _ = someFunction();  // OK: Explicitly ignored variable
+        let _something = someFunction();  // OK: Explicitly ignored variable
     }
 }
 ```
@@ -469,7 +470,7 @@ fun process(p: Point) {
 | ------------------ | ------------ | ------------ | ------------- |
 | `unused-parameter` | Warning      | Code Quality | Not available |
 
-Identifies function parameters that are declared but never used in the function body.
+Identifies function parameters that are declared but never used in the function body. Parameters that start with an `_` or are named `_` are ignored.
 
 **Example**:
 
@@ -484,6 +485,11 @@ contract MyContract {
     // OK: All parameters are used
     fun sum(a: Int, b: Int): Int {
         return a + b;
+    }
+
+    // OK: All parameters are explicitly ignored
+    fun dummySum(_: Int, _b: Int): Int {
+        return 5 + 5;
     }
 }
 ```
@@ -613,14 +619,15 @@ Identifies contract members (fields, constants, methods) that are never used in 
 - Get methods (methods with `get` modifier)
 - Members that are used in contract initialization
 - Members that are part of the contract's public interface
+- Members that start with an `_` or are named `_`
 
-### Implicit Message ID
+### Implicit Message Opcode
 
-| **ID**                | **Severity** | **Category** | **Auto-fix** |
-| --------------------- | ------------ | ------------ | ------------ |
-| `implicit-message-id` | Warning      | Code Quality | Available    |
+| **ID**                    | **Severity** | **Category** | **Auto-fix** |
+| ------------------------- | ------------ | ------------ | ------------ |
+| `implicit-message-opcode` | Warning      | Code Quality | Available    |
 
-This inspection suggests setting message IDs explicitly instead of relying on implicit IDs. Explicit IDs improve code clarity, maintainability, and stability.
+This inspection suggests setting message opcodes explicitly instead of relying on implicit IDs. Explicit IDs improve code clarity, maintainability, and stability.
 
 **Example**:
 

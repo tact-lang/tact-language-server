@@ -79,6 +79,14 @@ export const childByField = (node: Cst, field: string): undefined | CstNode => {
     return undefined
 }
 
+export const childrenByField = (node: Cst, field: string): CstNode[] => {
+    if (node.$ === "leaf") {
+        return []
+    }
+
+    return node.children.filter(c => c.$ === "node").filter(c => c.field === field)
+}
+
 export const childIdxByField = (node: Cst, field: string): number => {
     if (node.$ === "leaf") {
         return -1
@@ -183,7 +191,7 @@ export function filterComments(nodes: Cst[]): CstNode[] {
     return nodes.filter(it => it.$ === "node").filter(it => it.type === "Comment")
 }
 
-export function containsComments(nodes: Cst[]): boolean {
+export function containsComments(nodes: readonly Cst[]): boolean {
     return nodes.some(it => isComment(it))
 }
 

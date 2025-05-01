@@ -1,14 +1,14 @@
 {
     "name": "vscode-tact",
     "displayName": "Tact Language",
-    "description": "Support for Tact Language in VS Code",
+    "description": "Official support for Tact Language in VS Code",
     "keywords": [
         "TON",
         "The Open Network",
         "Tact",
         "Smart contract"
     ],
-    "version": "0.6.0",
+    "version": "0.7.0",
     "engines": {
         "vscode": "^1.63.0"
     },
@@ -297,7 +297,7 @@
                     "tact.hints.showMessageId": {
                         "type": "boolean",
                         "default": true,
-                        "description": "Show calculated message ID"
+                        "description": "Show calculated message opcode"
                     },
                     "tact.hints.showReceiverOpcode": {
                         "type": "boolean",
@@ -441,7 +441,7 @@
                                 "can-be-standalone-function",
                                 "use-explicit-string-receiver",
                                 "implicit-return-value-discard",
-                                "implicit-message-id"
+                                "implicit-message-opcode"
                             ]
                         },
                         "default": [],

@@ -1,13 +1,31 @@
 ========================================================================
-Message without ID
+opcode() for struct
 ========================================================================
-message Foo {}
+primitive Int;
+
+fun AnyMessage_opcode(): Int {}
+
+struct Foo {}
+
+fun test() {
+    let f = Foo.opcode(); // only on messages
+    //  ^! unknown
+}
 ------------------------------------------------------------------------
-1 0:8 to 0:11 Consider setting the message opcode explicitly instead of the implicit 0xf7807639 (tact)
+ok
 
 ========================================================================
-Message with ID
+opcode() for message
 ========================================================================
-message(0x100) Foo {}
+primitive Int;
+
+fun AnyMessage_opcode(): Int {}
+
+message Foo {}
+
+fun test() {
+    let f = Foo.opcode();
+    //  ^! Int
+}
 ------------------------------------------------------------------------
-no issues
+ok

@@ -1,4 +1,4 @@
-import {CstLeaf, CstNode} from "../cst/cst-parser"
+import {Cst, CstLeaf, CstNode} from "../cst/cst-parser"
 import {
     childByField,
     childByType,
@@ -7,6 +7,7 @@ import {
     childLeafWithText,
     containsComments,
     filterComments,
+    isComment,
     isInlineComment,
     nonLeafChild,
     trailingNewlines,
@@ -185,14 +186,11 @@ export const formatStatement: FormatStatementRule = (code, node, needSemicolon) 
     }
 }
 
-function formatCommentsBetweenAssignAndValue(
+function formatInBetweenComments(
     code: CodeBuilder,
-    node: CstNode,
-    assign: CstLeaf,
-    init: CstNode,
+    comments: CstNode[],
+    commentsAndNewlines: readonly Cst[],
 ): boolean {
-    const commentsAndNewlines = getLeafsBetween(node, assign, init)
-    const comments = filterComments(commentsAndNewlines)
     if (comments.length > 0) {
         const multiline = multilineComments(commentsAndNewlines)
 
@@ -219,6 +217,17 @@ function formatCommentsBetweenAssignAndValue(
     }
 
     return false
+}
+
+function formatCommentsBetweenAssignAndValue(
+    code: CodeBuilder,
+    node: CstNode,
+    assign: CstLeaf,
+    init: CstNode,
+): boolean {
+    const commentsAndNewlines = getLeafsBetween(node, assign, init)
+    const comments = filterComments(commentsAndNewlines)
+    return formatInBetweenComments(code, comments, commentsAndNewlines)
 }
 
 export const formatLetStatement: FormatStatementRule = (code, node, needSemicolon) => {
@@ -360,33 +369,35 @@ export const formatExpressionStatement: FormatStatementRule = (code, node, needS
     formatTrailingComments(code, node, endIndex, true)
 }
 
-export const formatAssignStatement: FormatStatementRule = (code, node, needSemicolon) => {
-    // value + = 100;
-    // ^^^^^ ^ ^ ^^^
-    // |     | | |
-    // |     | | right
-    // |     | assign
-    // |     operatorOpt
+const formatAssignStatement: FormatStatementRule = (code, node, needSemicolon) => {
+    // value += 100;
+    // ^^^^^ ^^ ^^^
+    // |     |  |
+    // |     |  right
+    // |     |
+    // |     operator
     // left
     const left = childByField(node, "left")
-    const operatorOpt = childByField(node, "operator")
-    const assign = childLeafWithText(node, "=")
+    const operator = childByField(node, "operator")
     const right = childByField(node, "right")
 
-    if (!left || !right || !assign) {
+    if (!left || !right || !operator) {
         throw new Error("Invalid assign statement")
     }
 
     formatExpression(code, left)
 
     code.space()
-    if (operatorOpt) {
-        code.add(visit(operatorOpt).trim())
+
+    const assign = operator.children.at(0)
+    if (assign && assign.$ === "leaf") {
+        code.add(assign.text)
+    } else {
+        code.add("=")
     }
 
-    code.add("=")
-
-    const hasMultilineComment = formatCommentsBetweenAssignAndValue(code, node, assign, right)
+    const comments = operator.children.filter(it => it.$ === "node").filter(it => isComment(it))
+    const hasMultilineComment = formatInBetweenComments(code, comments, operator.children)
     const needIndentAndNewline = multilineExpression(right)
     if (needIndentAndNewline || hasMultilineComment) {
         if (needIndentAndNewline) {

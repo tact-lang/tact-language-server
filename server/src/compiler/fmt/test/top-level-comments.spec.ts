@@ -78,6 +78,20 @@ describe("top level declarations comments formatting", () => {
         struct Bar {}
     `));
 
+    it("comment after last field in struct", intact(`
+        struct RequestBody {
+            field: Address;
+            // Other data fields...
+        }
+    `));
+
+    it("comment after last field in message", intact(`
+        message RequestBody {
+            field: Address;
+            // Other data fields...
+        }
+    `));
+
     it("comments in message declarations", intact(`
         // before message
         message(0x123) Foo {
