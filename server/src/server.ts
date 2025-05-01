@@ -252,7 +252,7 @@ async function initialize(): Promise<void> {
     const stdlibPath = findStdlib(settings, rootDir)
     if (stdlibPath !== null) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
-        const stdlibUri = `file://${stdlibPath}`
+        const stdlibUri = filePathToUri(stdlibPath)
         index.withStdlibRoot(new IndexRoot("stdlib", stdlibUri))
 
         const stdlibRoot = new IndexingRoot(stdlibUri, IndexingRootKind.Stdlib)
@@ -264,7 +264,7 @@ async function initialize(): Promise<void> {
     reporter.report(55, "Indexing: (2/3) Stubs")
     const stubsPath = findStubs()
     if (stubsPath !== null) {
-        const stubsUri = `file://${stubsPath}`
+        const stubsUri = filePathToUri(stubsPath)
         index.withStubsRoot(new IndexRoot("stubs", stubsUri))
 
         const stubsRoot = new IndexingRoot(stubsUri, IndexingRootKind.Stdlib)
@@ -324,7 +324,7 @@ async function initializeFallback(uri: string): Promise<void> {
         const dir = path.dirname(filepath)
         workspaceFolders = [
             {
-                uri: `file://${dir}`,
+                uri: filePathToUri(dir),
                 name: path.basename(dir),
             },
         ]
@@ -335,7 +335,7 @@ async function initializeFallback(uri: string): Promise<void> {
     console.info(`found project directory: ${projectDir}`)
     workspaceFolders = [
         {
-            uri: `file://${projectDir}`,
+            uri: filePathToUri(projectDir),
             name: path.basename(projectDir),
         },
     ]
