@@ -18,16 +18,19 @@ struct Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ name:^Cell
   value:int257 = Foo
 ```
----
-Some cool struct
 
-**Size**: 257 bits plus up to 1023 bits
+**Size:** 257 bits plus up to 1023 bits.
+
+---
+
+Some cool struct
 
 ========================================================================
 Message documentation
@@ -49,17 +52,20 @@ message(0xd7c87fd7) Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 foo#d7c87fd7
     name:^Cell
     value:int257 = Foo
 ```
----
-Some cool message
 
-**Size**: 289 bits plus up to 1023 bits
+**Size:** 289 bits plus up to 1023 bits.
+
+---
+
+Some cool message
 
 ========================================================================
 Message with ID documentation
@@ -81,17 +87,20 @@ message(0x178d4519) Foo {
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 foo#178d4519
     name:^Cell
     value:int257 = Foo
 ```
----
-Some cool message
 
-**Size**: 289 bits plus up to 1023 bits
+**Size:** 289 bits plus up to 1023 bits.
+
+---
+
+Some cool message
 
 ========================================================================
 Field declaration

@@ -170,9 +170,9 @@ fun test(msg: TokenTransfer) {
     msg.<caret>
 }
 ------------------------------------------------------------------------
-9  amount: Int   of TokenTransfer
+9  amount: Int as coins   of TokenTransfer
 9  from: Address   of TokenTransfer
-9  queryId: Int   of TokenTransfer
+9  queryId: Int as uint64   of TokenTransfer
 9  responseDestination: Address?   of TokenTransfer
 9  to: Address   of TokenTransfer
 14 call  Use as function argument

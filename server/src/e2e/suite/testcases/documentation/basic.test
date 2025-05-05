@@ -138,12 +138,13 @@ contract Foo {}
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ lazy_deployment_bit:Bool = Foo
 ```
----
+
 And this is documentation comment
 
 ========================================================================
@@ -160,12 +161,13 @@ contract Foo {}
 ```
 
 ---
-**TL-B**:
+
+**TL-B:**
 
 ```tlb
 _ lazy_deployment_bit:Bool = Foo
 ```
----
+
 Some comment. And other!
 ------------
 Continue

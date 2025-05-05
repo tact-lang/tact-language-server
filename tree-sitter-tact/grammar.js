@@ -256,6 +256,7 @@ module.exports = grammar({
         $.asm_control_register,
         $.asm_stack_register,
         $.asm_integer,
+        $.asm_cont_name,
       ),
 
     // <{ ... }>
@@ -313,6 +314,14 @@ module.exports = grammar({
         ),
       );
     },
+
+    // $global_contractBasechainAddress INLINECALLDICT
+    // $Deploy$_load_without_opcode     CALLDICT
+    // %lshift                          CALL
+    // __tact_context                   JMP
+    // i.e., supports only some of the naming cases to prevent confusion with instructions
+    // expects either of $, %, or _ to be the first character (which is often the case)
+    asm_cont_name: (_) => /[$%_]\w[\w#:'%$]*/,
 
     // MYCODE
     // HASHEXT_SHA256
