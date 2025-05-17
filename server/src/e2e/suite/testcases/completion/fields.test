@@ -328,6 +328,7 @@ contract Foo {
 9  Int
 9  String
 24 WithSeveralDeclaration
+3  Foo
 
 ========================================================================
 Trait field type completion
