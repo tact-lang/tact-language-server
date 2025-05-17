@@ -47,6 +47,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             // for types, we want to complete only types
             return (
                 node instanceof Trait ||
+                node instanceof Contract ||
                 node instanceof Struct ||
                 node instanceof Message ||
                 node instanceof Primitive
@@ -57,7 +58,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             return node instanceof Field
         }
 
-        // for non types context things like traits and primitives are prohibited
+        // for non-types context things like traits and primitives are prohibited
         if (node instanceof Trait || node instanceof Primitive) return false
         // but since structs and messages can be created like `Foo{}` we allow them
         if (node instanceof Struct || node instanceof Message) return true
