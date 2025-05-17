@@ -30,8 +30,8 @@ Variable declaration from foreach
 primitive Int;
 
 fun foo() {
-    let map: map<Int, Int> = emptyMap();
-    foreach (<caret>key, value in map) {}
+    let mp: map<Int, Int> = emptyMap();
+    foreach (<caret>key, value in mp) {}
 }
 ------------------------------------------------------------------------
 ```tact
@@ -44,8 +44,8 @@ Variable declaration from foreach 2
 primitive Int;
 
 fun foo() {
-    let map: map<Int, Int> = emptyMap();
-    foreach (key, <caret>value in map) {}
+    let mp: map<Int, Int> = emptyMap();
+    foreach (key, <caret>value in mp) {}
 }
 ------------------------------------------------------------------------
 ```tact
