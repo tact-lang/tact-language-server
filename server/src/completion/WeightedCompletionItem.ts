@@ -21,8 +21,9 @@ export function contextWeight(weight: CompletionWeight, match: boolean): Complet
     return weight + 500
 }
 
+// eslint-disable-next-line functional/type-declaration-immutability
 export type WeightedCompletionItem = CompletionItem & {
-    weight?: CompletionWeight
+    readonly weight?: CompletionWeight
 }
 
 export class CompletionResult {

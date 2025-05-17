@@ -4,9 +4,9 @@ import type {File} from "@server/psi/File"
 import {Node as SyntaxNode} from "web-tree-sitter"
 
 export interface GasConsumption {
-    value: number
-    unknown: boolean
-    exact: boolean
+    readonly value: number
+    readonly unknown: boolean
+    readonly exact: boolean
 }
 
 export function computeSeqGasConsumption(

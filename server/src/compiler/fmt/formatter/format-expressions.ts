@@ -403,10 +403,11 @@ const formatStructInstance: FormatRule = (code, node) => {
     formatTrailingComments(code, fields, endIndex, true)
 }
 
+// eslint-disable-next-line functional/type-declaration-immutability
 interface ChainCall {
-    nodes: CstNode[]
-    leadingComments: CstNode[]
-    trailingComments: CstNode[]
+    readonly nodes: CstNode[]
+    readonly leadingComments: CstNode[]
+    readonly trailingComments: CstNode[]
     hasLeadingNewline: boolean
 }
 

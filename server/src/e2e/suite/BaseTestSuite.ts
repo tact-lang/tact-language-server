@@ -7,9 +7,9 @@ import {existsSync} from "node:fs"
 import {TextDocument} from "vscode"
 
 export interface TestUpdate {
-    filePath: string
-    testName: string
-    actual: string
+    readonly filePath: string
+    readonly testName: string
+    readonly actual: string
 }
 
 export abstract class BaseTestSuite {

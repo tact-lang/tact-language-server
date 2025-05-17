@@ -8,13 +8,13 @@ import {PARSED_FILES_CACHE} from "@server/indexing-root"
 import {fileURLToPath} from "node:url"
 
 export interface IndexKeyToType {
-    [IndexKey.Contracts]: Contract
-    [IndexKey.Funs]: Fun
-    [IndexKey.Messages]: Message
-    [IndexKey.Structs]: Struct
-    [IndexKey.Traits]: Trait
-    [IndexKey.Primitives]: Primitive
-    [IndexKey.Constants]: Constant
+    readonly [IndexKey.Contracts]: Contract
+    readonly [IndexKey.Funs]: Fun
+    readonly [IndexKey.Messages]: Message
+    readonly [IndexKey.Structs]: Struct
+    readonly [IndexKey.Traits]: Trait
+    readonly [IndexKey.Primitives]: Primitive
+    readonly [IndexKey.Constants]: Constant
 }
 
 export enum IndexKey {

@@ -3,11 +3,11 @@ import {TextDocuments} from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"
 
 export interface TextDocumentChange2 {
-    changes: {
-        range: lsp.Range
-        rangeOffset: number
-        rangeLength: number
-        text: string
+    readonly changes: {
+        readonly range: lsp.Range
+        readonly rangeOffset: number
+        readonly rangeLength: number
+        readonly text: string
     }[]
 }
 

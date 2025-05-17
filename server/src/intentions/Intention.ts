@@ -4,21 +4,21 @@ import type {Position} from "vscode-languageclient"
 import type {Range} from "vscode-languageserver-textdocument"
 
 export interface IntentionContext {
-    file: File
-    range: Range
-    position: Position
-    noSelection: boolean
+    readonly file: File
+    readonly range: Range
+    readonly position: Position
+    readonly noSelection: boolean
 }
 
 export interface IntentionArguments {
-    fileUri: string
-    range: Range
-    position: Position
+    readonly fileUri: string
+    readonly range: Range
+    readonly position: Position
 }
 
 export interface Intention {
-    id: string
-    name: string
+    readonly id: string
+    readonly name: string
 
     isAvailable(ctx: IntentionContext): boolean
 

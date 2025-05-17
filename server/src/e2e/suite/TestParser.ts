@@ -1,12 +1,13 @@
 import * as fs from "node:fs"
 
+// eslint-disable-next-line functional/type-declaration-immutability
 export interface TestCase {
     name: string
-    properties: Map<string, string>
+    readonly properties: Map<string, string>
     input: string
     expected: string
-    result?: string
-    propertiesOrder: string[]
+    readonly result?: string
+    readonly propertiesOrder: string[]
 }
 
 enum ParserState {
