@@ -387,6 +387,7 @@ async function runInspections(uri: string, file: File): Promise<void> {
         const allDiagnostics = diagnostics
 
         void inspection.inspect(file).then(diagnostics => {
+            if (diagnostics.length === 0) return
             allDiagnostics.push(...diagnostics)
             void connection.sendDiagnostics({uri, diagnostics: allDiagnostics})
         })
