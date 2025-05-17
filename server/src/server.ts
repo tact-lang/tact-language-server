@@ -138,6 +138,7 @@ import {ImplicitReturnValueDiscardInspection} from "@server/inspections/Implicit
 import {formatCode} from "@server/compiler/fmt/fmt"
 import {ImplicitMessageId} from "@server/inspections/ImplicitMessageId"
 import {fileURLToPath} from "node:url"
+import {MisspelledKeywordInspection} from "@server/inspections/MisspelledKeywordInspection"
 
 /**
  * Whenever LS is initialized.
@@ -360,6 +361,7 @@ async function runInspections(uri: string, file: File): Promise<void> {
         new ImplicitReturnValueDiscardInspection(),
         new ImplicitMessageId(),
         new RewriteInspection(),
+        new MisspelledKeywordInspection(),
     ]
 
     const settings = await getDocumentSettings(uri)

@@ -1,0 +1,106 @@
+========================================================================
+Misspelled initOf
+========================================================================
+contract Contract {
+    fun bar(): Bool {
+        let init = initof Contract();
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'bar' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+3 2:12 to 2:16 Variable 'init' is never used (tact)
+1 2:19 to 2:25 Did you mean `initOf`? (tact)
+
+========================================================================
+Misspelled initOf 2
+========================================================================
+contract Contract {
+    fun bar(): Bool {
+        initof Contract();
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'bar' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+1 2:8 to 2:14 Did you mean `initOf`? (tact)
+
+========================================================================
+Misspelled initOf 3
+========================================================================
+contract Contract {
+    fun bar(): Bool {
+        let init = initof
+        Contract();
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'bar' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+3 2:12 to 2:16 Variable 'init' is never used (tact)
+
+========================================================================
+initOf as valid identifier
+========================================================================
+contract Contract {
+    fun bar(): Bool {
+        let initof = 10;
+        dump(initof);
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'bar' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
+Misspelled codeOf
+========================================================================
+contract Contract {
+    fun bar(): Bool {
+        let code = codeof Contract;
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'bar' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+3 2:12 to 2:16 Variable 'code' is never used (tact)
+1 2:19 to 2:25 Did you mean `codeOf`? (tact)
+
+========================================================================
+Misspelled codeOf 2
+========================================================================
+contract Contract {
+    fun bar(): Bool {
+        codeof Contract;
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'bar' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+1 2:8 to 2:14 Did you mean `codeOf`? (tact)
+
+========================================================================
+Misspelled codeOf 3
+========================================================================
+contract Contract {
+    fun bar(): Bool {
+        codeof
+        Contract;
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'bar' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
+codeof as valid identifier
+========================================================================
+contract Contract {
+    fun bar(): Bool {
+        let codeof = 10;
+        dump(codeof);
+    }
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'bar' is never used (tact)
+1 1:8 to 1:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
