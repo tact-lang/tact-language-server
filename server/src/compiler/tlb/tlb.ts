@@ -63,7 +63,7 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
     }
 
     if (ty instanceof OptionTy) {
-        return `Maybe ${generateTlb(ty.innerTy)}`
+        return `Maybe ${generateTlb(ty.innerTy, forField)}`
     }
 
     if (ty instanceof MessageTy) {
@@ -80,7 +80,7 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
         const opcode = anchor.opcode() ?? "0x-1"
         const header = `${changeCase.snakeCase(name)}#${opcode.slice(2)}`
 
-        const fields = ty.fields().map(field => createTLBField(field))
+        const fields = ty.fields().map(field => createTLBField(field, true))
 
         return header + "\n    " + fields.join("\n    ") + " = " + name
     }
@@ -96,7 +96,7 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
         }
 
         const name = anchor.name()
-        const fields = ty.fields().map(field => createTLBField(field))
+        const fields = ty.fields().map(field => createTLBField(field, true))
 
         return "_ " + fields.join("\n  ") + " = " + name
     }
@@ -112,7 +112,7 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
         }
 
         const name = anchor.name()
-        const fields = ty.fields().map(field => createTLBField(field))
+        const fields = ty.fields().map(field => createTLBField(field, true))
 
         if (anchor.hasLazyInitializationBit()) {
             fields.splice(0, 0, "lazy_deployment_bit:Bool")
@@ -125,13 +125,13 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
     return ""
 }
 
-function createTLBField(field: Field): string {
+function createTLBField(field: Field, forField: boolean): string {
     const nameNode = field.nameNode()
     if (!nameNode) return ""
     const type = TypeInferer.inferType(nameNode)
     if (!type) return ""
 
-    const tlbType = generateTlb(type)
+    const tlbType = generateTlb(type, forField)
 
     return `${field.name()}:${tlbType}`
 }
