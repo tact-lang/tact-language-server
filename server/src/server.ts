@@ -1196,11 +1196,44 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
+    const findRenameTarget = (
+        params: lsp.TextDocumentPositionParams,
+        file: File,
+    ): SyntaxNode | null => {
+        const node = nodeAtPosition(params, file)
+        if (node?.type !== "identifier" && node?.type !== "type_identifier") {
+            // Imagine case:
+            //
+            // foo: Int;
+            // ^^^ selection
+            //
+            // position will be point to `:`, not to the last ` o `, so we need to
+            // move the cursor to the right to find the identifier.
+            const prevNode = nodeAtPosition(
+                {
+                    ...params,
+                    position: {
+                        line: params.position.line,
+                        character: params.position.character - 1,
+                    },
+                },
+                file,
+            )
+
+            if (prevNode?.type !== "identifier" && prevNode?.type !== "type_identifier") {
+                return null
+            }
+
+            return prevNode
+        }
+        return node
+    }
+
     connection.onRequest(lsp.RenameRequest.type, (params: lsp.RenameParams) => {
         const uri = params.textDocument.uri
         const file = findFile(uri)
 
-        const renameNode = nodeAtPosition(params, file)
+        const renameNode = findRenameTarget(params, file)
         if (!renameNode) return null
 
         const result = new Referent(renameNode, file).findReferences(true, false, false)
@@ -1232,7 +1265,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const uri = params.textDocument.uri
             const file = findFile(uri)
 
-            const renameNode = nodeAtPosition(params, file)
+            const renameNode = findRenameTarget(params, file)
             if (!renameNode) return null
             if (renameNode.type !== "identifier" && renameNode.type !== "type_identifier") {
                 return null
