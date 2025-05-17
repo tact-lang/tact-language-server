@@ -11,12 +11,12 @@ struct Person {
 
 contract Foo {
     init() {
-        const userA = Person{age:<caret>,}
+        let userA = Person{age:<caret>,}
     }
 }
 ------------------------------------------------------------------------
 age: Int
-Person{ age: Int, name: String }
+Person { age: Int, name: String }
 
 ========================================================================
 Struct Key (second value)
@@ -31,12 +31,12 @@ struct Person {
 
 contract Foo {
     init() {
-        const userA = Person{age:42, name: <caret>}
+        let userA = Person{age:42, name: <caret>}
     }
 }
 ------------------------------------------------------------------------
 name: String
-Person{ age: Int, name: String }
+Person { age: Int, name: String }
 
 ========================================================================
 Struct Multiline
@@ -51,7 +51,7 @@ struct Person {
 
 contract Foo {
     init() {
-        const userA = Person{
+        let userA = Person{
             age:<caret>,
             name: "A"
         }
@@ -59,7 +59,7 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 age: Int
-Person{ age: Int, name: String }
+Person { age: Int, name: String }
 
 ========================================================================
 Struct init inside function call, on name
@@ -130,7 +130,7 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 name: String
-Config{ name: String, version: Int, active: Bool }
+Config { name: String, version: Int, active: Bool }
 
 ========================================================================
 Struct init inside function call, on last field
@@ -154,7 +154,7 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 active: Bool
-Config{ name: String, version: Int, active: Bool }
+Config { name: String, version: Int, active: Bool }
 
 ========================================================================
 Nested struct init inside function call, on first field
@@ -188,7 +188,7 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 active: Bool
-Data{ active: Bool }
+Data { active: Bool }
 
 ========================================================================
 Nested struct init inside function call, after last field
@@ -222,4 +222,4 @@ contract Foo {
 }
 ------------------------------------------------------------------------
 data: Data
-Config{ name: String, version: Int, data: Data }
+Config { name: String, version: Int, data: Data }

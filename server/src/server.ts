@@ -1407,6 +1407,39 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return findSignatureHelpNode(callNode)
             }
 
+            if (
+                callNode.type === "instance_expression" ||
+                callNode.type === "instance_argument" ||
+                callNode.type === "instance_argument_list"
+            ) {
+                return callNode
+            }
+
+            const call = new CallLike(callNode, file)
+
+            // check if the current node within arguments
+            //
+            // foo() // <cursor>
+            //   .bar()
+            // > no
+            //
+            // foo(<caret>)
+            //   .bar()
+            // > yes
+            const args = call.rawArguments()
+            const openBrace = args.at(0)
+            const closeBrace = args.at(-1)
+            if (!openBrace || !closeBrace) return null
+
+            const startIndex = openBrace.startIndex
+            const endIndexIndex = closeBrace.endIndex
+
+            if (node.startIndex < startIndex || node.endIndex > endIndexIndex) {
+                const parent = node.parent
+                if (!parent) return null
+                return findSignatureHelpNode(parent)
+            }
+
             return callNode
         }
 
@@ -1451,7 +1484,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                     }) as ParameterInformation,
             )
 
-            const presentation = instanceType.name() + "{ " + fieldPresentations.join(", ") + " }"
+            const presentation = instanceType.name() + " { " + fieldPresentations.join(", ") + " }"
 
             return {
                 rawArguments: [],
