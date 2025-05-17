@@ -49,7 +49,7 @@ export class CanBeStandaloneFunctionInspection implements Inspection {
             return false
         }
 
-        if (fun.isGetMethod) {
+        if (fun.isGetMethod || fun.isOverride() || fun.isAbstract() || fun.isVirtual()) {
             return false
         }
 
