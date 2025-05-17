@@ -102,6 +102,7 @@ export default tseslint.config(
                     ],
                 },
             ],
+            "functional/readonly-type": ["error", "keyword"],
 
             // override unicorn
             "unicorn/no-null": "off",
