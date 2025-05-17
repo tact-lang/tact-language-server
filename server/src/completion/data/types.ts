@@ -3,35 +3,35 @@ import * as path from "node:path"
 import {Node as SyntaxNode} from "web-tree-sitter"
 
 export interface AsmInstruction {
-    mnemonic: string
-    doc: {
-        opcode: string
-        stack: string
-        category: string
-        description: string
-        gas: string
-        fift: string
-        fift_examples: {
-            fift: string
-            description: string
+    readonly mnemonic: string
+    readonly doc: {
+        readonly opcode: string
+        readonly stack: string
+        readonly category: string
+        readonly description: string
+        readonly gas: string
+        readonly fift: string
+        readonly fift_examples: {
+            readonly fift: string
+            readonly description: string
         }[]
     }
-    since_version: number
-    alias_info?: AsmAlias
+    readonly since_version: number
+    readonly alias_info?: AsmAlias
 }
 
 export interface AsmAlias {
-    mnemonic: string
-    alias_of: string
-    doc_fift?: string
-    doc_stack?: string
-    description?: string
-    operands: Record<string, number | string>
+    readonly mnemonic: string
+    readonly alias_of: string
+    readonly doc_fift?: string
+    readonly doc_stack?: string
+    readonly description?: string
+    readonly operands: Record<string, number | string>
 }
 
 export interface AsmData {
-    instructions: AsmInstruction[]
-    aliases: AsmAlias[]
+    readonly instructions: AsmInstruction[]
+    readonly aliases: AsmAlias[]
 }
 
 let data: AsmData | null = null

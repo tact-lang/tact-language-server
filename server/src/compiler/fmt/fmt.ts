@@ -3,13 +3,13 @@ import {format} from "./formatter/formatter"
 import {parseCode, visit} from "@server/compiler/fmt/cst/cst-helpers"
 
 export interface FormatCodeError {
-    $: "FormatCodeError"
-    message: string
+    readonly $: "FormatCodeError"
+    readonly message: string
 }
 
 export interface FormattedCode {
-    $: "FormattedCode"
-    code: string
+    readonly $: "FormattedCode"
+    readonly code: string
 }
 
 export function formatCode(code: string): FormattedCode | FormatCodeError {

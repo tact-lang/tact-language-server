@@ -4,9 +4,9 @@ import {BaseTestSuite} from "./BaseTestSuite"
 import type {TestCase} from "./TestParser"
 
 interface RenamePosition {
-    line: number
-    character: number
-    renameTo: string
+    readonly line: number
+    readonly character: number
+    readonly renameTo: string
 }
 
 suite("Rename Test Suite", () => {

@@ -13,7 +13,7 @@ export class ReturnCompletionProvider implements CompletionProvider {
     }
 
     public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
-        const outerFunctionNode = parentOfType(ctx.element.node, ...funNodesTypes())
+        const outerFunctionNode = parentOfType(ctx.element.node, ...funNodesTypes()) // TODO: support receivers
         if (!outerFunctionNode) return
         const outerFunction = new Fun(outerFunctionNode, ctx.element.file)
 

@@ -5,25 +5,26 @@ export const GetDocumentationAtPositionRequest = "tact/executeHoverProvider"
 export const SetToolchainVersionNotification = "tact/setToolchainVersion"
 
 export interface GetTypeAtPositionParams {
-    textDocument: {
-        uri: string
+    readonly textDocument: {
+        readonly uri: string
     }
-    position: {
-        line: number
-        character: number
+    readonly position: {
+        readonly line: number
+        readonly character: number
     }
 }
 
 export interface SetToolchainVersionParams {
-    version: {
-        number: string
-        commit: string
+    readonly version: {
+        readonly number: string
+        readonly commit: string
     }
 }
 
 export interface GetTypeAtPositionResponse {
-    type: string | null
-    range: lsp.Range | null
+    readonly type: string | null
+    readonly range: lsp.Range | null
 }
 
+// eslint-disable-next-line functional/type-declaration-immutability
 export type GetDocumentationAtPositionResponse = lsp.Hover

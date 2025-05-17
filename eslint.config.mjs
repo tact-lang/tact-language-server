@@ -3,6 +3,7 @@ import tseslint from "typescript-eslint"
 import url from "node:url"
 import unusedImports from "eslint-plugin-unused-imports"
 import unicornPlugin from "eslint-plugin-unicorn"
+import functional from "eslint-plugin-functional"
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
@@ -12,6 +13,7 @@ export default tseslint.config(
         plugins: {
             ["@typescript-eslint"]: tseslint.plugin,
             ["@unused-imports"]: unusedImports,
+            functional: functional,
         },
     },
 
@@ -87,6 +89,19 @@ export default tseslint.config(
 
             "@unused-imports/no-unused-imports": "error",
             "no-duplicate-imports": "error",
+
+            "functional/type-declaration-immutability": [
+                "error",
+                {
+                    rules: [
+                        {
+                            identifiers: ".+",
+                            immutability: "ReadonlyShallow",
+                            comparator: "AtLeast",
+                        },
+                    ],
+                },
+            ],
 
             // override unicorn
             "unicorn/no-null": "off",

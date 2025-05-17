@@ -4,23 +4,23 @@ import {BaseTestSuite} from "./BaseTestSuite"
 import type {TestCase} from "./TestParser"
 
 export interface GetTypeAtPositionParams {
-    textDocument: {
-        uri: string
+    readonly textDocument: {
+        readonly uri: string
     }
-    position: {
-        line: number
-        character: number
+    readonly position: {
+        readonly line: number
+        readonly character: number
     }
 }
 
 export interface GetTypeAtPositionResponse {
-    type: string | null
+    readonly type: string | null
 }
 
 interface TypePosition {
-    line: number
-    character: number
-    expectedType: string
+    readonly line: number
+    readonly character: number
+    readonly expectedType: string
 }
 
 suite("Type Inference Test Suite", () => {

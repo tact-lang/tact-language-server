@@ -3,24 +3,26 @@ import {CodeBuilder} from "./code-builder"
 import {childByField, commentText, filterComments, visit} from "../cst/cst-helpers"
 import {formatComment, formatTrailingComments} from "./format-comments"
 
+// eslint-disable-next-line functional/type-declaration-immutability
 interface CommentWithNewline {
-    node: CstNode
+    readonly node: CstNode
     hasNewline: boolean
 }
 
 interface ListInfo {
-    items: ListItemInfo[]
-    leadingComments: CommentWithNewline[]
-    inlineLeadingComments: CommentWithNewline[]
-    trailingComments: CommentWithNewline[]
-    shouldBeMultiline: boolean
+    readonly items: ListItemInfo[]
+    readonly leadingComments: CommentWithNewline[]
+    readonly inlineLeadingComments: CommentWithNewline[]
+    readonly trailingComments: CommentWithNewline[]
+    readonly shouldBeMultiline: boolean
 }
 
+// eslint-disable-next-line functional/type-declaration-immutability
 interface ListItemInfo {
-    item: Cst
-    leadingComments: CommentWithNewline[]
-    trailingComments: CommentWithNewline[]
-    hasLeadingNewline: boolean
+    readonly item: Cst
+    readonly leadingComments: CommentWithNewline[]
+    readonly trailingComments: CommentWithNewline[]
+    readonly hasLeadingNewline: boolean
     hasTrailingNewline: boolean
 }
 

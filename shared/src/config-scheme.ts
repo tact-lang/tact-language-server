@@ -6,7 +6,7 @@ export interface TactPluginConfigScheme {}
 export const defaultConfig: TactPluginConfigScheme = {}
 
 export interface ClientOptions {
-    treeSitterWasmUri: string
-    tactLangWasmUri: string
-    fiftLangWasmUri: string
+    readonly treeSitterWasmUri: string
+    readonly tactLangWasmUri: string
+    readonly fiftLangWasmUri: string
 }

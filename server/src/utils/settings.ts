@@ -3,82 +3,82 @@ import {connection} from "@server/connection"
 export type FindUsagesScope = "workspace" | "everywhere"
 
 export interface TactSettings {
-    stdlib: {
-        path: string | null
+    readonly stdlib: {
+        readonly path: string | null
     }
-    toolchain: {
-        compilerPath: string
-        showShortCommitInStatusBar: boolean
+    readonly toolchain: {
+        readonly compilerPath: string
+        readonly showShortCommitInStatusBar: boolean
     }
-    highlighting: {
-        highlightCodeInComments: boolean
+    readonly highlighting: {
+        readonly highlightCodeInComments: boolean
     }
-    findUsages: {
-        scope: FindUsagesScope
+    readonly findUsages: {
+        readonly scope: FindUsagesScope
     }
-    hints: {
-        disable: boolean
-        types: boolean
-        parameters: boolean
-        exitCodeFormat: "decimal" | "hex"
-        showMethodId: boolean
-        showGasConsumption: boolean
-        showAsmInstructionGas: boolean
-        showExitCodes: boolean
-        showExplicitTLBIntType: boolean
-        gasFormat: string
-        showContinuationGas: boolean
-        showToCellSize: boolean
-        showAsciiEvaluationResult: boolean
-        showCrc32EvaluationResult: boolean
-        showMessageId: boolean
-        showReceiverOpcode: boolean
+    readonly hints: {
+        readonly disable: boolean
+        readonly types: boolean
+        readonly parameters: boolean
+        readonly exitCodeFormat: "decimal" | "hex"
+        readonly showMethodId: boolean
+        readonly showGasConsumption: boolean
+        readonly showAsmInstructionGas: boolean
+        readonly showExitCodes: boolean
+        readonly showExplicitTLBIntType: boolean
+        readonly gasFormat: string
+        readonly showContinuationGas: boolean
+        readonly showToCellSize: boolean
+        readonly showAsciiEvaluationResult: boolean
+        readonly showCrc32EvaluationResult: boolean
+        readonly showMessageId: boolean
+        readonly showReceiverOpcode: boolean
     }
-    gas: {
-        loopGasCoefficient: number
+    readonly gas: {
+        readonly loopGasCoefficient: number
     }
-    codeLens: {
-        enabled: boolean
-        showUsages: boolean
-        showOverrides: boolean
-        showTraitImplementations: boolean
-        showFunctionImplementations: boolean
-        showParentTraitFields: boolean
-        showParentTraitFunctions: boolean
+    readonly codeLens: {
+        readonly enabled: boolean
+        readonly showUsages: boolean
+        readonly showOverrides: boolean
+        readonly showTraitImplementations: boolean
+        readonly showFunctionImplementations: boolean
+        readonly showParentTraitFields: boolean
+        readonly showParentTraitFunctions: boolean
     }
-    inspections: {
-        disabled: string[] // list of disabled inspection ids
+    readonly inspections: {
+        readonly disabled: readonly string[] // list of disabled inspection ids
     }
-    documentation: {
-        showTlb: boolean
-        showKeywordDocumentation: boolean
-        maximumLinesBodyToShowInDocumentation: number
+    readonly documentation: {
+        readonly showTlb: boolean
+        readonly showKeywordDocumentation: boolean
+        readonly maximumLinesBodyToShowInDocumentation: number
     }
-    fift: {
-        hints: {
-            showGasConsumption: boolean
+    readonly fift: {
+        readonly hints: {
+            readonly showGasConsumption: boolean
         }
-        semanticHighlighting: {
-            enabled: boolean
+        readonly semanticHighlighting: {
+            readonly enabled: boolean
         }
     }
-    completion: {
-        typeAware: boolean
-        addImports: boolean
+    readonly completion: {
+        readonly typeAware: boolean
+        readonly addImports: boolean
     }
-    documentSymbols: {
-        showStructFields: boolean
-        showMessageFields: boolean
+    readonly documentSymbols: {
+        readonly showStructFields: boolean
+        readonly showMessageFields: boolean
     }
-    linters: {
-        compiler: {
-            enable: boolean
+    readonly linters: {
+        readonly compiler: {
+            readonly enable: boolean
         }
-        misti: {
-            enable: boolean
-            binPath: string
+        readonly misti: {
+            readonly enable: boolean
+            readonly binPath: string
         }
-        useProblemMatcher: boolean
+        readonly useProblemMatcher: boolean
     }
 }
 

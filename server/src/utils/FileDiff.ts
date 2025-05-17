@@ -2,8 +2,8 @@ import type * as lsp from "vscode-languageserver"
 import type {Position} from "vscode-languageclient"
 
 interface Edit {
-    range: lsp.Range
-    newText: string
+    readonly range: lsp.Range
+    readonly newText: string
 }
 
 /**

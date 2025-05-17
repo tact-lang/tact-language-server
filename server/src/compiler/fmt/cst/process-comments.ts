@@ -13,10 +13,10 @@ import {
 let pendingComments: Cst[] = []
 
 interface CommentsExtraction {
-    comments: Cst[]
-    inlineComments: Cst[]
-    startIndex: number
-    floatingComments: Cst[] // not attached to any
+    readonly comments: Cst[]
+    readonly inlineComments: Cst[]
+    readonly startIndex: number
+    readonly floatingComments: Cst[] // not attached to any
 }
 
 // $Function

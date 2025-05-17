@@ -1,8 +1,8 @@
 interface TypeDoc {
-    range: string
-    size: string
-    description?: string
-    tlb?: string
+    readonly range: string
+    readonly size: string
+    readonly description?: string
+    readonly tlb?: string
 }
 
 const TYPE_DOCS: Record<string, TypeDoc | undefined> = {
