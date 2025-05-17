@@ -185,7 +185,7 @@ export class StorageMembersOwner extends NamedNode {
             return []
         }
 
-        const baseTraitNode = index.elementByName(IndexKey.Traits, "BaseTrait")
+        const baseTraitNode = index.stdlibRoot?.elementByName(IndexKey.Traits, "BaseTrait") ?? null
 
         const traitList = this.node.childForFieldName("traits")
         const baseTraitOrEmpty =
