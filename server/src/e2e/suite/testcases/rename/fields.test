@@ -97,3 +97,28 @@ fun foo() {
 //!               ^ name
     dump(f.name);
 }
+
+========================================================================
+Rename struct field as with selection
+========================================================================
+struct Foo {
+    value: String;
+//!      ^ name
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { value: "" };
+    dump(f.value);
+}
+------------------------------------------------------------------------
+struct Foo {
+    name: String;
+//!      ^ name
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { name: "" };
+    dump(f.name);
+}
