@@ -1,0 +1,46 @@
+========================================================================
+Cursor within paren in chain call
+========================================================================
+primitive Builder;
+
+asm fun beginCell(): Builder { NEWC }
+asm extends fun endCell(self: Builder): Cell { ENDC }
+
+fun foo() {
+    beginCell(<caret>) // comment
+        .endCell();
+}
+------------------------------------------------------------------------
+
+fun beginCell()
+
+========================================================================
+Cursor within paren in chain call 2
+========================================================================
+primitive Builder;
+
+asm fun beginCell(): Builder { NEWC }
+asm extends fun endCell(self: Builder): Cell { ENDC }
+
+fun foo() {
+    beginCell() // comment
+        .endCell(<caret>);
+}
+------------------------------------------------------------------------
+
+fun endCell(self: Builder)
+
+========================================================================
+Cursor after paren in chain call
+========================================================================
+primitive Builder;
+
+asm fun beginCell(): Builder { NEWC }
+asm extends fun endCell(self: Builder): Cell { ENDC }
+
+fun foo() {
+    beginCell() // comment <caret>
+        .endCell();
+}
+------------------------------------------------------------------------
+no signature help
