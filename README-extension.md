@@ -1,4 +1,4 @@
-# Tact Language
+# Tact Extension
 
 Developed by [TON Studio](https://tonstudio.io), powered by the community.
 
@@ -89,7 +89,7 @@ The easiest way to get started with Tact is in VS Code or editors based on it:
 
 ## Troubleshooting
 
-See [TROUBLESHOOTING.md](docs/manual/troubleshooting.md).
+See [TROUBLESHOOTING.md](./docs/manual/troubleshooting.md).
 
 # License
 
