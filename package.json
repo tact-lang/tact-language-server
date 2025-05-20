@@ -600,7 +600,7 @@
     },
     "dependencies": {
         "@tact-lang/opcode": "^0.3.0",
-        "@textlint/markdown-to-ast": "^14.4.2",
+        "@textlint/markdown-to-ast": "14.4.2",
         "change-case": "^5.4.4",
         "glob": "^11.0.1",
         "vscode-languageclient": "^8.0.2",
