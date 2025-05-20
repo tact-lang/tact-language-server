@@ -30,7 +30,7 @@
     "scripts": {
         "test": "yarn jest",
         "build": "webpack",
-        "package": "npx vsce package --no-yarn",
+        "package": "npx vsce package --no-yarn --readme-path README-extension.md",
         "lint": "eslint --cache .",
         "fmt": "prettier --write -l --cache .",
         "fmt:check": "prettier --check --cache .",
@@ -617,7 +617,7 @@
         "@types/vscode": "^1.63.0",
         "@vscode/test-cli": "^0.0.10",
         "@vscode/test-electron": "^2.4.1",
-        "@vscode/vsce": "^2.15.0",
+        "@vscode/vsce": "^3.0.0",
         "c8": "^10.1.3",
         "copy-webpack-plugin": "^12.0.2",
         "eslint": "^9.19.0",

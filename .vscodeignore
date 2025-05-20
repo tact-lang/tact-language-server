@@ -1,11 +1,16 @@
 **/*
 
+!dist/**/*.js
+!dist/**/*.json
+!dist/**/*.wasm
+!dist/**/*.svg
+!dist/**/*.tact
+
 # Include only this files
-!dist/
 !LICENSE
 !CHANGELOG.md
 !package.json
-!README.md
+!./README-extension.md
 !language-configuration.json
 !syntaxes/
 !snippets/
