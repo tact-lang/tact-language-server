@@ -1244,11 +1244,24 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
         const changes: Record<DocumentUri, TextEdit[]> = {}
 
-        result.forEach(node => {
+        for (const node of result) {
             const uri = node.file.uri
             const element = {
                 range: asLspRange(node.node),
                 newText: params.newName,
+            }
+
+            const parent = node.node.parent
+
+            // process renaming of a short instance field:
+            // Foo { bar } -> Foo { bar: baz }
+            if (parent?.type === "instance_argument") {
+                const fieldName = parent.childForFieldName("name")?.text
+                // when Foo { bar } and not Foo { bar: baz }
+                const short = parent.childForFieldName("value") === null
+                if (short) {
+                    element.newText = `${fieldName}: ${params.newName}`
+                }
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -1257,7 +1270,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             } else {
                 changes[uri] = [element]
             }
-        })
+        }
 
         return {changes}
     })
