@@ -121,6 +121,10 @@ function processToCellCall(call: CallLike, result: InlayHint[], showToCellSize: 
     }
 
     const sizeof = ty.sizeOf(new Map())
+    if (!sizeof.valid) {
+        return
+    }
+
     result.push({
         kind: InlayHintKind.Parameter,
         label: " Size: " + sizeOfPresentation(sizeof),

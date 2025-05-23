@@ -426,6 +426,7 @@ function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSetting
 function documentationSizeOf(fieldsOwner: FieldsOwner): string {
     const ty = new FieldsOwnerTy(fieldsOwner.name(), fieldsOwner)
     const sizeOf = ty.sizeOf()
+    if (!sizeOf.valid) return ""
     const sizeOfPres = sizeOfPresentation(sizeOf)
     return `**Size:** ${sizeOfPres}.\n\n---\n\n`
 }

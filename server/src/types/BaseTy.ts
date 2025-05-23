@@ -44,11 +44,12 @@ export abstract class BaseTy<Anchor extends NamedNode> implements Ty {
 }
 
 export interface SizeOf {
+    readonly valid: boolean
     readonly fixed: number
     readonly floating: number
 }
 
-const CELL_SIZE: SizeOf = {fixed: 0, floating: 1023}
+const CELL_SIZE: SizeOf = {fixed: 0, floating: 1023, valid: true}
 
 export function sizeOfPresentation(size: SizeOf): string {
     if (size.floating === 0) {
@@ -71,10 +72,10 @@ function sizeOf(ty: Ty, visited: Map<string, SizeOf>): SizeOf {
 
 function mergeSizes(a: SizeOf, b: SizeOf): SizeOf {
     if (a.floating === 0 && b.floating === 0) {
-        return {fixed: a.fixed + b.fixed, floating: 0}
+        return {fixed: a.fixed + b.fixed, floating: 0, valid: a.valid && b.valid}
     }
 
-    return {fixed: a.fixed + b.fixed, floating: a.floating + b.floating}
+    return {fixed: a.fixed + b.fixed, floating: a.floating + b.floating, valid: a.valid && b.valid}
 }
 
 export class FieldsOwnerTy<Anchor extends FieldsOwner> extends BaseTy<Anchor> {
@@ -84,24 +85,25 @@ export class FieldsOwnerTy<Anchor extends FieldsOwner> extends BaseTy<Anchor> {
     }
 
     public override sizeOf(visited: Map<string, SizeOf> = new Map()): SizeOf {
-        let res: SizeOf = {fixed: 0, floating: 0}
+        let res: SizeOf = {fixed: 0, floating: 0, valid: true}
 
         const fields = this.fields()
-        fields.forEach(field => {
+        for (const field of fields) {
             const nameNode = field.nameNode()
-            if (!nameNode) return
+            if (!nameNode) return {...res, valid: false}
             const fieldTy = TypeInferer.inferType(nameNode)
-            if (!fieldTy) return
+            if (!fieldTy) return {...res, valid: false}
 
             const size = sizeOf(fieldTy, visited)
             res = mergeSizes(res, size)
-        })
+        }
 
         const headerSize = this.anchor?.node.type === "message" ? 32 : 0
 
         return mergeSizes(res, {
             fixed: headerSize,
             floating: 0,
+            valid: true,
         })
     }
 }
@@ -140,26 +142,26 @@ export class PrimitiveTy extends BaseTy<Primitive> {
                         this.tlb === "varuint16" ||
                         this.tlb === "varint16"
                     ) {
-                        return {fixed: 4, floating: 120}
+                        return {fixed: 4, floating: 120, valid: true}
                     }
                     if (this.tlb === "varuint32" || this.tlb === "varint32") {
-                        return {fixed: 5, floating: 248}
+                        return {fixed: 5, floating: 248, valid: true}
                     }
 
                     const trimmed = trimPrefix(trimPrefix(this.tlb, "uint"), "int")
                     const size = Number.parseInt(trimmed, 10)
                     if (!Number.isNaN(size)) {
-                        return {fixed: size, floating: 0}
+                        return {fixed: size, floating: 0, valid: true}
                     }
                 }
 
-                return {fixed: 257, floating: 0}
+                return {fixed: 257, floating: 0, valid: true}
             }
             case "Bool": {
-                return {fixed: 1, floating: 0}
+                return {fixed: 1, floating: 0, valid: true}
             }
             case "Address": {
-                return {fixed: 267, floating: 0}
+                return {fixed: 267, floating: 0, valid: true}
             }
             case "Cell":
             case "Slice":
@@ -169,13 +171,13 @@ export class PrimitiveTy extends BaseTy<Primitive> {
             }
         }
 
-        return {fixed: 0, floating: 0}
+        return {fixed: 0, floating: 0, valid: true}
     }
 }
 
 export class PlaceholderTy extends BaseTy<NamedNode> {
     public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
-        return {fixed: 0, floating: 0}
+        return {fixed: 0, floating: 0, valid: true}
     }
 }
 
@@ -216,7 +218,7 @@ export class StorageMembersOwnerTy<Anchor extends StorageMembersOwner> extends B
     }
 
     public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
-        return {fixed: 0, floating: 0}
+        return {fixed: 0, floating: 0, valid: true}
     }
 }
 
@@ -253,7 +255,7 @@ export class OptionTy implements Ty {
 
     public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
         const innerSizeOf = this.innerTy.sizeOf(_visited)
-        return mergeSizes(innerSizeOf, {fixed: 1, floating: 0}) // 1 bit for null/not-null
+        return mergeSizes(innerSizeOf, {fixed: 1, floating: 0, valid: true}) // 1 bit for null/not-null
     }
 }
 
@@ -272,7 +274,7 @@ export class MapTy implements Ty {
     }
 
     public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
-        return CELL_SIZE
+        return {fixed: 0, floating: 0, valid: false} // we don't know the size of the map
     }
 }
 
@@ -286,7 +288,7 @@ export class NullTy implements Ty {
     }
 
     public sizeOf(_visited: Map<string, SizeOf>): SizeOf {
-        return {fixed: 0, floating: 0}
+        return {fixed: 0, floating: 0, valid: true}
     }
 }
 

@@ -266,6 +266,8 @@ field: map<Int as uint8, Int>
 Struct declaration with other struct field
 ========================================================================
 primitive Int;
+primitive Cell;
+primitive Address;
 
 struct VerifyInfo {
     owner: Address;
@@ -297,7 +299,7 @@ take_wallet_balance#ca77fdc2
     verifyInfo:Maybe VerifyInfo = TakeWalletBalance
 ```
 
-**Size:** 37 bits plus up to 120 bits.
+**Size:** 571 bits plus up to 1143 bits.
 
 ---
 
