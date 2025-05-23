@@ -16,7 +16,8 @@ Developed by [TON Studio](https://tonstudio.io), powered by the community.
 ---
 
 This extension for VSCode-based editors provides support for the [Tact programming language](https://tact-lang.org).
-Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON blockchain.
+Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON
+blockchain.
 
 ## Features
 
@@ -76,6 +77,12 @@ The easiest way to get started with Tact is in VS Code or editors based on it:
     - Type "Install from VSIX"
     - Select the downloaded `.vsix` file
     - Reload VS Code
+
+If you use Cursor, Windsurf, or any other AI-powered editor, you can feed it the following content,
+specifically created for LLM:
+
+- https://docs.tact-lang.org/llms.txt — for full context
+- https://docs.tact-lang.org/llms-small.txt — for smaller context windows
 
 ## Community
 
