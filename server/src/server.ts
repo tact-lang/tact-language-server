@@ -147,6 +147,7 @@ import {MisspelledKeywordInspection} from "@server/inspections/MisspelledKeyword
  * @see initializeFallback
  */
 let initialized = false
+let initializationFinished = false
 
 let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
 
@@ -290,6 +291,7 @@ async function initialize(): Promise<void> {
     CACHE.clear()
 
     reporter.done()
+    initializationFinished = true
 }
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -344,6 +346,8 @@ async function initializeFallback(uri: string): Promise<void> {
 }
 
 async function runInspections(uri: string, file: File): Promise<void> {
+    if (!initializationFinished) return
+
     const inspections = [
         new UnusedParameterInspection(),
         new EmptyBlockInspection(),
@@ -1147,7 +1151,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         async (params: lsp.InlayHintParams): Promise<lsp.InlayHint[] | null> => {
             const uri = params.textDocument.uri
             const settings = await getDocumentSettings(uri)
-            if (settings.hints.disable) {
+            if (settings.hints.disable || !initializationFinished) {
                 return null
             }
 

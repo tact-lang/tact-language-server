@@ -154,7 +154,7 @@ contract Test {
         repeat(5) {
             x = x * 2;
         }
-        foreach(k, v in map) {
+        foreach(k, v in mp) {
             sum += v;
         }</selection>
     }
@@ -172,7 +172,7 @@ contract Test {
             repeat(5) {
                 x = x * 2;
             }
-            foreach(k, v in map) {
+            foreach(k, v in mp) {
                 sum += v;
             }
         } catch(e) {
