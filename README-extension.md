@@ -79,7 +79,7 @@ The easiest way to get started with Tact is in VS Code or editors based on it:
     - Reload VS Code
 
 If you use Cursor, Windsurf, or any other AI-powered editor, you can feed it the following content,
-specifically created for LLM:
+specifically created for LLMs:
 
 - https://docs.tact-lang.org/llms-full.txt — for full context
 - https://docs.tact-lang.org/llms-small.txt — for smaller context windows
