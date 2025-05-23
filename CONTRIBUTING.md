@@ -56,9 +56,10 @@ Language-specific editor features like comment toggling, bracket matching, and a
 - `language-configuration.json` (for Tact)
 - `fift-language-configuration.json` (for Fift)
 - `tasm-language-configuration.json` (for TASM)
-  Refer to
-  the [VS Code Language Configuration Guide](https://code.visualstudio.com/api/language-extensions/language-configuration-guide)
-  for more details on these files.
+
+Refer to
+the [VS Code Language Configuration Guide](https://code.visualstudio.com/api/language-extensions/language-configuration-guide)
+for more details on these files.
 
 To begin developing the extension:
 
