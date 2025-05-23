@@ -480,7 +480,7 @@ token_transfer#f8a7ea5
     response_destination:Maybe MsgAddress
     custom_payload:Maybe ^Cell
     forward_ton_amount:Coins
-    forward_payload:^Cell = TokenTransfer
+    forward_payload:Cell = TokenTransfer
 ```
 
 **Size:** 640 bits plus up to 2286 bits.

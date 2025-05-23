@@ -33,6 +33,37 @@ _ name:^Cell
 Some cool struct
 
 ========================================================================
+Struct documentation with as remaining field
+========================================================================
+primitive Slice;
+
+struct <caret>Foo {
+    field: Slice as remaining;
+}
+
+fun foo() {
+    let f = Foo { field: 10 };
+}
+------------------------------------------------------------------------
+```tact
+struct Foo {
+    field: Slice as remaining;
+}
+```
+
+---
+
+**TL-B:**
+
+```tlb
+_ field:Cell = Foo
+```
+
+**Size:** 0 bits plus up to 1023 bits.
+
+---
+
+========================================================================
 Message documentation
 ========================================================================
 primitive String;

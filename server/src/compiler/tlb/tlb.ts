@@ -13,9 +13,9 @@ import {TypeInferer} from "@server/TypeInferer"
 
 export function generateTlb(ty: Ty, forField: boolean = false): string {
     if (ty instanceof PrimitiveTy) {
+        const tlb = ty.tlb
         switch (ty.name()) {
             case "Int": {
-                const tlb = ty.tlb
                 if (tlb) {
                     if (tlb === "coins") {
                         return "Coins"
@@ -43,16 +43,13 @@ export function generateTlb(ty: Ty, forField: boolean = false): string {
             case "Address": {
                 return "MsgAddress"
             }
-            case "Cell": {
-                return "^Cell"
-            }
-            case "Slice": {
-                return "^Cell"
-            }
-            case "Builder": {
-                return "^Cell"
-            }
+            case "Cell":
+            case "Slice":
+            case "Builder":
             case "String": {
+                if (tlb === "remaining") {
+                    return "Cell"
+                }
                 return "^Cell"
             }
         }
