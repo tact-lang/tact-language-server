@@ -45,7 +45,11 @@ export function collectListInfo(node: CstNode, startIndex: number, endIndex: num
 
     let wasInitialNewline = false
     while (i < processList.length) {
-        const child = processList[i]
+        const child = processList.at(i)
+        if (child === undefined) {
+            i++
+            continue
+        }
 
         if (child.$ === "leaf") {
             if (child.text === ",") {
