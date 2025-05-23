@@ -300,7 +300,8 @@ export class Reference {
                     const typeNode = selfParam.node.childForFieldName("type")
                     if (typeNode === null) return true
 
-                    if (Reference.typeMatches(ty, tyName, typeNode)) {
+                    const isOptional = typeNode.nextSibling?.text === "?"
+                    if (Reference.typeMatches(ty, tyName, isOptional, typeNode)) {
                         return proc.execute(fun, state)
                     }
 
@@ -311,9 +312,17 @@ export class Reference {
         )
     }
 
-    private static typeMatches(ty: Ty, tyName: string, typeNode: SyntaxNode): boolean {
+    private static typeMatches(
+        ty: Ty,
+        tyName: string,
+        isOptional: boolean,
+        typeNode: SyntaxNode,
+    ): boolean {
         if (typeNode.type === "map_type") {
             return ty instanceof MapTy
+        }
+        if (isOptional) {
+            return ty instanceof OptionTy && ty.innerTy.name() === typeNode.text
         }
         return tyName === typeNode.text
     }
