@@ -204,6 +204,10 @@ export class IndexRoot {
     }
 
     public contains(file: string): boolean {
+        if (!file.startsWith("file:")) {
+            // most likely VS Code temp file can be only in the workspace
+            return this.name === "workspace"
+        }
         const filepath = fileURLToPath(file)
         const rootDir = fileURLToPath(this.root)
         return filepath.startsWith(rootDir)

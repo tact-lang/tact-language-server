@@ -17,7 +17,7 @@ Scope: LocalSearchScope:
 Foreach key scope
 ========================================================================
 fun test() {
-    foreach (<caret>key, value in map) {
+    foreach (<caret>key, value in mp) {
         key + value;
     }
 }
@@ -32,7 +32,7 @@ Scope: LocalSearchScope:
 Foreach value scope
 ========================================================================
 fun test() {
-    foreach (key, <caret>value in map) {
+    foreach (key, <caret>value in mp) {
         key + value;
     }
 }

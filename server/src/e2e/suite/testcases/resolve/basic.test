@@ -106,7 +106,7 @@ fun test() {
 Variable in foreach resolve
 ========================================================================
 fun test() {
-    foreach (key, value in map) {
+    foreach (key, value in mp) {
         <caret>key;
     }
 }
@@ -117,7 +117,7 @@ fun test() {
 Variable in foreach resolve 2
 ========================================================================
 fun test() {
-    foreach (key, value in map) {
+    foreach (key, value in mp) {
         <caret>value;
     }
 }
