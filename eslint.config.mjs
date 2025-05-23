@@ -123,6 +123,7 @@ export default tseslint.config(
             "unicorn/prefer-json-parse-buffer": "off",
             "unicorn/no-array-reduce": "off",
             "unicorn/prefer-string-raw": "off",
+            "unicorn/no-useless-undefined": "off",
         },
     },
 )

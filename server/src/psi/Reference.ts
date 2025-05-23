@@ -597,16 +597,18 @@ export class Reference {
             if (!this.processElsInIndex(proc, state, fileIndex)) return false
         }
 
-        // If not found in workspace, search in stdlib and stubs
+        if (this.element.node.text === "sha256") {
+            // sha256 is a special builtin function with two signatures,
+            // so we need extra logic to resolve it correctly
+            if (!this.resolveSha256(proc, state)) return false
+        }
+
+        // If not found in the workspace, search in stdlib and stubs
         if (index.stdlibRoot) {
             if (!this.processElsInIndex(proc, state, index.stdlibRoot)) return false
         }
 
         if (index.stubsRoot) {
-            if (this.element.node.text === "sha256") {
-                if (!this.resolveSha256(proc, state)) return false
-            }
-
             if (!this.processElsInIndex(proc, state, index.stubsRoot)) return false
         }
 
@@ -618,10 +620,10 @@ export class Reference {
         // sha256("hello")
         // ^^^^^^
 
-        const stubsRoot = index.stubsRoot
-        if (!stubsRoot) return true
-
-        const sha256Impls = stubsRoot.elementsByName(IndexKey.Funs, "sha256")
+        const definitions = this.findSha256Definitions()
+        if (!definitions) {
+            return true
+        }
 
         // sha256("hello")
         // ^^^^^^^^^^^^^^^
@@ -648,7 +650,7 @@ export class Reference {
             return true
         }
 
-        const stringSha256 = sha256Impls.find(it => {
+        const stringSha256 = definitions.find(it => {
             const param = it.parameters().at(0)
             if (!param) return false
             const paramType = TypeInferer.inferType(param)
@@ -660,6 +662,26 @@ export class Reference {
         }
 
         return true
+    }
+
+    private findSha256Definitions(): Fun[] | undefined {
+        const stdlibRoot = index.stdlibRoot
+        if (stdlibRoot) {
+            // stdlib in the latest Tact versions contains stubs.tact, so looking here first
+            const def = stdlibRoot.elementsByName(IndexKey.Funs, "sha256")
+            if (def.length > 0) {
+                return def
+            }
+        }
+        const stubsRoot = index.stubsRoot
+        if (stubsRoot) {
+            // and fallback to embedded stubs
+            const def = stubsRoot.elementsByName(IndexKey.Funs, "sha256")
+            if (def.length > 0) {
+                return def
+            }
+        }
+        return undefined
     }
 
     private processElsInIndex(
@@ -863,7 +885,7 @@ export class Reference {
         if (!(type instanceof ContractTy)) return null
         const initFunc = type.initFunction()
         if (!initFunc) {
-            // if no init function in contract, go to contract name
+            // if no init function in the contract, go to the contract name
             if (!type.anchor) return null
             const nameNode = type.anchor.nameNode()
             if (!nameNode) return null
