@@ -885,7 +885,7 @@ export class Reference {
         if (!(type instanceof ContractTy)) return null
         const initFunc = type.initFunction()
         if (!initFunc) {
-            // if no init functions in the contract, go to the contract name
+            // if no init function in the contract, go to the contract name
             if (!type.anchor) return null
             const nameNode = type.anchor.nameNode()
             if (!nameNode) return null
