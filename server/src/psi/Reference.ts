@@ -19,6 +19,7 @@ import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "@server/cache"
 import {TypeInferer} from "@server/TypeInferer"
 import {filePathToUri} from "@server/indexing-root"
+import {ImportResolver} from "@server/psi/ImportResolver"
 
 export class ResolveState {
     private values: Map<string, string> = new Map()
@@ -73,6 +74,9 @@ export class Reference {
     }
 
     private resolveImpl(): NamedNode | null {
+        if (this.element.node.startIndex === this.element.node.endIndex) return null
+        if (this.element.node.parent?.type === "tlb_serialization") return null
+
         const result: NamedNode[] = []
         const state = new ResolveState()
         this.processResolveVariants(Reference.createResolveProcessor(result, this.element), state)
@@ -220,13 +224,15 @@ export class Reference {
                 }
             }
 
+            const methodRef = qualifier.node.parent?.type === "method_call_expression"
+
             const nodeStruct = index.elementByName(IndexKey.Primitives, "AnyStruct")
-            if (nodeStruct) {
+            if (nodeStruct && (methodRef || state.get("completion"))) {
                 const structPrimitiveTy = new PrimitiveTy("AnyStruct", nodeStruct, null)
                 if (!this.processType(qualifier, structPrimitiveTy, proc, state)) return false
             }
             const nodeMessage = index.elementByName(IndexKey.Primitives, "AnyMessage")
-            if (nodeMessage) {
+            if (nodeMessage && (methodRef || state.get("completion"))) {
                 const messagePrimitiveTy = new PrimitiveTy("AnyMessage", nodeMessage, null)
                 if (!this.processType(qualifier, messagePrimitiveTy, proc, state)) return false
             }
@@ -238,7 +244,7 @@ export class Reference {
 
         if (!this.processType(qualifier, qualifierType, proc, state)) return false
 
-        // process unwrapped T? later to correctly resolve in case of same name method for T and T?
+        // process unwrapped T? later to correctly resolve in case of the same name method for T and T?
         if (qualifierType instanceof OptionTy) {
             // show completion and resolve without explicit unwrapping
             return this.processType(qualifier, qualifierType.innerTy, proc, state)
@@ -256,20 +262,10 @@ export class Reference {
     ): boolean {
         const methodRef = qualifier.node.parent?.type === "method_call_expression"
 
-        if (!this.processTypeMethods(qualifierType, proc, state)) return false
-
-        if (qualifierType instanceof StructTy) {
-            if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
-        }
-
-        if (qualifierType instanceof MessageTy) {
-            if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
-        }
-
         // Traits or contracts
         if (qualifierType instanceof StorageMembersOwnerTy) {
-            // for `foo.bar()` first check for methods since there is no callable types
-            // for `foo.bar` first check for fields since there is no function pointers
+            // for `foo.bar()` first check for methods since there are no callable types
+            // for `foo.bar` first check for fields since there are no function pointers
             if (methodRef) {
                 if (!Reference.processNamedEls(proc, state, qualifierType.methods())) return false
                 if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
@@ -281,33 +277,52 @@ export class Reference {
             }
         }
 
-        return true
+        if (qualifierType instanceof StructTy) {
+            if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
+        }
+
+        if (qualifierType instanceof MessageTy) {
+            if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
+        }
+
+        return this.processTypeMethods(qualifierType, proc, state)
     }
 
     private processTypeMethods(ty: Ty, proc: ScopeProcessor, state: ResolveState): boolean {
+        const tyName = ty.qualifiedName()
         return index.processElementsByKey(
-            IndexKey.Funs,
+            IndexKey.Methods,
             new (class implements ScopeProcessor {
-                public execute(fun: Node, state: ResolveState): boolean {
-                    if (!(fun instanceof Fun)) return true
-                    if (!fun.withSelf()) return true
+                public execute(fun: Fun, state: ResolveState): boolean {
                     const selfParam = fun.parameters()[0]
                     const typeNode = selfParam.node.childForFieldName("type")
                     if (typeNode === null) return true
-                    const typeExpr = new Expression(typeNode, fun.file)
-                    const selfType = typeExpr.type()
-                    if (selfType instanceof MapTy && ty instanceof MapTy) {
+
+                    const isOptional = typeNode.nextSibling?.text === "?"
+                    if (Reference.typeMatches(ty, tyName, isOptional, typeNode)) {
                         return proc.execute(fun, state)
                     }
 
-                    if (selfType?.qualifiedName() === ty.qualifiedName()) {
-                        return proc.execute(fun, state)
-                    }
                     return true
                 }
             })(),
             state,
         )
+    }
+
+    private static typeMatches(
+        ty: Ty,
+        tyName: string,
+        isOptional: boolean,
+        typeNode: SyntaxNode,
+    ): boolean {
+        if (typeNode.type === "map_type") {
+            return ty instanceof MapTy
+        }
+        if (isOptional) {
+            return ty instanceof OptionTy && ty.innerTy.name() === typeNode.text
+        }
+        return tyName === typeNode.text
     }
 
     private processUnqualifiedResolve(proc: ScopeProcessor, state: ResolveState): boolean {
@@ -610,6 +625,27 @@ export class Reference {
 
         if (index.stubsRoot) {
             if (!this.processElsInIndex(proc, state, index.stubsRoot)) return false
+        }
+
+        // as a last resort process all imports tree
+        const visited: Set<string> = new Set([file.uri])
+        const queue: string[] = file.importedFiles()
+
+        while (queue.length > 0) {
+            const path = queue.shift()
+            if (!path) continue
+            if (visited.has(path)) continue
+            visited.add(path)
+
+            const file = ImportResolver.toFile(path)
+            if (!file) continue
+
+            const fileIndex = index.findFile(filePathToUri(path))
+            if (!fileIndex) continue
+
+            if (!this.processElsInIndex(proc, state, fileIndex)) continue
+
+            queue.push(...file.importedFiles())
         }
 
         return true

@@ -10,6 +10,7 @@ import {fileURLToPath} from "node:url"
 export interface IndexKeyToType {
     readonly [IndexKey.Contracts]: Contract
     readonly [IndexKey.Funs]: Fun
+    readonly [IndexKey.Methods]: Fun
     readonly [IndexKey.Messages]: Message
     readonly [IndexKey.Structs]: Struct
     readonly [IndexKey.Traits]: Trait
@@ -20,6 +21,7 @@ export interface IndexKeyToType {
 export enum IndexKey {
     Contracts = "Contracts",
     Funs = "Funs",
+    Methods = "Methods",
     Messages = "Messages",
     Structs = "Structs",
     Traits = "Traits",
@@ -35,6 +37,7 @@ export class FileIndex {
     private readonly elements: {
         [IndexKey.Contracts]: Contract[]
         [IndexKey.Funs]: Fun[]
+        [IndexKey.Methods]: Fun[]
         [IndexKey.Messages]: Message[]
         [IndexKey.Structs]: Struct[]
         [IndexKey.Traits]: Trait[]
@@ -43,6 +46,7 @@ export class FileIndex {
     } = {
         [IndexKey.Contracts]: [],
         [IndexKey.Funs]: [],
+        [IndexKey.Methods]: [],
         [IndexKey.Messages]: [],
         [IndexKey.Structs]: [],
         [IndexKey.Traits]: [],
@@ -57,7 +61,12 @@ export class FileIndex {
             if (!node) continue
 
             if (isNamedFunNode(node)) {
-                index.elements[IndexKey.Funs].push(new Fun(node, file))
+                const fun = new Fun(node, file)
+                index.elements[IndexKey.Funs].push(fun)
+
+                if (fun.withSelf()) {
+                    index.elements[IndexKey.Methods].push(fun)
+                }
             }
             if (node.type === "struct") {
                 index.elements[IndexKey.Structs].push(new Struct(node, file))
@@ -106,6 +115,11 @@ export class FileIndex {
                     | IndexKeyToType[K]
                     | null
             }
+            case IndexKey.Methods: {
+                return this.findElement(this.elements[IndexKey.Methods], name) as
+                    | IndexKeyToType[K]
+                    | null
+            }
             case IndexKey.Messages: {
                 return this.findElement(this.elements[IndexKey.Messages], name) as
                     | IndexKeyToType[K]
@@ -147,6 +161,12 @@ export class FileIndex {
             }
             case IndexKey.Funs: {
                 return this.findElements(this.elements[IndexKey.Funs], name) as IndexKeyToType[K][]
+            }
+            case IndexKey.Methods: {
+                return this.findElements(
+                    this.elements[IndexKey.Methods],
+                    name,
+                ) as IndexKeyToType[K][]
             }
             case IndexKey.Messages: {
                 return this.findElements(
