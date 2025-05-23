@@ -17,6 +17,15 @@ export class NotImportedSymbolInspection implements Inspection {
 
         RecursiveVisitor.visit(file.rootNode, node => {
             if (node.type !== "identifier" && node.type !== "type_identifier") return
+
+            if (node.type === "identifier") {
+                const parentType = node.parent?.type
+                if (parentType !== "static_call_expression") {
+                    // check only call of global functions
+                    return
+                }
+            }
+
             const resolved = Reference.resolve(new NamedNode(node, file))
             if (!resolved) return
             if (
@@ -39,9 +48,9 @@ export class NotImportedSymbolInspection implements Inspection {
             if (index.hasSeveralDeclarations(resolved.name())) return
 
             diagnostics.push({
-                severity: lsp.DiagnosticSeverity.Error,
+                severity: lsp.DiagnosticSeverity.Warning,
                 range: asLspRange(node),
-                message: "Symbol from another file should be imported",
+                message: "Symbol from another file should be imported explicitly",
                 source: "tact",
                 code: "not-imported-symbol",
             })

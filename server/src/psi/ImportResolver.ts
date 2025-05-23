@@ -42,7 +42,7 @@ export class ImportResolver {
         return targetPath
     }
 
-    private static toFile(targetPath: string): File | null {
+    public static toFile(targetPath: string): File | null {
         const targetUri = filePathToUri(targetPath)
         return PARSED_FILES_CACHE.get(targetUri) ?? null
     }
