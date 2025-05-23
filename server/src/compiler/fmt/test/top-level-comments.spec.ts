@@ -9,7 +9,7 @@ describe("top level declarations comments formatting", () => {
 
         fun foo() {}
     `),
-    );
+    )
 
     it(
         "comments after import",
@@ -19,7 +19,7 @@ describe("top level declarations comments formatting", () => {
             // text2
 
         `),
-    );
+    )
 
     it(
         "comments in primitive type declarations",
@@ -30,7 +30,7 @@ describe("top level declarations comments formatting", () => {
         /* block primitive comment */
         primitive String;
     `),
-    );
+    )
 
     it(
         "comments in function declarations",
@@ -43,7 +43,7 @@ describe("top level declarations comments formatting", () => {
 
         fun baz() {}
     `),
-    );
+    )
 
     it(
         "comments in asm function declarations",
@@ -56,7 +56,7 @@ describe("top level declarations comments formatting", () => {
 
         asm fun baz() { THREE }
     `),
-    );
+    )
 
     it(
         "comments in native function declarations",
@@ -72,7 +72,7 @@ describe("top level declarations comments formatting", () => {
         @name("native")
         native bax();
     `),
-    );
+    )
 
     it(
         "comments in constant declarations",
@@ -85,7 +85,7 @@ describe("top level declarations comments formatting", () => {
 
         const A: Int = 100;
     `),
-    );
+    )
 
     it(
         "comments in struct declarations",
@@ -103,7 +103,7 @@ describe("top level declarations comments formatting", () => {
 
         struct Bar {}
     `),
-    );
+    )
 
     it(
         "comment after last field in struct",
@@ -113,7 +113,7 @@ describe("top level declarations comments formatting", () => {
             // Other data fields...
         }
     `),
-    );
+    )
 
     it(
         "comment after last field in message",
@@ -123,7 +123,7 @@ describe("top level declarations comments formatting", () => {
             // Other data fields...
         }
     `),
-    );
+    )
 
     it(
         "comments in message declarations",
@@ -143,7 +143,7 @@ describe("top level declarations comments formatting", () => {
 
         message Bax {}
     `),
-    );
+    )
 
     it(
         "comments in contract declarations",
@@ -164,7 +164,7 @@ describe("top level declarations comments formatting", () => {
 
         contract Bax {}
     `),
-    );
+    )
 
     it(
         "comments in trait declarations",
@@ -185,7 +185,7 @@ describe("top level declarations comments formatting", () => {
 
         trait Bax {}
     `),
-    );
+    )
 
     it(
         "comments in contract with inheritance",
@@ -201,7 +201,7 @@ describe("top level declarations comments formatting", () => {
             value: Int;
         }
     `),
-    );
+    )
 
     it(
         "comments in contract with interface",
@@ -219,7 +219,7 @@ describe("top level declarations comments formatting", () => {
             value: Int;
         }
     `),
-    );
+    )
 
     it(
         "comments in contract with init",
@@ -240,7 +240,7 @@ describe("top level declarations comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in contract with receive",
@@ -261,7 +261,7 @@ describe("top level declarations comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in contract with external",
@@ -282,7 +282,7 @@ describe("top level declarations comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in contract with bounced",
@@ -303,7 +303,7 @@ describe("top level declarations comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in contract with get function",
@@ -324,7 +324,7 @@ describe("top level declarations comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in contract with multiple items",
@@ -367,7 +367,7 @@ describe("top level declarations comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "floating comments",
@@ -376,7 +376,7 @@ describe("top level declarations comments formatting", () => {
             //   if (x == 0) { return x; }
             // }
         `),
-    );
+    )
 
     it(
         "floating comments before declaration",
@@ -387,7 +387,7 @@ describe("top level declarations comments formatting", () => {
 
             fun sqrt(x: Int): Int {}
         `),
-    );
+    )
 
     it(
         "floating comments between declarations",
@@ -400,7 +400,7 @@ describe("top level declarations comments formatting", () => {
 
             fun sqrt(x: Int): Int {}
         `),
-    );
+    )
 
     it(
         "floating comments between declarations without leading newline",
@@ -412,7 +412,7 @@ describe("top level declarations comments formatting", () => {
 
             fun sqrt(x: Int): Int {}
         `),
-    );
+    )
 
     it(
         "several floating comments between declarations",
@@ -427,7 +427,7 @@ describe("top level declarations comments formatting", () => {
 
             fun sqrt(x: Int): Int {}
         `),
-    );
+    )
 
     it(
         "several floating comments before declaration",
@@ -440,7 +440,7 @@ describe("top level declarations comments formatting", () => {
 
             fun sqrt(x: Int): Int {}
         `),
-    );
+    )
 
     it(
         "several floating comments between import and declaration",
@@ -455,7 +455,7 @@ describe("top level declarations comments formatting", () => {
 
             fun sqrt(x: Int): Int {}
         `),
-    );
+    )
 
     it(
         "several floating comments between import and declaration 2",
@@ -477,7 +477,7 @@ describe("top level declarations comments formatting", () => {
 
             fun sqrt(x: Int): Int {}
         `),
-    );
+    )
 
     it(
         "several floating comments between import and declaration with several empty lines",
@@ -506,17 +506,17 @@ describe("top level declarations comments formatting", () => {
                 fun sqrt(x: Int): Int {}
             `,
         ),
-    );
+    )
 
     it(
         "trailing comments for last constant without newline",
         intact(`const FOO: Int = 0; // comment`),
-    );
+    )
 
     it(
         "trailing comments for last function with newline",
         intact(`
             fun bar(); // comment
         `),
-    );
-});
+    )
+})

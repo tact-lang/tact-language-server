@@ -4,30 +4,19 @@ describe("should format", () => {
     it(
         "function declaration formatting",
         test(`fun    foo(param:    Int)   ;`, `fun foo(param: Int);`),
-    );
+    )
 
-    it(
-        "function with comments after name",
-        intact(`fun foo /*comment*/(param: Int);`),
-    );
-    it(
-        "function with leading comment",
-        intact(`fun foo(/* leading comment */ param: Int);`),
-    );
+    it("function with comments after name", intact(`fun foo /*comment*/(param: Int);`))
+    it("function with leading comment", intact(`fun foo(/* leading comment */ param: Int);`))
     it(
         "function with multiple leading comments",
         intact(`fun foo(/* leading comment */ /* second */ param: Int);`),
-    );
-    it(
-        "function with trailing comment",
-        intact(`fun foo(param: Int /* trailing comment */);`),
-    );
+    )
+    it("function with trailing comment", intact(`fun foo(param: Int /* trailing comment */);`))
     it(
         "function with leading and trailing comments",
-        intact(
-            `fun foo(/* leading comment */ param: Int /* trailing comment */);`,
-        ),
-    );
+        intact(`fun foo(/* leading comment */ param: Int /* trailing comment */);`),
+    )
 
     it(
         "function with multiline parameters",
@@ -36,7 +25,7 @@ describe("should format", () => {
             param: Int,
         );
     `),
-    );
+    )
 
     it(
         "function with multiline parameters no trailing comma",
@@ -51,7 +40,7 @@ describe("should format", () => {
         );
     `,
         ),
-    );
+    )
 
     it(
         "function with complex parameters",
@@ -70,7 +59,7 @@ describe("should format", () => {
         );
     `,
         ),
-    );
+    )
 
     it(
         "struct instance inline",
@@ -79,7 +68,7 @@ describe("should format", () => {
             Foo { name: "" };
         }
     `),
-    );
+    )
 
     // TODO:
     // it('struct instance with trailing comment', intact(`
@@ -95,7 +84,7 @@ describe("should format", () => {
             Foo { /* leading comment */ name: "" };
         }
     `),
-    );
+    )
 
     it(
         "struct instance with multiple fields",
@@ -104,7 +93,7 @@ describe("should format", () => {
             Foo { name: "", other: 100 };
         }
     `),
-    );
+    )
 
     it(
         "struct instance newline before closing brace",
@@ -120,7 +109,7 @@ describe("should format", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "struct instance newline after colon",
@@ -136,7 +125,7 @@ describe("should format", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "struct instance multiline field name",
@@ -156,7 +145,7 @@ describe("should format", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "struct instance indentation",
@@ -174,7 +163,7 @@ describe("should format", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "variable declaration with comment before type",
@@ -183,7 +172,7 @@ describe("should format", () => {
             let foo /*: Foo*/ = 1;
         }
     `),
-    );
+    )
 
     it(
         "variable declaration with comment after type",
@@ -192,7 +181,7 @@ describe("should format", () => {
             let foo: Foo /*: Foo*/ = 1;
         }
     `),
-    );
+    )
 
     it(
         "variable declaration with comment between name and type",
@@ -201,7 +190,7 @@ describe("should format", () => {
             let foo /*: Foo*/: Foo = 1;
         }
     `),
-    );
+    )
 
     it(
         "variable declaration with comment before value",
@@ -210,7 +199,7 @@ describe("should format", () => {
             let foo: Foo = /*: Foo*/ 1;
         }
     `),
-    );
+    )
 
     it(
         "variable declaration with multiline comment before value",
@@ -232,7 +221,7 @@ describe("should format", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "variable declaration with comment before value on next line",
@@ -252,7 +241,7 @@ describe("should format", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "variable declaration with comment before value on next line, complex",
@@ -305,7 +294,7 @@ describe("should format", () => {
                 self.mA.get(3)!!.a2.b3 == 0;
         }
     `),
-    );
+    )
 
     it(
         "variable declaration with comment after value",
@@ -314,7 +303,7 @@ describe("should format", () => {
             let foo: Foo = 1/*: Foo*/;
         }
     `),
-    );
+    )
 
     it(
         "augmented assign",
@@ -323,7 +312,7 @@ describe("should format", () => {
             foo += 10;
         }
     `),
-    );
+    )
 
     it(
         "assign statement with comment before value on next line",
@@ -343,7 +332,7 @@ describe("should format", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "return statement with comment before value on next line",
@@ -363,7 +352,7 @@ describe("should format", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "if else statement",
@@ -378,7 +367,7 @@ describe("should format", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "if statement with comment before condition",
@@ -389,7 +378,7 @@ describe("should format", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "if statement with inline body",
@@ -399,7 +388,7 @@ describe("should format", () => {
             else { return 2 }
         }
     `),
-    );
+    )
 
     it(
         "if else statement with comment before else",
@@ -414,7 +403,7 @@ describe("should format", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "if statement with comments",
@@ -425,7 +414,7 @@ describe("should format", () => {
             } // comment
         }
     `),
-    );
+    )
 
     it(
         "if else statement with comment before else 2",
@@ -439,7 +428,7 @@ describe("should format", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "if else statement with comment before else 3",
@@ -453,7 +442,7 @@ describe("should format", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "if else-if statement with comment before else",
@@ -468,7 +457,7 @@ describe("should format", () => {
             }
         }
     `),
-    );
+    )
 
     //     it('5', intact(`fun some() {
     //     if (a > 10)/* comment */ {
@@ -495,7 +484,7 @@ describe("should format", () => {
         {}
     `,
         ),
-    );
+    )
 
     it(
         "contract with interface and members",
@@ -515,7 +504,7 @@ describe("should format", () => {
             get fun foo(p: String) {}
         }
     `),
-    );
+    )
 
     it(
         "contract with several attributes",
@@ -524,7 +513,7 @@ describe("should format", () => {
         @interface("some.api.interface.v2")
         contract Foo(param: Int) with Bar, Foo {}
     `),
-    );
+    )
 
     it(
         "contract with get method with explicit id",
@@ -533,7 +522,7 @@ describe("should format", () => {
             get(0x100) fun foo(p: String) {}
         }
     `),
-    );
+    )
 
     it(
         "trait with inheritance and members",
@@ -550,7 +539,7 @@ describe("should format", () => {
             get fun foo(p: String) {}
         }
     `),
-    );
+    )
 
     describe("structs and messages", () => {
         it(
@@ -558,7 +547,7 @@ describe("should format", () => {
             intact(`
             struct Foo {}
         `),
-        );
+        )
 
         it(
             "empty struct with trailing comment",
@@ -566,7 +555,7 @@ describe("should format", () => {
             struct Foo {} // comment
             struct Bar {}
         `),
-        );
+        )
 
         it(
             "simple struct",
@@ -575,7 +564,7 @@ describe("should format", () => {
                 name: String;
             }
         `),
-        );
+        )
 
         it(
             "struct with single field without ;",
@@ -589,7 +578,7 @@ describe("should format", () => {
             struct Foo { name: String }
         `,
             ),
-        );
+        )
 
         it(
             "struct with multiple fields",
@@ -600,7 +589,7 @@ describe("should format", () => {
                 isActive: Bool;
             }
         `),
-        );
+        )
 
         it(
             "struct with field initialization",
@@ -610,7 +599,7 @@ describe("should format", () => {
                 count: Int = 0;
             }
         `),
-        );
+        )
 
         it(
             "format struct with extra spaces",
@@ -627,7 +616,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "format struct with newlines",
@@ -638,14 +627,14 @@ describe("should format", () => {
                 age: Int;
             }
         `),
-        );
+        )
 
         it(
             "struct without fields",
             intact(`
             struct Foo {}
         `),
-        );
+        )
 
         it(
             "struct without fields but with comment",
@@ -654,7 +643,7 @@ describe("should format", () => {
                 // empty on purpose
             }
         `),
-        );
+        )
 
         it(
             "struct without fields but with comments",
@@ -665,7 +654,7 @@ describe("should format", () => {
                 // this comment
             }
         `),
-        );
+        )
 
         // TODO
         // it('struct with trailing comment', intact(`
@@ -689,7 +678,7 @@ describe("should format", () => {
                 foo: Int; // comment
             }
         `),
-        );
+        )
 
         it(
             "struct with inline comment for field and field after",
@@ -699,7 +688,7 @@ describe("should format", () => {
                 field: String;
             }
         `),
-        );
+        )
 
         it(
             "struct with inline comment for field and field after with comment",
@@ -710,14 +699,14 @@ describe("should format", () => {
                 field: String;
             }
         `),
-        );
+        )
 
         it(
             "empty message",
             intact(`
             message Foo {}
         `),
-        );
+        )
 
         it(
             "empty message with trailing comment",
@@ -725,7 +714,7 @@ describe("should format", () => {
             message Foo {} // comment
             message Bar {}
         `),
-        );
+        )
 
         it(
             "simple message",
@@ -734,7 +723,7 @@ describe("should format", () => {
                 name: String;
             }
         `),
-        );
+        )
 
         it(
             "message with opcode",
@@ -743,7 +732,7 @@ describe("should format", () => {
                 name: String;
             }
         `),
-        );
+        )
 
         it(
             "message with complex opcode",
@@ -752,7 +741,7 @@ describe("should format", () => {
                 name: String;
             }
         `),
-        );
+        )
 
         it(
             "message with multiple fields",
@@ -763,7 +752,7 @@ describe("should format", () => {
                 isActive: Bool;
             }
         `),
-        );
+        )
 
         it(
             "message with field initialization",
@@ -773,7 +762,7 @@ describe("should format", () => {
                 count: Int = 0;
             }
         `),
-        );
+        )
 
         it(
             "format message with extra spaces",
@@ -791,7 +780,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "format message with newlines",
@@ -802,8 +791,8 @@ describe("should format", () => {
                 age: Int;
             }
         `),
-        );
-    });
+        )
+    })
 
     describe("types", () => {
         it(
@@ -811,35 +800,35 @@ describe("should format", () => {
             intact(`
             fun foo(param: String) {}
         `),
-        );
+        )
 
         it(
             "generic type",
             intact(`
             fun foo(param: map<Int, String>) {}
         `),
-        );
+        )
 
         it(
             "optional type",
             intact(`
             fun foo(param: String?) {}
         `),
-        );
+        )
 
         it(
             "type with as",
             intact(`
             fun foo(param: Int as int64) {}
         `),
-        );
+        )
 
         it(
             "complex type",
             intact(`
             fun foo(param: map<Int as int64, String>) {}
         `),
-        );
+        )
 
         it(
             "format type with extra spaces",
@@ -851,7 +840,7 @@ describe("should format", () => {
             fun foo(param: String) {}
         `,
             ),
-        );
+        )
 
         it(
             "format generic type with extra spaces",
@@ -863,7 +852,7 @@ describe("should format", () => {
             fun foo(param: map<Int, String>) {}
         `,
             ),
-        );
+        )
 
         it(
             "format optional type with extra spaces",
@@ -875,7 +864,7 @@ describe("should format", () => {
             fun foo(param: String?) {}
         `,
             ),
-        );
+        )
 
         it(
             "format type with as and extra spaces",
@@ -887,15 +876,15 @@ describe("should format", () => {
             fun foo(param: String as Int) {}
         `,
             ),
-        );
+        )
 
         it(
             "bounced type",
             intact(`
             fun foo(f: bounced<Foo>) {}
         `),
-        );
-    });
+        )
+    })
 
     describe("destruct statement", () => {
         it(
@@ -905,7 +894,7 @@ describe("should format", () => {
                 let Foo { name } = value;
             }
         `),
-        );
+        )
 
         it(
             "destruct with field mapping",
@@ -914,7 +903,7 @@ describe("should format", () => {
                 let Foo { name: myName } = value;
             }
         `),
-        );
+        )
 
         it(
             "destruct with multiple fields",
@@ -923,7 +912,7 @@ describe("should format", () => {
                 let Foo { name, age: myAge } = value;
             }
         `),
-        );
+        )
 
         it(
             "destruct with rest argument",
@@ -932,7 +921,7 @@ describe("should format", () => {
                 let Foo { name, .. } = value;
             }
         `),
-        );
+        )
 
         it(
             "destruct with rest argument and fields",
@@ -941,7 +930,7 @@ describe("should format", () => {
                 let Foo { name, age, .. } = value;
             }
         `),
-        );
+        )
 
         it(
             "format destruct with extra spaces",
@@ -957,8 +946,8 @@ describe("should format", () => {
             }
         `,
             ),
-        );
-    });
+        )
+    })
 
     describe("repeat statement", () => {
         it(
@@ -970,7 +959,7 @@ describe("should format", () => {
                 }
             }
         `),
-        );
+        )
 
         it(
             "repeat with complex condition",
@@ -981,7 +970,7 @@ describe("should format", () => {
                 }
             }
         `),
-        );
+        )
 
         it(
             "format repeat with extra spaces",
@@ -1001,8 +990,8 @@ describe("should format", () => {
             }
         `,
             ),
-        );
-    });
+        )
+    })
 
     describe("until statement", () => {
         it(
@@ -1014,7 +1003,7 @@ describe("should format", () => {
                 } until (condition);
             }
         `),
-        );
+        )
 
         it(
             "until with complex condition",
@@ -1025,7 +1014,7 @@ describe("should format", () => {
                 } until (a);
             }
         `),
-        );
+        )
 
         it(
             "format until with extra spaces",
@@ -1045,8 +1034,8 @@ describe("should format", () => {
             }
         `,
             ),
-        );
-    });
+        )
+    })
 
     describe("try statement", () => {
         it(
@@ -1058,7 +1047,7 @@ describe("should format", () => {
                 }
             }
         `),
-        );
+        )
 
         it(
             "try with catch",
@@ -1071,7 +1060,7 @@ describe("should format", () => {
                 }
             }
         `),
-        );
+        )
 
         it(
             "format try with extra spaces",
@@ -1095,8 +1084,8 @@ describe("should format", () => {
             }
         `,
             ),
-        );
-    });
+        )
+    })
 
     describe("forEach statement", () => {
         it(
@@ -1108,7 +1097,7 @@ describe("should format", () => {
                 }
             }
         `),
-        );
+        )
 
         it(
             "format forEach with extra spaces",
@@ -1128,8 +1117,8 @@ describe("should format", () => {
             }
         `,
             ),
-        );
-    });
+        )
+    })
 
     describe("expressions", () => {
         describe("literals", () => {
@@ -1140,7 +1129,7 @@ describe("should format", () => {
                     let x = "hello";
                 }
             `),
-            );
+            )
 
             it(
                 "integer literal",
@@ -1149,7 +1138,7 @@ describe("should format", () => {
                     let x = 123;
                 }
             `),
-            );
+            )
 
             it(
                 "boolean literal",
@@ -1158,7 +1147,7 @@ describe("should format", () => {
                     let x = true;
                 }
             `),
-            );
+            )
 
             it(
                 "null literal",
@@ -1167,8 +1156,8 @@ describe("should format", () => {
                     let x = null;
                 }
             `),
-            );
-        });
+            )
+        })
 
         describe("binary operations", () => {
             it(
@@ -1178,7 +1167,7 @@ describe("should format", () => {
                     let x = a + b * c / d % e;
                 }
             `),
-            );
+            )
 
             it(
                 "comparison operations",
@@ -1187,7 +1176,7 @@ describe("should format", () => {
                     let x = a < b <= c > d >= e;
                 }
             `),
-            );
+            )
 
             it(
                 "equality operations",
@@ -1196,7 +1185,7 @@ describe("should format", () => {
                     let x = a == b != c;
                 }
             `),
-            );
+            )
 
             it(
                 "bitwise operations",
@@ -1205,7 +1194,7 @@ describe("should format", () => {
                     let x = a & b ^ c | d << e >> f;
                 }
             `),
-            );
+            )
 
             it(
                 "logical operations",
@@ -1214,8 +1203,8 @@ describe("should format", () => {
                     let x = a && b || c;
                 }
             `),
-            );
-        });
+            )
+        })
 
         describe("unary operations", () => {
             it(
@@ -1225,7 +1214,7 @@ describe("should format", () => {
                     let x = -a;
                 }
             `),
-            );
+            )
 
             it(
                 "multiple unary",
@@ -1234,8 +1223,8 @@ describe("should format", () => {
                     let x = !~-a;
                 }
             `),
-            );
-        });
+            )
+        })
 
         describe("conditional expressions", () => {
             it(
@@ -1245,7 +1234,7 @@ describe("should format", () => {
                     let x = a ? b : c;
                 }
             `),
-            );
+            )
 
             it(
                 "nested conditional",
@@ -1256,7 +1245,7 @@ describe("should format", () => {
                         : c ? d : e;
                 }
             `),
-            );
+            )
 
             it(
                 "nested conditional with parens",
@@ -1267,7 +1256,7 @@ describe("should format", () => {
                         : (c ? d : e);
                 }
             `),
-            );
+            )
 
             it(
                 "nested conditional with parens 2",
@@ -1278,7 +1267,7 @@ describe("should format", () => {
                         : d;
                 }
             `),
-            );
+            )
 
             it(
                 "nested conditional with parens 3",
@@ -1289,7 +1278,7 @@ describe("should format", () => {
                         : d;
                 }
             `),
-            );
+            )
 
             it(
                 "complex conditional",
@@ -1298,7 +1287,7 @@ describe("should format", () => {
                     let x = a > 10 ? b + c : d;
                 }
             `),
-            );
+            )
 
             it(
                 "long conditional",
@@ -1309,8 +1298,8 @@ describe("should format", () => {
                         : emptyBasechainAddress();
                 }
             `),
-            );
-        });
+            )
+        })
 
         describe("suffix operations", () => {
             it(
@@ -1320,7 +1309,7 @@ describe("should format", () => {
                     let x = obj.field;
                 }
             `),
-            );
+            )
 
             it(
                 "method call",
@@ -1329,7 +1318,7 @@ describe("should format", () => {
                     let x = obj.method();
                 }
             `),
-            );
+            )
 
             it(
                 "chained operations",
@@ -1338,7 +1327,7 @@ describe("should format", () => {
                     let x = obj.method().field.anotherMethod();
                 }
             `),
-            );
+            )
 
             it(
                 "unbox not null",
@@ -1347,7 +1336,7 @@ describe("should format", () => {
                     let x = obj!!;
                 }
             `),
-            );
+            )
 
             it(
                 "unbox not null 2",
@@ -1356,7 +1345,7 @@ describe("should format", () => {
                     let cell: Cell = getConfigParam(0)!!;
                 }
             `),
-            );
+            )
 
             it(
                 "simple call chain",
@@ -1365,7 +1354,7 @@ describe("should format", () => {
                     a();
                 }
             `),
-            );
+            )
 
             it(
                 "simple method call chain",
@@ -1374,7 +1363,7 @@ describe("should format", () => {
                     f.a();
                 }
             `),
-            );
+            )
 
             it(
                 "method call chain with field",
@@ -1383,7 +1372,7 @@ describe("should format", () => {
                     f.foo.a();
                 }
             `),
-            );
+            )
 
             it(
                 "method call chain with calls",
@@ -1392,7 +1381,7 @@ describe("should format", () => {
                     sender().asSlice();
                 }
             `),
-            );
+            )
 
             it(
                 "method call chain with field and newline",
@@ -1411,7 +1400,7 @@ describe("should format", () => {
                 }
             `,
                 ),
-            );
+            )
 
             it(
                 "nested chain with field and newline",
@@ -1441,7 +1430,7 @@ describe("should format", () => {
                 }
             `,
                 ),
-            );
+            )
 
             it(
                 "method chain with comment",
@@ -1450,7 +1439,7 @@ describe("should format", () => {
                     a.foo(); /*comment*/
                 }
             `),
-            );
+            )
 
             it(
                 "field chain with comment",
@@ -1459,7 +1448,7 @@ describe("should format", () => {
                     a.foo /*comment*/;
                 }
             `),
-            );
+            )
 
             it(
                 "field chain with comment 2",
@@ -1468,7 +1457,7 @@ describe("should format", () => {
                     a.foo /*comment*/.bar /*comment 2*/;
                 }
             `),
-            );
+            )
 
             it(
                 "field chain with comment 3",
@@ -1488,7 +1477,7 @@ describe("should format", () => {
                 }
             `,
                 ),
-            );
+            )
 
             it(
                 "field chain in struct instance",
@@ -1508,7 +1497,7 @@ describe("should format", () => {
                 }
             `,
                 ),
-            );
+            )
 
             it(
                 "chain with !!",
@@ -1517,7 +1506,7 @@ describe("should format", () => {
                     a!!.foo;
                 }
             `),
-            );
+            )
 
             // TODO:
             // it('chain with !! with comment', intact(`
@@ -1526,7 +1515,7 @@ describe("should format", () => {
             //             .foo;
             //     }
             // `));
-        });
+        })
 
         describe("special expressions", () => {
             it(
@@ -1536,7 +1525,7 @@ describe("should format", () => {
                     let x = initOf Foo(a, b);
                 }
             `),
-            );
+            )
 
             it(
                 "codeOf",
@@ -1545,7 +1534,7 @@ describe("should format", () => {
                     let x = codeOf Foo;
                 }
             `),
-            );
+            )
 
             it(
                 "struct instance",
@@ -1554,7 +1543,7 @@ describe("should format", () => {
                     let x = Foo { name: "test", value: 123 };
                 }
             `),
-            );
+            )
 
             it(
                 "empty struct instance",
@@ -1563,7 +1552,7 @@ describe("should format", () => {
                     Foo {};
                 }
             `),
-            );
+            )
 
             it(
                 "multiline struct instance with method call",
@@ -1575,7 +1564,7 @@ describe("should format", () => {
                         }.toCell();
                     }
                 `),
-            );
+            )
 
             it(
                 "multiline struct instance with method call and inline comment",
@@ -1587,7 +1576,7 @@ describe("should format", () => {
                         }.toCell();
                     }
                 `),
-            );
+            )
 
             it(
                 "multiline struct instance with method call and inline comment with newline",
@@ -1601,8 +1590,8 @@ describe("should format", () => {
                             .toCell();
                     }
                 `),
-            );
-        });
+            )
+        })
 
         describe("format expressions with extra spaces", () => {
             it(
@@ -1619,7 +1608,7 @@ describe("should format", () => {
                 }
             `,
                 ),
-            );
+            )
 
             it(
                 "conditional",
@@ -1635,7 +1624,7 @@ describe("should format", () => {
                 }
             `,
                 ),
-            );
+            )
 
             it(
                 "nested conditional",
@@ -1648,7 +1637,7 @@ describe("should format", () => {
                             : (a == 3) ? 44 : 45;
                 }
             `),
-            );
+            )
 
             it(
                 "method call",
@@ -1664,7 +1653,7 @@ describe("should format", () => {
                 }
             `,
                 ),
-            );
+            )
 
             it(
                 "!! with comment",
@@ -1673,7 +1662,7 @@ describe("should format", () => {
                     a!! /* comment */;
                 }
             `),
-            );
+            )
 
             it(
                 "struct instance with comment",
@@ -1682,7 +1671,7 @@ describe("should format", () => {
                     Foo {} /* comment */;
                 }
             `),
-            );
+            )
 
             it(
                 "codeOf with comment",
@@ -1691,7 +1680,7 @@ describe("should format", () => {
                     codeOf Foo /* comment */;
                 }
             `),
-            );
+            )
 
             it(
                 "initOf with comment",
@@ -1700,7 +1689,7 @@ describe("should format", () => {
                     initOf Foo() /* comment */;
                 }
             `),
-            );
+            )
 
             it(
                 "conditional with comment",
@@ -1709,7 +1698,7 @@ describe("should format", () => {
                     10 ? 2 : 1 /* comment */;
                 }
             `),
-            );
+            )
 
             it(
                 "conditional with comment and paren",
@@ -1718,7 +1707,7 @@ describe("should format", () => {
                     10 ? 2 : (1 + 2) /* comment */;
                 }
             `),
-            );
+            )
 
             it(
                 "literal with comment",
@@ -1727,8 +1716,8 @@ describe("should format", () => {
                     10 /* comment */;
                 }
             `),
-            );
-        });
+            )
+        })
 
         describe("map literals", () => {
             it(
@@ -1738,7 +1727,7 @@ describe("should format", () => {
                         map<Int, Int> {};
                     }
                 `),
-            );
+            )
 
             it(
                 "empty map literal with as types",
@@ -1747,7 +1736,7 @@ describe("should format", () => {
                         map<Int as coins, Int as uint8> {};
                     }
                 `),
-            );
+            )
 
             it(
                 "map literal with single inline entry",
@@ -1756,7 +1745,7 @@ describe("should format", () => {
                         map<Int, Int> { 10: 20 };
                     }
                 `),
-            );
+            )
 
             it(
                 "map literal with single inline entry with comment",
@@ -1765,7 +1754,7 @@ describe("should format", () => {
                         map<Int, Int> { 10: 20 /* some comment */ };
                     }
                 `),
-            );
+            )
 
             it(
                 "map literal with several entries",
@@ -1777,7 +1766,7 @@ describe("should format", () => {
                         };
                     }
                 `),
-            );
+            )
 
             it(
                 "map literal with several entries and comment",
@@ -1790,7 +1779,7 @@ describe("should format", () => {
                         };
                     }
                 `),
-            );
+            )
 
             it(
                 "map literal with several entries and multiline value",
@@ -1804,7 +1793,7 @@ describe("should format", () => {
                         };
                     }
                 `),
-            );
+            )
 
             it(
                 "map literal with several entries and struct instances",
@@ -1816,7 +1805,7 @@ describe("should format", () => {
                         };
                     }
                 `),
-            );
+            )
 
             it(
                 "map literal with several entries and multiline struct instances",
@@ -1834,9 +1823,9 @@ describe("should format", () => {
                         };
                     }
                 `),
-            );
-        });
-    });
+            )
+        })
+    })
 
     describe("imports", () => {
         it(
@@ -1846,7 +1835,7 @@ describe("should format", () => {
 
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "import with extra spaces",
@@ -1861,7 +1850,7 @@ describe("should format", () => {
             fun foo() {}
         `,
             ),
-        );
+        )
 
         it(
             "multiple imports",
@@ -1871,7 +1860,7 @@ describe("should format", () => {
 
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "multiple imports 2",
@@ -1891,7 +1880,7 @@ describe("should format", () => {
             fun foo() {}
         `,
             ),
-        );
+        )
 
         it(
             "multiple imports with empty line",
@@ -1902,7 +1891,7 @@ describe("should format", () => {
 
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "multiple imports with empty line 2",
@@ -1914,7 +1903,7 @@ describe("should format", () => {
 
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "multiple imports with empty line 4",
@@ -1927,7 +1916,7 @@ describe("should format", () => {
 
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "multiple imports with empty line 5",
@@ -1943,7 +1932,7 @@ describe("should format", () => {
 
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "imports with complex paths",
@@ -1953,7 +1942,7 @@ describe("should format", () => {
 
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "imports with newlines",
@@ -1969,7 +1958,7 @@ describe("should format", () => {
             fun foo() {}
         `,
             ),
-        );
+        )
 
         it(
             "single import with function with comment",
@@ -1979,8 +1968,8 @@ describe("should format", () => {
             // comment here
             fun foo() {}
         `),
-        );
-    });
+        )
+    })
 
     describe("statement comments", () => {
         it(
@@ -1990,7 +1979,7 @@ describe("should format", () => {
                 let a = 10; // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after destruct statement",
@@ -1999,7 +1988,7 @@ describe("should format", () => {
                 let Foo { a } = 10; // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after a block statement",
@@ -2010,7 +1999,7 @@ describe("should format", () => {
                 } // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after a block statement 2",
@@ -2022,7 +2011,7 @@ describe("should format", () => {
                 // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after return statement",
@@ -2031,7 +2020,7 @@ describe("should format", () => {
                 return 10; // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after return statement 2",
@@ -2040,7 +2029,7 @@ describe("should format", () => {
                 return; // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after if statement",
@@ -2049,7 +2038,7 @@ describe("should format", () => {
                 if (true) {} // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after if statement with else",
@@ -2058,7 +2047,7 @@ describe("should format", () => {
                 if (true) {} else {} // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after if statement with else if",
@@ -2067,7 +2056,7 @@ describe("should format", () => {
                 if (true) {} else if (false) {} // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after if statement with else if and else",
@@ -2076,7 +2065,7 @@ describe("should format", () => {
                 if (true) {} else if (false) {} else {} // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after while statement",
@@ -2085,7 +2074,7 @@ describe("should format", () => {
                 while (true) {} // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after repeat statement",
@@ -2094,7 +2083,7 @@ describe("should format", () => {
                 repeat (10) {} // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after until statement",
@@ -2103,7 +2092,7 @@ describe("should format", () => {
                 do {} until (true); // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after try statement",
@@ -2112,7 +2101,7 @@ describe("should format", () => {
                 try {} // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after try statement with catch",
@@ -2121,7 +2110,7 @@ describe("should format", () => {
                 try {} catch (e) {} // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after foreach statement",
@@ -2130,7 +2119,7 @@ describe("should format", () => {
                 foreach (a, b in foo) {} // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after expression statement",
@@ -2139,7 +2128,7 @@ describe("should format", () => {
                 10; // comment
             }
         `),
-        );
+        )
 
         it(
             "inline comment after assign statement",
@@ -2148,7 +2137,7 @@ describe("should format", () => {
                 a = 10; // comment
             }
         `),
-        );
+        )
 
         it(
             "top comment for first statement",
@@ -2158,7 +2147,7 @@ describe("should format", () => {
                 let a = 10;
             }
         `),
-        );
+        )
 
         it(
             "top comment for second statement",
@@ -2169,7 +2158,7 @@ describe("should format", () => {
                 a = 200;
             }
         `),
-        );
+        )
 
         it(
             "top comment for second statement with newline between",
@@ -2181,7 +2170,7 @@ describe("should format", () => {
                 a = 200;
             }
         `),
-        );
+        )
 
         it(
             "block with single comment",
@@ -2190,7 +2179,7 @@ describe("should format", () => {
                 // top comment
             }
         `),
-        );
+        )
 
         it(
             "block with trailing comment",
@@ -2200,7 +2189,7 @@ describe("should format", () => {
                 // top comment
             }
         `),
-        );
+        )
 
         it(
             "block with comments everywhere",
@@ -2225,7 +2214,7 @@ describe("should format", () => {
                 // trailing comment
             }
         `),
-        );
+        )
 
         it(
             "block with comments, statements and newlines",
@@ -2246,7 +2235,7 @@ describe("should format", () => {
                 }
             }
         `),
-        );
+        )
 
         it(
             "block with different statements with top and inline comments",
@@ -2274,7 +2263,7 @@ describe("should format", () => {
                 let Foo { a } = value(); // comment
             }
         `),
-        );
+        )
 
         // TODO
         // it('block with different statements with top and inline comments', intact(`
@@ -2303,7 +2292,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "block with trailing newlines",
@@ -2322,7 +2311,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "preserve newlines after if",
@@ -2335,7 +2324,7 @@ describe("should format", () => {
                 return 100;
             }
         `),
-        );
+        )
 
         it(
             "preserve newlines after if-else",
@@ -2350,7 +2339,7 @@ describe("should format", () => {
                 return 100;
             }
         `),
-        );
+        )
 
         it(
             "preserve newlines after if-else-if",
@@ -2365,7 +2354,7 @@ describe("should format", () => {
                 return 100;
             }
         `),
-        );
+        )
 
         it(
             "preserve newlines after if-else-if-else",
@@ -2382,7 +2371,7 @@ describe("should format", () => {
                 return 100;
             }
         `),
-        );
+        )
 
         it(
             "preserve newlines after while",
@@ -2393,8 +2382,8 @@ describe("should format", () => {
                 return 100;
             }
         `),
-        );
-    });
+        )
+    })
 
     describe("top level comments", () => {
         it(
@@ -2403,7 +2392,7 @@ describe("should format", () => {
             // top comment
             import "";
         `),
-        );
+        )
 
         it(
             "inline comment for import",
@@ -2411,7 +2400,7 @@ describe("should format", () => {
             import ""; // inline comment
             import "";
         `),
-        );
+        )
 
         it(
             "comments for import",
@@ -2420,7 +2409,7 @@ describe("should format", () => {
             // top comment line 2
             import "";
         `),
-        );
+        )
 
         it(
             "comments for several imports",
@@ -2430,7 +2419,7 @@ describe("should format", () => {
             // top comment
             import "";
         `),
-        );
+        )
 
         it(
             "comments for several imports and declaration after",
@@ -2443,7 +2432,7 @@ describe("should format", () => {
             // comment here
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "comments for several imports and declaration after 2",
@@ -2456,7 +2445,7 @@ describe("should format", () => {
             // comment here
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "top level comment for function",
@@ -2464,7 +2453,7 @@ describe("should format", () => {
             // top comment
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "top level comment for constant",
@@ -2472,7 +2461,7 @@ describe("should format", () => {
             // top comment
             const FOO: Int = 100;
         `),
-        );
+        )
 
         it(
             "top level comment for functions",
@@ -2483,7 +2472,7 @@ describe("should format", () => {
             // other top comment
             fun bar() {}
         `),
-        );
+        )
 
         it(
             "top and inline level comment for functions",
@@ -2496,7 +2485,7 @@ describe("should format", () => {
 
             fun baz() {}
         `),
-        );
+        )
 
         it(
             "floating comments between declarations",
@@ -2507,7 +2496,7 @@ describe("should format", () => {
 
             fun bar() {}
         `),
-        );
+        )
 
         it(
             "top level comment for function with empty line between comments",
@@ -2517,8 +2506,8 @@ describe("should format", () => {
             // top comment
             fun foo() {}
         `),
-        );
-    });
+        )
+    })
 
     describe("top level declarations", () => {
         it(
@@ -2526,7 +2515,7 @@ describe("should format", () => {
             intact(`
             struct Foo {}
         `),
-        );
+        )
 
         it(
             "struct with field",
@@ -2535,7 +2524,7 @@ describe("should format", () => {
                 value: Int;
             }
         `),
-        );
+        )
 
         it(
             "struct with field and inline comment",
@@ -2544,7 +2533,7 @@ describe("should format", () => {
                 value: Int; // inline comment
             }
         `),
-        );
+        )
 
         it(
             "struct with field, top and inline comment",
@@ -2554,7 +2543,7 @@ describe("should format", () => {
                 value: Int; // inline comment
             }
         `),
-        );
+        )
 
         it(
             "struct with fields",
@@ -2565,7 +2554,7 @@ describe("should format", () => {
                 some: Int;
             }
         `),
-        );
+        )
 
         it(
             "struct with fields 2",
@@ -2577,7 +2566,7 @@ describe("should format", () => {
                 some: Int;
             }
         `),
-        );
+        )
 
         it(
             "struct with fields 3",
@@ -2588,7 +2577,7 @@ describe("should format", () => {
                 some: Int;
             }
         `),
-        );
+        )
 
         it(
             "struct with fields 4",
@@ -2601,14 +2590,14 @@ describe("should format", () => {
                 some: Int;
             }
         `),
-        );
+        )
 
         it(
             "empty contract",
             intact(`
             contract Foo {}
         `),
-        );
+        )
 
         it(
             "empty contract with trailing comment",
@@ -2616,7 +2605,7 @@ describe("should format", () => {
             contract Foo {} // comment
             contract Bar {}
         `),
-        );
+        )
 
         it(
             "empty contract with comment",
@@ -2625,14 +2614,14 @@ describe("should format", () => {
                 // empty contract
             }
         `),
-        );
+        )
 
         it(
             "contract with parameters",
             intact(`
             contract Foo(value: Int) {}
         `),
-        );
+        )
 
         it(
             "contract with parameters on new lines",
@@ -2641,7 +2630,7 @@ describe("should format", () => {
                 value: Int,
             ) {}
         `),
-        );
+        )
 
         // TODO:
         // it(
@@ -2660,7 +2649,7 @@ describe("should format", () => {
                 foo: Int;
             }
         `),
-        );
+        )
 
         it(
             "contract with single field and trailing newlines",
@@ -2678,7 +2667,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "contract with two fields",
@@ -2688,7 +2677,7 @@ describe("should format", () => {
                 bar: Int;
             }
         `),
-        );
+        )
 
         it(
             "contract with two fields and newline between",
@@ -2699,7 +2688,7 @@ describe("should format", () => {
                 bar: Int;
             }
         `),
-        );
+        )
 
         it(
             "contract with two fields and several newlines between",
@@ -2721,7 +2710,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "contract with two fields, several newlines between and trailing newline",
@@ -2745,7 +2734,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "contract with two fields and constant",
@@ -2757,7 +2746,7 @@ describe("should format", () => {
                 const Foo: Int = 0;
             }
         `),
-        );
+        )
 
         it(
             "contract with two fields and function",
@@ -2769,7 +2758,7 @@ describe("should format", () => {
                 fun foo() {}
             }
         `),
-        );
+        )
 
         it(
             "contract with receive with empty line after",
@@ -2782,7 +2771,7 @@ describe("should format", () => {
                 bounced(src: Int) {}
             }
         `),
-        );
+        )
 
         it(
             "contract with fun with empty line after",
@@ -2795,7 +2784,7 @@ describe("should format", () => {
                 bounced(src: Int) {}
             }
         `),
-        );
+        )
 
         it(
             "contract with init with empty line after",
@@ -2806,7 +2795,7 @@ describe("should format", () => {
                 bounced(src: Int) {}
             }
         `),
-        );
+        )
 
         it(
             "contract with const with empty line after",
@@ -2817,7 +2806,7 @@ describe("should format", () => {
                 bounced(src: Int) {}
             }
         `),
-        );
+        )
 
         it(
             "contract with field with empty line after",
@@ -2828,7 +2817,7 @@ describe("should format", () => {
                 bounced(src: Int) {}
             }
         `),
-        );
+        )
 
         it(
             "contract with various comments",
@@ -2846,7 +2835,7 @@ describe("should format", () => {
                 // trailing comment
             }
         `),
-        );
+        )
 
         it(
             "contract with abstract and virtual functions",
@@ -2858,7 +2847,7 @@ describe("should format", () => {
                 virtual inline fun bar() {}
             }
         `),
-        );
+        )
 
         it(
             "contract with subsequent fields",
@@ -2871,7 +2860,7 @@ describe("should format", () => {
                 a: Int;
             }
         `),
-        );
+        )
 
         it(
             "contract with subsequent constants",
@@ -2885,7 +2874,7 @@ describe("should format", () => {
                 const FOO: Int = 100;
             }
         `),
-        );
+        )
 
         it(
             "contract with subsequent fields and constants",
@@ -2908,7 +2897,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "contract with subsequent functions",
@@ -2930,7 +2919,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "contract with subsequent receivers",
@@ -2952,7 +2941,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "contract with string receiver",
@@ -2961,7 +2950,7 @@ describe("should format", () => {
                 receive("hello") {}
             }
         `),
-        );
+        )
 
         it(
             "trait with abstract constant",
@@ -2970,7 +2959,7 @@ describe("should format", () => {
                 abstract const Foo: Int;
             }
         `),
-        );
+        )
 
         it(
             "preserve newlines for constants",
@@ -2979,14 +2968,14 @@ describe("should format", () => {
             const BAR: Int = 100;
             const BAZ: Int = 100;
         `),
-        );
+        )
 
         it(
             "one line function",
             intact(`
             fun foo() { return 10 }
         `),
-        );
+        )
 
         it(
             "one line function with if",
@@ -3004,7 +2993,7 @@ describe("should format", () => {
             }
         `,
             ),
-        );
+        )
 
         it(
             "function with single line body",
@@ -3013,7 +3002,7 @@ describe("should format", () => {
                 if (true) { return }
             }
         `),
-        );
+        )
 
         it(
             "native function",
@@ -3021,7 +3010,7 @@ describe("should format", () => {
             @name("some")
             native foo();
         `),
-        );
+        )
 
         it(
             "inline native function",
@@ -3029,7 +3018,7 @@ describe("should format", () => {
             @name("some")
             inline native foo();
         `),
-        );
+        )
 
         it(
             "native function with return type",
@@ -3037,7 +3026,7 @@ describe("should format", () => {
             @name("some")
             native foo(): Int;
         `),
-        );
+        )
 
         it(
             "native function with trailing comment",
@@ -3047,7 +3036,7 @@ describe("should format", () => {
 
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "native function with comment after attribute",
@@ -3055,7 +3044,7 @@ describe("should format", () => {
             @name("some") // func func
             native foo();
         `),
-        );
+        )
 
         it(
             "native function with block comment after attribute",
@@ -3068,7 +3057,7 @@ describe("should format", () => {
             native foo();
         `,
             ),
-        );
+        )
 
         it(
             "asm function with trailing comment",
@@ -3076,7 +3065,7 @@ describe("should format", () => {
             asm fun foo() { ONE } // comment
             fun foo() {}
         `),
-        );
+        )
 
         it(
             "multiline asm function",
@@ -3175,42 +3164,42 @@ describe("should format", () => {
                 SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
             }
         `),
-        );
+        )
 
         it(
             "inline asm function",
             intact(`
             asm inline fun foo() { ONE }
         `),
-        );
+        )
 
         it(
             "asm function with return type",
             intact(`
             asm inline fun foo(): Int { ONE }
         `),
-        );
+        )
 
         it(
             "asm function with shuffle",
             intact(`
             asm(a b) fun foo() { ONE }
         `),
-        );
+        )
 
         it(
             "asm function with shuffle 2",
             intact(`
             asm(a b -> 1 0) fun foo() { ONE }
         `),
-        );
+        )
 
         it(
             "asm function with shuffle 3",
             intact(`
             asm(-> 1 0) fun foo() { ONE }
         `),
-        );
+        )
 
         it(
             "function declaration with trailing comment",
@@ -3218,7 +3207,7 @@ describe("should format", () => {
             fun foo(); // comment
             fun bar();
         `),
-        );
+        )
 
         it(
             "constant with trailing comments",
@@ -3226,7 +3215,7 @@ describe("should format", () => {
             const FOO: Int = 100; // comment 1
             const BAR: Int = 100;
         `),
-        );
+        )
 
         it(
             "constant with comments before `;` and with trailing comments",
@@ -3234,7 +3223,7 @@ describe("should format", () => {
             const FOO: Int = 100 /*comment 2*/; // comment 1
             const BAR: Int = 100;
         `),
-        );
+        )
 
         it(
             "constant without value with trailing comments",
@@ -3242,7 +3231,7 @@ describe("should format", () => {
             const FOO: Int; // comment 1
             const BAR: Int = 100;
         `),
-        );
+        )
 
         it(
             "constant with value with trailing comments inside trait",
@@ -3251,7 +3240,7 @@ describe("should format", () => {
                 const FOO: Int = 100; // comment 1
             }
         `),
-        );
+        )
 
         it(
             "constant without value with trailing comments inside trait",
@@ -3260,6 +3249,6 @@ describe("should format", () => {
                 abstract const FOO: Int; // comment 1
             }
         `),
-        );
-    });
-});
+        )
+    })
+})

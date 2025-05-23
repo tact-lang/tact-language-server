@@ -23,7 +23,7 @@ describe("ignore directive for statements", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "ignore let statement with comment",
@@ -47,7 +47,7 @@ describe("ignore directive for statements", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "ignore let statement without leading space",
@@ -71,7 +71,7 @@ describe("ignore directive for statements", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "ignore let statement with other comment after directive",
@@ -97,7 +97,7 @@ describe("ignore directive for statements", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "ignore let statement with extra newline after directive",
@@ -122,7 +122,7 @@ describe("ignore directive for statements", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "ignore let statement with block comment",
@@ -146,7 +146,7 @@ describe("ignore directive for statements", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "ignore if statement",
@@ -186,8 +186,8 @@ describe("ignore directive for statements", () => {
         }
     `,
         ),
-    );
-});
+    )
+})
 
 describe("ignore directive for top levels", () => {
     it(
@@ -218,7 +218,7 @@ describe("ignore directive for top levels", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "ignore function with /// comment",
@@ -250,5 +250,5 @@ describe("ignore directive for top levels", () => {
         }
     `,
         ),
-    );
-});
+    )
+})

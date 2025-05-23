@@ -10,7 +10,7 @@ describe("statement comments formatting", () => {
             return x; // return comment
         }
     `),
-    );
+    )
 
     it(
         "statements with block comments",
@@ -24,7 +24,7 @@ describe("statement comments formatting", () => {
             return x;
         }
     `),
-    );
+    )
 
     it(
         "statements with mixed comments and newlines",
@@ -40,7 +40,7 @@ describe("statement comments formatting", () => {
             return x; // inline 2
         }
     `),
-    );
+    )
 
     it(
         "statements with comments before and after",
@@ -55,7 +55,7 @@ describe("statement comments formatting", () => {
             // after return
         }
     `),
-    );
+    )
 
     it(
         "statements with complex comment patterns",
@@ -69,7 +69,7 @@ describe("statement comments formatting", () => {
             return x; // final
         }
     `),
-    );
+    )
 
     it(
         "statements with comments between expressions",
@@ -82,7 +82,7 @@ describe("statement comments formatting", () => {
             return x + y;
         }
     `),
-    );
+    )
 
     it(
         "statements with comments in different positions",
@@ -95,7 +95,7 @@ describe("statement comments formatting", () => {
             return x;
         }
     `),
-    );
+    )
 
     it(
         "comments in control flow statements",
@@ -118,7 +118,7 @@ describe("statement comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in error handling",
@@ -139,7 +139,7 @@ describe("statement comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in data processing",
@@ -165,7 +165,7 @@ describe("statement comments formatting", () => {
             return count > 0 ? total / count : 0;
         }
     `),
-    );
+    )
 
     it(
         "comments in complex expressions",
@@ -179,7 +179,7 @@ describe("statement comments formatting", () => {
             return result > 100 ? result / 2 : result * 2; // normalize value
         }
     `),
-    );
+    )
 
     it(
         "comments in function parameters",
@@ -201,7 +201,7 @@ describe("statement comments formatting", () => {
             return process(value, threshold, debug);
         }
     `),
-    );
+    )
 
     it(
         "floating comments between statements",
@@ -224,7 +224,7 @@ describe("statement comments formatting", () => {
             return x + y;
         }
     `),
-    );
+    )
 
     it(
         "mixed floating and attached comments",
@@ -248,7 +248,7 @@ describe("statement comments formatting", () => {
             return x + y; // attached comment
         }
     `),
-    );
+    )
 
     it(
         "floating comments with empty lines",
@@ -270,7 +270,7 @@ describe("statement comments formatting", () => {
             return x + y;
         }
     `),
-    );
+    )
 
     it(
         "floating comments in complex blocks",
@@ -300,7 +300,7 @@ describe("statement comments formatting", () => {
             return result;
         }
     `),
-    );
+    )
 
     it(
         "comments after opening brace",
@@ -310,7 +310,7 @@ describe("statement comments formatting", () => {
             return x;
         }
     `),
-    );
+    )
 
     it(
         "multiple comments after opening brace",
@@ -321,7 +321,7 @@ describe("statement comments formatting", () => {
             return x;
         }
     `),
-    );
+    )
 
     it(
         "comments between statements without newlines",
@@ -332,7 +332,7 @@ describe("statement comments formatting", () => {
             return x; // third
         }
     `),
-    );
+    )
 
     it(
         "comments in single line statements",
@@ -342,7 +342,7 @@ describe("statement comments formatting", () => {
             return x; // return comment
         }
     `),
-    );
+    )
 
     it(
         "comments in complex single line statements",
@@ -352,7 +352,7 @@ describe("statement comments formatting", () => {
             return 20; // comment after return
         }
     `),
-    );
+    )
 
     it(
         "comments in nested blocks",
@@ -369,7 +369,7 @@ describe("statement comments formatting", () => {
             return 0;
         }
     `),
-    );
+    )
 
     it(
         "comments in try-catch blocks",
@@ -384,7 +384,7 @@ describe("statement comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in foreach blocks",
@@ -396,7 +396,7 @@ describe("statement comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in while blocks",
@@ -408,7 +408,7 @@ describe("statement comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in until blocks",
@@ -420,7 +420,7 @@ describe("statement comments formatting", () => {
             } until (condition); // comment after until
         }
     `),
-    );
+    )
 
     it(
         "comments in repeat blocks",
@@ -432,7 +432,7 @@ describe("statement comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in destruct statements",
@@ -441,7 +441,7 @@ describe("statement comments formatting", () => {
             let Foo { name, age } = value; // comment after destruct
         }
     `),
-    );
+    )
 
     it(
         "comments in return statements with expressions",
@@ -452,7 +452,7 @@ describe("statement comments formatting", () => {
             return Foo { name: "test" }; // struct return
         }
     `),
-    );
+    )
 
     it(
         "comments in assign statements",
@@ -463,7 +463,7 @@ describe("statement comments formatting", () => {
             x = (a + b) * c; // complex assign
         }
     `),
-    );
+    )
 
     it(
         "comments in expression statements",
@@ -474,7 +474,7 @@ describe("statement comments formatting", () => {
             Foo { name: "test" }; // struct instance
         }
     `),
-    );
+    )
 
     it(
         "comments in block statements",
@@ -486,7 +486,7 @@ describe("statement comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in if-else chains",
@@ -504,7 +504,7 @@ describe("statement comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments in complex nested structures",
@@ -525,7 +525,7 @@ describe("statement comments formatting", () => {
             }
         }
     `),
-    );
+    )
 
     it(
         "comments with multiple newlines",
@@ -551,7 +551,7 @@ describe("statement comments formatting", () => {
         }
     `,
         ),
-    );
+    )
 
     it(
         "comments in empty blocks",
@@ -560,7 +560,7 @@ describe("statement comments formatting", () => {
             // comment in empty block
         }
     `),
-    );
+    )
 
     it(
         "comments in blocks with only comments",
@@ -571,7 +571,7 @@ describe("statement comments formatting", () => {
             /* block comment */
         }
     `),
-    );
+    )
 
     it(
         "comments in multiline field access",
@@ -582,7 +582,7 @@ describe("statement comments formatting", () => {
                     .foo;
             }
         `),
-    );
+    )
 
     it(
         "comments in multiline method call",
@@ -593,7 +593,7 @@ describe("statement comments formatting", () => {
                     .foo();
             }
         `),
-    );
+    )
 
     it(
         "comments in multiline method call with struct instance",
@@ -604,7 +604,7 @@ describe("statement comments formatting", () => {
                     .foo();
             }
         `),
-    );
+    )
 
     it(
         "comments in single line method call",
@@ -613,5 +613,5 @@ describe("statement comments formatting", () => {
                 let _ = SomeMessage {} /* hello */.foo();
             }
         `),
-    );
-});
+    )
+})

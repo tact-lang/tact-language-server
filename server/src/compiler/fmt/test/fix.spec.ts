@@ -1,4 +1,4 @@
-import { test } from "./helpers";
+import {test} from "./helpers"
 
 describe("formatter automatic fixes", () => {
     it(
@@ -27,5 +27,5 @@ describe("formatter automatic fixes", () => {
                 }
             `,
         ),
-    );
-});
+    )
+})

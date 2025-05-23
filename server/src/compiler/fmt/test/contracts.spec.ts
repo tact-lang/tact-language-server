@@ -1,4 +1,4 @@
-import { intact } from "./helpers";
+import {intact} from "./helpers"
 
 describe("contracts formatting", () => {
     it(
@@ -10,7 +10,7 @@ describe("contracts formatting", () => {
                 }
             `,
         ),
-    );
+    )
     it(
         "should format contract init function with as types 2",
         intact(
@@ -24,5 +24,5 @@ describe("contracts formatting", () => {
                 }
             `,
         ),
-    );
-});
+    )
+})

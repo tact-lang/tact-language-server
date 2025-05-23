@@ -2,44 +2,44 @@ import {parseCode} from "../cst/cst-helpers"
 import {format} from "../formatter/formatter"
 
 function normalizeIndentation(input: string): string {
-    const lines = input.split("\n");
-    if (lines.length <= 1) return input;
+    const lines = input.split("\n")
+    if (lines.length <= 1) return input
 
     const indents = lines
         .slice(1, -1)
-        .filter((line) => line.trim().length > 0)
-        .map((line) => /^\s*/.exec(line)?.[0]?.length ?? 0);
-    const minIndent = Math.min(...indents);
+        .filter(line => line.trim().length > 0)
+        .map(line => /^\s*/.exec(line)?.[0]?.length ?? 0)
+    const minIndent = Math.min(...indents)
 
     if (minIndent === 0) {
-        return input;
+        return input
     }
 
     return lines
         .map((line, index) => {
-            if (index === 0) return line;
+            if (index === 0) return line
             if (minIndent > line.length) {
-                return line.trimStart();
+                return line.trimStart()
             }
-            return line.slice(minIndent);
+            return line.slice(minIndent)
         })
-        .join("\n");
+        .join("\n")
 }
 
 export const test = (input: string, output: string) => {
     return (): void => {
-        const normalizedInput = normalizeIndentation(input).trim();
-        const normalizedOutput = normalizeIndentation(output).trim();
-        const root = parseCode(normalizedInput);
+        const normalizedInput = normalizeIndentation(input).trim()
+        const normalizedOutput = normalizeIndentation(output).trim()
+        const root = parseCode(normalizedInput)
         if (root === undefined) {
-            throw new Error("cannot parse code");
+            throw new Error("cannot parse code")
         }
 
-        const formatted = format(root);
-        expect(formatted.trim()).toBe(normalizedOutput);
-    };
-};
+        const formatted = format(root)
+        expect(formatted.trim()).toBe(normalizedOutput)
+    }
+}
 
 export const intact = (input: string): (() => void) => {
-    return test(input, input);
-};
+    return test(input, input)
+}
