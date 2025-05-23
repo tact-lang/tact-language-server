@@ -278,9 +278,7 @@ export class Reference {
         }
 
         if (qualifierType instanceof StructTy) {
-            if (!Reference.processNamedEls(proc, state, qualifierType.fields())) {
-                return false
-            }
+            if (!Reference.processNamedEls(proc, state, qualifierType.fields())) return false
         }
 
         if (qualifierType instanceof MessageTy) {
@@ -856,9 +854,7 @@ export class Reference {
         elements: NamedNode[],
     ): boolean {
         for (const element of elements) {
-            if (!proc.execute(element, state)) {
-                return false
-            }
+            if (!proc.execute(element, state)) return false
         }
         return true
     }
