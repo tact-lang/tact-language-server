@@ -620,7 +620,7 @@ export class Reference {
         // sha256("hello")
         // ^^^^^^
 
-        const definitions = this.findSha256Definition()
+        const definitions = this.findSha256Definitions()
         if (!definitions) {
             return true
         }
@@ -664,7 +664,7 @@ export class Reference {
         return true
     }
 
-    private findSha256Definition(): Fun[] | undefined {
+    private findSha256Definitions(): Fun[] | undefined {
         const stdlibRoot = index.stdlibRoot
         if (stdlibRoot) {
             // stdlib in the latest Tact versions contains stubs.tact, so looking here first
