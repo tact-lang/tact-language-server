@@ -29,6 +29,22 @@ cd tact-language-server
 yarn install
 ```
 
+## Building the Project
+
+To build both the VS Code extension and the Language Server, you can use the following command:
+
+```bash
+yarn build
+```
+
+This command uses Webpack to bundle the necessary files.
+
+For development, you can use the watch mode to automatically rebuild the project upon changes:
+
+```bash
+yarn watch
+```
+
 ## VS Code extension
 
 The VS Code extension is located in the `client/` folder. Also, the `package.json` file in the project root is the entry
@@ -39,10 +55,14 @@ The
 files: [language-configuration.json](language-configuration.json), [fift-language-configuration.json](fift-language-configuration.json), [tasm-language-configuration.json](tasm-language-configuration.json)
 describe the language configuration for the extension.
 
-To start developing the extension, simply open the [client/src/extension.ts](client/src/extension.ts) file in VS Code
-and press `F5`. For more detailed information, see https://code.visualstudio.com/api/get-started/your-first-extension.
+To start developing the extension, run `yarn watch` in the root of the project and open
+the [client/src/extension.ts](client/src/extension.ts) file in VS Code. For more detailed information,
+see https://code.visualstudio.com/api/get-started/your-first-extension.
 
 Since the extension is tightly coupled with the LS, this will also allow debugging code in the LS.
+
+With the watch mode, when you make changes to the extension, the project will be automatically rebuilt, and you can
+reload the window to see the changes.
 
 ## Language Server
 
@@ -94,10 +114,16 @@ To run the tests, execute the following command:
 yarn test:e2e
 ```
 
-Each individual feature has its tests in a separate folder within [server/src/e2e/suite](server/src/e2e/suite).
+There are other test-related scripts available:
+
+- `yarn test`: Runs Jest tests.
+- `yarn test:e2e:update`: Runs e2e tests and updates snapshots if they have changed.
+- `yarn test:e2e:coverage`: Runs e2e tests and generates a coverage report.
+
+Each feature has its tests in a separate folder within [server/src/e2e/suite](server/src/e2e/suite).
 Currently, there is no way to run a specific test suite or an individual test within a suite.
 
-The following test format is used for descriptions:
+The following test format is used for tests:
 
 ```
 ========================================================================
@@ -108,13 +134,44 @@ The following test format is used for descriptions:
 <expected result>
 ```
 
-To automatically update expected results, execute the following command:
+To automatically update expected results, run the following command:
 
 ```
 yarn test:e2e:update
 ```
 
-To create a new test file, simply create a new file with the `.test` extension in the desired folder.
+To create a new test file, create a new file with the `.test` extension in the desired folder.
+
+## Grammar Development
+
+If you are working on the Tact or Fift language grammars, you can use the following scripts to generate the necessary
+WebAssembly files:
+
+- To build both Tact and Fift WASM files:
+    ```bash
+    yarn grammar:wasm
+    ```
+- To build only the Tact WASM file:
+    ```bash
+    yarn grammar:tact:wasm
+    ```
+- To build only the Fift WASM file:
+    ```bash
+    yarn grammar:fift:wasm
+    ```
+    These scripts navigate to the respective `tree-sitter-tact` or `tree-sitter-fift` directories, generate the parser,
+    and build the WASM module.
+
+## Packaging the Extension
+
+To package the VS Code extension into a `.vsix` file for distribution or local installation, run:
+
+```bash
+yarn package
+```
+
+This script uses `vsce package` to create the extension package. Ensure you have `vsce` installed globally or use
+`npx vsce`.
 
 ## Code Style
 
@@ -135,3 +192,9 @@ This project uses ESLint for linting and Prettier for formatting.
 
 It's recommended to set up your editor to automatically format code on save and to install an ESLint plugin for
 real-time feedback.
+
+## Pre-commit Hooks
+
+This project uses [Husky](https://typicode.github.io/husky/) to manage pre-commit hooks. The hooks are configured to run
+linters and formatters before each commit to ensure code quality and consistency. The setup is triggered by the
+`postinstall` script in `package.json`.
