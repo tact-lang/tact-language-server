@@ -21,7 +21,7 @@ export class BocEditorProvider implements vscode.CustomReadonlyEditorProvider {
 
     public async resolveCustomEditor(
         document: {uri: vscode.Uri},
-        _webviewPanel: vscode.WebviewPanel,
+        webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken,
     ): Promise<void> {
         const decompileUri = document.uri.with({
@@ -33,6 +33,9 @@ export class BocEditorProvider implements vscode.CustomReadonlyEditorProvider {
         await vscode.window.showTextDocument(doc, {
             preview: false,
             viewColumn: vscode.ViewColumn.Active,
+            preserveFocus: true,
         })
+
+        webviewPanel.dispose()
     }
 }
