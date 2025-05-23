@@ -18,8 +18,8 @@ export function formatTrailingComments(
     const comments = filterComments(afterBody)
     if (comments.length > 0) {
         // if there are any newlines before, add a single newline
-        const firstLeaf = afterBody[0]
-        if (firstLeaf.$ === "leaf" && firstLeaf.text.includes("\n")) {
+        const firstLeaf = afterBody.at(0)
+        if (firstLeaf?.$ === "leaf" && firstLeaf.text.includes("\n")) {
             code.newLine()
         }
     }

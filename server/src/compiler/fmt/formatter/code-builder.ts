@@ -89,8 +89,8 @@ export class CodeBuilder {
         let sum = 0
         for (let i = 0; i < this.parts.length; i++) {
             const index = this.parts.length - 1 - i
-            const element = this.parts[index]
-            if (element !== "\n") {
+            const element = this.parts.at(index)
+            if (element !== undefined && element !== "\n") {
                 sum += element.length
                 continue
             }

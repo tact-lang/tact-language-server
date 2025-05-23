@@ -62,16 +62,23 @@ function extractComments([commentPoint, anchor]: [CstNode, Anchor]):
     }
 
     // find index where we break on the next line
+    const nextNewlineIndex = followingLeafs.findIndex(
+        it => it.$ === "leaf" && it.text.includes("\n"),
+    )
     let inlineCommentsIndex =
-        actualAnchorIndex +
-        followingLeafs.findIndex(it => it.$ === "leaf" && it.text.includes("\n"))
+        nextNewlineIndex === -1
+            ? commentPoint.children.length
+            : actualAnchorIndex + nextNewlineIndex
 
     // all before, inline comments that we don't touch
     const inlineLeafs = followingLeafs.slice(0, inlineCommentsIndex - actualAnchorIndex)
     const inlineComments = filterComments(inlineLeafs)
 
-    const inlineCommentFirstChildren = commentPoint.children[inlineCommentsIndex]
-    if (inlineCommentFirstChildren.$ === "leaf" && inlineCommentFirstChildren.text.includes("\n")) {
+    const inlineCommentFirstChildren = commentPoint.children.at(inlineCommentsIndex)
+    if (
+        inlineCommentFirstChildren?.$ === "leaf" &&
+        inlineCommentFirstChildren.text.includes("\n")
+    ) {
         // skip leading new lines
         inlineCommentsIndex++
     }
@@ -496,7 +503,7 @@ export const processDocComments = (node: Cst): Cst => {
 
             if (floatingComments.length > 0) {
                 items.splice(i + 1, 0, ...floatingComments)
-                i += floatingComments.length - 1
+                i += floatingComments.length
             }
 
             pendingComments.push(...comments)

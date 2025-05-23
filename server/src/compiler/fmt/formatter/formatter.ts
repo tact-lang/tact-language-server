@@ -49,6 +49,7 @@ const formatNode = (code: CodeBuilder, node: Cst): void => {
 
                 if (needNewLine) {
                     code.newLine()
+                    needNewLine = false
                 }
 
                 if (child.type === "Comment") {
@@ -87,16 +88,16 @@ const formatNode = (code: CodeBuilder, node: Cst): void => {
                     return
                 }
 
+                if (needNewLine) {
+                    code.newLine()
+                    needNewLine = false
+                }
+
                 if (item.type === "Comment") {
                     // floating comment
                     code.add(visit(item))
                     code.newLine()
                     return
-                }
-
-                if (needNewLine) {
-                    code.newLine()
-                    needNewLine = false
                 }
 
                 if (hasIgnoreDirective(item)) {

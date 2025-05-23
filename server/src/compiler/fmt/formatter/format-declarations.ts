@@ -205,7 +205,10 @@ export const formatAsmFunction: FormatRule = (code, node) => {
     const openBraceIndex = childLeafIdxWithText(node, "{")
     const instructionsIndex = childIdxByField(node, "instructions")
     for (let i = openBraceIndex + 1; i <= instructionsIndex; i++) {
-        code.add(visit(node.children[i]))
+        const child = node.children.at(i)
+        if (child !== undefined) {
+            code.add(visit(child))
+        }
     }
 
     code.add("}")
