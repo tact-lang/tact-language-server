@@ -122,3 +122,49 @@ fun foo() {
     let f = Foo { name: "" };
     dump(f.name);
 }
+
+========================================================================
+Rename variable in short struct instance
+========================================================================
+struct Foo {
+    value: String;
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { value };
+    //!           ^ name
+}
+------------------------------------------------------------------------
+struct Foo {
+    value: String;
+}
+
+fun foo() {
+    let name = 10;
+    let f = Foo { value: name };
+    //!           ^ name
+}
+
+========================================================================
+Rename variable in full struct instance
+========================================================================
+struct Foo {
+    value: String;
+}
+
+fun foo() {
+    let value = 10;
+    let f = Foo { value: value };
+    //!                  ^ name
+}
+------------------------------------------------------------------------
+struct Foo {
+    value: String;
+}
+
+fun foo() {
+    let name = 10;
+    let f = Foo { value: name };
+    //!                  ^ name
+}
