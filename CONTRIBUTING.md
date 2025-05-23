@@ -1,18 +1,19 @@
 # Contributing
 
-This repository contains two projects. The first is a VS Code extension for Tact language support, and the second is a
-Language Server that provides all the smart features for the VS Code extension, as well as for other editors that
-support the [LSP](https://microsoft.github.io/language-server-protocol/) (Language Server Protocol). The Language Server
-Protocol is a way for a server, which can provide smart features like autocompletion or go-to-definition, to communicate
-with an editor.
+This repository hosts two main parts: a VS Code extension for Tact language support and a Language Server. The
+Language Server implements the [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/),
+enabling smart features like autocompletion and go-to-definition for the VS Code extension and other LSP-compatible
+editors.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (version specified in `.nvmrc` if available, otherwise latest LTS)
-- Yarn (Classic or Berry)
-- VS Code (for extension development)
+Ensure you have the following software installed:
+
+- **Node.js**: Version 22.x is recommended (aligns with our CI/CD pipelines).
+- **Yarn**: Classic or Berry.
+- **Visual Studio Code**: For extension development.
 
 ### Installation
 
@@ -31,15 +32,15 @@ yarn install
 
 ## Building the Project
 
-To build both the VS Code extension and the Language Server, you can use the following command:
+To build the VS Code extension and Language Server, run:
 
 ```bash
 yarn build
 ```
 
-This command uses Webpack to bundle the necessary files.
+This command uses Webpack to bundle the project files.
 
-For development, you can use the watch mode to automatically rebuild the project upon changes:
+For development, enable watch mode to automatically rebuild on file changes:
 
 ```bash
 yarn watch
@@ -47,22 +48,30 @@ yarn watch
 
 ## VS Code extension
 
-The VS Code extension is located in the `client/` folder. Also, the `package.json` file in the project root is the entry
-point for the VS Code extension, describing its various properties, such as paths to files describing syntax
-highlighting.
+The VS Code extension code resides in the `client/` directory. The root `package.json` file serves as the extension's
+manifest, defining properties like syntax highlighting paths.
 
-The
-files: [language-configuration.json](language-configuration.json), [fift-language-configuration.json](fift-language-configuration.json), [tasm-language-configuration.json](tasm-language-configuration.json)
-describe the language configuration for the extension.
+Language-specific editor features like comment toggling, bracket matching, and auto-closing pairs are defined in:
 
-To start developing the extension, run `yarn watch` in the root of the project and open
-the [client/src/extension.ts](client/src/extension.ts) file in VS Code. For more detailed information,
-see https://code.visualstudio.com/api/get-started/your-first-extension.
+- `language-configuration.json` (for Tact)
+- `fift-language-configuration.json` (for Fift)
+- `tasm-language-configuration.json` (for TASM)
+  Refer to
+  the [VS Code Language Configuration Guide](https://code.visualstudio.com/api/language-extensions/language-configuration-guide)
+  for more details on these files.
 
-Since the extension is tightly coupled with the LS, this will also allow debugging code in the LS.
+To begin developing the extension:
 
-With the watch mode, when you make changes to the extension, the project will be automatically rebuilt, and you can
-reload the window to see the changes.
+1. Run `yarn watch` in the project root. This starts the build in watch mode.
+2. Open the project folder in VS Code.
+3. The main extension point is in `client/src/extension.ts`.
+4. Press `F5` to start debugging the extension.
+
+When you make changes, the project will automatically rebuild. Reload the VS Code window (Developer: Reload Window)
+where you are testing the extension to see the changes. For general information, see
+the [VS Code extension documentation](https://code.visualstudio.com/api/get-started/your-first-extension).
+
+This development setup also facilitates debugging the Language Server, as it runs within the same development host.
 
 ## Language Server
 
@@ -74,8 +83,8 @@ The general architecture of the LS can be described as follows:
 
 #### Parsing
 
-[tree-sitter](https://tree-sitter.github.io/tree-sitter/) is used to build the CST (Concrete Syntax Tree). There are 2
-main grammars currently in use:
+We use [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) to parse code and build Concrete Syntax Trees (CSTs).
+The primary grammars are:
 
 1. [tree-sitter-tact](tree-sitter-tact) — Tact grammar, which mostly mirrors the official
    one (https://github.com/tact-lang/tree-sitter-tact). One of the main differences is that it makes some semicolons
@@ -84,22 +93,20 @@ main grammars currently in use:
 
 #### Indexes
 
-Due to the small size of Tact projects, to simplify the architecture, when a project is launched, we store all project
-files, as well as the stdlib, in memory. This gives the LS instant access to any definitions from any files.
+To simplify the architecture and leverage the typically small size of Tact projects, the Language Server loads all
+project files and the standard library into memory upon initialization. This approach provides instant access to
+definitions across files.
 
 #### Endpoints
 
-The [server/src/server.ts](server/src/server.ts) file describes all the entry points (and therefore features) that the
-LS provides.
-More complex features have separate folders for their implementation, while some are implemented directly in
-`server.ts`.
+The main entry points for Language Server features are defined in `server/src/server.ts`. Implementations for more
+complex features are organized into separate directories, while simpler ones may be found directly within `server.ts`.
 
 ##### Documentation
 
-For assembler documentation, we use a [specification file](https://github.com/ton-community/tvm-spec/issues) in JSON
-format, which contains descriptions of TVM instructions. Its local version is located
-in [asm.json](server/src/completion/data/asm.json). This file is also used for autocompleting instructions within asm
-functions.
+TVM instruction descriptions for assembler documentation and autocompletion are sourced from a JSON specification file.
+A local copy is maintained at `server/src/completion/data/asm.json`, originally based on
+the [TVM Spec](https://github.com/ton-community/tvm-spec/issues).
 
 ### Testing
 
@@ -114,7 +121,7 @@ To run the tests, execute the following command:
 yarn test:e2e
 ```
 
-There are other test-related scripts available:
+Other available test scripts include:
 
 - `yarn test`: Runs Jest tests.
 - `yarn test:e2e:update`: Runs e2e tests and updates snapshots if they have changed.
@@ -134,13 +141,13 @@ The following test format is used for tests:
 <expected result>
 ```
 
-To automatically update expected results, run the following command:
+To update test snapshots automatically:
 
 ```
 yarn test:e2e:update
 ```
 
-To create a new test file, create a new file with the `.test` extension in the desired folder.
+To add a new test, create a file with a `.test` extension in the relevant feature's test directory.
 
 ## Grammar Development
 
@@ -190,11 +197,11 @@ This project uses ESLint for linting and Prettier for formatting.
     yarn fmt:check
     ```
 
-It's recommended to set up your editor to automatically format code on save and to install an ESLint plugin for
-real-time feedback.
+We recommend configuring your editor to format code on save and installing an ESLint plugin for real-time linting
+feedback.
 
 ## Pre-commit Hooks
 
-This project uses [Husky](https://typicode.github.io/husky/) to manage pre-commit hooks. The hooks are configured to run
-linters and formatters before each commit to ensure code quality and consistency. The setup is triggered by the
+This project uses [Husky](https://typicode.github.io/husky/) to manage pre-commit hooks. These hooks automatically run
+linters and formatters before each commit, helping to maintain code quality and consistency. Husky is set up via the
 `postinstall` script in `package.json`.
