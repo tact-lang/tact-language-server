@@ -5,7 +5,7 @@ import {NamedNode, Node} from "@server/psi/Node"
 import * as lsp from "vscode-languageserver"
 import type {SemanticTokens} from "vscode-languageserver"
 import {isDocCommentOwner, isNamedFunNode} from "@server/psi/utils"
-import {createTactParser} from "@server/parser"
+import {createTactParser, createTlbParser} from "@server/parser"
 import {extractCommentsDocContent} from "@server/documentation/documentation"
 import {processDocComment} from "@server/semantic_tokens/comments"
 import {Tokens} from "@server/semantic_tokens/tokens"
@@ -19,6 +19,7 @@ export function collect(
     const tokens = new Tokens()
 
     const parser = createTactParser()
+    const tlbParser = createTlbParser()
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
         const type = n.type
@@ -143,7 +144,7 @@ export function collect(
             const comment = extractCommentsDocContent(node)
             if (!comment) return true
 
-            processDocComment(tokens, comment, parser)
+            processDocComment(tokens, comment, parser, tlbParser)
         }
 
         return true

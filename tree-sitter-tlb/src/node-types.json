@@ -396,11 +396,11 @@
         "named": true,
         "fields": {},
         "children": {
-            "multiple": true,
+            "multiple": false,
             "required": true,
             "types": [
                 {
-                    "type": "binary_digit",
+                    "type": "binary_number",
                     "named": true
                 },
                 {
@@ -967,7 +967,7 @@
         "named": false
     },
     {
-        "type": "binary_digit",
+        "type": "binary_number",
         "named": true
     },
     {

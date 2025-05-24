@@ -162,11 +162,8 @@
                                         "value": "identifier"
                                     },
                                     {
-                                        "type": "REPEAT1",
-                                        "content": {
-                                            "type": "SYMBOL",
-                                            "name": "binary_digit"
-                                        }
+                                        "type": "SYMBOL",
+                                        "name": "binary_number"
                                     }
                                 ]
                             }
@@ -319,9 +316,9 @@
             "type": "PATTERN",
             "value": "[0-9]+"
         },
-        "binary_digit": {
+        "binary_number": {
             "type": "PATTERN",
-            "value": "[01]"
+            "value": "[01]+"
         },
         "hex": {
             "type": "PATTERN",
