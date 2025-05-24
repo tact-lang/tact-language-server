@@ -86,7 +86,7 @@ extends fun move(self: Point, x: Int, y: Int) {
 2  move(self: Point, x: Int, y: Int)
 13 codeOf Contract   Cell
 13 initOf Contract(params)   StateInit
-21 Point{}
+21 Point {}
 14 do
 14 foreach
 14 if
@@ -120,7 +120,7 @@ extends fun scale(self: Point, factor: Int) {
 2  scale(self: Point, factor: Int)
 13 codeOf Contract   Cell
 13 initOf Contract(params)   StateInit
-21 Point{}
+21 Point {}
 14 do
 14 foreach
 14 if

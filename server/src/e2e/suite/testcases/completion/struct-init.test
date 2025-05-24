@@ -121,4 +121,4 @@ fun test() {
 13 codeOf Contract   Cell
 13 initOf Contract(params)   StateInit
 2  test()
-21 Foo{}
+21 Foo {}

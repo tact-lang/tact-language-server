@@ -119,8 +119,8 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
             })
         } else if (node instanceof Struct || node instanceof Message) {
             // we don't want to add `{}` for type completion
-            const bracesSnippet = this.ctx.isType ? "" : "{$1}"
-            const braces = this.ctx.isType ? "" : "{}"
+            const bracesSnippet = this.ctx.isType ? "" : " {$1}"
+            const braces = this.ctx.isType ? "" : " {}"
 
             this.addItem({
                 label: name,
