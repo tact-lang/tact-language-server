@@ -10,7 +10,7 @@ trait Ownable {
 contract TestContract with Ownable {
 }
 ------------------------------------------------------------------------
-0 6:9 to 6:21 Contract `TestContract` is missing `owner` method required by `Ownable` (tact)
+0 6:9 to 6:21 Contract `TestContract` is missing `owner` field required by `Ownable` (tact)
 
 ========================================================================
 Missed field in contract, fixed
@@ -127,7 +127,7 @@ trait Some with Ownable {}
 contract TestContract with Some {
 }
 ------------------------------------------------------------------------
-0 9:9 to 9:21 Contract `TestContract` is missing `owner` method required by `Ownable` (tact)
+0 9:9 to 9:21 Contract `TestContract` is missing `owner` field required by `Ownable` (tact)
 
 ========================================================================
 Missed fields in contract with intermediate trait with same field
@@ -146,7 +146,7 @@ trait Some with Ownable {
 contract TestContract with Some {
 }
 ------------------------------------------------------------------------
-0 11:9 to 11:21 Contract `TestContract` is missing `owner` method required by `Ownable` (tact)
+0 11:9 to 11:21 Contract `TestContract` is missing `owner` field required by `Ownable` (tact)
 
 ========================================================================
 Missed method in contract
