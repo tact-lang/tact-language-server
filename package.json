@@ -460,7 +460,7 @@
                                 "struct-initialization",
                                 "unused-contract-members",
                                 "unused-import",
-                                "missed-field-in-contract",
+                                "missed-members-in-contract",
                                 "not-imported-symbol",
                                 "dont-use-text-receivers",
                                 "rewrite",

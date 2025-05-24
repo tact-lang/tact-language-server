@@ -274,6 +274,20 @@ export class StorageMembersOwner extends NamedNode {
 
         return asLspPosition(lastField.node.endPosition)
     }
+
+    public openBrace(): SyntaxNode | undefined {
+        const body = this.node.childForFieldName("body")
+        return body?.firstChild ?? undefined
+    }
+
+    public singleLine(): boolean {
+        const body = this.node.childForFieldName("body")
+        const openBrace = body?.firstChild
+        const closeBrace = body?.lastChild
+        if (!openBrace || !closeBrace) return false
+
+        return openBrace.startPosition.row === closeBrace.endPosition.row
+    }
 }
 
 export class Trait extends StorageMembersOwner {}

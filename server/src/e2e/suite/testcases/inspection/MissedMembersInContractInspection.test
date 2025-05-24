@@ -1,0 +1,321 @@
+========================================================================
+Missed field in contract
+========================================================================
+primitive Address;
+
+trait Ownable {
+    owner: Address;
+}
+
+contract TestContract with Ownable {
+}
+------------------------------------------------------------------------
+0 6:9 to 6:21 Contract `TestContract` is missing `owner` method required by `Ownable` (tact)
+
+========================================================================
+Missed field in contract, fixed
+========================================================================
+primitive Address;
+
+trait Ownable {
+    owner: Address;
+}
+
+contract TestContract with Ownable {
+    owner: Address;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Missed fields in contract
+========================================================================
+primitive Int;
+primitive Address;
+
+trait Ownable {
+    owner: Address;
+    value: Int;
+    other: Int;
+}
+
+contract TestContract with Ownable {
+    other: Int;
+    some: Int;
+}
+------------------------------------------------------------------------
+0 9:9 to 9:21 Contract `TestContract` is missing 
+ - `owner` field required by `Ownable`
+ - `value` field required by `Ownable` (tact)
+3 11:4 to 11:8 Field 'some' is never used (tact)
+
+========================================================================
+Missed fields in contract, fixed
+========================================================================
+primitive Int;
+primitive Address;
+
+trait Ownable {
+    owner: Address;
+    value: Int;
+    other: Int;
+}
+
+contract TestContract with Ownable {
+    owner: Address;
+    value: Int;
+    other: Int;
+    some: Int;
+}
+------------------------------------------------------------------------
+3 13:4 to 13:8 Field 'some' is never used (tact)
+
+========================================================================
+Missed fields in contract from different traits
+========================================================================
+primitive Int;
+primitive Address;
+
+trait Ownable {
+    owner: Address;
+}
+
+trait Some {
+    foo: Int;
+}
+
+contract TestContract with Ownable, Some {
+}
+------------------------------------------------------------------------
+0 11:9 to 11:21 Contract `TestContract` is missing 
+ - `owner` field required by `Ownable`
+ - `foo` field required by `Some` (tact)
+
+========================================================================
+Missed fields in contract from different traits, fixed
+========================================================================
+primitive Int;
+primitive Address;
+
+trait Ownable {
+    owner: Address;
+}
+
+trait Some {
+    foo: Int;
+}
+
+contract TestContract with Ownable, Some {
+    owner: Address;
+    foo: Int;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Missed fields in contract with intermediate trait
+========================================================================
+primitive Int;
+primitive Address;
+
+trait Ownable {
+    owner: Address;
+}
+
+trait Some with Ownable {}
+
+contract TestContract with Some {
+}
+------------------------------------------------------------------------
+0 9:9 to 9:21 Contract `TestContract` is missing `owner` method required by `Ownable` (tact)
+
+========================================================================
+Missed fields in contract with intermediate trait with same field
+========================================================================
+primitive Int;
+primitive Address;
+
+trait Ownable {
+    owner: Address;
+}
+
+trait Some with Ownable {
+    owner: Address;
+}
+
+contract TestContract with Some {
+}
+------------------------------------------------------------------------
+0 11:9 to 11:21 Contract `TestContract` is missing `owner` method required by `Ownable` (tact)
+
+========================================================================
+Missed method in contract
+========================================================================
+primitive Address;
+
+trait Ownable {
+    abstract fun foo();
+}
+
+contract TestContract with Ownable {
+}
+------------------------------------------------------------------------
+0 6:9 to 6:21 Contract `TestContract` is missing `foo` method required by `Ownable` (tact)
+
+========================================================================
+Missed methods in contract
+========================================================================
+primitive Address;
+
+trait Ownable {
+    abstract fun foo();
+    abstract fun bar();
+    abstract fun baz();
+}
+
+contract TestContract with Ownable {
+}
+------------------------------------------------------------------------
+0 8:9 to 8:21 Contract `TestContract` is missing 
+ - `foo` method required by `Ownable`
+ - `bar` method required by `Ownable`
+ - `baz` method required by `Ownable` (tact)
+
+========================================================================
+Not missed method in contract
+========================================================================
+primitive Address;
+
+trait Ownable {
+    fun foo() {}
+}
+
+contract TestContract with Ownable {
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Not missed method in contract 2
+========================================================================
+primitive Address;
+
+trait Ownable {
+    virtual fun foo() {}
+}
+
+contract TestContract with Ownable {
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Implemented method in contract
+========================================================================
+primitive Address;
+
+trait Ownable {
+    abstract fun foo();
+}
+
+contract TestContract with Ownable {
+    fun foo() {}
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Implemented method in contract with other trait
+========================================================================
+primitive Address;
+
+trait Ownable {
+    abstract fun foo();
+}
+
+trait Some {
+    fun foo() {}
+}
+
+contract TestContract with Ownable, Some {
+    fun foo() {}
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Implemented method in contract with intermediate trait
+========================================================================
+primitive Address;
+
+trait Ownable {
+    abstract fun foo();
+}
+
+trait Some with Ownable {
+    fun foo() {}
+}
+
+contract TestContract with Some {
+    fun foo() {}
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Missed methods in contract from different traits
+========================================================================
+primitive Address;
+
+trait Ownable {
+    abstract fun foo();
+}
+
+trait Some {
+    abstract fun bar();
+}
+
+contract TestContract with Ownable, Some {
+}
+------------------------------------------------------------------------
+0 10:9 to 10:21 Contract `TestContract` is missing 
+ - `foo` method required by `Ownable`
+ - `bar` method required by `Some` (tact)
+
+========================================================================
+Missed same method in contract from different traits
+========================================================================
+primitive Address;
+
+trait Ownable {
+    abstract fun foo();
+}
+
+trait Some {
+    abstract fun foo();
+}
+
+contract TestContract with Ownable, Some {
+}
+------------------------------------------------------------------------
+0 10:9 to 10:21 Contract `TestContract` is missing `foo` method required by `Some` (tact)
+
+========================================================================
+Implemented methods in contract from different traits
+========================================================================
+primitive Address;
+
+trait Ownable {
+    abstract fun foo();
+}
+
+trait Some {
+    abstract fun bar();
+}
+
+contract TestContract with Ownable, Some {
+    fun foo() {}
+    fun bar() {}
+}
+------------------------------------------------------------------------
+no issues
