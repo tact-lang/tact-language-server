@@ -65,11 +65,23 @@ const config = {
                 {from: "./tree-sitter-tact/tree-sitter-tact.wasm", to: distDir},
                 {from: "./tree-sitter-fift/tree-sitter-fift.wasm", to: distDir},
                 {from: "./tree-sitter-tlb/tree-sitter-tlb.wasm", to: distDir},
-                {from: "./icons/ton-icon.svg", to: path.join(distDir, "icons")},
-                {from: "./icons/icon-tact-dark.svg", to: path.join(distDir, "icons")},
-                {from: "./icons/icon-tasm-dark.svg", to: path.join(distDir, "icons")},
-                {from: "./icons/icon-tlb-dark.svg", to: path.join(distDir, "icons")},
-                {from: "./icons/icon-boc-dark.svg", to: path.join(distDir, "icons")},
+                {from: "./client/src/assets/icons/ton-icon.svg", to: path.join(distDir, "icons")},
+                {
+                    from: "./client/src/assets/icons/icon-tact-dark.svg",
+                    to: path.join(distDir, "icons"),
+                },
+                {
+                    from: "./client/src/assets/icons/icon-tasm-dark.svg",
+                    to: path.join(distDir, "icons"),
+                },
+                {
+                    from: "./client/src/assets/icons/icon-tlb-dark.svg",
+                    to: path.join(distDir, "icons"),
+                },
+                {
+                    from: "./client/src/assets/icons/icon-boc-dark.svg",
+                    to: path.join(distDir, "icons"),
+                },
                 {
                     from: "server/src/completion/data/asm.json",
                     to: distDir,
