@@ -70,7 +70,7 @@
         "constructors": {
             "patterns": [
                 {
-                    "match": "([a-zA-Z_][a-zA-Z0-9_]*)\\s*(\\$[01]+|#_?)",
+                    "match": "([a-zA-Z_][a-zA-Z0-9_]*)\\s*(\\$[01_]+|#[0-9a-fA-F_]*)",
                     "captures": {
                         "1": {"name": "entity.name.type.constructor.tlb"},
                         "2": {"name": "constant.numeric.constructor-tag.tlb"}
