@@ -141,6 +141,7 @@ import {ImplicitMessageId} from "@server/inspections/ImplicitMessageId"
 import {fileURLToPath} from "node:url"
 import {MisspelledKeywordInspection} from "@server/inspections/MisspelledKeywordInspection"
 import * as tlbSemantic from "./tlb/semantic_tokens/collect"
+import {TlbReference} from "./tlb/psi/TlbReference"
 import {FiftReference} from "@server/fift/psi/FiftReference"
 
 /**
@@ -900,6 +901,26 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                         range: asLspRange(definition),
                     },
                 ]
+            }
+
+            if (uri.endsWith(".tlb")) {
+                const file = findTlbFile(uri)
+                const hoverNode = nodeAtPosition(params, file)
+                if (!hoverNode) return []
+
+                if (hoverNode.type === "identifier" || hoverNode.type === "type_identifier") {
+                    const ref = new TlbReference(hoverNode, file)
+                    const target = ref.resolve()
+                    if (target) {
+                        return [
+                            {
+                                uri: file.uri,
+                                range: asLspRange(target),
+                            },
+                        ]
+                    }
+                }
+                return []
             }
 
             if (uri.endsWith(".tlb")) return []

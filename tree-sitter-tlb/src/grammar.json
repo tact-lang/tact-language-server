@@ -76,8 +76,12 @@
                     "value": "="
                 },
                 {
-                    "type": "SYMBOL",
-                    "name": "combinator"
+                    "type": "FIELD",
+                    "name": "combinator",
+                    "content": {
+                        "type": "SYMBOL",
+                        "name": "combinator"
+                    }
                 },
                 {
                     "type": "STRING",
@@ -287,8 +291,12 @@
             "type": "SEQ",
             "members": [
                 {
-                    "type": "SYMBOL",
-                    "name": "identifier"
+                    "type": "FIELD",
+                    "name": "name",
+                    "content": {
+                        "type": "SYMBOL",
+                        "name": "identifier"
+                    }
                 },
                 {
                     "type": "STRING",
@@ -341,22 +349,34 @@
             "type": "SEQ",
             "members": [
                 {
-                    "type": "ALIAS",
+                    "type": "FIELD",
+                    "name": "name",
                     "content": {
-                        "type": "SYMBOL",
-                        "name": "_type_identifier"
-                    },
-                    "named": true,
-                    "value": "type_identifier"
+                        "type": "ALIAS",
+                        "content": {
+                            "type": "SYMBOL",
+                            "name": "_type_identifier"
+                        },
+                        "named": true,
+                        "value": "type_identifier"
+                    }
                 },
                 {
-                    "type": "REPEAT",
+                    "type": "FIELD",
+                    "name": "type_params",
                     "content": {
-                        "type": "SYMBOL",
-                        "name": "simple_expr"
+                        "type": "REPEAT",
+                        "content": {
+                            "type": "SYMBOL",
+                            "name": "type_parameter"
+                        }
                     }
                 }
             ]
+        },
+        "type_parameter": {
+            "type": "SYMBOL",
+            "name": "simple_expr"
         },
         "simple_expr": {
             "type": "PREC_LEFT",

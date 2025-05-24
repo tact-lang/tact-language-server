@@ -32,7 +32,8 @@ module.exports = grammar({
 
         comment: _ => choice(seq("//", /.*/), seq("/*", /[^*]*\*+([^/*][^*]*\*+)*/, "/")),
 
-        declaration: $ => seq($.constructor_, repeat($.field), "=", $.combinator, ";"),
+        declaration: $ =>
+            seq($.constructor_, repeat($.field), "=", field("combinator", $.combinator), ";"),
 
         constructor_: $ =>
             prec.right(
@@ -64,7 +65,7 @@ module.exports = grammar({
 
         field_anonymous: $ => choice($.field_anon_ref, $.field_named_anon_ref),
 
-        field_named: $ => seq($.identifier, ":", $.cond_expr),
+        field_named: $ => seq(field("name", $.identifier), ":", $.cond_expr),
 
         field_expr: $ => $.cond_expr,
 
@@ -76,7 +77,13 @@ module.exports = grammar({
 
         builtin_field: _ => choice("#", "Type"),
 
-        combinator: $ => seq(alias($._type_identifier, $.type_identifier), repeat($.simple_expr)),
+        combinator: $ =>
+            seq(
+                field("name", alias($._type_identifier, $.type_identifier)),
+                field("type_params", repeat($.type_parameter)),
+            ),
+
+        type_parameter: $ => $.simple_expr,
 
         simple_expr: $ =>
             prec.left(2, choice($.negate_expr, $.binary_expression, $.ref_expr, $.parens_expr)),
