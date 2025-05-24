@@ -5,6 +5,7 @@
 const path = require("path")
 const CopyPlugin = require("copy-webpack-plugin")
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin")
+const webpack = require("webpack")
 
 const distDir = path.resolve(__dirname, "dist")
 
@@ -52,6 +53,11 @@ const config = {
         ],
     },
     plugins: [
+        new webpack.BannerPlugin({
+            banner: "#!/usr/bin/env node",
+            raw: true,
+            include: "server.js",
+        }),
         new CopyPlugin({
             patterns: [
                 {from: "./node_modules/web-tree-sitter/tree-sitter.wasm", to: distDir},
@@ -65,6 +71,8 @@ const config = {
                     from: "server/src/completion/data/asm.json",
                     to: distDir,
                 },
+                {from: "./package.server.json", to: path.join(distDir, "package.json")},
+                {from: "./README.md", to: path.join(distDir, "README.md")},
             ],
         }),
     ],
