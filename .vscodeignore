@@ -11,7 +11,7 @@
 !CHANGELOG.md
 !package.json
 !./README-extension.md
-!language-configuration.json
+!client/src/languages
+!client/src/assets
 !syntaxes/
 !snippets/
-!logo.png

@@ -53,9 +53,11 @@ manifest, defining properties like syntax highlighting paths.
 
 Language-specific editor features like comment toggling, bracket matching, and auto-closing pairs are defined in:
 
-- `language-configuration.json` (for Tact)
-- `fift-language-configuration.json` (for Fift)
-- `tasm-language-configuration.json` (for TASM)
+- [client/src/languages/language-configuration.json](client/src/languages/language-configuration.json) (for Tact)
+- [client/src/languages/fift-language-configuration.json](client/src/languages/fift-language-configuration.json) (for
+  Fift)
+- [client/src/languages/tasm-language-configuration.json](client/src/languages/tasm-language-configuration.json) (for
+  TASM)
 
 Refer to
 the [VS Code Language Configuration Guide](https://code.visualstudio.com/api/language-extensions/language-configuration-guide)
