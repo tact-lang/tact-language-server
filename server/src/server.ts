@@ -98,7 +98,6 @@ import {ImportResolver} from "@server/psi/ImportResolver"
 import {SnippetsCompletionProvider} from "@server/completion/providers/SnippetsCompletionProvider"
 import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 import type {DocumentUri, TextEdit} from "vscode-languageserver-types"
-import {MissedFieldInContractInspection} from "@server/inspections/MissedFieldInContractInspection"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {TraitOrContractConstantsCompletionProvider} from "@server/completion/providers/TraitOrContractConstantsCompletionProvider"
 import {generateTlBTypeDoc} from "@server/documentation/tlb_type_documentation"
@@ -143,6 +142,7 @@ import {MisspelledKeywordInspection} from "@server/inspections/MisspelledKeyword
 import * as tlbSemantic from "./tlb/semantic_tokens/collect"
 import {TlbReference} from "./tlb/psi/TlbReference"
 import {FiftReference} from "@server/fift/psi/FiftReference"
+import {MissedMembersInContractInspection} from "@server/inspections/MissedMembersInContractInspection"
 
 /**
  * Whenever LS is initialized.
@@ -359,7 +359,7 @@ async function runInspections(uri: string, file: File, includeLinters: boolean):
         new StructInitializationInspection(),
         new UnusedContractMembersInspection(),
         new UnusedImportInspection(),
-        new MissedFieldInContractInspection(),
+        new MissedMembersInContractInspection(),
         new NotImportedSymbolInspection(),
         new DontUseTextReceiversInspection(),
         new DontUseDeployableInspection(),
