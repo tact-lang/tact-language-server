@@ -15,8 +15,10 @@ Developed by [TON Studio](https://tonstudio.io), powered by the community.
 
 ---
 
-This language server and an extension for VSCode-based editors provide support for the [Tact programming language](https://tact-lang.org).
-Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON blockchain.
+This language server and an extension for VSCode-based editors provide support for
+the [Tact programming language](https://tact-lang.org).
+Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON
+blockchain.
 
 ## Features
 
@@ -78,6 +80,21 @@ The easiest way to get started with Tact is to use VS Code or editors based on i
 
 ### Other Editors
 
+#### Via NPM
+
+Install the language server via NPM:
+
+```shell
+npm install -g @tact-lang/tact-language-server
+```
+
+After installation, you can use `tact-language-server` executable to run the language server.
+
+If for some reason your editor rejects `tact-language-server` executable, run `where tact-language-server` to find the
+path to the executable and then configure your editor to run `node <path-to-js-file>`.
+
+#### Manually
+
 1. Get the latest archive from [releases](https://github.com/tact-lang/tact-language-server/releases):
     - `tact-language-server-*.tar.gz` for Linux/macOS
     - `tact-language-server-*.zip` for Windows
@@ -121,7 +138,8 @@ codium --install-extension vscode-tact-VERSION.vsix
     - Select "Package Control: Install Package"
     - Search for and select "LSP"
 
-2. For syntax highlighting, install the [`Tact` package](https://github.com/tact-lang/tact-sublime) via Package Control in a similar manner:
+2. For syntax highlighting, install the [`Tact` package](https://github.com/tact-lang/tact-sublime) via Package Control
+   in a similar manner:
 
     - Open Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
     - Select "Package Control: Install Package"
@@ -143,7 +161,8 @@ codium --install-extension vscode-tact-VERSION.vsix
     }
     ```
 
-4. Add the following setting to your settings to enable highlighting of Tact code blocks in hover documentation (`Preferences > Settings`):
+4. Add the following setting to your settings to enable highlighting of Tact code blocks in hover documentation (
+   `Preferences > Settings`):
 
     ```jsonc
     {
@@ -208,11 +227,15 @@ Recommended, but not required:
 
 Setup steps:
 
-1. Install the [tact.vim](https://github.com/tact-lang/tact.vim) if it hasn't already been installed. Use a non-built-in plugin manager to simplify the update process.
+1. Install the [tact.vim](https://github.com/tact-lang/tact.vim) if it hasn't already been installed. Use a non-built-in
+   plugin manager to simplify the update process.
 
-2. Install the [vim-lsp](https://github.com/prabirshrestha/vim-lsp) plugin if it isn't already installed. For that, use [vim-plug](https://github.com/junegunn/vim-plug) or the built-in package manager of Vim 8+, see [`:help packages`](https://vimhelp.org/repeat.txt.html#packages).
+2. Install the [vim-lsp](https://github.com/prabirshrestha/vim-lsp) plugin if it isn't already installed. For that,
+   use [vim-plug](https://github.com/junegunn/vim-plug) or the built-in package manager of Vim 8+, see [
+   `:help packages`](https://vimhelp.org/repeat.txt.html#packages).
 
-- If it wasn't installed before, you should set up basic keybindings with the language client. Add the following to your `~/.vimrc` (or `~/_vimrc` if you're on Windows):
+- If it wasn't installed before, you should set up basic keybindings with the language client. Add the following to your
+  `~/.vimrc` (or `~/_vimrc` if you're on Windows):
 
     ```vim
     function! s:on_lsp_buffer_enabled() abort
