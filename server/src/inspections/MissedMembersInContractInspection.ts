@@ -103,10 +103,11 @@ export class MissedMembersInContractInspection implements Inspection {
 
     private generateMessage(notImplementedMembers: (Fun | Field)[], contract: Contract): string {
         if (notImplementedMembers.length === 1) {
-            const method = notImplementedMembers[0]
-            const owner = method.owner()
+            const member = notImplementedMembers[0]
+            const kind = member instanceof Fun ? "method" : "field"
+            const owner = member.owner()
 
-            return `Contract \`${contract.name()}\` is missing \`${method.name()}\` method required by \`${owner?.name()}\``
+            return `Contract \`${contract.name()}\` is missing \`${member.name()}\` ${kind} required by \`${owner?.name()}\``
         }
 
         const members = [...notImplementedMembers.values()]
