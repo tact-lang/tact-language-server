@@ -4,6 +4,8 @@ import {SemanticTokenTypes} from "vscode-languageserver-protocol"
 import {RecursiveVisitor} from "@server/psi/RecursiveVisitor"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"
+import {TlbReference} from "@server/tlb/psi/TlbReference"
+import {parentOfType} from "@server/psi/utils"
 
 export function collect(file: File): SemanticTokens {
     const builder = new SemanticTokensBuilder()
@@ -25,6 +27,14 @@ export function collect(file: File): SemanticTokens {
                 break
             }
             case "identifier": {
+                const resolved = TlbReference.resolve(node, file)
+                if (resolved) {
+                    const insideTypeParameter = parentOfType(resolved, "type_parameter") !== null
+                    if (insideTypeParameter) {
+                        pushToken(node, SemanticTokenTypes.typeParameter)
+                        break
+                    }
+                }
                 break
             }
             case "type_identifier": {
@@ -36,7 +46,26 @@ export function collect(file: File): SemanticTokens {
                     break
                 }
 
+                const resolved = TlbReference.resolve(node, file)
+                if (resolved) {
+                    if (resolved.parent?.type === "field_named") {
+                        pushToken(node, SemanticTokenTypes.variable)
+                        break
+                    }
+                    const insideTypeParameter = parentOfType(resolved, "type_parameter") !== null
+                    if (insideTypeParameter) {
+                        pushToken(node, SemanticTokenTypes.typeParameter)
+                        break
+                    }
+                }
+
                 pushToken(node, SemanticTokenTypes.type)
+                break
+            }
+            case "type_parameter": {
+                const name = TlbReference.findTypeParameterNode(node)
+                if (!name) break
+                pushToken(name, SemanticTokenTypes.typeParameter)
                 break
             }
             case "field_named": {
