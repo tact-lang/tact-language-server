@@ -15,7 +15,8 @@
     "icon": "client/src/assets/logo.png",
     "activationEvents": [
         "onLanguage:tact",
-        "onLanguage:tasm"
+        "onLanguage:tasm",
+        "onLanguage:tlb"
     ],
     "categories": [
         "Programming Languages"
@@ -104,6 +105,16 @@
                 "aliases": [
                     "TON BoC"
                 ]
+            },
+            {
+                "id": "tlb",
+                "aliases": [
+                    "TL-B"
+                ],
+                "extensions": [
+                    ".tlb"
+                ],
+                "configuration": "./client/src/languages/tlb-language-configuration.json"
             }
         ],
         "grammars": [
@@ -132,6 +143,11 @@
                 "embeddedLanguages": {
                     "meta.embedded.block.tact": "tact"
                 }
+            },
+            {
+                "language": "tlb",
+                "scopeName": "source.tlb",
+                "path": "./syntaxes/tlb.tmLanguage.json"
             }
         ],
         "snippets": [],
