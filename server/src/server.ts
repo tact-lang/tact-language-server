@@ -142,6 +142,7 @@ import {fileURLToPath} from "node:url"
 import {MisspelledKeywordInspection} from "@server/inspections/MisspelledKeywordInspection"
 import * as tlbSemantic from "./tlb/semantic_tokens/collect"
 import {TlbReference} from "./tlb/psi/TlbReference"
+import {FiftReference} from "@server/fift/psi/FiftReference"
 
 /**
  * Whenever LS is initialized.
@@ -885,6 +886,23 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.DefinitionRequest.type,
         (params: lsp.DefinitionParams): lsp.Location[] | lsp.LocationLink[] => {
             const uri = params.textDocument.uri
+
+            if (uri.endsWith(".fif")) {
+                const file = findFiftFile(uri)
+                const node = nodeAtPosition(params, file)
+                if (!node || node.type !== "identifier") return []
+
+                const definition = FiftReference.resolve(node, file)
+                if (!definition) return []
+
+                return [
+                    {
+                        uri: file.uri,
+                        range: asLspRange(definition),
+                    },
+                ]
+            }
+
             if (uri.endsWith(".tlb")) {
                 const file = findTlbFile(uri)
                 const hoverNode = nodeAtPosition(params, file)
