@@ -1,6 +1,6 @@
 import * as lsp from "vscode-languageserver"
 import type {File} from "@server/psi/File"
-import {Contract, type Field, Fun} from "@server/psi/Decls"
+import {Contract, type Field, Fun, Trait} from "@server/psi/Decls"
 import {asLspRange} from "@server/utils/position"
 import {Inspection, InspectionIds} from "./Inspection"
 import {FileDiff} from "@server/utils/FileDiff"
@@ -25,41 +25,8 @@ export class MissedMembersInContractInspection implements Inspection {
         const inheritedTraits = contract.inheritTraits()
         if (inheritedTraits.length === 0) return // nothing to check
 
-        const methodsToImplement = inheritedTraits.flatMap(it =>
-            it.methods().filter(it => it.isAbstract()),
-        )
-        const contractMethods = contract.methods().filter(it => !it.isAbstract())
-
-        const contractMethodsMapping: Map<string, Fun> = new Map()
-        for (const method of contractMethods) {
-            contractMethodsMapping.set(method.name(), method)
-        }
-
-        const notImplementedMethods: Map<string, Fun> = new Map()
-        for (const method of methodsToImplement) {
-            if (contractMethodsMapping.has(method.name())) {
-                continue
-            }
-
-            notImplementedMethods.set(method.name(), method)
-        }
-
-        const fieldsToImplement = inheritedTraits.flatMap(it => it.fields())
-        const contractFields = contract.ownFields()
-
-        const contractFieldsMapping: Map<string, Field> = new Map()
-        for (const field of contractFields) {
-            contractFieldsMapping.set(field.name(), field)
-        }
-
-        const notImplementedFields: Map<string, Field> = new Map()
-        for (const field of fieldsToImplement) {
-            if (contractFieldsMapping.has(field.name())) {
-                continue
-            }
-
-            notImplementedFields.set(field.name(), field)
-        }
+        const notImplementedMethods = this.findNotImplementedMethods(inheritedTraits, contract)
+        const notImplementedFields = this.findNotImplementedFields(inheritedTraits, contract)
 
         if (notImplementedMethods.size === 0 && notImplementedFields.size === 0) return // nothing to implement
 
@@ -86,6 +53,52 @@ export class MissedMembersInContractInspection implements Inspection {
                 contract.file,
             ),
         })
+    }
+
+    private findNotImplementedFields(
+        inheritedTraits: Trait[],
+        contract: Contract,
+    ): Map<string, Field> {
+        const fieldsToImplement = inheritedTraits.flatMap(it => it.fields())
+        const contractFields = contract.ownFields()
+
+        const contractFieldsMapping: Map<string, Field> = new Map()
+        for (const field of contractFields) {
+            contractFieldsMapping.set(field.name(), field)
+        }
+
+        const notImplementedFields: Map<string, Field> = new Map()
+        for (const field of fieldsToImplement) {
+            if (contractFieldsMapping.has(field.name())) {
+                continue
+            }
+            notImplementedFields.set(field.name(), field)
+        }
+        return notImplementedFields
+    }
+
+    private findNotImplementedMethods(
+        inheritedTraits: Trait[],
+        contract: Contract,
+    ): Map<string, Fun> {
+        const methodsToImplement = inheritedTraits.flatMap(it =>
+            it.methods().filter(it => it.isAbstract()),
+        )
+        const contractMethods = contract.methods().filter(it => !it.isAbstract())
+
+        const contractMethodsMapping: Map<string, Fun> = new Map()
+        for (const method of contractMethods) {
+            contractMethodsMapping.set(method.name(), method)
+        }
+
+        const notImplementedMethods: Map<string, Fun> = new Map()
+        for (const method of methodsToImplement) {
+            if (contractMethodsMapping.has(method.name())) {
+                continue
+            }
+            notImplementedMethods.set(method.name(), method)
+        }
+        return notImplementedMethods
     }
 
     private generateMessage(notImplementedMembers: (Fun | Field)[], contract: Contract): string {
