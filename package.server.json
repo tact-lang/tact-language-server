@@ -1,0 +1,27 @@
+{
+    "name": "@tact-lang/tact-language-server",
+    "version": "0.7.0",
+    "description": "Language Server for Tact",
+    "main": "server.js",
+    "keywords": ["TON", "The Open Network", "Tact", "Smart contract", "language server"],
+    "author": "TON Studio",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/tact-lang/tact-language-server"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "bin": {
+        "tact-language-server": "./server.js"
+    },
+    "files": [
+        "./**/*.svg",
+        "./**/*.tact",
+        "./**/server.js",
+        "./**/*.md",
+        "./**/*.json",
+        "./**/*.wasm"
+    ]
+}

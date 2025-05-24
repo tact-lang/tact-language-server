@@ -1,4 +1,4 @@
-# Tact Extension
+# Tact Language
 
 Developed by [TON Studio](https://tonstudio.io), powered by the community.
 
@@ -96,7 +96,7 @@ specifically created for LLMs:
 
 ## Troubleshooting
 
-See [TROUBLESHOOTING.md](./docs/manual/troubleshooting.md).
+See [TROUBLESHOOTING.md](docs/manual/troubleshooting.md).
 
 # License
 
