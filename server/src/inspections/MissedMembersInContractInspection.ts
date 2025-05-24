@@ -1,7 +1,7 @@
 import * as lsp from "vscode-languageserver"
 import type {File} from "@server/psi/File"
 import {Contract, type Field, Fun, Trait} from "@server/psi/Decls"
-import {asLspRange} from "@server/utils/position"
+import {asLspPosition, asLspRange} from "@server/utils/position"
 import {Inspection, InspectionIds} from "./Inspection"
 import {FileDiff} from "@server/utils/FileDiff"
 
@@ -143,10 +143,24 @@ function implementTrait(
         insertText.push(`    override fun ${method.name()}${method.signaturePresentation()} {}`)
     }
 
-    const line = contract.nameIdentifier()?.startPosition.row
-    if (line === undefined) return undefined
+    const isSingleLine = contract.singleLine()
+    const openBrace = contract.openBrace()
+    if (!openBrace) return undefined
 
-    diff.appendAsNextLine(line, insertText.join("\n"))
+    const content = insertText.join("\n")
+    if (isSingleLine) {
+        // if:
+        // contract Foo with Bar {}, insert `\n content \n`
+        diff.appendTo(asLspPosition(openBrace.endPosition), `\n${content}\n`)
+    } else {
+        // if:
+        // contract Foo with Bar {
+        // }
+        // insert just content
+        const line = contract.nameIdentifier()?.startPosition.row
+        if (line === undefined) return undefined
+        diff.appendAsNextLine(line, content)
+    }
 
     const edit = diff.toWorkspaceEdit()
     return {
