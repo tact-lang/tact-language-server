@@ -473,7 +473,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     documents.onDidSave(async event => {
         const uri = event.document.uri
         const file = findFile(uri)
-        await runInspections(uri, file, true)
+        if (event.document.languageId === "tact" || uri.endsWith(".tact")) {
+            await runInspections(uri, file, true)
+        }
     })
 
     connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams) => {
