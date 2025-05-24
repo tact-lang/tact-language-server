@@ -139,7 +139,7 @@
         "primitiveTypes": {
             "patterns": [
                 {
-                    "match": "\\b(uint\\d+|Type|Bit|Maybe)\\b",
+                    "match": "\\b((u)?int\\d+|Type|Bit|Maybe)\\b",
                     "name": "support.type.primitive.tlb"
                 }
             ]

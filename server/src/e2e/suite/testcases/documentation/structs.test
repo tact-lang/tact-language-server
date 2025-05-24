@@ -134,6 +134,64 @@ foo#178d4519
 Some cool message
 
 ========================================================================
+Message with non hex ID documentation
+========================================================================
+primitive String;
+
+message(10) <caret>Foo {
+    name: String;
+}
+------------------------------------------------------------------------
+```tact
+message(0xa) Foo {
+    name: String;
+}
+```
+
+---
+
+**TL-B:**
+
+```tlb
+foo#a
+    name:^Cell = Foo
+```
+
+**Size:** 32 bits plus up to 1023 bits.
+
+---
+
+========================================================================
+Message with constant ID documentation
+========================================================================
+primitive String;
+
+const FOO: Int = 10;
+
+message(FOO) <caret>Foo {
+    name: String;
+}
+------------------------------------------------------------------------
+```tact
+message(0xa) Foo {
+    name: String;
+}
+```
+
+---
+
+**TL-B:**
+
+```tlb
+foo#a
+    name:^Cell = Foo
+```
+
+**Size:** 32 bits plus up to 1023 bits.
+
+---
+
+========================================================================
 Field declaration
 ========================================================================
 primitive Int;
