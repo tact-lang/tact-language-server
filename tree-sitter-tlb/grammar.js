@@ -45,7 +45,7 @@ module.exports = grammar({
 
         constructor_tag: $ =>
             choice(
-                prec.right(seq("$", choice(alias("_", $.identifier), repeat1($.binary_digit)))),
+                prec.right(seq("$", choice(alias("_", $.identifier), $.binary_number))),
                 prec.right(seq("#", choice(alias("_", $.identifier), $.hex))),
             ),
 
@@ -71,7 +71,7 @@ module.exports = grammar({
         identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
         _type_identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
         number: _ => /[0-9]+/,
-        binary_digit: _ => /[01]/,
+        binary_number: _ => /[01]+/,
         hex: _ => /[0-9a-fA-F]+/,
 
         builtin_field: _ => choice("#", "Type"),

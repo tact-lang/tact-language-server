@@ -1,9 +1,11 @@
 import {Position} from "vscode-languageclient"
 import type {Node as SyntaxNode, Parser} from "web-tree-sitter"
 import {parse} from "@textlint/markdown-to-ast"
+import {TxtCodeBlockNode} from "@textlint/ast-node-types"
 import * as lsp from "vscode-languageserver"
 import {RecursiveVisitor} from "@server/psi/visitor"
 import {Tokens} from "@server/semantic_tokens/tokens"
+import {SemanticTokenTypes} from "vscode-languageserver-protocol"
 
 const KEYWORDS = {
     extend: true,
@@ -76,9 +78,12 @@ const PUNCTUATION = {
     "&&": true,
     "||": true,
     "?": true,
+    "^": true,
+    "#<=": true,
+    "#<": true,
 }
 
-function processNode(
+function processTactNode(
     n: SyntaxNode,
     tokens: Tokens,
     shift: {
@@ -152,6 +157,79 @@ function processNode(
     return true
 }
 
+function processTlbNode(
+    n: SyntaxNode,
+    tokens: Tokens,
+    shift: {
+        line: number
+        character: number
+    },
+): boolean {
+    if (n.type in PUNCTUATION) {
+        tokens.node(n, lsp.SemanticTokenTypes.operator, shift)
+        return true
+    }
+
+    switch (n.type) {
+        case "##": {
+            tokens.node(n, lsp.SemanticTokenTypes.macro, shift)
+            break
+        }
+        case "number":
+        case "hex": {
+            tokens.node(n, lsp.SemanticTokenTypes.number, shift)
+            break
+        }
+        case "constructor_tag": {
+            tokens.node(n, lsp.SemanticTokenTypes.number, shift)
+            break
+        }
+        case "identifier": {
+            const parent = n.parent
+            if (!parent) return true
+            if (parent.type === "field_named") {
+                tokens.node(n, lsp.SemanticTokenTypes.property, shift)
+                break
+            }
+            tokens.node(n, lsp.SemanticTokenTypes.number, shift)
+            break
+        }
+        case "type_identifier": {
+            const parent = n.parent
+            if (!parent) break
+
+            if (parent.type === "combinator" || parent.type === "combinator_expr") {
+                tokens.node(n, SemanticTokenTypes.class, shift)
+                break
+            }
+
+            tokens.node(n, SemanticTokenTypes.type, shift)
+            break
+        }
+        case "field_named": {
+            const identifier = n.firstNamedChild
+            if (!identifier) break
+            tokens.node(identifier, SemanticTokenTypes.property, shift)
+            break
+        }
+        case "constructor_": {
+            const identifier = n.firstNamedChild
+            if (identifier && identifier.type === "identifier") {
+                tokens.node(identifier, SemanticTokenTypes.type, shift)
+            }
+            break
+        }
+        case "combinator": {
+            break
+        }
+        case "builtin_field": {
+            tokens.node(n, SemanticTokenTypes.property, shift)
+            break
+        }
+    }
+    return true
+}
+
 export function processDocComment(
     tokens: Tokens,
     comment: {
@@ -159,9 +237,10 @@ export function processDocComment(
         startPosition: Position
     },
     parser: Parser,
+    tlbParser: Parser,
 ): void {
     const ast = parse(comment.lines.join("\n"))
-    ast.children.forEach(node => {
+    for (const node of ast.children) {
         if (node.type === "Paragraph") {
             node.children.forEach(child => {
                 if (child.type === "Code") {
@@ -189,22 +268,47 @@ export function processDocComment(
             })
         }
 
-        if (node.type !== "CodeBlock") return
-        if (node.lang !== "tact") return
+        if (node.type !== "CodeBlock") continue
 
-        const tree = parser.parse(node.value)
-        if (!tree) {
-            console.error("cannot parse code from doc comment:")
-            console.error("comment:", node.value)
-            console.error("position:", node.loc)
-            return
+        if (node.lang === "tact") {
+            const tree = parser.parse(node.value)
+            if (!tree) {
+                cannotParseCommentError(node)
+                continue
+            }
+
+            const shift = {
+                line: node.loc.start.line + comment.startPosition.line,
+                character: node.loc.start.column + comment.startPosition.character + 4,
+            }
+
+            RecursiveVisitor.visit(tree.rootNode, (n): boolean => processTactNode(n, tokens, shift))
         }
 
-        const shift = {
-            line: node.loc.start.line + comment.startPosition.line,
-            character: node.loc.start.column + comment.startPosition.character + 4,
-        }
+        if (
+            node.lang === "tlb" ||
+            node.lang === "tl-b" ||
+            node.lang === "TL-B" ||
+            node.lang === "TL-b"
+        ) {
+            const tree = tlbParser.parse(node.value)
+            if (!tree) {
+                cannotParseCommentError(node)
+                continue
+            }
 
-        RecursiveVisitor.visit(tree.rootNode, (n): boolean => processNode(n, tokens, shift))
-    })
+            const shift = {
+                line: node.loc.start.line + comment.startPosition.line,
+                character: node.loc.start.column + comment.startPosition.character + 4,
+            }
+
+            RecursiveVisitor.visit(tree.rootNode, (n): boolean => processTlbNode(n, tokens, shift))
+        }
+    }
+}
+
+function cannotParseCommentError(node: TxtCodeBlockNode): void {
+    console.error("cannot parse code from doc comment:")
+    console.error("comment:", node.value)
+    console.error("position:", node.loc)
 }
