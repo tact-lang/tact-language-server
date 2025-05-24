@@ -4,8 +4,7 @@ import type {File} from "@server/psi/File"
 import type {Point} from "web-tree-sitter"
 import type * as lsp from "vscode-languageserver"
 import {isDocCommentOwner} from "@server/psi/utils"
-import {extractCommentsDocContent} from "@server/documentation/documentation"
-import {Node} from "@server/psi/Node"
+import {extractCommentsDocContent, Node} from "@server/psi/Node"
 
 export function collect(file: File): FoldingRange[] {
     const result: FoldingRange[] = []
@@ -41,7 +40,7 @@ export function collect(file: File): FoldingRange[] {
 
         if (isDocCommentOwner(n)) {
             const node = new Node(n, file)
-            const comment = extractCommentsDocContent(node)
+            const comment = extractCommentsDocContent(node.node)
             if (!comment) return true
 
             result.push({

@@ -1,4 +1,6 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
+import {index} from "@server/indexes"
+import {NamedNode} from "@server/psi/Node"
 
 export function parentOfType(node: SyntaxNode, ...types: readonly string[]): SyntaxNode | null {
     let parent = node.parent
@@ -64,6 +66,12 @@ export function isTypeOwnerNode(node: SyntaxNode): boolean {
         node.type === "global_constant" ||
         node.type === "storage_constant"
     )
+}
+
+export function isDeprecated(symbol: NamedNode): boolean {
+    const fileIndex = index.findFile(symbol.file.uri)
+    if (!fileIndex) return false
+    return fileIndex.isDeprecated(symbol.name())
 }
 
 export function measureTime<T>(label: string, fn: () => T): T {

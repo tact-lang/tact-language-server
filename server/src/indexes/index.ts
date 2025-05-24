@@ -54,6 +54,8 @@ export class FileIndex {
         [IndexKey.Constants]: [],
     }
 
+    private readonly deprecated: Map<string, string> = new Map()
+
     public static create(file: File): FileIndex {
         const index = new FileIndex()
 
@@ -67,28 +69,47 @@ export class FileIndex {
                 if (fun.withSelf()) {
                     index.elements[IndexKey.Methods].push(fun)
                 }
+
+                FileIndex.processDeprecated(index, fun)
             }
             if (node.type === "struct") {
-                index.elements[IndexKey.Structs].push(new Struct(node, file))
+                const struct = new Struct(node, file)
+                FileIndex.processDeprecated(index, struct)
+                index.elements[IndexKey.Structs].push(struct)
             }
             if (node.type === "contract") {
-                index.elements[IndexKey.Contracts].push(new Contract(node, file))
+                const contract = new Contract(node, file)
+                FileIndex.processDeprecated(index, contract)
+                index.elements[IndexKey.Contracts].push(contract)
             }
             if (node.type === "message") {
-                index.elements[IndexKey.Messages].push(new Message(node, file))
+                const message = new Message(node, file)
+                FileIndex.processDeprecated(index, message)
+                index.elements[IndexKey.Messages].push(message)
             }
             if (node.type === "trait") {
-                index.elements[IndexKey.Traits].push(new Trait(node, file))
+                const trait = new Trait(node, file)
+                FileIndex.processDeprecated(index, trait)
+                index.elements[IndexKey.Traits].push(trait)
             }
             if (node.type === "primitive") {
+                // primitive type cannot be deprecated
                 index.elements[IndexKey.Primitives].push(new Primitive(node, file))
             }
             if (node.type === "global_constant") {
-                index.elements[IndexKey.Constants].push(new Constant(node, file))
+                const constant = new Constant(node, file)
+                FileIndex.processDeprecated(index, constant)
+                index.elements[IndexKey.Constants].push(constant)
             }
         }
 
         return index
+    }
+
+    public static processDeprecated(index: FileIndex, symbol: NamedNode): void {
+        if (symbol.isDeprecatedNoIndex()) {
+            index.deprecated.set(symbol.name(), "")
+        }
     }
 
     public processElementsByKey(
@@ -210,6 +231,10 @@ export class FileIndex {
 
     private findElements<T extends NamedNode>(elements: T[], name: string): T[] {
         return elements.filter(value => value.name() === name)
+    }
+
+    public isDeprecated(name: string): boolean {
+        return this.deprecated.has(name)
     }
 }
 

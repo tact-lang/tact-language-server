@@ -1,12 +1,11 @@
 import {RecursiveVisitor} from "@server/psi/visitor"
 import type {File} from "@server/psi/File"
 import {Reference} from "@server/psi/Reference"
-import {NamedNode, Node} from "@server/psi/Node"
+import {extractCommentsDocContent, NamedNode, Node} from "@server/psi/Node"
 import * as lsp from "vscode-languageserver"
 import type {SemanticTokens} from "vscode-languageserver"
 import {isDocCommentOwner, isNamedFunNode} from "@server/psi/utils"
 import {createTactParser, createTlbParser} from "@server/parser"
-import {extractCommentsDocContent} from "@server/documentation/documentation"
 import {processDocComment} from "@server/semantic_tokens/comments"
 import {Tokens} from "@server/semantic_tokens/tokens"
 
@@ -141,7 +140,7 @@ export function collect(
         if (highlighting.highlightCodeInComments && isDocCommentOwner(n)) {
             const node = new Node(n, file)
 
-            const comment = extractCommentsDocContent(node)
+            const comment = extractCommentsDocContent(node.node)
             if (!comment) return true
 
             processDocComment(tokens, comment, parser, tlbParser)

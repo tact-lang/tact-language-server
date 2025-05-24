@@ -17,8 +17,6 @@ import {trimPrefix} from "@server/utils/strings"
 import * as compiler from "@server/compiler/utils"
 import {getDocumentSettings, TactSettings} from "@server/utils/settings"
 import {File} from "@server/psi/File"
-import {Position} from "vscode-languageclient"
-import {asLspPosition} from "@server/utils/position"
 import {
     ContractTy,
     FieldsOwnerTy,
@@ -66,7 +64,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
     switch (astNode.type) {
         case "native_function": {
             const func = new Fun(astNode, node.file)
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
             const nameAttr = func.nameAttribute()
             const nameAttrText = nameAttr ? `${nameAttr.text}\n` : ""
 
@@ -77,7 +75,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
         }
         case "global_function": {
             const func = new Fun(astNode, node.file)
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
 
             const extraDoc =
                 func.name() === "require" ? requireFunctionDoc(place, node.file, settings) : ""
@@ -91,7 +89,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
         }
         case "storage_function": {
             const func = new Fun(astNode, node.file)
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
             const ownerPresentation = renderOwnerPresentation(func)
             if (!ownerPresentation) return null // not possible in correct code
 
@@ -107,7 +105,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
         }
         case "asm_function": {
             const func = new Fun(astNode, node.file)
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
 
             const gas = func.computeGasConsumption(settings.gas)
 
@@ -127,7 +125,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
                 .filter(it => it !== "BaseTrait")
                 .join(", ")
             const inheritedString = inherited.length > 0 ? ` with ${inherited}` : ``
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
 
             const init = contract.initFunction()
 
@@ -152,7 +150,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
                 .filter(it => it !== "BaseTrait")
                 .join(", ")
             const inheritedString = inherited.length > 0 ? ` with ${inherited}` : ``
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
 
             const members = generateMembers([
                 trait.ownConstants(),
@@ -164,7 +162,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             return defaultResult(`trait ${node.name()}${inheritedString} ${body}`, doc)
         }
         case "struct": {
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
             const struct = new Struct(node.node, node.file)
             const body = struct.body()?.text ?? ""
             const sizeDoc = documentationSizeOf(struct)
@@ -173,7 +171,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             return defaultResult(`struct ${node.name()} ${body}`, tlb + sizeDoc + doc)
         }
         case "message": {
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
             const message = new Message(node.node, node.file)
             const body = message.body()?.text ?? ""
             const opcode = message.opcode()
@@ -187,7 +185,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             )
         }
         case "primitive": {
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
             return defaultResult(`primitive ${node.name()}`, doc)
         }
         case "global_constant": {
@@ -198,7 +196,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const value = constant.value()
             if (!value) return null
 
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
             return defaultResult(
                 `${constant.modifiers()}const ${node.name()}: ${type} = ${value.node.text}`,
                 doc,
@@ -215,14 +213,14 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const value = constant.value()
             if (!value) return null
 
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
             return defaultResult(
                 `${ownerPresentation}${constant.modifiers()}const ${node.name()}: ${type} = ${value.node.text}`,
                 doc,
             )
         }
         case "storage_variable": {
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
             const field = new Field(node.node, node.file)
 
             const ownerPresentation = renderOwnerPresentation(field)
@@ -239,7 +237,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             )
         }
         case "field": {
-            const doc = extractCommentsDoc(node)
+            const doc = node.documentation()
             const field = new Field(node.node, node.file)
 
             const ownerPresentation = renderDataOwnerPresentation(field)
@@ -365,53 +363,6 @@ function generateMemberDocFor(node: Node): string | null {
     }
 
     return null
-}
-
-export function extractCommentsDocContent(node: Node): {
-    lines: string[]
-    startPosition: Position
-} | null {
-    const prevSibling = node.node.previousSibling
-    if (!prevSibling || prevSibling.type !== "comment") return null
-
-    const nodeStartLine = node.node.startPosition.row
-
-    const comments: SyntaxNode[] = []
-    let comment: SyntaxNode | null = prevSibling
-    while (comment?.type === "comment") {
-        const commentStartLine = comment.startPosition.row
-
-        if (commentStartLine + 1 + comments.length != nodeStartLine) {
-            break
-        }
-
-        // possibly inline comment
-        const prev = comment.previousSibling
-        if (prev?.endPosition.row === commentStartLine) {
-            // same line with the previous node, inline comment
-            break
-        }
-
-        comments.push(comment)
-        comment = comment.previousSibling
-    }
-
-    if (comments.length === 0) return null
-
-    const finalComments = comments.reverse()
-
-    return {
-        lines: finalComments.map(c =>
-            trimPrefix(trimPrefix(trimPrefix(c.text, "///"), "//"), " ").trimEnd(),
-        ),
-        startPosition: asLspPosition(comments[0].startPosition),
-    }
-}
-
-export function extractCommentsDoc(node: Node): string {
-    const content = extractCommentsDocContent(node)
-    if (!content) return ""
-    return content.lines.join("\n")
 }
 
 function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSettings): string | null {

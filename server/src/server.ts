@@ -143,6 +143,7 @@ import * as tlbSemantic from "./tlb/semantic_tokens/collect"
 import {TlbReference} from "./tlb/psi/TlbReference"
 import {FiftReference} from "@server/fift/psi/FiftReference"
 import {MissedMembersInContractInspection} from "@server/inspections/MissedMembersInContractInspection"
+import {DeprecatedSymbolUsageInspection} from "@server/inspections/DeprecatedSymbolUsageInspection"
 
 /**
  * Whenever LS is initialized.
@@ -370,6 +371,7 @@ async function runInspections(uri: string, file: File, includeLinters: boolean):
         new ImplicitMessageId(),
         new RewriteInspection(),
         new MisspelledKeywordInspection(),
+        new DeprecatedSymbolUsageInspection(),
     ]
 
     const settings = await getDocumentSettings(uri)
