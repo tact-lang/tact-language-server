@@ -250,8 +250,10 @@ To package the VS Code extension for release:
     This command uses `npx vsce package` to create a `.vsix` file (e.g.,
     `vscode-tact-0.7.1.vsix`) in the root of the project.
 3. The generated `.vsix` file can then be uploaded to
-   the [VS Code Marketplace](https://marketplace.visualstudio.com/manage/publishers/).
+   the [VS Code Marketplace](https://marketplace.visualstudio.com/manage/publishers/)
+   and [Open VSIX Registry](https://open-vsx.org).
 
 Refer to the
 official [VS Code documentation for publishing extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
+and [Open VSIX Registry documentation for publishing extensions](https://github.com/EclipseFdn/open-vsx.org/wiki/Publishing-Extensions)
 for more details on the marketplace upload process.
