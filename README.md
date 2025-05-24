@@ -156,6 +156,9 @@ codium --install-extension vscode-tact-VERSION.vsix
         "clients": {
             "tact": {
                 "enabled": true,
+                // If you installed the language server via NPM, use the following command:
+                "command": ["tact-language-server", "--stdio"],
+                // If you installed the language server manually, use the following command:
                 "command": ["node", "path/to/language-server/dist/server.js", "--stdio"],
                 "selector": "source.tact",
             },
@@ -195,6 +198,9 @@ Setup steps:
 
     return {
       default_config = {
+        -- If you installed the language server via NPM, use the following command:
+        cmd = { 'tact-language-server', '--stdio' },
+        -- If you installed the language server manually, use the following command:
         cmd = { 'node', '/absolute/path/to/language-server/dist/server.js', '--stdio' },
         filetypes = { 'tact' },
         root_dir = util.root_pattern('package.json', '.git'),
@@ -279,6 +285,9 @@ Setup steps:
     if executable('node')
       au User lsp_setup call lsp#register_server({
             \ 'name': 'tact',
+            -- If you installed the language server via NPM, use the following command:
+            \ 'cmd': {server_info->['tact-language-server', '--stdio']},
+            -- If you installed the language server manually, use the following command:
             \ 'cmd': {server_info->['node', '/absolute/path/to/language-server/dist/server.js', '--stdio']},
             \ 'allowlist': ['tact'],
             \ })
@@ -295,8 +304,13 @@ Setup steps:
     language-servers = ["tact-language-server"]
 
     [language-server.tact-language-server]
+
+    # If you installed the language server via NPM, use the following command:
+    command = "tact-language-server"
+    args = ["--stdio"]
+    # If you installed the language server manually, use the following command:
     command = "node"
-    args = ["path/to/language-server/dist/server.js", "--stdio"]
+    args = ["/absolute/path/to/language-server/dist/server.js", "--stdio"]
     ```
 
 2. Replace `path/to/language-server` with the actual path where you cloned the repository
