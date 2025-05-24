@@ -239,13 +239,8 @@
                     "value": "{"
                 },
                 {
-                    "type": "ALIAS",
-                    "content": {
-                        "type": "SYMBOL",
-                        "name": "_type_identifier"
-                    },
-                    "named": true,
-                    "value": "type_identifier"
+                    "type": "SYMBOL",
+                    "name": "identifier"
                 },
                 {
                     "type": "STRING",

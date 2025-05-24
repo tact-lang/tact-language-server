@@ -530,7 +530,7 @@
                     "named": true
                 },
                 {
-                    "type": "type_identifier",
+                    "type": "identifier",
                     "named": true
                 }
             ]

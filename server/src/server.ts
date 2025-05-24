@@ -76,6 +76,7 @@ import {
     IndexingRootKind,
     findTlbFile,
     PARSED_FILES_CACHE,
+    TLB_PARSED_FILES_CACHE,
 } from "./indexing-root"
 import {StructInitializationInspection} from "./inspections/StructInitializationInspection"
 import {AsmInstructionCompletionProvider} from "./completion/providers/AsmInstructionCompletionProvider"
@@ -448,6 +449,12 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         if (uri.endsWith(".fif")) {
             FIFT_PARSED_FILES_CACHE.delete(uri)
             findFiftFile(uri, event.document.getText())
+            return
+        }
+
+        if (uri.endsWith(".tlb")) {
+            TLB_PARSED_FILES_CACHE.delete(uri)
+            findTlbFile(uri, event.document.getText())
             return
         }
 

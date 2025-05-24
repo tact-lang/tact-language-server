@@ -58,8 +58,7 @@ module.exports = grammar({
                 $.field_expr,
             ),
 
-        field_builtin: $ =>
-            seq("{", alias($._type_identifier, $.type_identifier), ":", $.builtin_field, "}"),
+        field_builtin: $ => seq("{", $.identifier, ":", $.builtin_field, "}"),
 
         field_curly_expr: $ => seq("{", $.curly_expression, "}"),
 

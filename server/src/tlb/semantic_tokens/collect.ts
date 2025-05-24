@@ -25,14 +25,13 @@ export function collect(file: File): SemanticTokens {
                 break
             }
             case "identifier": {
-                // pushToken(node, SemanticTokenTypes.variable)
                 break
             }
             case "type_identifier": {
                 const parent = node.parent
                 if (!parent) break
 
-                if (parent.type === "combinator") {
+                if (parent.type === "combinator" || parent.type === "combinator_expr") {
                     pushToken(node, SemanticTokenTypes.class)
                     break
                 }
@@ -54,19 +53,9 @@ export function collect(file: File): SemanticTokens {
                 break
             }
             case "constructor_tag": {
-                pushToken(node, SemanticTokenTypes.typeParameter)
                 break
             }
             case "combinator": {
-                // pushToken(node, SemanticTokenTypes.typeParameter)
-                break
-            }
-            case "hex": {
-                pushToken(node, SemanticTokenTypes.number)
-                break
-            }
-            case "number": {
-                pushToken(node, SemanticTokenTypes.number)
                 break
             }
             case "builtin_field": {
