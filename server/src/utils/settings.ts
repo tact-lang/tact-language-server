@@ -152,7 +152,7 @@ const defaultSettings: TactSettings = {
     },
     linters: {
         compiler: {
-            enable: false,
+            enable: true,
         },
         misti: {
             enable: false,

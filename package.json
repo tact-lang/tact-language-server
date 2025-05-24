@@ -538,7 +538,7 @@
                 "properties": {
                     "tact.linters.compiler.enable": {
                         "type": "boolean",
-                        "default": false,
+                        "default": true,
                         "description": "Enable Tact compiler analysis"
                     },
                     "tact.linters.useProblemMatcher": {
