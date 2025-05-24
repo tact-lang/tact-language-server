@@ -62,7 +62,7 @@
                     "light": "./dist/icons/icon-light.svg",
                     "dark": "./dist/icons/icon-dark.svg"
                 },
-                "configuration": "./language-configuration.json"
+                "configuration": "./client/src/languages/language-configuration.json"
             },
             {
                 "id": "tasm",
@@ -77,7 +77,7 @@
                     "light": "./dist/icons/icon-light.svg",
                     "dark": "./dist/icons/icon-dark.svg"
                 },
-                "configuration": "./tasm-language-configuration.json"
+                "configuration": "./client/src/languages/tasm-language-configuration.json"
             },
             {
                 "id": "tact-markdown-injection"
@@ -94,7 +94,7 @@
                     "light": "./dist/icons/ton-icon.svg",
                     "dark": "./dist/icons/ton-icon.svg"
                 },
-                "configuration": "./fift-language-configuration.json"
+                "configuration": "./client/src/languages/fift-language-configuration.json"
             },
             {
                 "id": "boc",
