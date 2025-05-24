@@ -92,8 +92,10 @@ The easiest way to get started with Tact is to use VS Code or editors based on i
 
 2. Configure your editor to use the language server (see editor-specific instructions below).
 
-If for some reason your editor rejects `tact-language-server` executable, run `where tact-language-server` to find the
-path to the executable and then configure your editor to run `node <path-to-js-file>`.
+> [!NOTE]
+> If for some reason your editor rejects `tact-language-server` executable,
+> run `where tact-language-server` to find the path to the executable and then
+> configure your editor to run `node <path-to-js-file>`.
 
 #### Manually
 
