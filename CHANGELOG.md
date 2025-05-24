@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1] - 2025-05-24
+
+### Added
+
+- feat(inspection): add inspection for misspelled `initOf` and `codeOf` in https://github.com/tact-lang/tact-language-server/pull/627
+- feat(vscode-package): improve VS Code packaging in https://github.com/tact-lang/tact-language-server/pull/634
+- feat(asm): use the latest TVM specification with fixes in https://github.com/tact-lang/tact-language-server/pull/646
+- feat(stubs): use stdlib stubs.tact if present with fallback to LS stubs.tact in https://github.com/tact-lang/tact-language-server/pull/647
+
+### Fixes
+
+- fix(grammar): support continuation names as method ID variables by @novusnota in https://github.com/tact-lang/tact-language-server/pull/595
+- fix(signature-help): more accurate signature info target selection in https://github.com/tact-lang/tact-language-server/pull/624
+- fix(inspections): don't warn to override/abstract/virtual methods in `CanBeStandaloneFunction` inspection in https://github.com/tact-lang/tact-language-server/pull/625
+- fix(completion): add contract types to a completion list as well in https://github.com/tact-lang/tact-language-server/pull/626
+- fix(documentation): fix TL-B type for the optional struct / message field in https://github.com/tact-lang/tact-language-server/pull/628
+- fix(rename): support rename when the whole name is selected in https://github.com/tact-lang/tact-language-server/pull/629
+- fix(resolving): search `BaseTrait` only in stdlib in https://github.com/tact-lang/tact-language-server/pull/630
+- fix(inspections): don't send inspections again if compiler or misti didn't find any issues in https://github.com/tact-lang/tact-language-server/pull/631
+- fix(tlb): fix TL-B for fields with "as remaining" in https://github.com/tact-lang/tact-language-server/pull/640
+- fix(vscode): fix .boc file focus issue in https://github.com/tact-lang/tact-language-server/pull/648
+- fix(rename): fix rename of variable in a short struct instance in https://github.com/tact-lang/tact-language-server/pull/649
+- fix(inlay-hints/documentation): don't show size if it may be incorrect in https://github.com/tact-lang/tact-language-server/pull/650
+- fix: don't run inspections and inlay-hints before full initialization in https://github.com/tact-lang/tact-language-server/pull/651
+- fix: take into account an import tree, make "NotImportedSymbolInspection" warning and improved overall performance in https://github.com/tact-lang/tact-language-server/pull/652
+
+### Other
+
+- fix: set "@textlint/markdown-to-ast": "14.4.2" in https://github.com/tact-lang/tact-language-server/pull/635
+- feat(ci): run unit tests on CI in https://github.com/tact-lang/tact-language-server/pull/645
+- feat(dev-docs): add CONTRIBUTING.md in https://github.com/tact-lang/tact-language-server/pull/641
+- chore: enforce interface/type fields immutability in https://github.com/tact-lang/tact-language-server/pull/623
+- chore: pack LS as NPM package in https://github.com/tact-lang/tact-language-server/pull/654
+- chore: add installation via NPM section in https://github.com/tact-lang/tact-language-server/pull/655
+- chore: mention LLMs documentation files in README-extension.md in https://github.com/tact-lang/tact-language-server/pull/642
+- chore: backport formatter fixes in https://github.com/tact-lang/tact-language-server/pull/644
+
 ## [0.7.0] - 2025-05-01
 
 This release adds support for Tact 1.6.7 and fixes path issues on Windows.
