@@ -495,6 +495,11 @@
                         "type": "number",
                         "default": 2,
                         "description": "If a function takes up less than or equal to the number of specified lines, it will be fully displayed in the documentation when hovered over. Set to 0 to always show only signature"
+                    },
+                    "tact.documentation.showNumbersInDifferentNumberSystems": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show hover documentation with the number in different number systems"
                     }
                 }
             },

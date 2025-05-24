@@ -816,6 +816,26 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
         }
 
+        if (
+            hoverNode.type === "integer" &&
+            hoverNode.parent?.type !== "argument" &&
+            settings.documentation.showNumbersInDifferentNumberSystems
+        ) {
+            const num = BigInt(hoverNode.text)
+            const bin = num.toString(2)
+            const dec = num.toString(10)
+            const hex = num.toString(16)
+
+            const doc = `**Binary**: 0b${bin}\n\n**Decimal**: ${dec}\n\n**Hexadecimal**: 0x${hex}`
+            return {
+                range: asLspRange(hoverNode),
+                contents: {
+                    kind: "markdown",
+                    value: doc,
+                },
+            }
+        }
+
         // Hover documentation for 10 in `throwIf(10, cond)
         if (hoverNode.type === "integer" && hoverNode.parent?.type === "argument") {
             const call = hoverNode.parent.parent?.parent

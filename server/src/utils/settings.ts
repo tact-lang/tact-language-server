@@ -53,6 +53,7 @@ export interface TactSettings {
         readonly showTlb: boolean
         readonly showKeywordDocumentation: boolean
         readonly maximumLinesBodyToShowInDocumentation: number
+        readonly showNumbersInDifferentNumberSystems: boolean
     }
     readonly fift: {
         readonly hints: {
@@ -133,6 +134,7 @@ const defaultSettings: TactSettings = {
         showTlb: true,
         showKeywordDocumentation: true,
         maximumLinesBodyToShowInDocumentation: 2,
+        showNumbersInDifferentNumberSystems: true,
     },
     fift: {
         hints: {
@@ -248,6 +250,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             maximumLinesBodyToShowInDocumentation:
                 vsSettings.documentation?.maximumLinesBodyToShowInDocumentation ??
                 defaultSettings.documentation.maximumLinesBodyToShowInDocumentation,
+            showNumbersInDifferentNumberSystems:
+                vsSettings.documentation?.showNumbersInDifferentNumberSystems ??
+                defaultSettings.documentation.showNumbersInDifferentNumberSystems,
         },
         fift: {
             hints: {
