@@ -15,6 +15,7 @@
     "icon": "client/src/assets/logo.png",
     "activationEvents": [
         "onLanguage:tact",
+        "onLanguage:tasm",
         "onLanguage:tlb"
     ],
     "categories": [
