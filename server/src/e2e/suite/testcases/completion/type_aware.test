@@ -47,7 +47,7 @@ fun test() {
 2  bar(): Bool
 2  foo(): Int
 2  test()
-21 Some{}
+21 Some {}
 
 ========================================================================
 Type aware completion for Option in assign
@@ -162,7 +162,7 @@ fun test() {
 5  someStruct   MyStruct
 2  bar(): MyStruct?
 2  foo(): MyStruct
-21 MyStruct{}
+21 MyStruct {}
 5  someBool   Bool
 5  someValue   Int
 2  test()

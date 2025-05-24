@@ -18,7 +18,7 @@ fun test() {
 2  test()
 13 codeOf Contract   Cell
 13 initOf Contract(params)   StateInit
-21 Foo{}
+21 Foo {}
 14 do
 14 foreach
 14 if
@@ -51,7 +51,7 @@ fun test() {
 2  test()
 13 codeOf Contract   Cell
 13 initOf Contract(params)   StateInit
-21 Foo{}
+21 Foo {}
 14 do
 14 foreach
 14 if

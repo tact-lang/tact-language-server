@@ -41,7 +41,7 @@ extends fun some(self: Data) {
 5  self   Data
 9  self.active:    of Data
 2  some(self: Data)
-21 Data{}
+21 Data {}
 
 ========================================================================
 Completion of struct method of self type
@@ -67,4 +67,4 @@ extends fun some(self: Data) {
 9  self.active:    of Data
 2  other(self: Data)
 2  some(self: Data)
-21 Data{}
+21 Data {}
