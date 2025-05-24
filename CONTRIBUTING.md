@@ -206,3 +206,50 @@ feedback.
 This project uses [Husky](https://typicode.github.io/husky/) to manage pre-commit hooks. These hooks automatically run
 linters and formatters before each commit, helping to maintain code quality and consistency. Husky is set up via the
 `postinstall` script in `package.json`.
+
+## Release process
+
+This section outlines the steps for releasing the Tact Language Server to NPM and packaging the VS Code extension for
+the VS Code Marketplace.
+
+### Language Server (NPM)
+
+The Language Server is published to NPM as `@tact-lang/tact-language-server`. The metadata for this package (name,
+version, etc.) is defined in `package.server.json`, which is copied to `dist/package.json` during the build process.
+
+The primary way to publish the Language Server to NPM is by using the all-in-one script:
+
+1. Ensure the version in `package.server.json` is updated and all changes are committed.
+2. Run the script:
+
+    ```bash
+    yarn build-server-package-and-publish
+    ```
+
+    This script will:
+
+    - Run `yarn build` to compile the project and prepare the `dist` directory.
+    - Run `yarn pack:ls` to create a local `.tgz` tarball of the package.
+      This is useful for local testing before publishing.
+    - Run `yarn publish:ls` to publish the package to NPM.
+
+    You need to be logged in to NPM (`npm login`) for the publication step to succeed.
+
+### VS Code Extension (Marketplace)
+
+To package the VS Code extension for release:
+
+1. Ensure the `version` in the root `package.json` is updated and all changes are committed.
+   The `README-extension.md` (used for the marketplace description) should also be up to date.
+2. Run the packaging script:
+    ```bash
+    yarn build && yarn package
+    ```
+    This command uses `npx vsce package` to create a `.vsix` file (e.g.,
+    `vscode-tact-0.7.1.vsix`) in the root of the project.
+3. The generated `.vsix` file can then be uploaded to
+   the [VS Code Marketplace](https://marketplace.visualstudio.com/manage/publishers/).
+
+Refer to the
+official [VS Code documentation for publishing extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
+for more details on the marketplace upload process.
