@@ -12,6 +12,6 @@
 !package.json
 !./README-extension.md
 !client/src/languages
+!client/src/assets
 !syntaxes/
 !snippets/
-!logo.png

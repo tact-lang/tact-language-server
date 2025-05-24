@@ -12,7 +12,7 @@
     "engines": {
         "vscode": "^1.63.0"
     },
-    "icon": "logo.png",
+    "icon": "client/src/assets/logo.png",
     "activationEvents": [
         "onLanguage:tact",
         "onLanguage:tasm"
