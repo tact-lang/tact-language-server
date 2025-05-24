@@ -2,15 +2,15 @@ import {File} from "@server/psi/File"
 import {glob} from "glob"
 import * as fs from "node:fs"
 import {URI} from "vscode-uri"
-import {createTactParser, createFiftParser} from "./parser"
+import {createTactParser, createFiftParser, createTlbParser} from "./parser"
 import {index} from "./indexes"
 import {measureTime} from "@server/psi/utils"
 import {fileURLToPath, pathToFileURL} from "node:url"
 import * as path from "node:path"
 
 export const PARSED_FILES_CACHE: Map<string, File> = new Map()
-
 export const FIFT_PARSED_FILES_CACHE: Map<string, File> = new Map()
+export const TLB_PARSED_FILES_CACHE: Map<string, File> = new Map()
 
 export enum IndexingRootKind {
     Stdlib = "stdlib",
@@ -118,6 +118,29 @@ export function findFiftFile(uri: string, content?: string): File {
 
     const file = new File(uri, tree, realContent)
     FIFT_PARSED_FILES_CACHE.set(uri, file)
+    return file
+}
+
+export function findTlbFile(uri: string, content?: string): File {
+    const cached = TLB_PARSED_FILES_CACHE.get(uri)
+    if (cached && content === undefined) {
+        return cached
+    }
+
+    let realContent = content ?? safeFileRead(URI.parse(uri).path)
+    if (!realContent) {
+        console.error(`cannot read ${uri} file`)
+        realContent = ""
+    }
+
+    const tlbParser = createTlbParser()
+    const tree = tlbParser.parse(realContent)
+    if (!tree) {
+        throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
+    }
+
+    const file = new File(uri, tree, realContent)
+    TLB_PARSED_FILES_CACHE.set(uri, file)
     return file
 }
 
