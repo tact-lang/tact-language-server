@@ -285,9 +285,9 @@ Setup steps:
     if executable('node')
       au User lsp_setup call lsp#register_server({
             \ 'name': 'tact',
-            // If you installed the language server via NPM, use the following command:
+            # If you installed the language server via NPM, use the following command:
             \ 'cmd': {server_info->['tact-language-server', '--stdio']},
-            // If you installed the language server manually, use the following command:
+            # If you installed the language server manually, use the following command:
             \ 'cmd': {server_info->['node', '/absolute/path/to/language-server/dist/server.js', '--stdio']},
             \ 'allowlist': ['tact'],
             \ })
