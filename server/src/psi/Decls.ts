@@ -40,10 +40,42 @@ export class Message extends FieldsOwner {
         return value.text.slice(1, -1)
     }
 
+    public explicitOpcodeNode(): undefined | SyntaxNode {
+        const value = this.node.childForFieldName("value")
+        if (!value) return undefined
+        return value.child(1) ?? undefined
+    }
+
     public opcode(): undefined | string {
         const explicitOpcode = this.explicitOpcode()
         if (explicitOpcode !== undefined) {
-            return explicitOpcode
+            if (explicitOpcode.startsWith("0x")) {
+                return explicitOpcode
+            }
+
+            const num = Number.parseInt(explicitOpcode)
+            if (!Number.isNaN(num)) {
+                return "0x" + num.toString(16)
+            }
+
+            // let's try to resolve constant value
+            const opcodeNode = this.explicitOpcodeNode()
+            if (!opcodeNode || opcodeNode.type !== "identifier") return undefined
+
+            const resolved = Reference.resolve(new NamedNode(opcodeNode, this.file))
+            if (resolved instanceof Constant) {
+                const value = resolved.value()
+                if (!value || value.node.type !== "integer") return undefined
+                const valueText = value.node.text
+
+                const num = Number.parseInt(valueText)
+                if (Number.isNaN(num)) {
+                    return undefined
+                }
+                return "0x" + num.toString(16)
+            }
+
+            return undefined
         }
 
         const opcode = messageOpcode(new MessageTy(this.name(), this))
