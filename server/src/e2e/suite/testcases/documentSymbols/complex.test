@@ -1,0 +1,173 @@
+========================================================================
+Nested contracts and traits
+========================================================================
+trait Ownable {
+    owner: Address;
+
+    virtual fun getOwner(): Address {
+        return self.owner;
+    }
+
+    abstract fun transferOwnership(newOwner: Address);
+}
+
+trait Pausable {
+    paused: Bool;
+
+    virtual fun isPaused(): Bool {
+        return self.paused;
+    }
+
+    fun pause() {
+        self.paused = true;
+    }
+
+    fun unpause() {
+        self.paused = false;
+    }
+}
+
+contract MyContract with Ownable, Pausable {
+    value: Int;
+
+    init(owner: Address) {
+        self.owner = owner;
+        self.paused = false;
+        self.value = 0;
+    }
+
+    fun transferOwnership(newOwner: Address) {
+        require(sender() == self.owner, "Not owner");
+        self.owner = newOwner;
+    }
+
+    get fun getValue(): Int {
+        require(!self.paused, "Contract is paused");
+        return self.value;
+    }
+}
+------------------------------------------------------------------------
+Ownable (trait) [0:0-8:1]
+├─ owner (field) [1:4-1:18]
+├─ getOwner (function) [3:4-5:5]
+└─ transferOwnership (function) [7:4-7:54]
+Pausable (trait) [10:0-24:1]
+├─ paused (field) [11:4-11:16]
+├─ isPaused (function) [13:4-15:5]
+├─ pause (function) [17:4-19:5]
+└─ unpause (function) [21:4-23:5]
+MyContract (contract) [26:0-44:1]
+├─ value (field) [27:4-27:14]
+├─ transferOwnership (function) [35:4-38:5]
+├─ getValue (function) [40:4-43:5]
+└─ init(owner: Address) (constructor) [29:4-33:5]
+
+========================================================================
+Constants and imports
+========================================================================
+import "./helpers.tact";
+
+const MAX_VALUE: Int = 1000;
+const MIN_VALUE: Int = 0;
+
+struct Config {
+    maxValue: Int;
+    minValue: Int;
+}
+
+fun createConfig(): Config {
+    return Config {
+        maxValue: MAX_VALUE,
+        minValue: MIN_VALUE
+    };
+}
+
+contract ConfigurableContract {
+    config: Config;
+
+    init() {
+        self.config = createConfig();
+    }
+
+    get fun getMaxValue(): Int {
+        return self.config.maxValue;
+    }
+}
+------------------------------------------------------------------------
+import "./helpers.tact"; (module) [0:0-0:24]
+MAX_VALUE (constant) [2:0-2:28]
+MIN_VALUE (constant) [3:0-3:25]
+Config (struct) [5:0-8:1]
+createConfig (function) [10:0-15:1]
+ConfigurableContract (contract) [17:0-27:1]
+├─ config (field) [18:4-18:18]
+├─ getMaxValue (function) [24:4-26:5]
+└─ init() (constructor) [20:4-22:5]
+
+========================================================================
+Empty declarations
+========================================================================
+struct EmptyStruct {
+}
+
+message EmptyMessage {
+}
+
+trait EmptyTrait {
+}
+
+contract EmptyContract {
+    init() {
+    }
+}
+------------------------------------------------------------------------
+EmptyStruct (struct) [0:0-1:1]
+EmptyMessage (struct) [3:0-4:1]
+EmptyTrait (trait) [6:0-7:1]
+EmptyContract (contract) [9:0-12:1]
+└─ init() (constructor) [10:4-11:5]
+
+========================================================================
+Functions with different visibility
+========================================================================
+contract VisibilityTest {
+    privateValue: Int;
+
+    init() {
+        self.privateValue = 0;
+    }
+
+    fun privateFunction(): Int {
+        return self.privateValue;
+    }
+
+    get fun publicGetter(): Int {
+        return self.privateValue;
+    }
+
+    receive(msg: String) {
+        self.privateValue = self.privateValue + 1;
+    }
+
+    receive("increment") {
+        self.privateValue = self.privateValue + 1;
+    }
+
+    bounced(msg: String) {
+        // handle bounced message
+    }
+
+    external(msg: String) {
+        // handle external message
+    }
+}
+------------------------------------------------------------------------
+VisibilityTest (contract) [0:0-30:1]
+├─ privateValue (field) [1:4-1:21]
+├─ privateFunction (function) [7:4-9:5]
+├─ publicGetter (function) [11:4-13:5]
+├─ init() (constructor) [3:4-5:5]
+├─ receive(msg: String) (method) [15:4-17:5]
+├─ receive("increment") (method) [19:4-21:5]
+├─ bounced(msg: String) (method) [23:4-25:5]
+└─ external(msg: String) (method) [27:4-29:5]

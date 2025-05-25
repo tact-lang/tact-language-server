@@ -48,6 +48,7 @@
         "test:e2e:types": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --suite types",
         "test:e2e:references": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --suite references",
         "test:e2e:rename": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --suite rename",
+        "test:e2e:documentSymbols": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --suite documentSymbols",
         "test:e2e:folding": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --suite folding",
         "test:e2e:intentions": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --suite intentions",
         "test:e2e:verbose": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --verbose",
