@@ -126,6 +126,12 @@ To run all tests, execute the following command:
 yarn test:e2e
 ```
 
+To run all tests with coverage, execute the following command:
+
+```bash
+yarn test:e2e:coverage
+```
+
 #### Test Filtering
 
 The test system supports filtering by test suite, specific files, and test patterns:
