@@ -10,6 +10,7 @@ import {Contract, Fun, Struct, Message, Trait, Constant, Primitive} from "@serve
 import * as path from "node:path"
 import {fileURLToPath} from "node:url"
 import * as lsp from "vscode-languageserver"
+import {filePathToUri} from "@server/indexing-root"
 
 export class ExtractToFile implements Intention {
     public readonly id: string = "tact.extract-to-file"
@@ -101,11 +102,8 @@ export class ExtractToFile implements Intention {
         customFileName: string,
     ): WorkspaceEdit | null {
         const elementText = element.node.text
-
         const newFileUri = this.generateFileUri(customFileName, ctx.file)
-
         const newFileContent = this.generateFileContent(elementText)
-
         const documentChanges: (lsp.TextDocumentEdit | lsp.CreateFile)[] = []
 
         documentChanges.push(
@@ -165,7 +163,7 @@ export class ExtractToFile implements Intention {
         const currentFilePath = fileURLToPath(currentFile.uri)
         const currentDir = path.dirname(currentFilePath)
         const newFilePath = path.join(currentDir, fileName)
-        return `file://${newFilePath}`
+        return filePathToUri(newFilePath)
     }
 
     private generateImportPath(fileName: string): string {
