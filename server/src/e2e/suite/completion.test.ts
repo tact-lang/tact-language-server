@@ -45,6 +45,11 @@ suite("Completion Test Suite", () => {
 
                 const items = completions
                     .filter(item => Number(item.kind) !== 0)
+                    .filter(
+                        // filter symbols from Intentions files for now
+                        item =>
+                            item.label !== "ToImport" && item.label !== "WithSeveralDeclaration",
+                    )
                     .map(item => {
                         const label = typeof item.label === "object" ? item.label.label : item.label
                         const details =
