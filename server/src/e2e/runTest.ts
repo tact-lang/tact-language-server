@@ -102,7 +102,9 @@ async function main(): Promise<void> {
             process.env["TACT_TEST_FILE"] = options.file
         }
 
-        console.log("Starting e2e tests with options:", options)
+        if (options.verbose) {
+            console.log("Starting e2e tests with options:", options)
+        }
 
         const extensionDevelopmentPath = path.resolve(__dirname, "../../../")
         const extensionTestsPath = path.resolve(__dirname, "./out/suite/index.js")

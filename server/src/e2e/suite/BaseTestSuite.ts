@@ -166,9 +166,7 @@ export abstract class BaseTestSuite {
             throw new Error(`No test files found in ${path.dirname(testCasesPath)}`)
         }
 
-        // Filter test files if file pattern is specified
         const filteredTestFiles = testFiles.filter(testFile => this.shouldRunTestFile(testFile))
-
         if (filteredTestFiles.length === 0 && process.env["TACT_TEST_FILE"]) {
             return
         }

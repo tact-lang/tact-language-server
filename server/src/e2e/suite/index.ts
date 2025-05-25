@@ -83,12 +83,14 @@ export async function run(): Promise<void> {
 
                 if (options.verbose) {
                     console.log(`Found ${files.length} test file(s):`)
-                    files.forEach(file => {
+                    for (const file of files) {
                         console.log(`  - ${file}`)
-                    })
+                    }
                 }
 
-                files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)))
+                for (const f of files) {
+                    mocha.addFile(path.resolve(testsRoot, f))
+                }
 
                 if (options.testPattern) {
                     const originalRun = mocha.run.bind(mocha)
