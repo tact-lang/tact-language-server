@@ -147,6 +147,7 @@ import {DeprecatedSymbolUsageInspection} from "@server/inspections/DeprecatedSym
 import {CanBeInlineInspection} from "@server/inspections/CanBeInlineInspection"
 import {OptimalMathFunctionsInspection} from "@server/inspections/OptimalMathFunctionsInspection"
 import {onFileRenamed, processFileRenaming} from "@server/file-renaming"
+import {NamingConventionInspection} from "@server/inspections/NamingConventionInspection"
 
 /**
  * Whenever LS is initialized.
@@ -377,6 +378,7 @@ async function runInspections(uri: string, file: File, includeLinters: boolean):
         new MisspelledKeywordInspection(),
         new DeprecatedSymbolUsageInspection(),
         new OptimalMathFunctionsInspection(),
+        new NamingConventionInspection(),
     ]
 
     const settings = await getDocumentSettings(uri)
