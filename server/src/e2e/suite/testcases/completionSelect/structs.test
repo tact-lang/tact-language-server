@@ -16,7 +16,7 @@ struct Value {
     value: Int;
 }
 
-fun test(): UpdateValue<caret> {
+fun test(): Value<caret> {
 }
 
 ========================================================================
@@ -39,7 +39,7 @@ struct Value {
 }
 
 fun test() {
-    UpdateValue {<caret>}
+    Value {<caret>}
 }
 
 ========================================================================
