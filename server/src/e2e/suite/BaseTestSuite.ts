@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import * as path from "node:path"
 import * as fs from "node:fs"
 import * as glob from "glob"
+import * as os from "node:os"
 import {TestCase, TestParser} from "./TestParser"
 import {existsSync} from "node:fs"
 import {TextDocument} from "vscode"
@@ -21,6 +22,16 @@ export abstract class BaseTestSuite {
     protected testFilePath!: string
     protected updates: TestUpdate[] = []
     protected additionalFiles: TextDocument[] = []
+
+    protected readonly lineEnding: "\r\n" | "\n" = os.platform() === "win32" ? "\r\n" : "\n"
+
+    protected toPlatformLineEndings(text: string): string {
+        return text.replace(/\r?\n/g, this.lineEnding)
+    }
+
+    protected normalizeLineEndings(text: string): string {
+        return text.replace(/\r\n/g, "\n")
+    }
 
     public async suiteSetup(): Promise<void> {
         await activate()
@@ -80,8 +91,9 @@ export abstract class BaseTestSuite {
     }
 
     protected calculatePosition(text: string, caretIndex: number): vscode.Position {
-        const textBeforeCaret = text.slice(0, caretIndex)
-        const lines = textBeforeCaret.split("\n")
+        const platformText = this.toPlatformLineEndings(text)
+        const textBeforeCaret = platformText.slice(0, caretIndex)
+        const lines = textBeforeCaret.split(this.lineEnding)
         const line = lines.length - 1
         const character = lines[line].length
 
@@ -89,21 +101,24 @@ export abstract class BaseTestSuite {
     }
 
     protected async replaceDocumentText(text: string): Promise<void> {
+        const platformText = this.toPlatformLineEndings(text)
+
         await this.editor.edit(edit => {
             const fullRange = new vscode.Range(
                 this.document.positionAt(0),
                 this.document.positionAt(this.document.getText().length),
             )
-            edit.replace(fullRange, text)
+            edit.replace(fullRange, platformText)
         })
     }
 
     protected findCaretPositions(text: string): number[] {
+        const platformText = this.toPlatformLineEndings(text)
         const positions: number[] = []
         const regex = /<caret>/g
         let match: RegExpExecArray | null = null
 
-        while ((match = regex.exec(text)) !== null) {
+        while ((match = regex.exec(platformText)) !== null) {
             positions.push(match.index)
         }
 

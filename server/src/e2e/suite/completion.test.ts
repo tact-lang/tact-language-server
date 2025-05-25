@@ -19,7 +19,7 @@ suite("Completion Test Suite", () => {
                 throw new Error("No <caret> marker found in input")
             }
 
-            const position = this.document.positionAt(caretIndex)
+            const position = this.calculatePosition(input, caretIndex)
             this.editor.selection = new vscode.Selection(position, position)
             this.editor.revealRange(new vscode.Range(position, position))
 
