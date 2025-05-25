@@ -79,10 +79,30 @@ export class ExtractToFile implements Intention {
     }
 
     public isAvailable(ctx: IntentionContext): boolean {
-        const element = ExtractToFile.findExtractableElement(ctx)
-        if (!element) return false
+        const node = nodeAtPosition(ctx.position, ctx.file)
+        if (!node) return false
 
-        return ExtractToFile.isTopLevel(element)
+        if (node.type !== "identifier" && node.type !== "type_identifier") {
+            return false
+        }
+
+        let current: SyntaxNode | null = node.parent
+        while (current) {
+            const element = ExtractToFile.createElementFromNode(current, ctx.file)
+            if (element && ExtractToFile.isExtractable(element)) {
+                if (!ExtractToFile.isTopLevel(element)) return false
+
+                const nameIdentifier = element.nameIdentifier()
+                if (nameIdentifier && nameIdentifier.equals(node)) {
+                    return true
+                }
+                // not found
+                return false
+            }
+            current = current.parent
+        }
+
+        return false
     }
 
     public invoke(ctx: IntentionContext): WorkspaceEdit | null {
@@ -151,12 +171,12 @@ export class ExtractToFile implements Intention {
     }
 
     private generateFileName(elementName: string): string {
-        const snakeCaseName = elementName
-            .replace(/([A-Z])/g, "_$1")
+        const kebabCaseName = elementName
+            .replace(/([A-Z])/g, "-$1")
             .toLowerCase()
-            .replace(/^_/, "")
+            .replace(/^-/, "")
 
-        return `${snakeCaseName}.tact`
+        return `${kebabCaseName}.tact`
     }
 
     private generateFileUri(fileName: string, currentFile: File): string {
