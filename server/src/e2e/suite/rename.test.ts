@@ -13,9 +13,7 @@ suite("Rename Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
         private findRenamePositions(input: string): RenamePosition[] {
             const positions: RenamePosition[] = []
-            // Normalize line endings for consistent parsing
-            const normalizedInput = this.normalizeLineEndings(input)
-            const lines = normalizedInput.split("\n")
+            const lines = input.split("\n")
 
             lines.forEach((line, i) => {
                 if (line.includes("//!")) {
@@ -58,7 +56,6 @@ suite("Rename Test Suite", () => {
                     await this.renameTo(params, pos.renameTo)
                 }
 
-                // Get the actual result and normalize line endings
                 const actual = this.normalizeLineEndings(this.document.getText())
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
