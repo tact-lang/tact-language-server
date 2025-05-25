@@ -122,68 +122,33 @@ All tests are located in the [server/src/e2e](server/src/e2e) folder.
 
 To run all tests, execute the following command:
 
-```
+```bash
 yarn test:e2e
 ```
 
-#### Test Filtering Options
+#### Test Filtering
 
-The test system supports various filtering options to run specific subsets of tests:
-
-**By Test Suite:**
+The test system supports filtering by test suite, specific files, and test patterns:
 
 ```bash
-yarn test:e2e --suite completion    # Run only completion tests
-yarn test:e2e --suite types        # Run only type inference tests
-yarn test:e2e --suite references   # Run only reference tests
+# Run specific test suite
+yarn test:e2e --suite completion
+
+# Run specific test file
+yarn test:e2e --file structs.test
+
+# Run tests matching a pattern
+yarn test:e2e --test "struct fields"
+
+# Update snapshots
+yarn test:e2e --update-snapshots
+
+# Run with verbose logging
+yarn test:e2e --verbose
 ```
 
-**By Test File:**
-
-```bash
-yarn test:e2e --file structs.test           # Run tests from structs.test file in all suites
-yarn test:e2e --suite completion --file structs.test  # Run structs.test only in completion suite
-```
-
-**By Test Name Pattern:**
-
-```bash
-yarn test:e2e --test "struct fields"        # Run tests containing "struct fields" in name
-```
-
-**Combined Filters:**
-
-```bash
-yarn test:e2e --suite completion --file constants.test --verbose
-yarn test:e2e --suite types --test "basic" --update-snapshots
-```
-
-#### Available Test Scripts
-
-**Basic test commands:**
-
-- `yarn test:e2e` — Run all e2e tests
-- `yarn test:e2e:update` — Run tests and update snapshots if they have changed
-- `yarn test:e2e:coverage` — Run tests and generate a coverage report
-- `yarn test:e2e:verbose` — Run tests with detailed logging
-- `yarn test:e2e:help` — Show all available options
-
-**Test suites:**
-
-- `yarn test:e2e:completion` — Run all completion tests
-- `yarn test:e2e:types` — Run all type inference tests
-- `yarn test:e2e:references` — Run all reference tests
-- `yarn test:e2e:rename` — Run all rename tests
-- `yarn test:e2e:folding` — Run all folding tests
-- `yarn test:e2e:intentions` — Run all intention/quick-fix tests
-
-**Specific file tests (examples):**
-
-- `yarn test:e2e:completion:structs` — Run struct completion tests
-- `yarn test:e2e:completion:fields` — Run field completion tests
-- `yarn test:e2e:completion:functions` — Run function completion tests
-- `yarn test:e2e:completion:constants` — Run constant completion tests
-- `yarn test:e2e:types:basic` — Run basic type inference tests
+For detailed documentation on all filtering options, predefined scripts, and usage examples,
+see [server/src/e2e/README.md](server/src/e2e/README.md).
 
 #### Test Structure
 
@@ -207,23 +172,6 @@ yarn test:e2e:update
 ```
 
 To add a new test, create a file with a `.test` extension in the relevant feature's test directory.
-
-#### Finding Available Test Files
-
-If you're unsure about available test files in a suite, run a test with a non-existent file pattern and the system will show you all available files:
-
-```bash
-yarn test:e2e --suite completion --file nonexistent
-# Output will show:
-# Available test files in this suite:
-#   - asm.test
-#   - constants.test
-#   - contracts.test
-#   - fields.test
-#   - functions.test
-#   - structs.test
-#   - ...
-```
 
 Other available test scripts include:
 

@@ -74,37 +74,67 @@ yarn test:e2e --suite completion --file constants.test
 
 ### Finding Available Files
 
-If you're unsure what test files are available:
+If you're unsure what test files are available in a suite, run a test with a non-existent file pattern and the system
+will show you all available files:
 
 ```bash
 # This will show all available files in completion suite
 yarn test:e2e --suite completion --file nonexistent
+
+# Output will show:
+# Available test files in this suite:
+#   - asm.test
+#   - constants.test
+#   - contracts.test
+#   - fields.test
+#   - functions.test
+#   - structs.test
+#   - ...
 ```
 
-## Predefined Scripts
+## Examples
 
-For convenience, several predefined scripts are available:
+### Complex Filtering
 
-### By Suite
+```bash
+# Run struct-related tests in completion suite with verbose output
+yarn test:e2e --suite completion --test "struct" --verbose
 
-- `yarn test:e2e:completion`
-- `yarn test:e2e:types`
-- `yarn test:e2e:references`
-- `yarn test:e2e:rename`
-- `yarn test:e2e:folding`
-- `yarn test:e2e:intentions`
+# Update snapshots for specific file
+yarn test:e2e --suite completion --file structs.test --update-snapshots
 
-### Utility
+# Run tests matching pattern across all suites
+yarn test:e2e --test "basic"
+```
 
-- `yarn test:e2e:verbose` - Run all tests with verbose output
-- `yarn test:e2e:help` - Show help
-- `yarn test:e2e:update` - Update all snapshots
+## Test File Format
+
+Tests use a specific format with separators:
+
+```
+========================================================================
+<name of the test>
+========================================================================
+<code>
+------------------------------------------------------------------------
+<expected result>
+```
 
 ## Adding New Tests
 
 When adding new tests:
 
-1. Create a `.test` file in the appropriate `testcases/` directory
+1. Create a `.test` file in the appropriate `testcases/` directory under the relevant suite
 2. Use the existing format with `========` separators
 3. Test your new file with: `yarn test:e2e --suite <suite> --file <your-file>.test`
 4. Update snapshots if needed: `yarn test:e2e --suite <suite> --file <your-file>.test --update-snapshots`
+
+## Command Line Help
+
+For a complete list of options, run:
+
+```bash
+yarn test:e2e --help
+```
+
+This will show all available options with examples.
