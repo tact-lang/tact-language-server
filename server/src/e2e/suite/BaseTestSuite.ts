@@ -13,13 +13,18 @@ export interface TestUpdate {
 }
 
 export abstract class BaseTestSuite {
-    protected static readonly UPDATE_SNAPSHOTS: boolean = true
+    protected static readonly UPDATE_SNAPSHOTS: boolean =
+        process.env["TACT_LS_UPDATE_SNAPSHOTS"] === "true"
 
     protected document!: vscode.TextDocument
     protected editor!: vscode.TextEditor
     protected testFilePath!: string
     protected updates: TestUpdate[] = []
     protected additionalFiles: TextDocument[] = []
+
+    protected normalizeLineEndings(text: string): string {
+        return text.replace(/\r\n/g, "\n")
+    }
 
     public async suiteSetup(): Promise<void> {
         await activate()
@@ -125,6 +130,30 @@ export abstract class BaseTestSuite {
         return true
     }
 
+    protected shouldRunTest(testName: string): boolean {
+        const testPattern = process.env["TACT_TEST_PATTERN"]
+        if (testPattern) {
+            return testName.toLowerCase().includes(testPattern.toLowerCase())
+        }
+        return true
+    }
+
+    protected shouldRunTestFile(testFileName: string): boolean {
+        const filePattern = process.env["TACT_TEST_FILE"]
+        if (filePattern) {
+            const normalizedPattern = filePattern.replace(/\.test$/, "")
+            const normalizedFileName = path.basename(testFileName, ".test")
+            return normalizedFileName.toLowerCase().includes(normalizedPattern.toLowerCase())
+        }
+        return true
+    }
+
+    protected logTestInfo(message: string): void {
+        if (process.env["TACT_TEST_VERBOSE"] === "true") {
+            console.log(`[${this.constructor.name}] ${message}`)
+        }
+    }
+
     public runTestsFromDirectory(directory: string): void {
         const testCasesPath = path.join(
             __dirname,
@@ -141,13 +170,52 @@ export abstract class BaseTestSuite {
             throw new Error(`No test files found in ${path.dirname(testCasesPath)}`)
         }
 
-        for (const testFile of testFiles) {
+        const filteredTestFiles = testFiles.filter(testFile => this.shouldRunTestFile(testFile))
+        if (filteredTestFiles.length === 0 && process.env["TACT_TEST_FILE"]) {
+            return
+        }
+
+        this.logTestInfo(
+            `Found ${filteredTestFiles.length} test file(s) in ${directory}${process.env["TACT_TEST_FILE"] ? ` (filtered by: ${process.env["TACT_TEST_FILE"]})` : ""}`,
+        )
+
+        let totalTests = 0
+        let filteredTests = 0
+
+        for (const testFile of filteredTestFiles) {
             const content = fs.readFileSync(testFile, "utf8")
             const testCases = TestParser.parseAll(content)
 
+            this.logTestInfo(
+                `Processing ${testCases.length} test case(s) from ${path.basename(testFile)}`,
+            )
+            totalTests += testCases.length
+
             for (const testCase of testCases) {
-                this.runTest(testFile, testCase)
+                if (this.shouldRunTest(testCase.name)) {
+                    this.logTestInfo(`Running test: ${testCase.name}`)
+                    this.runTest(testFile, testCase)
+                    filteredTests++
+                } else {
+                    this.logTestInfo(`Skipping test: ${testCase.name} (filtered out)`)
+                }
             }
+        }
+
+        const filterInfo = []
+        if (process.env["TACT_TEST_FILE"]) {
+            filterInfo.push(`file: "${process.env["TACT_TEST_FILE"]}"`)
+        }
+        if (process.env["TACT_TEST_PATTERN"]) {
+            filterInfo.push(`pattern: "${process.env["TACT_TEST_PATTERN"]}"`)
+        }
+
+        if (filterInfo.length > 0) {
+            this.logTestInfo(
+                `Ran ${filteredTests} out of ${totalTests} tests (filtered by ${filterInfo.join(", ")})`,
+            )
+        } else {
+            this.logTestInfo(`Ran all ${totalTests} tests`)
         }
     }
 

@@ -8,6 +8,7 @@ fun bar() {
     foo();
 }
 ------------------------------------------------------------------------
+1 1:4 to 1:7 The function used only once, add `inline` modifier for better performance (tact)
 3 1:4 to 1:7 Symbol `foo` is deprecated (tact)
 3 4:4 to 4:7 Symbol `foo` is deprecated (tact)
 
@@ -21,6 +22,7 @@ fun bar() {
     10.foo();
 }
 ------------------------------------------------------------------------
+1 1:12 to 1:15 The function used only once, add `inline` modifier for better performance (tact)
 3 1:12 to 1:15 Symbol `Int` is deprecated (tact)
 3 1:20 to 1:24 Parameter 'self' is never used (tact)
 3 1:26 to 1:29 Symbol `Int` is deprecated (tact)

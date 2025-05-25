@@ -140,4 +140,3 @@ message Transfer {
 13 map<K, V>
 9  Int
 21 Transfer
-24 WithSeveralDeclaration

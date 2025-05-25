@@ -48,7 +48,7 @@ contract Wallet {
     }
 }
 ------------------------------------------------------------------------
-no issues
+1 1:8 to 1:18 The function used only once, add `inline` modifier for better performance (tact)
 
 ========================================================================
 Unused contract fields

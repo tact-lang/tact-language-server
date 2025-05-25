@@ -44,7 +44,7 @@ contract TestContract with Ownable {
     some: Int;
 }
 ------------------------------------------------------------------------
-0 9:9 to 9:21 Contract `TestContract` is missing 
+0 9:9 to 9:21 Contract `TestContract` is missing
  - `owner` field required by `Ownable`
  - `value` field required by `Ownable` (tact)
 3 11:4 to 11:8 Field 'some' is never used (tact)
@@ -87,7 +87,7 @@ trait Some {
 contract TestContract with Ownable, Some {
 }
 ------------------------------------------------------------------------
-0 11:9 to 11:21 Contract `TestContract` is missing 
+0 11:9 to 11:21 Contract `TestContract` is missing
  - `owner` field required by `Ownable`
  - `foo` field required by `Some` (tact)
 
@@ -176,7 +176,7 @@ trait Ownable {
 contract TestContract with Ownable {
 }
 ------------------------------------------------------------------------
-0 8:9 to 8:21 Contract `TestContract` is missing 
+0 8:9 to 8:21 Contract `TestContract` is missing
  - `foo` method required by `Ownable`
  - `bar` method required by `Ownable`
  - `baz` method required by `Ownable` (tact)
@@ -278,7 +278,7 @@ trait Some {
 contract TestContract with Ownable, Some {
 }
 ------------------------------------------------------------------------
-0 10:9 to 10:21 Contract `TestContract` is missing 
+0 10:9 to 10:21 Contract `TestContract` is missing
  - `foo` method required by `Ownable`
  - `bar` method required by `Some` (tact)
 

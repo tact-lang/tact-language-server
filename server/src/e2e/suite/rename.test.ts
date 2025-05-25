@@ -56,7 +56,7 @@ suite("Rename Test Suite", () => {
                     await this.renameTo(params, pos.renameTo)
                 }
 
-                const actual = this.document.getText()
+                const actual = this.normalizeLineEndings(this.document.getText())
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({

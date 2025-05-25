@@ -118,20 +118,41 @@ the LS in conditions that closely mimic real-world usage.
 
 All tests are located in the [server/src/e2e](server/src/e2e) folder.
 
-To run the tests, execute the following command:
+#### Running Tests
 
-```
+To run all tests, execute the following command:
+
+```bash
 yarn test:e2e
 ```
 
-Other available test scripts include:
+#### Test Filtering
 
-- `yarn test`: Runs Jest tests.
-- `yarn test:e2e:update`: Runs e2e tests and updates snapshots if they have changed.
-- `yarn test:e2e:coverage`: Runs e2e tests and generates a coverage report.
+The test system supports filtering by test suite, specific files, and test patterns:
+
+```bash
+# Run specific test suite
+yarn test:e2e --suite completion
+
+# Run specific test file
+yarn test:e2e --file structs.test
+
+# Run tests matching a pattern
+yarn test:e2e --test "struct fields"
+
+# Update snapshots
+yarn test:e2e --update-snapshots
+
+# Run with verbose logging
+yarn test:e2e --verbose
+```
+
+For detailed documentation on all filtering options, predefined scripts, and usage examples,
+see [server/src/e2e/README.md](server/src/e2e/README.md).
+
+#### Test Structure
 
 Each feature has its tests in a separate folder within [server/src/e2e/suite](server/src/e2e/suite).
-Currently, there is no way to run a specific test suite or an individual test within a suite.
 
 The following test format is used for tests:
 
@@ -151,6 +172,10 @@ yarn test:e2e:update
 ```
 
 To add a new test, create a file with a `.test` extension in the relevant feature's test directory.
+
+Other available test scripts include:
+
+- `yarn test`: Runs Jest tests.
 
 ## Grammar Development
 

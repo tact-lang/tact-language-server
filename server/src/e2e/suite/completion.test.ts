@@ -19,7 +19,7 @@ suite("Completion Test Suite", () => {
                 throw new Error("No <caret> marker found in input")
             }
 
-            const position = this.document.positionAt(caretIndex)
+            const position = this.calculatePosition(input, caretIndex)
             this.editor.selection = new vscode.Selection(position, position)
             this.editor.revealRange(new vscode.Range(position, position))
 
@@ -45,6 +45,11 @@ suite("Completion Test Suite", () => {
 
                 const items = completions
                     .filter(item => Number(item.kind) !== 0)
+                    .filter(
+                        // filter symbols from Intentions files for now
+                        item =>
+                            item.label !== "ToImport" && item.label !== "WithSeveralDeclaration",
+                    )
                     .map(item => {
                         const label = typeof item.label === "object" ? item.label.label : item.label
                         const details =

@@ -1,4 +1,5 @@
 import * as fs from "node:fs"
+import * as os from "node:os"
 
 // eslint-disable-next-line functional/type-declaration-immutability
 export interface TestCase {
@@ -18,13 +19,14 @@ enum ParserState {
     ReadingExpected = 4,
 }
 
+const LINE_ENDING: "\r\n" | "\n" = os.platform() === "win32" ? "\r\n" : "\n"
 const SEPARATOR = "========================================================================"
 const THIN_SEPARATOR = "------------------------------------------------------------------------"
 
 export class TestParser {
     public static parseAll(content: string): TestCase[] {
         const tests: TestCase[] = []
-        const lines = content.trim().replace(/\r\n/g, "\n").split("\n")
+        const lines = content.trim().split(LINE_ENDING)
 
         let state = ParserState.WaitingForTestStart
         let currentTest: Partial<TestCase & {propertiesOrder: string[]}> = {
@@ -82,13 +84,13 @@ export class TestParser {
                         state = ParserState.ReadingExpected
                         currentContent = ""
                     } else {
-                        currentContent += line + "\n"
+                        currentContent += line + LINE_ENDING
                     }
                     break
                 }
                 case ParserState.ReadingExpected: {
                     if (line === SEPARATOR) {
-                        currentTest.expected = currentContent.trim()
+                        currentTest.expected = currentContent.trim().replace(/\r\n/g, "\n")
                         tests.push(currentTest as TestCase)
                         state = ParserState.ReadingProperties
                         currentTest = {
@@ -97,7 +99,7 @@ export class TestParser {
                         }
                         currentContent = ""
                     } else {
-                        currentContent += line + "\n"
+                        currentContent += line + LINE_ENDING
                     }
                     break
                 }
@@ -105,7 +107,7 @@ export class TestParser {
         }
 
         if (currentTest.name && currentContent) {
-            currentTest.expected = currentContent.trim()
+            currentTest.expected = currentContent.trim().replace(/\r\n/g, "\n")
             tests.push(currentTest as TestCase)
         }
 
@@ -116,7 +118,8 @@ export class TestParser {
         filePath: string,
         updates: {testName: string; actual: string}[],
     ): void {
-        const tests = this.parseAll(fs.readFileSync(filePath, "utf8"))
+        const content = fs.readFileSync(filePath, "utf8")
+        const tests = this.parseAll(content)
         const newContent: string[] = []
 
         for (const test of tests) {
@@ -133,7 +136,8 @@ export class TestParser {
             newContent.push(test.name, SEPARATOR, test.input, THIN_SEPARATOR)
 
             const update = updates.find(u => u.testName === test.name)
-            newContent.push(update ? update.actual : test.expected)
+            const expectedContent = update ? update.actual : test.expected
+            newContent.push(expectedContent.replace(/\r\n/g, "\n"))
         }
 
         fs.writeFileSync(filePath, newContent.join("\n") + "\n")

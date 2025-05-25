@@ -117,7 +117,7 @@ export class MissedMembersInContractInspection implements Inspection {
                 return `\n - \`${member.name()}\` ${kind} required by \`${owner?.name()}\``
             })
             .join("")
-        return `Contract \`${contract.name()}\` is missing ${members}`
+        return `Contract \`${contract.name()}\` is missing${members}`
     }
 }
 
