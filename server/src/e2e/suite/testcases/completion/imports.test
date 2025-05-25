@@ -3,10 +3,7 @@ Completion for empty import
 ========================================================================
 import "<caret>";
 ------------------------------------------------------------------------
-16 ./messages.tact
 16 ./other.tact
-16 ./other2.tact
-16 ./types.tact
 18 @stdlib/
 18 models/
 18 utils/
@@ -16,9 +13,6 @@ Completion for current dir
 ========================================================================
 import "./<caret>";
 ------------------------------------------------------------------------
-16 messages.tact
 18 models/
 16 other.tact
-16 other2.tact
-16 types.tact
 18 utils/

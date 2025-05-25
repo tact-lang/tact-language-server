@@ -42,6 +42,11 @@ export abstract class BaseTestSuite {
 
         this.document = await vscode.workspace.openTextDocument(this.testFilePath)
         await vscode.languages.setTextDocumentLanguage(this.document, "tact")
+
+        await this.openMainFile()
+    }
+
+    public async openMainFile(): Promise<void> {
         this.editor = await vscode.window.showTextDocument(this.document)
     }
 
@@ -65,6 +70,11 @@ export abstract class BaseTestSuite {
         const additionalFile = await vscode.workspace.openTextDocument(filePath)
         await vscode.languages.setTextDocumentLanguage(additionalFile, "tact")
 
+        await vscode.window.showTextDocument(additionalFile, {
+            preview: true,
+            preserveFocus: false,
+        })
+
         this.additionalFiles.push(additionalFile)
     }
 
@@ -77,17 +87,11 @@ export abstract class BaseTestSuite {
         const bytes = new TextEncoder().encode("")
         await vscode.workspace.fs.writeFile(Uri.file(filePath), bytes)
 
-        const editor = await vscode.window.showTextDocument(document, {
+        await fs.promises.writeFile(filePath, "")
+
+        await vscode.window.showTextDocument(document, {
             preview: true,
             preserveFocus: false,
-        })
-        // remove text to clean up LS caches
-        await editor.edit(edit => {
-            const fullRange = new vscode.Range(
-                document.positionAt(0),
-                document.positionAt(document.getText().length),
-            )
-            edit.replace(fullRange, "")
         })
 
         await vscode.commands.executeCommand("workbench.action.closeActiveEditor")
@@ -95,6 +99,8 @@ export abstract class BaseTestSuite {
         if (!existsSync(filePath)) {
             return
         }
+
+        await fs.promises.rm(filePath)
     }
 
     protected async setupAdditionalFiles(testCase: TestCase): Promise<void> {
@@ -108,6 +114,8 @@ export abstract class BaseTestSuite {
             await this.openFile(filePath, content)
             this.logTestInfo(`Created file: ${filePath}`)
         }
+
+        await this.openMainFile()
     }
 
     protected async cleanupAdditionalFiles(testCase: TestCase): Promise<void> {

@@ -40,6 +40,7 @@ suite("Completion Test Suite", () => {
 
                 if (testFile.includes("import") && !this.hasAdditionalFiles(testCase)) {
                     await this.openFile("other.tact", "")
+                    await this.openMainFile()
                 }
 
                 const completions = await this.getCompletions(testCase.input, ".")
