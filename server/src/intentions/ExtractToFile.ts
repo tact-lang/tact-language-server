@@ -13,7 +13,7 @@ import * as lsp from "vscode-languageserver"
 
 export class ExtractToFile implements Intention {
     public readonly id: string = "tact.extract-to-file"
-    public readonly name: string = "Extract to new file"
+    public readonly name: string = "Extract to new file..."
 
     private static findExtractableElement(ctx: IntentionContext): NamedNode | null {
         const node = nodeAtPosition(ctx.position, ctx.file)
@@ -92,9 +92,7 @@ export class ExtractToFile implements Intention {
             return this.performExtraction(ctx, element, ctx.customFileName)
         }
 
-        const elementName = element.name()
-        const defaultFileName = this.generateFileName(elementName)
-        return this.performExtraction(ctx, element, defaultFileName)
+        return null
     }
 
     private performExtraction(

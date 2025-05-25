@@ -148,7 +148,6 @@ import {CanBeInlineInspection} from "@server/inspections/CanBeInlineInspection"
 import {OptimalMathFunctionsInspection} from "@server/inspections/OptimalMathFunctionsInspection"
 import {onFileRenamed, processFileRenaming} from "@server/file-renaming"
 import {ExtractToFile} from "@server/intentions/ExtractToFile"
-import {ExtractToFileWithInput} from "@server/intentions/ExtractToFileWithInput"
 
 /**
  * Whenever LS is initialized.
@@ -1806,7 +1805,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         new WrapSelectedToTryCatch(),
         new WrapSelectedToRepeat(),
         new ExtractToFile(),
-        new ExtractToFileWithInput(),
     ]
 
     connection.onRequest(
@@ -1855,12 +1853,25 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 customFileName: args.customFileName,
             }
 
-            if (intention instanceof ExtractToFileWithInput) {
-                const elementInfo = intention.getElementInfo(ctx)
-                if (!elementInfo) {
-                    console.log("No element info found")
-                    return null
+            if (intention instanceof ExtractToFile && !ctx.customFileName) {
+                const getElementInfoForExtraction = (
+                    intention: ExtractToFile,
+                    ctx: IntentionContext,
+                ): {elementName: string; suggestedFileName: string} | null => {
+                    const element = intention.findExtractableElement(ctx)
+                    if (!element) return null
+
+                    const suggestedFileName = intention.getSuggestedFileName(ctx)
+                    if (!suggestedFileName) return null
+
+                    return {
+                        elementName: element.name(),
+                        suggestedFileName: suggestedFileName,
+                    }
                 }
+
+                const elementInfo = getElementInfoForExtraction(intention, ctx)
+                if (!elementInfo) return null
 
                 await connection.sendNotification("tact/extractToFileWithInput", {
                     fileUri: args.fileUri,
