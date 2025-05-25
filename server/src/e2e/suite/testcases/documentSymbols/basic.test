@@ -1,0 +1,119 @@
+========================================================================
+Contract with basic symbols
+========================================================================
+contract TestContract {
+    value: Int;
+
+    init() {
+        self.value = 0;
+    }
+
+    get fun getValue(): Int {
+        return self.value;
+    }
+
+    receive(msg: String) {
+        self.value = self.value + 1;
+    }
+}
+------------------------------------------------------------------------
+TestContract (contract) [0:0-14:1]
+├─ value (field) [1:4-1:14]
+├─ getValue (function) [7:4-9:5]
+├─ init() (constructor) [3:4-5:5]
+└─ receive(msg: String) (method) [11:4-13:5]
+
+========================================================================
+Struct with fields
+========================================================================
+struct User {
+    id: Int;
+    name: String;
+    active: Bool;
+}
+------------------------------------------------------------------------
+User (struct) [0:0-4:1]
+
+========================================================================
+Message with fields
+========================================================================
+message UpdateUser {
+    id: Int;
+    newName: String;
+}
+------------------------------------------------------------------------
+UpdateUser (struct) [0:0-3:1]
+
+========================================================================
+Trait with functions
+========================================================================
+trait Countable {
+    count: Int;
+
+    virtual fun getCount(): Int {
+        return self.count;
+    }
+
+    abstract fun increment();
+}
+------------------------------------------------------------------------
+Countable (trait) [0:0-8:1]
+├─ count (field) [1:4-1:14]
+├─ getCount (function) [3:4-5:5]
+└─ increment (function) [7:4-7:29]
+
+========================================================================
+Global constants and functions
+========================================================================
+const GLOBAL_CONSTANT: Int = 42;
+
+fun globalFunction(x: Int): Int {
+    return x * 2;
+}
+
+fun anotherFunction(): String {
+    return "hello";
+}
+------------------------------------------------------------------------
+GLOBAL_CONSTANT (constant) [0:0-0:32]
+globalFunction (function) [2:0-4:1]
+anotherFunction (function) [6:0-8:1]
+
+========================================================================
+Multiple declarations
+========================================================================
+struct Point {
+    x: Int;
+    y: Int;
+}
+
+message Move {
+    dx: Int;
+    dy: Int;
+}
+
+trait Movable {
+    fun move(dx: Int, dy: Int);
+}
+
+contract MovablePoint with Movable {
+    point: Point;
+
+    init() {
+        self.point = Point{x: 0, y: 0};
+    }
+
+    fun move(dx: Int, dy: Int) {
+        self.point.x = self.point.x + dx;
+        self.point.y = self.point.y + dy;
+    }
+}
+------------------------------------------------------------------------
+Point (struct) [0:0-3:1]
+Move (struct) [5:0-8:1]
+Movable (trait) [10:0-12:1]
+└─ move (function) [11:4-11:31]
+MovablePoint (contract) [14:0-25:1]
+├─ point (field) [15:4-15:16]
+├─ move (function) [21:4-24:5]
+└─ init() (constructor) [17:4-19:5]
