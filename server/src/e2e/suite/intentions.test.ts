@@ -28,7 +28,7 @@ suite("Intentions Test Suite", () => {
                     throw new Error("No <caret> or <selection> markers found in input")
                 }
 
-                const position = this.document.positionAt(caretIndex)
+                const position = this.calculatePosition(input, caretIndex)
                 range = new vscode.Range(position, position)
             }
 
