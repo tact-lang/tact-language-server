@@ -22,6 +22,7 @@ export const InspectionIds = {
     IMPLICIT_MESSAGE_OPCODE: "implicit-message-opcode",
     MISSPELLED_KEYWORD: "misspelled-keyword",
     DEPRECATED_SYMBOL_USAGE: "deprecated-symbol-usage",
+    OPTIMAL_MATH_FUNCTIONS: "optimal-math-functions",
     MISTI: "misti",
 } as const
 
