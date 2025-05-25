@@ -60,7 +60,7 @@ suite("References Test Suite", () => {
                         .map(ref => this.formatLocation(ref.range.start))
                         .join(", ")
 
-                    return `References: [${locations}]\nScope: ${scope}`
+                    return `References: [${locations}]\nScope: ${scope.replace(/\r\n/g, "\n")}`
                 })
                 .join("\n\n")
         }

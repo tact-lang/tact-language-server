@@ -31,7 +31,8 @@ suite("Folding Test Suite", () => {
                     }
                 })
 
-                const actualText = `${rangesInfo}\n${lines.join("\n")}`.trimEnd()
+                const actualText =
+                    `${rangesInfo}\n${lines.join("\n").replace(/\r\n/g, "\n")}`.trimEnd()
                 const expectedText = testCase.expected.trimEnd()
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {

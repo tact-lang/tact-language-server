@@ -43,7 +43,7 @@ suite("Inlay Hints Test Suite", () => {
                     }
                 }
 
-                const actual = this.document.getText().trimEnd()
+                const actual = this.document.getText().trimEnd().replace(/\r\n/g, "\n")
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({
                         filePath: testFile,

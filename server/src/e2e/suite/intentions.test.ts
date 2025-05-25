@@ -95,7 +95,7 @@ suite("Intentions Test Suite", () => {
                     command.arguments[0] as unknown,
                 )
 
-                const resultText = this.editor.document.getText()
+                const resultText = this.editor.document.getText().replace(/\r\n/g, "\n")
                 const expected = testCase.expected.trim()
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
