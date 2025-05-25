@@ -30,6 +30,9 @@
     "license": "MIT",
     "scripts": {
         "test": "yarn jest",
+        "test:cov": "c8 -r text -r json-summary npm test",
+        "test:cov:all": "c8 -r text -r json-summary --merge-async npm run test:all",
+        "test:all": "npm test && npm run test:e2e",
         "build": "webpack && node ./scripts/set-executable.js ./dist/server.js",
         "package": "npx vsce package --no-yarn --readme-path README-extension.md",
         "lint": "eslint --cache .",
@@ -41,6 +44,7 @@
         "grammar:tlb:wasm": "cd tree-sitter-tlb && tree-sitter generate && tree-sitter build --wasm",
         "watch": "webpack --watch",
         "test:e2e": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts",
+        "test:e2e:cov": "yarn test:e2e:compile && c8 -r text -r json-summary ts-node server/src/e2e/runTest.ts",
         "test:e2e:update": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --update-snapshots",
         "test:e2e:coverage": "yarn test:e2e:compile && c8 ts-node server/src/e2e/runTest.ts",
         "test:e2e:compile": "tsc -p ./server/src/e2e/tsconfig.json",

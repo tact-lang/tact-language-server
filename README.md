@@ -14,6 +14,7 @@ Developed by [TON Studio](https://tonstudio.io), powered by the community.
 [![Telegram](https://img.shields.io/badge/Tact_Kitchen_🥣-white?logo=telegram&style=flat)](https://t.me/tact_kitchen)
 [![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/tonstudio.vscode-tact?color=white&labelColor=white&logo=tsnode&logoColor=black)](https://marketplace.visualstudio.com/items?itemName=tonstudio.vscode-tact)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/tonstudio/vscode-tact?color=white&labelColor=white&logo=vscodium&logoColor=black)](https://open-vsx.org/extension/tonstudio/vscode-tact)
+[![Coverage](https://tact-lang.github.io/tact-language-server/badges/coverage.svg)](https://github.com/tact-lang/tact-language-server/actions)
 
 ---
 
