@@ -146,6 +146,7 @@ import {MissedMembersInContractInspection} from "@server/inspections/MissedMembe
 import {DeprecatedSymbolUsageInspection} from "@server/inspections/DeprecatedSymbolUsageInspection"
 import {CanBeInlineInspection} from "@server/inspections/CanBeInlineInspection"
 import {OptimalMathFunctionsInspection} from "@server/inspections/OptimalMathFunctionsInspection"
+import {onFileRenamed, processFileRenaming} from "@server/file-renaming"
 
 /**
  * Whenever LS is initialized.
@@ -514,6 +515,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
         }
     })
+
+    connection.onRequest("workspace/willRenameFiles", processFileRenaming)
+    connection.onNotification("workspace/didRenameFiles", onFileRenamed)
 
     connection.onDidChangeConfiguration(() => {
         clearDocumentSettings()
@@ -2257,6 +2261,34 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             },
             executeCommandProvider: {
                 commands: ["tact/executeGetScopeProvider", ...intentions.map(it => it.id)],
+            },
+            workspace: {
+                workspaceFolders: {
+                    supported: true,
+                    changeNotifications: true,
+                },
+                fileOperations: {
+                    willRename: {
+                        filters: [
+                            {
+                                scheme: "file",
+                                pattern: {
+                                    glob: "**/*.tact",
+                                },
+                            },
+                        ],
+                    },
+                    didRename: {
+                        filters: [
+                            {
+                                scheme: "file",
+                                pattern: {
+                                    glob: "**/*.tact",
+                                },
+                            },
+                        ],
+                    },
+                },
             },
         },
     }
