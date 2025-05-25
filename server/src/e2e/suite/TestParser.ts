@@ -105,7 +105,7 @@ export class TestParser {
         }
 
         if (currentTest.name && currentContent) {
-            currentTest.expected = currentContent.trim()
+            currentTest.expected = currentContent.trim().replace(/\r\n/g, "\n")
             tests.push(currentTest as TestCase)
         }
 

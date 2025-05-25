@@ -56,7 +56,7 @@ suite("Rename Test Suite", () => {
                     await this.renameTo(params, pos.renameTo)
                 }
 
-                const actual = this.document.getText()
+                const actual = this.document.getText().replace(/\r\n/g, "\n")
 
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({
