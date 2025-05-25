@@ -41,7 +41,8 @@ suite("Intentions Test Suite", () => {
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Intention: ${testCase.name}`, async () => {
-                const actions = await this.getCodeActions(testCase.input)
+                await this.replaceDocumentText(testCase.input)
+                const actions = await this.getCodeActions(this.document.getText())
 
                 if (actions.length === 0) {
                     if (BaseTestSuite.UPDATE_SNAPSHOTS) {
