@@ -27,7 +27,7 @@ import {BocEditorProvider} from "./providers/BocEditorProvider"
 import {BocFileSystemProvider} from "./providers/BocFileSystemProvider"
 import {BocDecompilerProvider} from "./providers/BocDecompilerProvider"
 import {registerSaveBocDecompiledCommand} from "./commands/saveBocDecompiledCommand"
-import {Range, Position} from "vscode"
+import {Range, Position, FileSystemWatcher} from "vscode"
 import {detectPackageManager, PackageManager} from "./utils/package-manager"
 
 let client: LanguageClient | null = null
@@ -60,6 +60,9 @@ export function activate(context: vscode.ExtensionContext): void {
             bocDecompilerProvider,
         ),
     )
+
+    const bocWatcher = registerBocWatcher(bocDecompilerProvider)
+    context.subscriptions.push(bocWatcher)
 }
 
 export function deactivate(): Thenable<void> | undefined {
@@ -337,4 +340,54 @@ function registerMistiCommand(context: vscode.ExtensionContext): void {
             await vscode.tasks.executeTask(task)
         }),
     )
+}
+
+function registerBocWatcher(bocDecompilerProvider: BocDecompilerProvider): FileSystemWatcher {
+    const bocWatcher = vscode.workspace.createFileSystemWatcher("**/*.boc")
+
+    bocWatcher.onDidChange((uri: vscode.Uri) => {
+        const decompileUri = uri.with({
+            scheme: BocDecompilerProvider.scheme,
+            path: uri.path + ".decompiled.fif",
+        })
+
+        const openDocument = vscode.workspace.textDocuments.find(
+            doc => doc.uri.toString() === decompileUri.toString(),
+        )
+
+        if (openDocument) {
+            bocDecompilerProvider.update(decompileUri)
+        }
+    })
+
+    bocWatcher.onDidDelete((uri: vscode.Uri) => {
+        const decompileUri = uri.with({
+            scheme: BocDecompilerProvider.scheme,
+            path: uri.path + ".decompiled.fif",
+        })
+
+        const openDocument = vscode.workspace.textDocuments.find(
+            doc => doc.uri.toString() === decompileUri.toString(),
+        )
+
+        if (openDocument) {
+            bocDecompilerProvider.update(decompileUri)
+        }
+    })
+
+    bocWatcher.onDidCreate((uri: vscode.Uri) => {
+        const decompileUri = uri.with({
+            scheme: BocDecompilerProvider.scheme,
+            path: uri.path + ".decompiled.fif",
+        })
+
+        const openDocument = vscode.workspace.textDocuments.find(
+            doc => doc.uri.toString() === decompileUri.toString(),
+        )
+
+        if (openDocument) {
+            bocDecompilerProvider.update(decompileUri)
+        }
+    })
+    return bocWatcher
 }

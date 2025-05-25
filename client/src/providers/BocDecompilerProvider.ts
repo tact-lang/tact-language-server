@@ -1,10 +1,12 @@
 import * as vscode from "vscode"
 import {AssemblyWriter, Cell, debugSymbols, disassembleRoot} from "@tact-lang/opcode"
-import {readFileSync} from "node:fs"
+import {readFileSync, existsSync} from "node:fs"
 
 export class BocDecompilerProvider implements vscode.TextDocumentContentProvider {
     private readonly _onDidChange: vscode.EventEmitter<vscode.Uri> = new vscode.EventEmitter()
     public readonly onDidChange: vscode.Event<vscode.Uri> = this._onDidChange.event
+
+    private readonly lastModified: Map<string, Date> = new Map()
 
     public static scheme: string = "boc-decompiled"
 
@@ -28,6 +30,10 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
 
     private decompileBoc(bocPath: string): string {
         try {
+            if (!existsSync(bocPath)) {
+                throw new Error(`BoC file not found: ${bocPath}`)
+            }
+
             const content = readFileSync(bocPath).toString("base64")
             const cell = Cell.fromBase64(content)
             const program = disassembleRoot(cell, {
@@ -39,18 +45,19 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
                 debugSymbols: debugSymbols,
             })
 
-            return this.formatDecompiledOutput(output)
+            return this.formatDecompiledOutput(output, bocPath)
         } catch (error: unknown) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new Error(`Decompilation failed: ${error}`)
         }
     }
 
-    private formatDecompiledOutput(output: string): string {
+    private formatDecompiledOutput(output: string, bocPath?: string): string {
         const header = [
             "// Decompiled BOC file",
             "// Note: This is auto-generated code",
-            "// Time: " + new Date().toISOString(),
+            `// Time: ${new Date().toISOString()}`,
+            ...(bocPath ? [`// Source: ${bocPath}`] : []),
             "",
             "",
         ].join("\n")
@@ -66,8 +73,9 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
         ].join("\n")
     }
 
-    // Метод для обновления содержимого
     public update(uri: vscode.Uri): void {
+        const bocPath = this.getBocPath(uri)
+        this.lastModified.set(bocPath, new Date())
         this._onDidChange.fire(uri)
     }
 }
