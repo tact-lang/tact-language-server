@@ -4,7 +4,7 @@ import * as fs from "node:fs"
 import * as glob from "glob"
 import {TestCase, TestParser} from "./TestParser"
 import {existsSync} from "node:fs"
-import {TextDocument} from "vscode"
+import {TextDocument, Uri} from "vscode"
 
 export interface TestUpdate {
     readonly filePath: string
@@ -74,6 +74,9 @@ export abstract class BaseTestSuite {
         const document = this.additionalFiles.find(item => item.uri.fsPath === filePath)
         if (!document) return
 
+        const bytes = new TextEncoder().encode("")
+        await vscode.workspace.fs.writeFile(Uri.file(filePath), bytes)
+
         const editor = await vscode.window.showTextDocument(document, {
             preview: true,
             preserveFocus: false,
@@ -92,8 +95,6 @@ export abstract class BaseTestSuite {
         if (!existsSync(filePath)) {
             return
         }
-
-        await fs.promises.rm(filePath)
     }
 
     protected async setupAdditionalFiles(testCase: TestCase): Promise<void> {

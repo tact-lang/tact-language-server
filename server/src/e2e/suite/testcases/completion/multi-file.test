@@ -52,7 +52,6 @@ struct Config {
 }
 ------------------------------------------------------------------------
 21 DeleteItem
-21 MyMessage
 21 UpdateValue
 
 ========================================================================
@@ -84,11 +83,6 @@ const HELPER_CONSTANT: Int = 42;
 2  calculateSum(a: Int, b: Int): Int
 2  formatString(text: String): String
 20 HELPER_CONSTANT:  = 42
-21 Config {}
-21 DeleteItem {}
-21 MyMessage {}
-21 MyStruct {}
-21 UpdateValue {}
 13 self
 
 ========================================================================
