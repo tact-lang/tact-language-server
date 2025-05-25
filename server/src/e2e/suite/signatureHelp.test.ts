@@ -36,7 +36,7 @@ suite("Signatures Test Suite", () => {
                               if (item.activeParameter !== undefined) {
                                   const activeParamLabel =
                                       item.parameters[item.activeParameter]?.label ?? ""
-                                  return `${activeParamLabel.toString()}\n${label}`
+                                  return `${activeParamLabel.toString()}\n${label}`.trim()
                               }
                               return ""
                           })
