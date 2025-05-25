@@ -1,13 +1,12 @@
 import type {InitFunction, MessageFunction} from "@server/psi/Decls"
-import {Expression} from "@server/psi/Node"
+import {Expression, extractCommentsDoc} from "@server/psi/Node"
 import {BouncedTy, MessageTy} from "@server/types/BaseTy"
-import {extractCommentsDoc} from "@server/documentation/documentation"
 
 const CODE_FENCE = "```"
 
 export function generateInitDoc(func: InitFunction): string | null {
     const name = func.nameLike()
-    const codeDoc = extractCommentsDoc(func)
+    const codeDoc = extractCommentsDoc(func.node)
 
     const doc = `Constructor function \`init()\` runs on deployment of the contract.
 If a contract has any persistent state variables without default values specified, it must initialize them in this function.`
@@ -22,7 +21,7 @@ export function generateReceiverDoc(func: MessageFunction): string | null {
     const kind = func.kindIdentifier()?.text
     if (!kind) return null
 
-    const codeDoc = extractCommentsDoc(func)
+    const codeDoc = extractCommentsDoc(func.node)
 
     const link =
         kind === "receive"
