@@ -108,6 +108,8 @@ yarn test:e2e --test "basic"
 
 ## Test File Format
 
+### Basic Test Format
+
 Tests use a specific format with separators:
 
 ```
@@ -119,14 +121,32 @@ Tests use a specific format with separators:
 <expected result>
 ```
 
+### Multi-File Test Format
+
+For tests that require multiple files (e.g., testing imports, cross-file completion):
+
+```
+========================================================================
+<name of the test>
+========================================================================
+<main file code with <caret> marker>
+---FILE:relative/path/file1.tact
+<content of file1>
+---FILE:relative/path/file2.tact
+<content of file2>
+------------------------------------------------------------------------
+<expected result>
+```
+
 ## Adding New Tests
 
 When adding new tests:
 
 1. Create a `.test` file in the appropriate `testcases/` directory under the relevant suite
 2. Use the existing format with `========` separators
-3. Test your new file with: `yarn test:e2e --suite <suite> --file <your-file>.test`
-4. Update snapshots if needed: `yarn test:e2e --suite <suite> --file <your-file>.test --update-snapshots`
+3. For multi-file tests, use `---FILE: <path>` syntax
+4. Test your new file with: `yarn test:e2e --suite <suite> --file <your-file>.test`
+5. Update snapshots if needed: `yarn test:e2e --suite <suite> --file <your-file>.test --update-snapshots`
 
 ## Command Line Help
 

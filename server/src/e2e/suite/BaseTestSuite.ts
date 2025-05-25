@@ -56,6 +56,10 @@ export abstract class BaseTestSuite {
 
     protected async openFile(name: string, content: string): Promise<void> {
         const filePath = path.join(this.workingDir(), name)
+
+        const dir = path.dirname(filePath)
+        await fs.promises.mkdir(dir, {recursive: true})
+
         await fs.promises.writeFile(filePath, content)
 
         const additionalFile = await vscode.workspace.openTextDocument(filePath)
@@ -70,10 +74,19 @@ export abstract class BaseTestSuite {
         const document = this.additionalFiles.find(item => item.uri.fsPath === filePath)
         if (!document) return
 
-        await vscode.window.showTextDocument(document, {
+        const editor = await vscode.window.showTextDocument(document, {
             preview: true,
             preserveFocus: false,
         })
+        // remove text to clean up LS caches
+        await editor.edit(edit => {
+            const fullRange = new vscode.Range(
+                document.positionAt(0),
+                document.positionAt(this.document.getText().length),
+            )
+            edit.replace(fullRange, "")
+        })
+
         await vscode.commands.executeCommand("workbench.action.closeActiveEditor")
 
         if (!existsSync(filePath)) {
@@ -81,6 +94,34 @@ export abstract class BaseTestSuite {
         }
 
         await fs.promises.rm(filePath)
+    }
+
+    protected async setupAdditionalFiles(testCase: TestCase): Promise<void> {
+        if (testCase.files.size === 0) {
+            return
+        }
+
+        this.logTestInfo(`Setting up ${testCase.files.size} additional file(s)`)
+
+        for (const [filePath, content] of testCase.files.entries()) {
+            await this.openFile(filePath, content)
+            this.logTestInfo(`Created file: ${filePath}`)
+        }
+    }
+
+    protected async cleanupAdditionalFiles(testCase: TestCase): Promise<void> {
+        if (testCase.files.size === 0) {
+            return
+        }
+
+        for (const filePath of testCase.files.keys()) {
+            await this.closeFile(filePath)
+            this.logTestInfo(`Cleaned up file: ${filePath}`)
+        }
+    }
+
+    protected hasAdditionalFiles(testCase: TestCase): boolean {
+        return testCase.files.size > 0
     }
 
     protected calculatePosition(text: string, caretIndex: number): vscode.Position {

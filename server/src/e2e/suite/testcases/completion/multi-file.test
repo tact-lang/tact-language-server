@@ -1,0 +1,130 @@
+========================================================================
+Cross-file struct completion
+========================================================================
+import "./types.tact";
+
+contract Test {
+    init() {
+        let s: MyStruct = MyStruct{
+            <caret>
+        };
+    }
+}
+---FILE:types.tact
+primitive Int;
+primitive String;
+primitive Bool;
+
+struct MyStruct {
+    value: Int;
+    name: String;
+    active: Bool;
+}
+
+message MyMessage {
+    data: Int;
+}
+------------------------------------------------------------------------
+9  active : Bool    of MyStruct
+9  name : String    of MyStruct
+9  value : Int    of MyStruct
+
+========================================================================
+Cross-file message completion
+========================================================================
+import "./messages.tact";
+
+contract Test {
+    receive(msg: <caret>) {
+    }
+}
+---FILE:messages.tact
+message UpdateValue {
+    newValue: Int;
+}
+
+message DeleteItem {
+    id: Int;
+}
+
+struct Config {
+    enabled: Bool;
+}
+------------------------------------------------------------------------
+21 DeleteItem
+21 MyMessage
+21 UpdateValue
+
+========================================================================
+Nested directory import completion
+========================================================================
+import "./utils/helpers.tact";
+
+contract Test {
+    init() {
+        let result = <caret>
+    }
+}
+---FILE:utils/helpers.tact
+fun calculateSum(a: Int, b: Int): Int {
+    return a + b;
+}
+
+fun formatString(text: String): String {
+    return text;
+}
+
+const HELPER_CONSTANT: Int = 42;
+------------------------------------------------------------------------
+13 false
+13 null
+13 true
+13 codeOf Contract   Cell
+13 initOf Contract(params)   StateInit
+2  calculateSum(a: Int, b: Int): Int
+2  formatString(text: String): String
+20 HELPER_CONSTANT:  = 42
+21 Config {}
+21 DeleteItem {}
+21 MyMessage {}
+21 MyStruct {}
+21 UpdateValue {}
+13 self
+
+========================================================================
+Multiple file dependencies
+========================================================================
+import "./models/user.tact";
+import "./models/product.tact";
+
+contract Shop {
+    init() {
+        let user: User = User {
+            <caret>
+        };
+    }
+}
+---FILE:models/user.tact
+primitive Int;
+primitive String;
+
+struct User {
+    id: Int;
+    name: String;
+    email: String;
+}
+---FILE:models/product.tact
+struct Product {
+    id: Int;
+    title: String;
+    price: Int;
+}
+
+message PurchaseProduct {
+    productId: Int;
+    userId: Int;
+}
+------------------------------------------------------------------------
+9  email : String    of User
+9  id : Int    of User
+9  name : String    of User

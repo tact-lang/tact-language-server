@@ -3,7 +3,6 @@ import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import type {TestCase} from "./TestParser"
 import {CompletionItem} from "vscode"
-import * as path from "node:path"
 
 suite("Completion Test Suite", () => {
     const testSuite = new (class extends BaseTestSuite {
@@ -37,7 +36,9 @@ suite("Completion Test Suite", () => {
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Completion: ${testCase.name}`, async () => {
-                if (testFile.includes("import")) {
+                await this.setupAdditionalFiles(testCase)
+
+                if (testFile.includes("import") && !this.hasAdditionalFiles(testCase)) {
                     await this.openFile("other.tact", "")
                 }
 
@@ -72,12 +73,13 @@ suite("Completion Test Suite", () => {
                         actual: actual,
                     })
                 } else {
-                    assert.deepStrictEqual(actual, expected)
+                    assert.strictEqual(actual, expected, `Test failed: ${testCase.name}`)
                 }
 
-                if (testFile.includes("import")) {
-                    const filePath = path.join(this.workingDir(), "other.tact")
-                    await this.closeFile(filePath)
+                await this.cleanupAdditionalFiles(testCase)
+
+                if (testFile.includes("import") && !this.hasAdditionalFiles(testCase)) {
+                    await this.closeFile("other.tact")
                 }
             })
         }
