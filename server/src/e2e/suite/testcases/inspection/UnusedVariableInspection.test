@@ -69,6 +69,7 @@ fun foo() {
     let Example { number } = get42();
 }
 ------------------------------------------------------------------------
+1 6:4 to 6:9 The function used only once, add `inline` modifier for better performance (tact)
 3 9:18 to 9:24 Variable 'number' is never used (tact)
 
 ========================================================================
@@ -87,6 +88,7 @@ fun foo() {
     let Example { number, other } = get42();
 }
 ------------------------------------------------------------------------
+1 7:4 to 7:9 The function used only once, add `inline` modifier for better performance (tact)
 3 10:18 to 10:24 Variable 'number' is never used (tact)
 3 10:26 to 10:31 Variable 'other' is never used (tact)
 
@@ -107,6 +109,7 @@ fun foo() {
     dump(number);
 }
 ------------------------------------------------------------------------
+1 7:4 to 7:9 The function used only once, add `inline` modifier for better performance (tact)
 3 10:26 to 10:31 Variable 'other' is never used (tact)
 
 ========================================================================
@@ -127,4 +130,4 @@ fun foo() {
     dump(other);
 }
 ------------------------------------------------------------------------
-no issues
+1 7:4 to 7:9 The function used only once, add `inline` modifier for better performance (tact)
