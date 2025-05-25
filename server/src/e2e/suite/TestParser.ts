@@ -78,7 +78,7 @@ export class TestParser {
                 }
                 case ParserState.ReadingInput: {
                     if (line === THIN_SEPARATOR) {
-                        currentTest.input = currentContent.trim()
+                        currentTest.input = currentContent.trim().replace(/\r\n/g, "\n")
                         state = ParserState.ReadingExpected
                         currentContent = ""
                     } else {
@@ -88,7 +88,7 @@ export class TestParser {
                 }
                 case ParserState.ReadingExpected: {
                     if (line === SEPARATOR) {
-                        currentTest.expected = currentContent.trim()
+                        currentTest.expected = currentContent.trim().replace(/\r\n/g, "\n")
                         tests.push(currentTest as TestCase)
                         state = ParserState.ReadingProperties
                         currentTest = {
@@ -116,7 +116,8 @@ export class TestParser {
         filePath: string,
         updates: {testName: string; actual: string}[],
     ): void {
-        const tests = this.parseAll(fs.readFileSync(filePath, "utf8"))
+        const content = fs.readFileSync(filePath, "utf8")
+        const tests = this.parseAll(content)
         const newContent: string[] = []
 
         for (const test of tests) {
@@ -133,7 +134,8 @@ export class TestParser {
             newContent.push(test.name, SEPARATOR, test.input, THIN_SEPARATOR)
 
             const update = updates.find(u => u.testName === test.name)
-            newContent.push(update ? update.actual : test.expected)
+            const expectedContent = update ? update.actual : test.expected
+            newContent.push(expectedContent.replace(/\r\n/g, "\n"))
         }
 
         fs.writeFileSync(filePath, newContent.join("\n") + "\n")
