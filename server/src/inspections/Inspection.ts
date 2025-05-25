@@ -16,6 +16,7 @@ export const InspectionIds = {
     DONT_USE_DEPLOYABLE: "dont-use-deployable",
     REWRITE_AS_AUGMENTED_ASSIGNMENT: "rewrite-as-augmented-assignment",
     CAN_BE_STANDALONE_FUNCTION: "can-be-standalone-function",
+    CAN_BE_INLINE_FUNCTION: "can-be-inline-function",
     USE_EXPLICIT_STRING_RECEIVER: "use-explicit-string-receiver",
     IMPLICIT_RETURN_VALUE_DISCARD: "implicit-return-value-discard",
     IMPLICIT_MESSAGE_OPCODE: "implicit-message-opcode",

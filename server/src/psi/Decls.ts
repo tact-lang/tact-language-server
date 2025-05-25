@@ -505,6 +505,14 @@ export class Fun extends NamedNode {
         return this.modifiers().includes("virtual")
     }
 
+    public isInline(): boolean {
+        return this.modifiers().includes("inline")
+    }
+
+    public isNative(): boolean {
+        return this.node.type === "native_function"
+    }
+
     public owner(): StorageMembersOwner | null {
         const ownerNode = parentOfType(this.node, "trait", "contract")
         if (!ownerNode) return null

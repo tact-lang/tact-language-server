@@ -39,19 +39,21 @@ class TreeWalker {
 }
 
 export class RecursiveVisitor {
-    public static visit(node: SyntaxNode | null, cb: (n: SyntaxNode) => boolean): boolean {
-        if (!node) return true
+    public static visit(node: SyntaxNode | null, cb: (n: SyntaxNode) => boolean | "stop"): void {
+        if (!node) return
 
         const walker = new TreeWalker(node.walk())
         let current: SyntaxNode | null = node
 
         while (current) {
-            if (!cb(current)) {
+            const result = cb(current)
+            if (result === "stop") return
+            if (!result) {
                 walker.skipChildren()
             }
             current = walker.next()
         }
 
-        return true
+        return
     }
 }

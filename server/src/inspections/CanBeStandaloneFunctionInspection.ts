@@ -104,7 +104,7 @@ export class CanBeStandaloneFunctionInspection implements Inspection {
         const methodNameIdent = method.nameIdentifier()
         if (!methodNameIdent) return []
         const ref = new Referent(methodNameIdent, file)
-        return ref.findReferences(false)
+        return ref.findReferences({includeDefinition: false})
     }
 
     private removeExtraIndentation(text: string): string {

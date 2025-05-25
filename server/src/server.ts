@@ -144,6 +144,7 @@ import {TlbReference} from "./tlb/psi/TlbReference"
 import {FiftReference} from "@server/fift/psi/FiftReference"
 import {MissedMembersInContractInspection} from "@server/inspections/MissedMembersInContractInspection"
 import {DeprecatedSymbolUsageInspection} from "@server/inspections/DeprecatedSymbolUsageInspection"
+import {CanBeInlineInspection} from "@server/inspections/CanBeInlineInspection"
 
 /**
  * Whenever LS is initialized.
@@ -366,6 +367,7 @@ async function runInspections(uri: string, file: File, includeLinters: boolean):
         new DontUseDeployableInspection(),
         new RewriteAsAugmentedAssignment(),
         new CanBeStandaloneFunctionInspection(),
+        new CanBeInlineInspection(),
         new UseExplicitStringReceiverInspection(),
         new ImplicitReturnValueDiscardInspection(),
         new ImplicitMessageId(),
@@ -1310,7 +1312,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const renameNode = findRenameTarget(params, file)
         if (!renameNode) return null
 
-        const result = new Referent(renameNode, file).findReferences(true, false, false)
+        const result = new Referent(renameNode, file).findReferences({
+            includeDefinition: true,
+            sameFileOnly: false,
+            includeSelf: false,
+        })
         if (result.length === 0) return null
 
         const changes: Record<DocumentUri, TextEdit[]> = {}
@@ -1389,7 +1395,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return []
             }
 
-            const result = new Referent(highlightNode, file).findReferences(true, true, true)
+            const result = new Referent(highlightNode, file).findReferences({
+                includeDefinition: true,
+                sameFileOnly: true,
+                includeSelf: true,
+            })
             if (result.length === 0) return null
 
             const usageKind = (value: Node): lsp.DocumentHighlightKind => {
@@ -1448,7 +1458,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return []
             }
 
-            const result = new Referent(referenceNode, file).findReferences(false)
+            const result = new Referent(referenceNode, file).findReferences({
+                includeDefinition: false,
+            })
             if (result.length === 0) return null
 
             const settings = await getDocumentSettings(file.uri)

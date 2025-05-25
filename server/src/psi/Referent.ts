@@ -46,6 +46,25 @@ export class GlobalSearchScope implements SearchScope {
     }
 }
 
+export interface FindReferenceOptions {
+    /**
+     * if true, the first element of the result contains the definition
+     */
+    readonly includeDefinition?: boolean
+    /**
+     * if true, don't include `self` as usages (for rename)
+     */
+    readonly includeSelf?: boolean
+    /**
+     * if true, only references from the same files listed
+     */
+    readonly sameFileOnly?: boolean
+    /**
+     * search stops after `limit` number of references are found
+     */
+    readonly limit?: number
+}
+
 /**
  * Referent encapsulates the logic for finding all references to a definition.
  *
@@ -76,16 +95,13 @@ export class Referent {
 
     /**
      * Returns a list of nodes that reference the definition.
-     *
-     * @param includeDefinition if true, the first element of the result contains the definition
-     * @param includeSelf if true, don't include `self` as usages (for rename)
-     * @param sameFileOnly if true, only references from the same files listed
      */
-    public findReferences(
-        includeDefinition: boolean = false,
-        includeSelf: boolean = true,
-        sameFileOnly: boolean = false,
-    ): Node[] {
+    public findReferences({
+        includeDefinition = false,
+        includeSelf = true,
+        sameFileOnly = false,
+        limit = Infinity,
+    }: FindReferenceOptions): Node[] {
         const resolved = this.resolved
         if (!resolved) return []
 
@@ -100,7 +116,7 @@ export class Referent {
             }
         }
 
-        this.searchInScope(useScope, sameFileOnly, includeSelf, result)
+        this.searchInScope(useScope, sameFileOnly, includeSelf, result, limit)
         return result
     }
 
@@ -109,26 +125,36 @@ export class Referent {
         sameFileOnly: boolean,
         includeSelf: boolean,
         result: Node[],
+        limit: number,
     ): void {
         if (!this.resolved) return
 
         if (scope instanceof LocalSearchScope) {
-            this.traverseTree(this.resolved.file, scope.node, includeSelf, result)
+            this.traverseTree(this.resolved.file, scope.node, includeSelf, result, limit)
         }
 
         if (scope instanceof GlobalSearchScope) {
             if (sameFileOnly) {
-                this.traverseTree(this.file, this.file.rootNode, includeSelf, result)
+                this.traverseTree(this.file, this.file.rootNode, includeSelf, result, limit)
                 return
             }
 
             for (const file of scope.files) {
-                this.traverseTree(file, file.rootNode, includeSelf, result)
+                this.traverseTree(file, file.rootNode, includeSelf, result, limit)
+                if (result.length === limit) {
+                    break
+                }
             }
         }
     }
 
-    private traverseTree(file: File, node: SyntaxNode, includeSelf: boolean, result: Node[]): void {
+    private traverseTree(
+        file: File,
+        node: SyntaxNode,
+        includeSelf: boolean,
+        result: Node[],
+        limit: number,
+    ): void {
         const resolved = this.resolved
         if (!resolved) return
 
@@ -137,7 +163,7 @@ export class Referent {
         // each identifier with the same name as searched symbol.
         // If that identifier refers to the definition we are looking for,
         // we add it to the list.
-        RecursiveVisitor.visit(node, (node): boolean => {
+        RecursiveVisitor.visit(node, (node): boolean | "stop" => {
             // fast path, skip non identifiers
             if (
                 node.type !== "identifier" &&
@@ -224,6 +250,7 @@ export class Referent {
             ) {
                 // found new reference
                 result.push(new Node(node, file))
+                if (result.length === limit) return "stop" // end iteration
             }
             return true
         })
