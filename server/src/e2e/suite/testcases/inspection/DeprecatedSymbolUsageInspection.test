@@ -1,0 +1,94 @@
+========================================================================
+Deprecated function
+========================================================================
+/// Deprecated
+fun foo() {}
+
+fun bar() {
+    foo();
+}
+------------------------------------------------------------------------
+3 1:4 to 1:7 Symbol `foo` is deprecated (tact)
+3 4:4 to 4:7 Symbol `foo` is deprecated (tact)
+
+========================================================================
+Deprecated method
+========================================================================
+/// Deprecated
+extends fun Int.foo(self: Int) {}
+
+fun bar() {
+    10.foo();
+}
+------------------------------------------------------------------------
+3 1:12 to 1:15 Symbol `Int` is deprecated (tact)
+3 1:20 to 1:24 Parameter 'self' is never used (tact)
+3 1:26 to 1:29 Symbol `Int` is deprecated (tact)
+
+========================================================================
+Deprecated struct
+========================================================================
+/// Deprecated
+struct Foo {}
+
+fun bar() {
+    Foo {}
+}
+------------------------------------------------------------------------
+3 1:7 to 1:10 Symbol `Foo` is deprecated (tact)
+3 4:4 to 4:7 Symbol `Foo` is deprecated (tact)
+
+========================================================================
+Deprecated message
+========================================================================
+/// Deprecated
+message Foo {}
+
+fun bar() {
+    Foo {}
+}
+------------------------------------------------------------------------
+1 1:8 to 1:11 Consider setting the message opcode explicitly instead of the implicit 0xf7807639 (tact)
+3 1:8 to 1:11 Symbol `Foo` is deprecated (tact)
+3 4:4 to 4:7 Symbol `Foo` is deprecated (tact)
+
+========================================================================
+Deprecated trait
+========================================================================
+/// Deprecated
+trait Some {}
+
+contract Test with Some {}
+------------------------------------------------------------------------
+3 1:6 to 1:10 Symbol `Some` is deprecated (tact)
+3 3:19 to 3:23 Symbol `Some` is deprecated (tact)
+
+========================================================================
+Deprecated contract
+========================================================================
+/// Deprecated
+contract Some {}
+
+contract Test {
+    init() {
+        initOf Some();
+    }
+}
+------------------------------------------------------------------------
+3 1:9 to 1:13 Symbol `Some` is deprecated (tact)
+3 5:15 to 5:19 Symbol `Some` is deprecated (tact)
+
+========================================================================
+Deprecated constant
+========================================================================
+/// Deprecated
+const FOO: Int = 10
+
+contract Test {
+    init() {
+        dump(FOO);
+    }
+}
+------------------------------------------------------------------------
+3 1:6 to 1:9 Symbol `FOO` is deprecated (tact)
+3 5:13 to 5:16 Symbol `FOO` is deprecated (tact)

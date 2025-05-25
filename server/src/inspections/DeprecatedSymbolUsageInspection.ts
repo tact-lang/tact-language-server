@@ -29,7 +29,7 @@ export class DeprecatedSymbolUsageInspection implements Inspection {
                     severity: lsp.DiagnosticSeverity.Hint,
                     tags: [lsp.DiagnosticTag.Deprecated],
                     range: asLspRange(node),
-                    message: `Symbol is deprecated`,
+                    message: `Symbol \`${resolved.name()}\` is deprecated`,
                     source: "tact",
                 })
             }
