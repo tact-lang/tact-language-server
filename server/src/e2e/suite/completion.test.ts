@@ -38,11 +38,6 @@ suite("Completion Test Suite", () => {
             test(`Completion: ${testCase.name}`, async () => {
                 await this.setupAdditionalFiles(testCase)
 
-                if (testFile.includes("import") && !this.hasAdditionalFiles(testCase)) {
-                    await this.openFile("other.tact", "")
-                    await this.openMainFile()
-                }
-
                 const completions = await this.getCompletions(testCase.input, ".")
 
                 const items = completions
@@ -78,10 +73,6 @@ suite("Completion Test Suite", () => {
                 }
 
                 await this.cleanupAdditionalFiles(testCase)
-
-                if (testFile.includes("import") && !this.hasAdditionalFiles(testCase)) {
-                    await this.closeFile("other.tact")
-                }
             })
         }
     })()
