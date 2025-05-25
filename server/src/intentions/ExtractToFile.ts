@@ -11,6 +11,7 @@ import * as path from "node:path"
 import {fileURLToPath} from "node:url"
 import * as lsp from "vscode-languageserver"
 import {filePathToUri} from "@server/indexing-root"
+import {existsSync} from "node:fs"
 
 export class ExtractToFile implements Intention {
     public readonly id: string = "tact.extract-to-file"
@@ -126,12 +127,11 @@ export class ExtractToFile implements Intention {
         const newFileContent = this.generateFileContent(elementText)
         const documentChanges: (lsp.TextDocumentEdit | lsp.CreateFile)[] = []
 
-        documentChanges.push(
-            {
-                kind: "create",
-                uri: newFileUri,
-            },
-            {
+        const newFilePath = fileURLToPath(newFileUri)
+        const fileExists = existsSync(newFilePath)
+
+        if (fileExists) {
+            documentChanges.push({
                 textDocument: {
                     uri: newFileUri,
                     version: null,
@@ -139,23 +139,49 @@ export class ExtractToFile implements Intention {
                 edits: [
                     {
                         range: {
-                            start: {line: 0, character: 0},
-                            end: {line: 0, character: 0},
+                            // add to end
+                            start: {line: 999_999, character: 0},
+                            end: {line: 999_999, character: 0},
                         },
-                        newText: newFileContent,
+                        newText: "\n" + newFileContent,
                     },
                 ],
-            },
-        )
+            })
+        } else {
+            documentChanges.push(
+                {
+                    kind: "create",
+                    uri: newFileUri,
+                },
+                {
+                    textDocument: {
+                        uri: newFileUri,
+                        version: null,
+                    },
+                    edits: [
+                        {
+                            range: {
+                                start: {line: 0, character: 0},
+                                end: {line: 0, character: 0},
+                            },
+                            newText: newFileContent,
+                        },
+                    ],
+                },
+            )
+        }
 
         const currentFileDiff = FileDiff.forFile(ctx.file.uri)
         currentFileDiff.replace(asLspRange(element.node), "")
 
         const importPath = this.generateImportPath(customFileName)
-        const importStatement = `import "${importPath}";`
-        const importPosition = ctx.file.positionForNextImport()
-        const extraLine = importPosition.line === 0 && ctx.file.imports().length === 0 ? "\n" : ""
-        currentFileDiff.appendAsPrevLine(importPosition.line, `${importStatement}${extraLine}`)
+        if (!fileExists || !ctx.file.alreadyImport(importPath)) {
+            const importStatement = `import "${importPath}";`
+            const importPosition = ctx.file.positionForNextImport()
+            const extraLine =
+                importPosition.line === 0 && ctx.file.imports().length === 0 ? "\n" : ""
+            currentFileDiff.appendAsPrevLine(importPosition.line, `${importStatement}${extraLine}`)
+        }
 
         documentChanges.push({
             textDocument: {
