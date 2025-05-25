@@ -73,7 +73,7 @@ suite("Completion Test Suite", () => {
                         actual: actual,
                     })
                 } else {
-                    assert.strictEqual(actual, expected, `Test failed: ${testCase.name}`)
+                    assert.deepStrictEqual(actual, expected)
                 }
 
                 await this.cleanupAdditionalFiles(testCase)

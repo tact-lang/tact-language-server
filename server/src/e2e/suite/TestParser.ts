@@ -9,7 +9,7 @@ export interface TestCase {
     expected: string
     readonly result?: string
     readonly propertiesOrder: string[]
-    files: Map<string, string> // Additional files: path -> content
+    readonly files: Map<string, string> // Additional files: path -> content
 }
 
 enum ParserState {
@@ -81,7 +81,6 @@ export class TestParser {
                     if (line === SEPARATOR) {
                         state = ParserState.ReadingInput
                         currentContent = ""
-                        // currentTest.files = new Map()
                     }
                     break
                 }
