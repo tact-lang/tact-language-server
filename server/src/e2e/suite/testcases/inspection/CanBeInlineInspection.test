@@ -1,0 +1,174 @@
+========================================================================
+Global function can be inline
+========================================================================
+fun foo() {}
+
+contract Contract {
+    fun bar() {
+        foo()
+    }
+}
+------------------------------------------------------------------------
+1 0:4 to 0:7 The function used only once, add `inline` modifier for better performance (tact)
+3 3:8 to 3:11 Method 'bar' is never used (tact)
+1 3:8 to 3:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
+Global function cannot be inline, not used
+========================================================================
+fun foo() {}
+
+contract Contract {
+    fun bar() {
+    }
+}
+------------------------------------------------------------------------
+3 3:8 to 3:11 Method 'bar' is never used (tact)
+
+========================================================================
+Global function cannot be inline, used twice
+========================================================================
+fun foo() {}
+
+contract Contract {
+    fun bar() {
+        foo();
+        foo();
+    }
+}
+------------------------------------------------------------------------
+3 3:8 to 3:11 Method 'bar' is never used (tact)
+1 3:8 to 3:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
+Global function cannot be inline, already inline
+========================================================================
+inline fun foo() {}
+
+contract Contract {
+    fun bar() {
+        foo();
+    }
+}
+------------------------------------------------------------------------
+3 3:8 to 3:11 Method 'bar' is never used (tact)
+1 3:8 to 3:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
+Global function cannot be inline, native
+========================================================================
+@name("foo")
+native foo();
+
+contract Contract {
+    fun bar() {
+        foo();
+    }
+}
+------------------------------------------------------------------------
+3 4:8 to 4:11 Method 'bar' is never used (tact)
+1 4:8 to 4:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
+Contract method can be inline
+========================================================================
+contract Contract {
+    fun bar() {}
+    fun foo() {
+        self.bar();
+    }
+}
+------------------------------------------------------------------------
+1 1:8 to 1:11 The function used only once, add `inline` modifier for better performance (tact)
+3 2:8 to 2:11 Method 'foo' is never used (tact)
+
+========================================================================
+Contract method can be inline, override
+========================================================================
+contract Contract {
+    override fun bar() {}
+    fun foo() {
+        self.bar();
+    }
+}
+------------------------------------------------------------------------
+1 1:17 to 1:20 The function used only once, add `inline` modifier for better performance (tact)
+3 2:8 to 2:11 Method 'foo' is never used (tact)
+
+========================================================================
+Contract method cannot be inline, not used
+========================================================================
+contract Contract {
+    fun bar() {}
+    fun foo() {}
+}
+------------------------------------------------------------------------
+3 1:8 to 1:11 Method 'bar' is never used (tact)
+3 2:8 to 2:11 Method 'foo' is never used (tact)
+
+========================================================================
+Contract method cannot be inline, used twice
+========================================================================
+contract Contract {
+    fun bar() {}
+    fun foo() {
+        self.bar();
+        self.bar();
+    }
+}
+------------------------------------------------------------------------
+3 2:8 to 2:11 Method 'foo' is never used (tact)
+
+========================================================================
+Contract method cannot be inline, get method
+========================================================================
+contract Contract {
+    get fun bar() {}
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Contract method cannot be inline, get method
+========================================================================
+contract Contract {
+    get fun bar() {}
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Contract method cannot be inline, already inline
+========================================================================
+contract Contract {
+    inline fun bar() {}
+}
+------------------------------------------------------------------------
+3 1:15 to 1:18 Method 'bar' is never used (tact)
+
+========================================================================
+Contract method cannot be inline, already inline and override
+========================================================================
+contract Contract {
+    inline override fun bar() {}
+}
+------------------------------------------------------------------------
+3 1:24 to 1:27 Method 'bar' is never used (tact)
+
+========================================================================
+Trait method cannot be inline, abstract
+========================================================================
+trait Contract {
+    abstract fun bar();
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Trait method cannot be inline, virtual
+========================================================================
+trait Contract {
+    virtual fun bar() {}
+}
+------------------------------------------------------------------------
+no issues

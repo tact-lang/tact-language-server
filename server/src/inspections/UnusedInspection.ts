@@ -28,7 +28,7 @@ export abstract class UnusedInspection {
     ): void {
         if (!node || node.text === "_" || node.text.startsWith("_")) return
 
-        const references = new Referent(node, file).findReferences()
+        const references = new Referent(node, file).findReferences({limit: 1}) // we need at least one reference
         if (references.length === 0) {
             const range = asLspRange(options.rangeNode ?? node)
 

@@ -204,7 +204,11 @@ function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]): void {
     const struct = new Struct(n, file)
     const nodeIdentifier = struct.nameIdentifier()
     if (!nodeIdentifier) return
-    const references = new Referent(nodeIdentifier, file).findReferences(false, false, false)
+    const references = new Referent(nodeIdentifier, file).findReferences({
+        includeDefinition: false,
+        sameFileOnly: false,
+        includeSelf: false,
+    })
 
     result.push(
         newLens(n, {
