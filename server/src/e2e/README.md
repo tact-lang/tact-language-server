@@ -1,7 +1,6 @@
-# E2E Test Filtering System
+# E2E Tests
 
-This document describes the enhanced e2e test filtering system that allows you to run specific test suites, files, or
-individual tests.
+This document describes the e2e test system.
 
 ## Quick Start
 
