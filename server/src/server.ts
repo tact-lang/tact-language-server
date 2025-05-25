@@ -14,7 +14,6 @@ import {
     DidChangeWatchedFilesParams,
     FileChangeType,
     ParameterInformation,
-    RenameFilesParams,
     SymbolKind,
 } from "vscode-languageserver"
 import * as docs from "./documentation/documentation"
@@ -147,7 +146,7 @@ import {MissedMembersInContractInspection} from "@server/inspections/MissedMembe
 import {DeprecatedSymbolUsageInspection} from "@server/inspections/DeprecatedSymbolUsageInspection"
 import {CanBeInlineInspection} from "@server/inspections/CanBeInlineInspection"
 import {OptimalMathFunctionsInspection} from "@server/inspections/OptimalMathFunctionsInspection"
-import {processFileRenaming} from "@server/file-renaming"
+import {onFileRenamed, processFileRenaming} from "@server/file-renaming"
 
 /**
  * Whenever LS is initialized.
@@ -517,35 +516,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         }
     })
 
-    // Handle file rename operations to update import paths
     connection.onRequest("workspace/willRenameFiles", processFileRenaming)
-
-    connection.onNotification("workspace/didRenameFiles", (params: RenameFilesParams) => {
-        for (const fileRename of params.files) {
-            const oldUri = fileRename.oldUri
-            const newUri = fileRename.newUri
-
-            // Only handle .tact files
-            if (!oldUri.endsWith(".tact") || !newUri.endsWith(".tact")) {
-                continue
-            }
-
-            console.info(`File renamed from ${oldUri} to ${newUri}`)
-
-            // Update the file cache
-            const file = PARSED_FILES_CACHE.get(oldUri)
-            if (file) {
-                PARSED_FILES_CACHE.delete(oldUri)
-                // Create new file object with updated URI
-                const newFile = new File(newUri, file.tree, file.content)
-                PARSED_FILES_CACHE.set(newUri, newFile)
-
-                // Update the index
-                index.removeFile(oldUri)
-                index.addFile(newUri, newFile)
-            }
-        }
-    })
+    connection.onNotification("workspace/didRenameFiles", onFileRenamed)
 
     connection.onDidChangeConfiguration(() => {
         clearDocumentSettings()

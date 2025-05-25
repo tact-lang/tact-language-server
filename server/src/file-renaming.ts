@@ -5,6 +5,7 @@ import {ImportResolver} from "@server/psi/ImportResolver"
 import {File} from "@server/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {TextEdit} from "vscode-languageserver-types"
+import {index} from "@server/indexes"
 
 export function processFileRenaming(params: RenameFilesParams): lsp.WorkspaceEdit | null {
     const changes: Record<lsp.DocumentUri, lsp.TextEdit[]> = {}
@@ -14,6 +15,29 @@ export function processFileRenaming(params: RenameFilesParams): lsp.WorkspaceEdi
     }
 
     return Object.keys(changes).length > 0 ? {changes} : null
+}
+
+export function onFileRenamed(params: RenameFilesParams): void {
+    for (const fileRename of params.files) {
+        const oldUri = fileRename.oldUri
+        const newUri = fileRename.newUri
+
+        if (!oldUri.endsWith(".tact") || !newUri.endsWith(".tact")) {
+            continue
+        }
+
+        console.info(`File renamed from ${oldUri} to ${newUri}`)
+
+        const file = PARSED_FILES_CACHE.get(oldUri)
+        if (file) {
+            PARSED_FILES_CACHE.delete(oldUri)
+            const newFile = new File(newUri, file.tree, file.content)
+            PARSED_FILES_CACHE.set(newUri, newFile)
+
+            index.removeFile(oldUri)
+            index.addFile(newUri, newFile)
+        }
+    }
 }
 
 function processFileRename(fileRename: lsp.FileRename, changes: Record<string, TextEdit[]>): void {
