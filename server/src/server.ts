@@ -145,6 +145,7 @@ import {FiftReference} from "@server/fift/psi/FiftReference"
 import {MissedMembersInContractInspection} from "@server/inspections/MissedMembersInContractInspection"
 import {DeprecatedSymbolUsageInspection} from "@server/inspections/DeprecatedSymbolUsageInspection"
 import {CanBeInlineInspection} from "@server/inspections/CanBeInlineInspection"
+import {OptimalMathFunctionsInspection} from "@server/inspections/OptimalMathFunctionsInspection"
 
 /**
  * Whenever LS is initialized.
@@ -374,6 +375,7 @@ async function runInspections(uri: string, file: File, includeLinters: boolean):
         new RewriteInspection(),
         new MisspelledKeywordInspection(),
         new DeprecatedSymbolUsageInspection(),
+        new OptimalMathFunctionsInspection(),
     ]
 
     const settings = await getDocumentSettings(uri)
