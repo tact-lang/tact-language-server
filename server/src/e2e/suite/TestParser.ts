@@ -9,6 +9,7 @@ export interface TestCase {
     expected: string
     readonly result?: string
     readonly propertiesOrder: string[]
+    readonly files: Map<string, string> // Additional files: path -> content
 }
 
 enum ParserState {
@@ -16,7 +17,8 @@ enum ParserState {
     ReadingProperties = 1,
     ReadingName = 2,
     ReadingInput = 3,
-    ReadingExpected = 4,
+    ReadingFiles = 4,
+    ReadingExpected = 5,
 }
 
 const LINE_ENDING: "\r\n" | "\n" = os.platform() === "win32" ? "\r\n" : "\n"
@@ -32,8 +34,10 @@ export class TestParser {
         let currentTest: Partial<TestCase & {propertiesOrder: string[]}> = {
             properties: new Map(),
             propertiesOrder: [],
+            files: new Map(),
         }
         let currentContent = ""
+        let currentFilePath = ""
 
         for (const l of lines) {
             const line = l.trimEnd()
@@ -42,9 +46,11 @@ export class TestParser {
                 case ParserState.WaitingForTestStart: {
                     if (line === SEPARATOR) {
                         state = ParserState.ReadingProperties
+
                         currentTest = {
                             properties: new Map(),
                             propertiesOrder: [],
+                            files: new Map(),
                         }
                     }
                     break
@@ -83,6 +89,48 @@ export class TestParser {
                         currentTest.input = currentContent.trim()
                         state = ParserState.ReadingExpected
                         currentContent = ""
+                    } else if (line.startsWith("---FILE:")) {
+                        currentTest.input = currentContent.trim()
+                        state = ParserState.ReadingFiles
+                        // Start new file
+                        currentFilePath = line.slice(8).trim() // Remove "---FILE:" prefix
+                        currentContent = ""
+                    } else {
+                        currentContent += line + "\n"
+                    }
+                    break
+                }
+                case ParserState.ReadingFiles: {
+                    if (line === SEPARATOR) {
+                        if (currentFilePath && currentTest.files) {
+                            currentTest.files.set(currentFilePath, currentContent.trim())
+                        }
+
+                        currentTest.expected = ""
+                        tests.push(currentTest as TestCase)
+                        state = ParserState.ReadingProperties
+                        currentTest = {
+                            properties: new Map(),
+                            propertiesOrder: [],
+                            files: new Map(),
+                        }
+                        currentContent = ""
+                        currentFilePath = ""
+                    } else if (line === THIN_SEPARATOR) {
+                        if (currentFilePath && currentTest.files) {
+                            currentTest.files.set(currentFilePath, currentContent.trim())
+                        }
+
+                        state = ParserState.ReadingExpected
+                        currentContent = ""
+                        currentFilePath = ""
+                    } else if (line.startsWith("---FILE:")) {
+                        if (currentFilePath && currentTest.files) {
+                            currentTest.files.set(currentFilePath, currentContent.trim())
+                        }
+
+                        currentFilePath = line.slice(8).trim() // Remove "---FILE:" prefix
+                        currentContent = ""
                     } else {
                         currentContent += line + LINE_ENDING
                     }
@@ -96,6 +144,7 @@ export class TestParser {
                         currentTest = {
                             properties: new Map(),
                             propertiesOrder: [],
+                            files: new Map(),
                         }
                         currentContent = ""
                     } else {
@@ -106,8 +155,15 @@ export class TestParser {
             }
         }
 
-        if (currentTest.name && currentContent) {
-            currentTest.expected = currentContent.trim().replace(/\r\n/g, "\n")
+        if (currentTest.name) {
+            if (state === ParserState.ReadingFiles) {
+                if (currentFilePath && currentTest.files) {
+                    currentTest.files.set(currentFilePath, currentContent.trim())
+                }
+                currentTest.expected = ""
+            } else if (currentContent) {
+                currentTest.expected = currentContent.trim().replace(/\r\n/g, "\n")
+            }
             tests.push(currentTest as TestCase)
         }
 
@@ -133,7 +189,16 @@ export class TestParser {
                 newContent.push(`@${key} ${test.properties.get(key)}`)
             }
 
-            newContent.push(test.name, SEPARATOR, test.input, THIN_SEPARATOR)
+            newContent.push(test.name, SEPARATOR, test.input)
+
+            // Add additional files if they exist
+            if (test.files.size > 0) {
+                for (const [filePath, fileContent] of test.files.entries()) {
+                    newContent.push(`---FILE:${filePath}`, fileContent.replace(/\r\n/g, "\n"))
+                }
+            }
+
+            newContent.push(THIN_SEPARATOR)
 
             const update = updates.find(u => u.testName === test.name)
             const expectedContent = update ? update.actual : test.expected

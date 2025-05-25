@@ -3,6 +3,8 @@ Add import for trait from other file
 ========================================================================
 contract Test with <caret>ToImport {
 }
+---FILE:other.tact
+trait ToImport {}
 ------------------------------------------------------------------------
 No intentions
 
@@ -13,6 +15,8 @@ import "@stdlib/deploy"
 
 contract Test with <caret>ToImport {
 }
+---FILE:other.tact
+trait ToImport {}
 ------------------------------------------------------------------------
 No intentions
 
@@ -21,5 +25,9 @@ Add import for trait with several declarations from other file
 ========================================================================
 contract Test with <caret>WithSeveralDeclaration {
 }
+---FILE:other.tact
+trait ToImport {}
+---FILE:other2.tact
+trait ToImport {}
 ------------------------------------------------------------------------
 No intentions

@@ -4,7 +4,7 @@ import * as fs from "node:fs"
 import * as glob from "glob"
 import {TestCase, TestParser} from "./TestParser"
 import {existsSync} from "node:fs"
-import {TextDocument} from "vscode"
+import {TextDocument, Uri} from "vscode"
 
 export interface TestUpdate {
     readonly filePath: string
@@ -42,6 +42,11 @@ export abstract class BaseTestSuite {
 
         this.document = await vscode.workspace.openTextDocument(this.testFilePath)
         await vscode.languages.setTextDocumentLanguage(this.document, "tact")
+
+        await this.openMainFile()
+    }
+
+    public async openMainFile(): Promise<void> {
         this.editor = await vscode.window.showTextDocument(this.document)
     }
 
@@ -56,10 +61,19 @@ export abstract class BaseTestSuite {
 
     protected async openFile(name: string, content: string): Promise<void> {
         const filePath = path.join(this.workingDir(), name)
+
+        const dir = path.dirname(filePath)
+        await fs.promises.mkdir(dir, {recursive: true})
+
         await fs.promises.writeFile(filePath, content)
 
         const additionalFile = await vscode.workspace.openTextDocument(filePath)
         await vscode.languages.setTextDocumentLanguage(additionalFile, "tact")
+
+        await vscode.window.showTextDocument(additionalFile, {
+            preview: true,
+            preserveFocus: false,
+        })
 
         this.additionalFiles.push(additionalFile)
     }
@@ -70,10 +84,16 @@ export abstract class BaseTestSuite {
         const document = this.additionalFiles.find(item => item.uri.fsPath === filePath)
         if (!document) return
 
+        const bytes = new TextEncoder().encode("")
+        await vscode.workspace.fs.writeFile(Uri.file(filePath), bytes)
+
+        await fs.promises.writeFile(filePath, "")
+
         await vscode.window.showTextDocument(document, {
             preview: true,
             preserveFocus: false,
         })
+
         await vscode.commands.executeCommand("workbench.action.closeActiveEditor")
 
         if (!existsSync(filePath)) {
@@ -81,6 +101,36 @@ export abstract class BaseTestSuite {
         }
 
         await fs.promises.rm(filePath)
+    }
+
+    protected async setupAdditionalFiles(testCase: TestCase): Promise<void> {
+        if (testCase.files.size === 0) {
+            return
+        }
+
+        this.logTestInfo(`Setting up ${testCase.files.size} additional file(s)`)
+
+        for (const [filePath, content] of testCase.files.entries()) {
+            await this.openFile(filePath, content)
+            this.logTestInfo(`Created file: ${filePath}`)
+        }
+
+        await this.openMainFile()
+    }
+
+    protected async cleanupAdditionalFiles(testCase: TestCase): Promise<void> {
+        if (testCase.files.size === 0) {
+            return
+        }
+
+        for (const filePath of testCase.files.keys()) {
+            await this.closeFile(filePath)
+            this.logTestInfo(`Cleaned up file: ${filePath}`)
+        }
+    }
+
+    protected hasAdditionalFiles(testCase: TestCase): boolean {
+        return testCase.files.size > 0
     }
 
     protected calculatePosition(text: string, caretIndex: number): vscode.Position {
