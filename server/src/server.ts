@@ -147,6 +147,7 @@ import {DeprecatedSymbolUsageInspection} from "@server/inspections/DeprecatedSym
 import {CanBeInlineInspection} from "@server/inspections/CanBeInlineInspection"
 import {OptimalMathFunctionsInspection} from "@server/inspections/OptimalMathFunctionsInspection"
 import {onFileRenamed, processFileRenaming} from "@server/file-renaming"
+import {ExtractToFile} from "@server/intentions/ExtractToFile"
 import {NamingConventionInspection} from "@server/inspections/NamingConventionInspection"
 
 /**
@@ -1805,6 +1806,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         new WrapSelectedToTry(),
         new WrapSelectedToTryCatch(),
         new WrapSelectedToRepeat(),
+        new ExtractToFile(),
     ]
 
     connection.onRequest(
@@ -1850,6 +1852,38 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 noSelection:
                     args.range.start.line === args.range.end.line &&
                     args.range.start.character === args.range.end.character,
+                customFileName: args.customFileName,
+            }
+
+            if (intention instanceof ExtractToFile && !ctx.customFileName) {
+                const getElementInfoForExtraction = (
+                    intention: ExtractToFile,
+                    ctx: IntentionContext,
+                ): {elementName: string; suggestedFileName: string} | null => {
+                    const element = intention.findExtractableElement(ctx)
+                    if (!element) return null
+
+                    const suggestedFileName = intention.getSuggestedFileName(ctx)
+                    if (!suggestedFileName) return null
+
+                    return {
+                        elementName: element.name(),
+                        suggestedFileName: suggestedFileName,
+                    }
+                }
+
+                const elementInfo = getElementInfoForExtraction(intention, ctx)
+                if (!elementInfo) return null
+
+                await connection.sendNotification("tact/extractToFileWithInput", {
+                    fileUri: args.fileUri,
+                    range: args.range,
+                    position: args.position,
+                    elementName: elementInfo.elementName,
+                    suggestedFileName: elementInfo.suggestedFileName,
+                })
+
+                return null
             }
 
             const edits = intention.invoke(ctx)

@@ -8,12 +8,14 @@ export interface IntentionContext {
     readonly range: Range
     readonly position: Position
     readonly noSelection: boolean
+    readonly customFileName?: string
 }
 
 export interface IntentionArguments {
     readonly fileUri: string
     readonly range: Range
     readonly position: Position
+    readonly customFileName?: string
 }
 
 export interface Intention {
