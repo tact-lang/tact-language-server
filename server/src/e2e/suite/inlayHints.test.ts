@@ -19,30 +19,31 @@ suite("Inlay Hints Test Suite", () => {
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Hint: ${testCase.name}`, async () => {
-                const hints = await this.getHints(testCase.input)
-                const expected = testCase.expected.trimEnd()
                 await this.replaceDocumentText(testCase.input)
+                const hints = await this.getHints(this.document.getText())
 
                 for (let x = 0; x < hints.length; x++) {
                     const hint = hints[x]
 
-                    await this.editor.edit(editBuilder => {
-                        const label =
-                            typeof hint.label === "string"
-                                ? hint.label
-                                : hint.label.map(p => p.value).join("")
+                    const label =
+                        typeof hint.label === "string"
+                            ? hint.label
+                            : hint.label.map(p => p.value).join("")
 
-                        editBuilder.insert(hint.position, `/* ${label} */`)
+                    const value = `/* ${label} */`
+
+                    await this.editor.edit(editBuilder => {
+                        editBuilder.insert(hint.position, value)
                     })
 
+                    // recalculate positions of the next hint
                     const updatedHints = await this.getHints(this.document.getText())
-                    if (x + 1 < hints.length) {
-                        if (x + 1 < updatedHints.length) {
-                            hints[x + 1].position = updatedHints[x + 1].position
-                        }
+                    if (x + 1 < hints.length && x + 1 < updatedHints.length) {
+                        hints[x + 1].position = updatedHints[x + 1].position
                     }
                 }
 
+                const expected = testCase.expected.trimEnd()
                 const actual = this.document.getText().trimEnd().replace(/\r\n/g, "\n")
                 if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                     this.updates.push({
