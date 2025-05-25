@@ -82,7 +82,7 @@ export abstract class BaseTestSuite {
         await editor.edit(edit => {
             const fullRange = new vscode.Range(
                 document.positionAt(0),
-                document.positionAt(this.document.getText().length),
+                document.positionAt(document.getText().length),
             )
             edit.replace(fullRange, "")
         })
