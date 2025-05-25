@@ -121,6 +121,11 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
 
     registerCommands(disposables)
 
+    client.onNotification(
+        "tact/extractToFileWithInput",
+        (params: ExtractToFileIntention) => void onExtractFile(params),
+    )
+
     const langStatusBar = vscode.window.createStatusBarItem(
         "Tact",
         vscode.StatusBarAlignment.Left,
@@ -144,6 +149,46 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     return new vscode.Disposable(() => {
         disposables.forEach(d => void d.dispose())
     })
+}
+
+const onExtractFile = async (params: ExtractToFileIntention): Promise<void> => {
+    try {
+        const fileName = await vscode.window.showInputBox({
+            prompt: `Enter filename for extracted ${params.elementName}`,
+            value: params.suggestedFileName,
+            validateInput: (value: string) => {
+                if (!value.trim()) {
+                    return "Filename cannot be empty"
+                }
+                if (!value.endsWith(".tact")) {
+                    return "Filename must end with .tact"
+                }
+                if (!/^[\w-]+\.tact$/.test(value)) {
+                    return "Filename contains invalid characters"
+                }
+                return null
+            },
+        })
+
+        if (!fileName) return
+
+        await client?.sendRequest("workspace/executeCommand", {
+            command: "tact.extract-to-file",
+            arguments: [
+                {
+                    fileUri: params.fileUri,
+                    range: params.range,
+                    position: params.position,
+                    customFileName: fileName,
+                },
+            ],
+        })
+    } catch (error: unknown) {
+        console.error("Error in extractToFileWithInput notification:", error)
+        vscode.window.showErrorMessage(
+            `Failed to extract to file: ${error instanceof Error ? error.message : ""}`,
+        )
+    }
 }
 
 async function showReferencesImpl(
@@ -337,4 +382,12 @@ function registerMistiCommand(context: vscode.ExtensionContext): void {
             await vscode.tasks.executeTask(task)
         }),
     )
+}
+
+export interface ExtractToFileIntention {
+    readonly fileUri: string
+    readonly range: Range
+    readonly position: Position
+    readonly elementName?: string
+    readonly suggestedFileName?: string
 }

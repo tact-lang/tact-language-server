@@ -147,6 +147,8 @@ import {DeprecatedSymbolUsageInspection} from "@server/inspections/DeprecatedSym
 import {CanBeInlineInspection} from "@server/inspections/CanBeInlineInspection"
 import {OptimalMathFunctionsInspection} from "@server/inspections/OptimalMathFunctionsInspection"
 import {onFileRenamed, processFileRenaming} from "@server/file-renaming"
+import {ExtractToFile} from "@server/intentions/ExtractToFile"
+import {ExtractToFileWithInput} from "@server/intentions/ExtractToFileWithInput"
 
 /**
  * Whenever LS is initialized.
@@ -1803,6 +1805,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         new WrapSelectedToTry(),
         new WrapSelectedToTryCatch(),
         new WrapSelectedToRepeat(),
+        new ExtractToFile(),
+        new ExtractToFileWithInput(),
     ]
 
     connection.onRequest(
@@ -1848,6 +1852,25 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 noSelection:
                     args.range.start.line === args.range.end.line &&
                     args.range.start.character === args.range.end.character,
+                customFileName: args.customFileName,
+            }
+
+            if (intention instanceof ExtractToFileWithInput) {
+                const elementInfo = intention.getElementInfo(ctx)
+                if (!elementInfo) {
+                    console.log("No element info found")
+                    return null
+                }
+
+                await connection.sendNotification("tact/extractToFileWithInput", {
+                    fileUri: args.fileUri,
+                    range: args.range,
+                    position: args.position,
+                    elementName: elementInfo.elementName,
+                    suggestedFileName: elementInfo.suggestedFileName,
+                })
+
+                return null
             }
 
             const edits = intention.invoke(ctx)
