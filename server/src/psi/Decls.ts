@@ -513,6 +513,10 @@ export class Fun extends NamedNode {
         return this.node.type === "native_function"
     }
 
+    public isAsm(): boolean {
+        return this.node.type === "asm_function"
+    }
+
     public owner(): StorageMembersOwner | null {
         const ownerNode = parentOfType(this.node, "trait", "contract")
         if (!ownerNode) return null

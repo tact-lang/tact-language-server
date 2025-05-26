@@ -70,6 +70,20 @@ contract Contract {
 1 4:8 to 4:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
 
 ========================================================================
+Global function cannot be inline, asm
+========================================================================
+asm fun foo() { DROP }
+
+contract Contract {
+    fun bar() {
+        foo();
+    }
+}
+------------------------------------------------------------------------
+3 3:8 to 3:11 Method 'bar' is never used (tact)
+1 3:8 to 3:11 The function does not use contract state, extract it into a standalone function for better performance (tact)
+
+========================================================================
 Contract method can be inline
 ========================================================================
 contract Contract {

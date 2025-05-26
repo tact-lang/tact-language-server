@@ -60,6 +60,7 @@ export class CanBeInlineInspection implements Inspection {
             fun.isNative() ||
             fun.isAbstract() ||
             fun.isVirtual() ||
+            fun.isAsm() ||
             fun.isInline()
         ) {
             return false
