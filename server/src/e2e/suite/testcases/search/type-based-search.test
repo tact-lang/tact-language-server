@@ -167,7 +167,8 @@ Query "-> Int?": 1 results
   Functions: handleOptional
 Query "-> Address": 1 results
   Functions: getOwner
-Query "Address -> _": 0 results
+Query "Address -> _": 1 results
+  Functions: setOwner
 
 ========================================================================
 Multiple parameters with wildcards
@@ -277,8 +278,8 @@ Query "Address -> Int": 1 results
   Functions: getBalance
 Query "Address, Int -> Bool": 1 results
   Functions: transfer
-Query "Address, Int -> _": 1 results
-  Functions: transfer
+Query "Address, Int -> _": 2 results
+  Functions: mint, transfer
 Query "Int -> Bool": 1 results
   Functions: burn
 
@@ -320,18 +321,18 @@ Query "Address, Int -> Bool": 1 results
   Functions: transfer
 Query "Address -> Int": 1 results
   Functions: getBalance
-Query "Address, Int -> _": 1 results
-  Functions: transfer
+Query "Address, Int -> _": 2 results
+  Functions: mint, transfer
 Query "Int -> Bool": 1 results
   Functions: burn
 Query "-> Address": 1 results
   Functions: getOwner
-Query "Address -> _": 2 results
-  Functions: getBalance, isOwner
+Query "Address -> _": 3 results
+  Functions: getBalance, isOwner, setOwner
 Query "-> Bool": 1 results
   Functions: isPaused
-Query "-> _": 2 results
-  Functions: getOwner, isPaused
+Query "-> _": 4 results
+  Functions: getOwner, isPaused, pause, unpause
 
 ========================================================================
 Edge cases and special types
@@ -488,3 +489,84 @@ Query "map<String, map<Int, Bool>> -> String": 0 results
 Query "-> map<String, Int>": 1 results
   Functions: createNestedStructure
 Query "map<Int, String>? -> Bool": 0 results
+
+========================================================================
+Optional types strict matching
+========================================================================
+fun processOptional(value: Int?): String {
+    return "optional"
+}
+
+fun processRegular(value: Int): String {
+    return "regular"
+}
+
+fun returnOptional(): Int? {
+    return null
+}
+
+fun returnRegular(): Int {
+    return 42
+}
+
+//! SEARCH: Int? -> String
+//! SEARCH: Int -> String
+//! SEARCH: -> Int?
+//! SEARCH: -> Int
+//! SEARCH: Int? -> _
+//! SEARCH: Int -> _
+//! SEARCH: _ -> Int?
+//! SEARCH: _ -> Int
+------------------------------------------------------------------------
+Query "Int? -> String": 1 results
+  Functions: processOptional
+Query "Int -> String": 1 results
+  Functions: processRegular
+Query "-> Int?": 1 results
+  Functions: returnOptional
+Query "-> Int": 1 results
+  Functions: returnRegular
+Query "Int? -> _": 1 results
+  Functions: processOptional
+Query "Int -> _": 1 results
+  Functions: processRegular
+Query "_ -> Int?": 1 results
+  Functions: returnOptional
+Query "_ -> Int": 1 results
+  Functions: returnRegular
+
+========================================================================
+Void functions
+========================================================================
+fun processData(value: Int) {
+    // void function
+}
+
+fun updateState(newValue: String) {
+    // void function
+}
+
+fun initialize() {
+    // void function
+}
+
+fun returnValue(): Int {
+    return 42
+}
+
+//! SEARCH: Int -> void
+//! SEARCH: String -> void
+//! SEARCH: -> void
+//! SEARCH: _ -> void
+//! SEARCH: -> Int
+------------------------------------------------------------------------
+Query "Int -> void": 1 results
+  Functions: processData
+Query "String -> void": 1 results
+  Functions: updateState
+Query "-> void": 1 results
+  Functions: initialize
+Query "_ -> void": 3 results
+  Functions: initialize, processData, updateState
+Query "-> Int": 1 results
+  Functions: returnValue

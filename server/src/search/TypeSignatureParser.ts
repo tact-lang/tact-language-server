@@ -245,13 +245,14 @@ export class TypeSignatureUtils {
             if (actualType === `${pattern.name}?`) {
                 return this.matchesGenerics(actualType, pattern)
             }
-            if (actualType === pattern.name) {
-                return this.matchesGenerics(actualType, pattern)
-            }
-        } else {
-            if (actualType === pattern.name) {
-                return this.matchesGenerics(actualType, pattern)
-            }
+            return false
+        }
+
+        if (actualType === pattern.name) {
+            return this.matchesGenerics(actualType, pattern)
+        }
+        if (actualType.endsWith("?")) {
+            return false
         }
 
         if (actualType.startsWith("map<") && pattern.name.startsWith("map<")) {
@@ -335,26 +336,50 @@ export class TypeSignatureUtils {
         parameters: string[]
         returnType: string
     } | null {
-        // parse signatures like "(a: Int, b: Int): Int" or "(): Int"
-        const match = /\(([^)]*)\):\s*(.+)/.exec(signature)
-        if (!match) return null
+        // parse signatures like "(a: Int, b: Int): Int", "(): Int", or "(a: Int)" for void functions
+        const matchWithReturn = /\(([^)]*)\):\s*(.+)/.exec(signature)
+        if (matchWithReturn) {
+            const [, paramStr, returnType] = matchWithReturn
+            const parameters: string[] = []
 
-        const [, paramStr, returnType] = match
-        const parameters: string[] = []
-
-        if (paramStr.trim()) {
-            const paramParts = paramStr.split(",")
-            for (const part of paramParts) {
-                const typeMatch = /:\s*(.+)/.exec(part.trim())
-                if (typeMatch) {
-                    parameters.push(typeMatch[1].trim())
+            if (paramStr.trim()) {
+                const paramParts = paramStr.split(",")
+                for (const part of paramParts) {
+                    const typeMatch = /:\s*(.+)/.exec(part.trim())
+                    if (typeMatch) {
+                        parameters.push(typeMatch[1].trim())
+                    }
                 }
+            }
+
+            return {
+                parameters,
+                returnType: returnType.trim(),
             }
         }
 
-        return {
-            parameters,
-            returnType: returnType.trim(),
+        // Handle void functions: "(a: Int)" or "()"
+        const matchVoid = /\(([^)]*)\)$/.exec(signature)
+        if (matchVoid) {
+            const [, paramStr] = matchVoid
+            const parameters: string[] = []
+
+            if (paramStr.trim()) {
+                const paramParts = paramStr.split(",")
+                for (const part of paramParts) {
+                    const typeMatch = /:\s*(.+)/.exec(part.trim())
+                    if (typeMatch) {
+                        parameters.push(typeMatch[1].trim())
+                    }
+                }
+            }
+
+            return {
+                parameters,
+                returnType: "void",
+            }
         }
+
+        return null
     }
 }
