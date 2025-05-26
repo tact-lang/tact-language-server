@@ -1,6 +1,6 @@
 import type * as lsp from "vscode-languageserver"
 
-export const GetTypeAtPositionRequest = "tact/executeGetTypeAtPosition"
+export const GetTypeAtPositionRequest = "tact/getTypeAtPosition"
 export const GetDocumentationAtPositionRequest = "tact/executeHoverProvider"
 export const SetToolchainVersionNotification = "tact/setToolchainVersion"
 export const GetGasConsumptionForSelectionRequest = "tact/executeGetGasConsumptionForSelection"

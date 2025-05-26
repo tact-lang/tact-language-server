@@ -457,7 +457,7 @@ function registerGasConsumptionStatusBar(context: vscode.ExtensionContext): void
             }
         }),
         vscode.workspace.onDidChangeConfiguration(async event => {
-            if (event.affectsConfiguration("tact.hints.showGasStatusBar")) {
+            if (event.affectsConfiguration("tact.gas.showGasStatusBar")) {
                 const editor = vscode.window.activeTextEditor
                 if (editor) {
                     await updateGasStatusBar(editor)
@@ -475,7 +475,7 @@ async function updateGasStatusBar(editor: vscode.TextEditor): Promise<void> {
     }
 
     const config = vscode.workspace.getConfiguration("tact")
-    const showGasStatusBar = config.get<boolean>("hints.showGasStatusBar", true)
+    const showGasStatusBar = config.get<boolean>("gas.showGasStatusBar", true)
 
     if (!showGasStatusBar) {
         hideGasStatusBar()
