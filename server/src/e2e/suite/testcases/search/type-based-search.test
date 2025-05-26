@@ -1,0 +1,625 @@
+========================================================================
+Type-based search for functions
+========================================================================
+fun add(a: Int, b: Int): Int {
+    return a + b
+}
+
+fun toString(value: Int): String {
+    return value.toString()
+}
+
+fun getBalance(): Int {
+    return 1000
+}
+
+contract TestContract {
+    balance: Int
+
+    init(initialBalance: Int) {
+        self.balance = initialBalance
+    }
+
+    get fun getBalance(): Int {
+        return self.balance
+    }
+
+    fun updateBalance(newBalance: Int) {
+        self.balance = newBalance
+    }
+
+    fun formatBalance(): String {
+        return self.balance.toString()
+    }
+}
+
+trait TestTrait {
+    fun process(value: Int): String
+}
+
+//! SEARCH: Int -> String
+//! SEARCH: _ -> Int
+//! SEARCH: Int, Int -> Int
+//! SEARCH: -> Int
+//! SEARCH: String -> Int
+------------------------------------------------------------------------
+Query "Int -> String": 2 results
+  Functions: process, toString
+Query "_ -> Int": 3 results
+  Functions: add, getBalance, getBalance
+Query "Int, Int -> Int": 1 results
+  Functions: add
+Query "-> Int": 2 results
+  Functions: getBalance, getBalance
+Query "String -> Int": 0 results
+
+========================================================================
+Type-based search with no matches
+========================================================================
+fun simpleFunction(): Bool {
+    return true
+}
+
+//! SEARCH: Int -> String
+//! SEARCH: _ -> Int
+//! SEARCH: Int, Int -> Int
+//! SEARCH: -> Int
+//! SEARCH: String -> Int
+------------------------------------------------------------------------
+Query "Int -> String": 0 results
+Query "_ -> Int": 0 results
+Query "Int, Int -> Int": 0 results
+Query "-> Int": 0 results
+Query "String -> Int": 0 results
+
+========================================================================
+Type-based search with wildcards
+========================================================================
+fun processData(input: String, count: Int): Bool {
+    return true
+}
+
+fun validateInput(data: String): Bool {
+    return true
+}
+
+fun hasData(): Bool {
+    return false
+}
+
+//! SEARCH: _ -> Bool
+//! SEARCH: String -> Bool
+//! SEARCH: String, Int -> Bool
+//! SEARCH: -> Bool
+------------------------------------------------------------------------
+Query "_ -> Bool": 3 results
+  Functions: hasData, processData, validateInput
+Query "String -> Bool": 1 results
+  Functions: validateInput
+Query "String, Int -> Bool": 1 results
+  Functions: processData
+Query "-> Bool": 1 results
+  Functions: hasData
+
+========================================================================
+Complex types and optional parameters
+========================================================================
+struct Point {
+    x: Int
+    y: Int
+}
+
+message Transfer {
+    amount: Int
+    to: Address
+}
+
+fun createPoint(x: Int, y: Int): Point {
+    return Point{x: x, y: y}
+}
+
+fun processTransfer(msg: Transfer): Bool {
+    return true
+}
+
+fun getOptionalValue(input: Int?): String {
+    return "test"
+}
+
+fun handleOptional(): Int? {
+    return null
+}
+
+contract ComplexContract {
+    owner: Address
+
+    init(owner: Address) {
+        self.owner = owner
+    }
+
+    get fun getOwner(): Address {
+        return self.owner
+    }
+
+    fun setOwner(newOwner: Address) {
+        self.owner = newOwner
+    }
+
+    receive(msg: Transfer) {
+        // Handle transfer
+    }
+}
+
+//! SEARCH: Int, Int -> Point
+//! SEARCH: Transfer -> Bool
+//! SEARCH: Int? -> String
+//! SEARCH: -> Int?
+//! SEARCH: -> Address
+//! SEARCH: Address -> _
+------------------------------------------------------------------------
+Query "Int, Int -> Point": 1 results
+  Functions: createPoint
+Query "Transfer -> Bool": 1 results
+  Functions: processTransfer
+Query "Int? -> String": 1 results
+  Functions: getOptionalValue
+Query "-> Int?": 1 results
+  Functions: handleOptional
+Query "-> Address": 1 results
+  Functions: getOwner
+Query "Address -> _": 1 results
+  Functions: setOwner
+
+========================================================================
+Multiple parameters with wildcards
+========================================================================
+fun calculate(a: Int, b: Int, c: Int): Int {
+    return a + b + c
+}
+
+fun format(value: Int, prefix: String, suffix: String): String {
+    return prefix + value.toString() + suffix
+}
+
+fun validate(data: String, minLength: Int, maxLength: Int): Bool {
+    return data.length() >= minLength && data.length() <= maxLength
+}
+
+fun process(input: String, count: Int, flag: Bool): String {
+    return input
+}
+
+fun merge(first: String, second: String): String {
+    return first + second
+}
+
+//! SEARCH: Int, Int, Int -> Int
+//! SEARCH: Int, String, String -> String
+//! SEARCH: String, Int, Int -> Bool
+//! SEARCH: String, Int, Bool -> String
+//! SEARCH: String, String -> String
+//! SEARCH: _, _, _ -> Int
+//! SEARCH: String, _, _ -> _
+//! SEARCH: _, String, _ -> String
+------------------------------------------------------------------------
+Query "Int, Int, Int -> Int": 1 results
+  Functions: calculate
+Query "Int, String, String -> String": 1 results
+  Functions: format
+Query "String, Int, Int -> Bool": 1 results
+  Functions: validate
+Query "String, Int, Bool -> String": 1 results
+  Functions: process
+Query "String, String -> String": 1 results
+  Functions: merge
+Query "_, _, _ -> Int": 1 results
+  Functions: calculate
+Query "String, _, _ -> _": 3 results
+  Functions: merge, process, validate
+Query "_, String, _ -> String": 2 results
+  Functions: format, merge
+
+========================================================================
+Contract methods and getters
+========================================================================
+contract TokenContract {
+    totalSupply: Int
+    balances: map<Address, Int>
+    name: String
+    symbol: String
+
+    init(name: String, symbol: String, totalSupply: Int) {
+        self.name = name
+        self.symbol = symbol
+        self.totalSupply = totalSupply
+    }
+
+    get fun getName(): String {
+        return self.name
+    }
+
+    get fun getSymbol(): String {
+        return self.symbol
+    }
+
+    get fun getTotalSupply(): Int {
+        return self.totalSupply
+    }
+
+    get fun getBalance(owner: Address): Int {
+        return self.balances.get(owner) ?: 0
+    }
+
+    fun transfer(to: Address, amount: Int): Bool {
+        return true
+    }
+
+    fun mint(to: Address, amount: Int) {
+        // Mint tokens
+    }
+
+    fun burn(amount: Int): Bool {
+        return true
+    }
+}
+
+//! SEARCH: -> String
+//! SEARCH: -> Int
+//! SEARCH: Address -> Int
+//! SEARCH: Address, Int -> Bool
+//! SEARCH: Address, Int -> _
+//! SEARCH: Int -> Bool
+------------------------------------------------------------------------
+Query "-> String": 2 results
+  Functions: getName, getSymbol
+Query "-> Int": 1 results
+  Functions: getTotalSupply
+Query "Address -> Int": 1 results
+  Functions: getBalance
+Query "Address, Int -> Bool": 1 results
+  Functions: transfer
+Query "Address, Int -> _": 2 results
+  Functions: mint, transfer
+Query "Int -> Bool": 1 results
+  Functions: burn
+
+========================================================================
+Trait methods
+========================================================================
+trait Transferable {
+    fun transfer(to: Address, amount: Int): Bool
+    fun getBalance(owner: Address): Int
+}
+
+trait Mintable {
+    fun mint(to: Address, amount: Int)
+    fun burn(amount: Int): Bool
+}
+
+trait Ownable {
+    fun getOwner(): Address
+    fun setOwner(newOwner: Address)
+    fun isOwner(address: Address): Bool
+}
+
+trait Pausable {
+    fun pause()
+    fun unpause()
+    fun isPaused(): Bool
+}
+
+//! SEARCH: Address, Int -> Bool
+//! SEARCH: Address -> Int
+//! SEARCH: Address, Int -> _
+//! SEARCH: Int -> Bool
+//! SEARCH: -> Address
+//! SEARCH: Address -> _
+//! SEARCH: -> Bool
+//! SEARCH: -> _
+------------------------------------------------------------------------
+Query "Address, Int -> Bool": 1 results
+  Functions: transfer
+Query "Address -> Int": 1 results
+  Functions: getBalance
+Query "Address, Int -> _": 2 results
+  Functions: mint, transfer
+Query "Int -> Bool": 1 results
+  Functions: burn
+Query "-> Address": 1 results
+  Functions: getOwner
+Query "Address -> _": 3 results
+  Functions: getBalance, isOwner, setOwner
+Query "-> Bool": 1 results
+  Functions: isPaused
+Query "-> _": 4 results
+  Functions: getOwner, isPaused, pause, unpause
+
+========================================================================
+Edge cases and special types
+========================================================================
+fun handleCell(data: Cell): Slice {
+    return data.beginParse()
+}
+
+fun buildCell(data: Slice): Cell {
+    return beginCell().storeSlice(data).endCell()
+}
+
+fun processBuilder(builder: Builder): Cell {
+    return builder.endCell()
+}
+
+fun getSlice(): Slice {
+    return emptySlice()
+}
+
+fun createBuilder(): Builder {
+    return beginCell()
+}
+
+fun handleMap(data: map<Int, String>): Bool {
+    return true
+}
+
+//! SEARCH: Cell -> Slice
+//! SEARCH: Slice -> Cell
+//! SEARCH: Builder -> Cell
+//! SEARCH: -> Slice
+//! SEARCH: -> Builder
+//! SEARCH: map<Int, String> -> Bool
+------------------------------------------------------------------------
+Query "Cell -> Slice": 1 results
+  Functions: handleCell
+Query "Slice -> Cell": 1 results
+  Functions: buildCell
+Query "Builder -> Cell": 1 results
+  Functions: processBuilder
+Query "-> Slice": 1 results
+  Functions: getSlice
+Query "-> Builder": 1 results
+  Functions: createBuilder
+Query "map<Int, String> -> Bool": 0 results
+
+========================================================================
+Mixed return types with wildcards
+========================================================================
+fun getValue(): Int {
+    return 42
+}
+
+fun getText(): String {
+    return "hello"
+}
+
+fun getFlag(): Bool {
+    return true
+}
+
+fun getAddress(): Address {
+    return myAddress()
+}
+
+fun processInt(value: Int): Int {
+    return value * 2
+}
+
+fun processString(value: String): String {
+    return value
+}
+
+fun processBool(value: Bool): Bool {
+    return !value
+}
+
+fun processAddress(addr: Address): Address {
+    return addr
+}
+
+//! SEARCH: -> _
+//! SEARCH: Int -> _
+//! SEARCH: String -> _
+//! SEARCH: Bool -> _
+//! SEARCH: Address -> _
+//! SEARCH: _ -> Int
+//! SEARCH: _ -> String
+//! SEARCH: _ -> Bool
+//! SEARCH: _ -> Address
+------------------------------------------------------------------------
+Query "-> _": 4 results
+  Functions: getAddress, getFlag, getText, getValue
+Query "Int -> _": 1 results
+  Functions: processInt
+Query "String -> _": 1 results
+  Functions: processString
+Query "Bool -> _": 1 results
+  Functions: processBool
+Query "Address -> _": 1 results
+  Functions: processAddress
+Query "_ -> Int": 2 results
+  Functions: getValue, processInt
+Query "_ -> String": 2 results
+  Functions: getText, processString
+Query "_ -> Bool": 2 results
+  Functions: getFlag, processBool
+Query "_ -> Address": 2 results
+  Functions: getAddress, processAddress
+
+========================================================================
+Error handling and invalid queries
+========================================================================
+fun testFunction(): Int {
+    return 1
+}
+
+//! SEARCH: invalid
+//! SEARCH: Int ->
+//! SEARCH: ->
+//! SEARCH:
+//! SEARCH: Int -> String -> Bool
+//! SEARCH: Int,, String -> Bool
+//! SEARCH: ( -> )
+------------------------------------------------------------------------
+Query "invalid": Error - Invalid type signature format
+Query "Int ->": Error - Invalid type signature format
+Query "->": Error - Invalid type signature format
+Query "Int -> String -> Bool": Error - Invalid type signature format
+Query "Int,, String -> Bool": Error - Expected type name
+Query "( -> )": Error - Expected type name
+
+========================================================================
+Nested generic types
+========================================================================
+fun processNestedMap(data: map<String, map<Int, Bool>>): String {
+    return "processed"
+}
+
+fun createNestedStructure(): map<String, Int> {
+    return emptyMap()
+}
+
+fun processOptionalMap(data: map<Int, String>?): Bool {
+    return true
+}
+
+//! SEARCH: map<String, map<Int, Bool>> -> String
+//! SEARCH: -> map<String, Int>
+//! SEARCH: map<Int, String>? -> Bool
+------------------------------------------------------------------------
+Query "map<String, map<Int, Bool>> -> String": 0 results
+Query "-> map<String, Int>": 1 results
+  Functions: createNestedStructure
+Query "map<Int, String>? -> Bool": 0 results
+
+========================================================================
+Optional types strict matching
+========================================================================
+fun processOptional(value: Int?): String {
+    return "optional"
+}
+
+fun processRegular(value: Int): String {
+    return "regular"
+}
+
+fun returnOptional(): Int? {
+    return null
+}
+
+fun returnRegular(): Int {
+    return 42
+}
+
+//! SEARCH: Int? -> String
+//! SEARCH: Int -> String
+//! SEARCH: -> Int?
+//! SEARCH: -> Int
+//! SEARCH: Int? -> _
+//! SEARCH: Int -> _
+//! SEARCH: _ -> Int?
+//! SEARCH: _ -> Int
+------------------------------------------------------------------------
+Query "Int? -> String": 1 results
+  Functions: processOptional
+Query "Int -> String": 1 results
+  Functions: processRegular
+Query "-> Int?": 1 results
+  Functions: returnOptional
+Query "-> Int": 1 results
+  Functions: returnRegular
+Query "Int? -> _": 1 results
+  Functions: processOptional
+Query "Int -> _": 1 results
+  Functions: processRegular
+Query "_ -> Int?": 1 results
+  Functions: returnOptional
+Query "_ -> Int": 1 results
+  Functions: returnRegular
+
+========================================================================
+Void functions
+========================================================================
+fun processData(value: Int) {
+    // void function
+}
+
+fun updateState(newValue: String) {
+    // void function
+}
+
+fun initialize() {
+    // void function
+}
+
+fun returnValue(): Int {
+    return 42
+}
+
+//! SEARCH: Int -> void
+//! SEARCH: String -> void
+//! SEARCH: -> void
+//! SEARCH: _ -> void
+//! SEARCH: -> Int
+------------------------------------------------------------------------
+Query "Int -> void": 1 results
+  Functions: processData
+Query "String -> void": 1 results
+  Functions: updateState
+Query "-> void": 1 results
+  Functions: initialize
+Query "_ -> void": 3 results
+  Functions: initialize, processData, updateState
+Query "-> Int": 1 results
+  Functions: returnValue
+
+========================================================================
+Optional wildcard matching
+========================================================================
+fun processOptionalInt(value: Int?) {
+    // void function with optional parameter
+}
+
+fun processRegularInt(value: Int) {
+    // void function with regular parameter
+}
+
+fun returnOptionalString(): String? {
+    return null
+}
+
+fun returnRegularString(): String {
+    return "hello"
+}
+
+fun processOptionalAndRegular(opt: Int?, reg: String): Bool {
+    return true
+}
+
+fun processTwoOptionals(opt1: Int?, opt2: String?): Bool {
+    return false
+}
+
+//! SEARCH: _? -> void
+//! SEARCH: _ -> void
+//! SEARCH: -> _?
+//! SEARCH: -> _
+//! SEARCH: _?, String -> Bool
+//! SEARCH: _?, _? -> Bool
+//! SEARCH: Int? -> void
+//! SEARCH: Int -> void
+------------------------------------------------------------------------
+Query "_? -> void": 1 results
+  Functions: processOptionalInt
+Query "_ -> void": 2 results
+  Functions: processOptionalInt, processRegularInt
+Query "-> _?": 1 results
+  Functions: returnOptionalString
+Query "-> _": 2 results
+  Functions: returnOptionalString, returnRegularString
+Query "_?, String -> Bool": 1 results
+  Functions: processOptionalAndRegular
+Query "_?, _? -> Bool": 1 results
+  Functions: processTwoOptionals
+Query "Int? -> void": 1 results
+  Functions: processOptionalInt
+Query "Int -> void": 1 results
+  Functions: processRegularInt

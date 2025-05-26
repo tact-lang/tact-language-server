@@ -45,3 +45,23 @@ export interface GetGasConsumptionForSelectionResponse {
     } | null
     readonly error?: string
 }
+
+export const SearchByTypeRequest = "tact/searchByType"
+
+export interface SearchByTypeParams {
+    readonly query: string
+    readonly scope?: "workspace" | "everywhere"
+}
+
+export interface TypeSearchResult {
+    readonly name: string
+    readonly signature: string
+    readonly location: lsp.Location
+    readonly kind: "function" | "method" | "getter" | "constructor"
+    readonly containerName?: string
+}
+
+export interface SearchByTypeResponse {
+    readonly results: TypeSearchResult[]
+    readonly error: string | null
+}

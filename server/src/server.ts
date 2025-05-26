@@ -22,6 +22,7 @@ import * as foldings from "./foldings/collect"
 import * as semantic from "./semantic_tokens/collect"
 import * as lens from "./lens/collect"
 import * as search from "./search/implementations"
+import {TypeBasedSearch} from "./search/TypeBasedSearch"
 import * as path from "node:path"
 import {existsSync} from "node:fs"
 import type {ClientOptions} from "@shared/config-scheme"
@@ -34,6 +35,9 @@ import {
     GetTypeAtPositionResponse,
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
+    SearchByTypeRequest,
+    SearchByTypeParams,
+    SearchByTypeResponse,
 } from "@shared/shared-msgtypes"
 import {KeywordsCompletionProvider} from "./completion/providers/KeywordsCompletionProvider"
 import type {CompletionProvider} from "./completion/CompletionProvider"
@@ -2018,6 +2022,25 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     )
 
     connection.onRequest(GetGasConsumptionForSelectionRequest, selectionGasConsumption)
+
+    connection.onRequest(
+        SearchByTypeRequest,
+        (params: SearchByTypeParams): SearchByTypeResponse => {
+            try {
+                const results = TypeBasedSearch.search(params.query)
+                return {
+                    results,
+                    error: null,
+                }
+            } catch (error) {
+                console.error("Error in type-based search:", error)
+                return {
+                    results: [],
+                    error: error instanceof Error ? error.message : "Unknown error",
+                }
+            }
+        },
+    )
 
     function symbolKind(node: NamedNode): lsp.SymbolKind {
         if (node instanceof Fun) {
