@@ -198,11 +198,6 @@
                 "title": "Get Scope Information"
             },
             {
-                "command": "tact.build",
-                "title": "Build Tact Project",
-                "category": "Tact"
-            },
-            {
                 "command": "tact.openBocFile",
                 "title": "Open Decompiled BoC file",
                 "category": "Tact"
