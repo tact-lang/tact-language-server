@@ -26,6 +26,15 @@ contract MyContract {
 no issues
 
 ========================================================================
+Correct contract name with _ (PascalCase)
+========================================================================
+contract My_Contract {
+    init() {}
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
 Trait names should be PascalCase (Error)
 ========================================================================
 trait myTrait {
@@ -76,20 +85,6 @@ Correct struct name (PascalCase)
 struct UserData {
     name: String;
 }
-------------------------------------------------------------------------
-no issues
-
-========================================================================
-Primitive names should be PascalCase (Error)
-========================================================================
-primitive myPrimitive;
-------------------------------------------------------------------------
-no issues
-
-========================================================================
-Correct primitive name (PascalCase)
-========================================================================
-primitive MyPrimitive;
 ------------------------------------------------------------------------
 no issues
 
@@ -178,8 +173,22 @@ contract TestContract {
         self.balance = 0;
     }
 
-    get fun GetBalance(): Int {
-        return self.balance;
+    fun process_data(): Int {
+        return 0;
+    }
+}
+------------------------------------------------------------------------
+3 7:8 to 7:20 Method 'process_data' is never used (tact)
+1 7:8 to 7:20 Method name 'process_data' should be in camelCase (tact)
+
+========================================================================
+Trait method names should be camelCase (Warning)
+========================================================================
+trait TestTrait {
+    balance: Int;
+
+    init() {
+        self.balance = 0;
     }
 
     fun process_data(): Int {
@@ -187,7 +196,32 @@ contract TestContract {
     }
 }
 ------------------------------------------------------------------------
-3 11:8 to 11:20 Method 'process_data' is never used (tact)
+1 7:8 to 7:20 Function name 'process_data' should be in camelCase (tact)
+
+========================================================================
+Contract get method names can be any
+========================================================================
+contract TestContract {
+    balance: Int;
+
+    init() {
+        self.balance = 0;
+    }
+
+    get fun GetBalance(): Int {
+        return self.balance;
+    }
+
+    get fun process_data(): Int {
+        return 0;
+    }
+
+    get fun processData2(): Int {
+        return 0;
+    }
+}
+------------------------------------------------------------------------
+no issues
 
 ========================================================================
 Function parameter names should be camelCase (Information)

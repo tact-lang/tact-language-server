@@ -58,11 +58,25 @@ export class NamingConventionInspection implements Inspection {
                 diagnostics,
                 lsp.DiagnosticSeverity.Warning,
             )
+
+            this.checkCamelCase(
+                contract.ownMethods().filter(it => !it.isGetMethod), // don't check get methods
+                "Method",
+                diagnostics,
+                lsp.DiagnosticSeverity.Warning,
+            )
         }
         for (const trait of file.getTraits()) {
             this.checkCamelCase(
                 trait.ownFields(),
                 "Field",
+                diagnostics,
+                lsp.DiagnosticSeverity.Warning,
+            )
+
+            this.checkCamelCase(
+                trait.ownMethods().filter(it => !it.isGetMethod), // don't check get methods
+                "Method",
                 diagnostics,
                 lsp.DiagnosticSeverity.Warning,
             )
@@ -175,7 +189,9 @@ export class NamingConventionInspection implements Inspection {
     }
 
     private isPascalCase(name: string): boolean {
-        return /^[A-Z][\dA-Za-z]*$/.test(name)
+        if (name.length === 0) return true
+        const firstLetter = name[0]
+        return firstLetter === firstLetter.toUpperCase()
     }
 
     private isCamelCase(name: string): boolean {
