@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import * as assert from "node:assert"
 import {BaseTestSuite} from "./BaseTestSuite"
 import type {TestCase} from "./TestParser"
-// Define types locally to avoid import issues
+
 interface SearchByTypeParams {
     readonly query: string
     readonly scope?: "workspace" | "everywhere"
@@ -28,28 +28,38 @@ suite("Type-Based Search Test Suite", () => {
                 scope: "workspace",
             }
 
-            // Send request directly to language server using the registered command
-            const response = await vscode.commands.executeCommand<SearchByTypeResponse>(
-                "tact/searchByType",
-                params,
-            )
+            return vscode.commands.executeCommand<SearchByTypeResponse>("tact/searchByType", params)
+        }
 
-            return response
+        private parseSearchQueries(input: string): string[] {
+            const queries: string[] = []
+            const lines = input.split("\n")
+
+            for (const line of lines) {
+                const searchMatch = /\/\/!\s*SEARCH:\s*(.+)/.exec(line)
+                if (searchMatch) {
+                    queries.push(searchMatch[1].trim())
+                }
+            }
+
+            return queries
         }
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Type-Based Search: ${testCase.name}`, async () => {
                 await this.replaceDocumentText(testCase.input)
 
-                // For now, just test that the search functionality works
-                // We'll test specific queries manually
-                const testQueries = [
-                    "Int -> String",
-                    "_ -> Int",
-                    "Int, Int -> Int",
-                    "-> Int",
-                    "String -> Int",
-                ]
+                const testQueries = this.parseSearchQueries(testCase.input)
+
+                if (testQueries.length === 0) {
+                    testQueries.push(
+                        "Int -> String",
+                        "_ -> Int",
+                        "Int, Int -> Int",
+                        "-> Int",
+                        "String -> Int",
+                    )
+                }
 
                 const results: string[] = []
 

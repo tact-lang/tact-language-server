@@ -36,6 +36,12 @@ contract TestContract {
 trait TestTrait {
     fun process(value: Int): String
 }
+
+//! SEARCH: Int -> String
+//! SEARCH: _ -> Int
+//! SEARCH: Int, Int -> Int
+//! SEARCH: -> Int
+//! SEARCH: String -> Int
 ------------------------------------------------------------------------
 Query "Int -> String": 2 results
   Functions: process, toString
@@ -53,6 +59,12 @@ Type-based search with no matches
 fun simpleFunction(): Bool {
     return true
 }
+
+//! SEARCH: Int -> String
+//! SEARCH: _ -> Int
+//! SEARCH: Int, Int -> Int
+//! SEARCH: -> Int
+//! SEARCH: String -> Int
 ------------------------------------------------------------------------
 Query "Int -> String": 0 results
 Query "_ -> Int": 0 results
@@ -74,9 +86,416 @@ fun validateInput(data: String): Bool {
 fun hasData(): Bool {
     return false
 }
+
+//! SEARCH: _ -> Bool
+//! SEARCH: String -> Bool
+//! SEARCH: String, Int -> Bool
+//! SEARCH: -> Bool
 ------------------------------------------------------------------------
-Query "Int -> String": 0 results
-Query "_ -> Int": 0 results
-Query "Int, Int -> Int": 0 results
-Query "-> Int": 0 results
-Query "String -> Int": 0 results
+Query "_ -> Bool": 3 results
+  Functions: hasData, processData, validateInput
+Query "String -> Bool": 1 results
+  Functions: validateInput
+Query "String, Int -> Bool": 1 results
+  Functions: processData
+Query "-> Bool": 1 results
+  Functions: hasData
+
+========================================================================
+Complex types and optional parameters
+========================================================================
+struct Point {
+    x: Int
+    y: Int
+}
+
+message Transfer {
+    amount: Int
+    to: Address
+}
+
+fun createPoint(x: Int, y: Int): Point {
+    return Point{x: x, y: y}
+}
+
+fun processTransfer(msg: Transfer): Bool {
+    return true
+}
+
+fun getOptionalValue(input: Int?): String {
+    return "test"
+}
+
+fun handleOptional(): Int? {
+    return null
+}
+
+contract ComplexContract {
+    owner: Address
+
+    init(owner: Address) {
+        self.owner = owner
+    }
+
+    get fun getOwner(): Address {
+        return self.owner
+    }
+
+    fun setOwner(newOwner: Address) {
+        self.owner = newOwner
+    }
+
+    receive(msg: Transfer) {
+        // Handle transfer
+    }
+}
+
+//! SEARCH: Int, Int -> Point
+//! SEARCH: Transfer -> Bool
+//! SEARCH: Int? -> String
+//! SEARCH: -> Int?
+//! SEARCH: -> Address
+//! SEARCH: Address -> _
+------------------------------------------------------------------------
+Query "Int, Int -> Point": 1 results
+  Functions: createPoint
+Query "Transfer -> Bool": 1 results
+  Functions: processTransfer
+Query "Int? -> String": 1 results
+  Functions: getOptionalValue
+Query "-> Int?": 1 results
+  Functions: handleOptional
+Query "-> Address": 2 results
+  Functions: getOwner, getOwner
+Query "Address -> _": 0 results
+
+========================================================================
+Multiple parameters with wildcards
+========================================================================
+fun calculate(a: Int, b: Int, c: Int): Int {
+    return a + b + c
+}
+
+fun format(value: Int, prefix: String, suffix: String): String {
+    return prefix + value.toString() + suffix
+}
+
+fun validate(data: String, minLength: Int, maxLength: Int): Bool {
+    return data.length() >= minLength && data.length() <= maxLength
+}
+
+fun process(input: String, count: Int, flag: Bool): String {
+    return input
+}
+
+fun merge(first: String, second: String): String {
+    return first + second
+}
+
+//! SEARCH: Int, Int, Int -> Int
+//! SEARCH: Int, String, String -> String
+//! SEARCH: String, Int, Int -> Bool
+//! SEARCH: String, Int, Bool -> String
+//! SEARCH: String, String -> String
+//! SEARCH: _, _, _ -> Int
+//! SEARCH: String, _, _ -> _
+//! SEARCH: _, String, _ -> String
+------------------------------------------------------------------------
+Query "Int, Int, Int -> Int": 1 results
+  Functions: calculate
+Query "Int, String, String -> String": 1 results
+  Functions: format
+Query "String, Int, Int -> Bool": 1 results
+  Functions: validate
+Query "String, Int, Bool -> String": 1 results
+  Functions: process
+Query "String, String -> String": 1 results
+  Functions: merge
+Query "_, _, _ -> Int": 1 results
+  Functions: calculate
+Query "String, _, _ -> _": 3 results
+  Functions: merge, process, validate
+Query "_, String, _ -> String": 2 results
+  Functions: format, merge
+
+========================================================================
+Contract methods and getters
+========================================================================
+contract TokenContract {
+    totalSupply: Int
+    balances: map<Address, Int>
+    name: String
+    symbol: String
+
+    init(name: String, symbol: String, totalSupply: Int) {
+        self.name = name
+        self.symbol = symbol
+        self.totalSupply = totalSupply
+    }
+
+    get fun getName(): String {
+        return self.name
+    }
+
+    get fun getSymbol(): String {
+        return self.symbol
+    }
+
+    get fun getTotalSupply(): Int {
+        return self.totalSupply
+    }
+
+    get fun getBalance(owner: Address): Int {
+        return self.balances.get(owner) ?: 0
+    }
+
+    fun transfer(to: Address, amount: Int): Bool {
+        return true
+    }
+
+    fun mint(to: Address, amount: Int) {
+        // Mint tokens
+    }
+
+    fun burn(amount: Int): Bool {
+        return true
+    }
+}
+
+//! SEARCH: -> String
+//! SEARCH: -> Int
+//! SEARCH: Address -> Int
+//! SEARCH: Address, Int -> Bool
+//! SEARCH: Address, Int -> _
+//! SEARCH: Int -> Bool
+------------------------------------------------------------------------
+Query "-> String": 4 results
+  Functions: getName, getName, getSymbol, getSymbol
+Query "-> Int": 2 results
+  Functions: getTotalSupply, getTotalSupply
+Query "Address -> Int": 2 results
+  Functions: getBalance, getBalance
+Query "Address, Int -> Bool": 1 results
+  Functions: transfer
+Query "Address, Int -> _": 1 results
+  Functions: transfer
+Query "Int -> Bool": 1 results
+  Functions: burn
+
+========================================================================
+Trait methods
+========================================================================
+trait Transferable {
+    fun transfer(to: Address, amount: Int): Bool
+    fun getBalance(owner: Address): Int
+}
+
+trait Mintable {
+    fun mint(to: Address, amount: Int)
+    fun burn(amount: Int): Bool
+}
+
+trait Ownable {
+    fun getOwner(): Address
+    fun setOwner(newOwner: Address)
+    fun isOwner(address: Address): Bool
+}
+
+trait Pausable {
+    fun pause()
+    fun unpause()
+    fun isPaused(): Bool
+}
+
+//! SEARCH: Address, Int -> Bool
+//! SEARCH: Address -> Int
+//! SEARCH: Address, Int -> _
+//! SEARCH: Int -> Bool
+//! SEARCH: -> Address
+//! SEARCH: Address -> _
+//! SEARCH: -> Bool
+//! SEARCH: -> _
+------------------------------------------------------------------------
+Query "Address, Int -> Bool": 1 results
+  Functions: transfer
+Query "Address -> Int": 1 results
+  Functions: getBalance
+Query "Address, Int -> _": 1 results
+  Functions: transfer
+Query "Int -> Bool": 1 results
+  Functions: burn
+Query "-> Address": 1 results
+  Functions: getOwner
+Query "Address -> _": 2 results
+  Functions: getBalance, isOwner
+Query "-> Bool": 1 results
+  Functions: isPaused
+Query "-> _": 2 results
+  Functions: getOwner, isPaused
+
+========================================================================
+Edge cases and special types
+========================================================================
+fun handleCell(data: Cell): Slice {
+    return data.beginParse()
+}
+
+fun buildCell(data: Slice): Cell {
+    return beginCell().storeSlice(data).endCell()
+}
+
+fun processBuilder(builder: Builder): Cell {
+    return builder.endCell()
+}
+
+fun getSlice(): Slice {
+    return emptySlice()
+}
+
+fun createBuilder(): Builder {
+    return beginCell()
+}
+
+fun handleMap(data: map<Int, String>): Bool {
+    return true
+}
+
+fun processArray(items: Int[]): String {
+    return "processed"
+}
+
+//! SEARCH: Cell -> Slice
+//! SEARCH: Slice -> Cell
+//! SEARCH: Builder -> Cell
+//! SEARCH: -> Slice
+//! SEARCH: -> Builder
+//! SEARCH: map<Int, String> -> Bool
+//! SEARCH: Int[] -> String
+------------------------------------------------------------------------
+Query "Cell -> Slice": 1 results
+  Functions: handleCell
+Query "Slice -> Cell": 1 results
+  Functions: buildCell
+Query "Builder -> Cell": 1 results
+  Functions: processBuilder
+Query "-> Slice": 1 results
+  Functions: getSlice
+Query "-> Builder": 1 results
+  Functions: createBuilder
+Query "map<Int, String> -> Bool": 0 results
+Query "Int[] -> String": 0 results
+
+========================================================================
+Mixed return types with wildcards
+========================================================================
+fun getValue(): Int {
+    return 42
+}
+
+fun getText(): String {
+    return "hello"
+}
+
+fun getFlag(): Bool {
+    return true
+}
+
+fun getAddress(): Address {
+    return myAddress()
+}
+
+fun processInt(value: Int): Int {
+    return value * 2
+}
+
+fun processString(value: String): String {
+    return value
+}
+
+fun processBool(value: Bool): Bool {
+    return !value
+}
+
+fun processAddress(addr: Address): Address {
+    return addr
+}
+
+//! SEARCH: -> _
+//! SEARCH: Int -> _
+//! SEARCH: String -> _
+//! SEARCH: Bool -> _
+//! SEARCH: Address -> _
+//! SEARCH: _ -> Int
+//! SEARCH: _ -> String
+//! SEARCH: _ -> Bool
+//! SEARCH: _ -> Address
+------------------------------------------------------------------------
+Query "-> _": 4 results
+  Functions: getAddress, getFlag, getText, getValue
+Query "Int -> _": 1 results
+  Functions: processInt
+Query "String -> _": 1 results
+  Functions: processString
+Query "Bool -> _": 1 results
+  Functions: processBool
+Query "Address -> _": 1 results
+  Functions: processAddress
+Query "_ -> Int": 2 results
+  Functions: getValue, processInt
+Query "_ -> String": 2 results
+  Functions: getText, processString
+Query "_ -> Bool": 2 results
+  Functions: getFlag, processBool
+Query "_ -> Address": 2 results
+  Functions: getAddress, processAddress
+
+========================================================================
+Error handling and invalid queries
+========================================================================
+fun testFunction(): Int {
+    return 1
+}
+
+//! SEARCH: invalid
+//! SEARCH: Int ->
+//! SEARCH: ->
+//! SEARCH:
+//! SEARCH: Int -> String -> Bool
+//! SEARCH: Int,, String -> Bool
+//! SEARCH: ( -> )
+------------------------------------------------------------------------
+Query "invalid": 0 results
+Query "Int ->": 0 results
+Query "->": 0 results
+Query "Int -> String -> Bool": 0 results
+Query "Int,, String -> Bool": 0 results
+Query "( -> )": 0 results
+
+========================================================================
+Nested generic types
+========================================================================
+fun processNestedMap(data: map<String, map<Int, Bool>>): String {
+    return "processed"
+}
+
+fun handleComplexArray(items: map<Address, Int>[]): Bool {
+    return true
+}
+
+fun createNestedStructure(): map<String, Int[]> {
+    return emptyMap()
+}
+
+fun processOptionalMap(data: map<Int, String>?): Bool {
+    return true
+}
+
+//! SEARCH: map<String, map<Int, Bool>> -> String
+//! SEARCH: map<Address, Int>[] -> Bool
+//! SEARCH: -> map<String, Int[]>
+//! SEARCH: map<Int, String>? -> Bool
+------------------------------------------------------------------------
+Query "map<String, map<Int, Bool>> -> String": 0 results
+Query "map<Address, Int>[] -> Bool": 0 results
+Query "-> map<String, Int[]>": 0 results
+Query "map<Int, String>? -> Bool": 0 results
