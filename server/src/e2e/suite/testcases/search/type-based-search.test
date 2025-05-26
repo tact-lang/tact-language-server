@@ -1,0 +1,74 @@
+========================================================================
+Type-based search for functions
+========================================================================
+fun add(a: Int, b: Int): Int {
+    return a + b
+}
+
+fun toString(value: Int): String {
+    return value.toString()
+}
+
+fun getBalance(): Int {
+    return 1000
+}
+
+contract TestContract {
+    balance: Int
+    
+    init(initialBalance: Int) {
+        self.balance = initialBalance
+    }
+    
+    get fun getBalance(): Int {
+        return self.balance
+    }
+    
+    fun updateBalance(newBalance: Int) {
+        self.balance = newBalance
+    }
+    
+    fun formatBalance(): String {
+        return self.balance.toString()
+    }
+}
+
+trait TestTrait {
+    fun process(value: Int): String
+}
+------------------------------------------------------------------------
+Search queries should find matching functions:
+- "Int -> String" should find toString, formatBalance, and process
+- "_ -> Int" should find getBalance (both standalone and getter)
+- "Int, Int -> Int" should find add
+- "-> Int" should find getBalance functions
+- "Int -> _" should find updateBalance and process
+
+========================================================================
+Type-based search with no matches
+========================================================================
+fun simpleFunction(): Bool {
+    return true
+}
+------------------------------------------------------------------------
+Search query "String -> Int" should return no results since no functions match this signature.
+
+========================================================================
+Type-based search with wildcards
+========================================================================
+fun processData(input: String, count: Int): Bool {
+    return true
+}
+
+fun validateInput(data: String): Bool {
+    return true
+}
+
+fun hasData(): Bool {
+    return false
+}
+------------------------------------------------------------------------
+Search queries with wildcards:
+- "_ -> Bool" should find all three functions
+- "String, _ -> Bool" should find processData
+- "String -> _" should find processData and validateInput 

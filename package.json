@@ -215,12 +215,23 @@
                 "problemMatcher": [
                     "$tact"
                 ]
+            },
+            {
+                "command": "tact.searchByType",
+                "title": "Search by Type Signature",
+                "category": "Tact",
+                "icon": "$(symbol-method)"
             }
         ],
         "keybindings": [
             {
                 "command": "tact.build",
                 "key": "f5",
+                "when": "editorTextFocus && editorLangId == 'tact'"
+            },
+            {
+                "command": "tact.searchByType",
+                "key": "alt+f",
                 "when": "editorTextFocus && editorLangId == 'tact'"
             }
         ],

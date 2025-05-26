@@ -21,8 +21,12 @@ import {
     GetGasConsumptionForSelectionRequest,
     GetGasConsumptionForSelectionParams,
     GetGasConsumptionForSelectionResponse,
+    SearchByTypeRequest,
+    SearchByTypeParams,
+    SearchByTypeResponse,
 } from "@shared/shared-msgtypes"
 import type {Location} from "vscode-languageclient"
+import * as lsp from "vscode-languageserver-protocol"
 import type {ClientOptions} from "@shared/config-scheme"
 import {registerBuildTasks} from "./build-system"
 import {registerOpenBocCommand} from "./commands/openBocCommand"
@@ -296,6 +300,101 @@ function registerCommands(disposables: vscode.Disposable[]): void {
                 )
             },
         ),
+        vscode.commands.registerCommand("tact.searchByType", async () => {
+            if (!client) {
+                vscode.window.showErrorMessage("Tact Language Server is not running")
+                return
+            }
+
+            const query = await vscode.window.showInputBox({
+                prompt: "Enter type signature (e.g., 'Int -> String', '_ -> Address')",
+                placeHolder: "Int -> String",
+                validateInput: (value: string) => {
+                    if (!value.trim()) {
+                        return "Type signature cannot be empty"
+                    }
+                    if (!value.includes("->")) {
+                        return "Type signature must include '->'"
+                    }
+                    return null
+                },
+            })
+
+            if (!query) return
+
+            try {
+                const config = vscode.workspace.getConfiguration("tact")
+                const scope = config.get<"workspace" | "everywhere">(
+                    "findUsages.scope",
+                    "workspace",
+                )
+
+                const params: SearchByTypeParams = {
+                    query: query.trim(),
+                    scope,
+                }
+
+                const response = await client.sendRequest<SearchByTypeResponse>(
+                    SearchByTypeRequest,
+                    params,
+                )
+
+                if (response.error) {
+                    vscode.window.showErrorMessage(`Search failed: ${response.error}`)
+                    return
+                }
+
+                if (response.results.length === 0) {
+                    vscode.window.showInformationMessage(`No functions found matching "${query}"`)
+                    return
+                }
+
+                // Convert results to QuickPickItems
+                // eslint-disable-next-line functional/type-declaration-immutability
+                interface SearchResultItem extends vscode.QuickPickItem {
+                    readonly location: lsp.Location
+                    readonly resultKind: string
+                }
+
+                const items: SearchResultItem[] = response.results.map(result => ({
+                    label: result.name,
+                    description: result.signature,
+                    detail: result.containerName ? `in ${result.containerName}` : undefined,
+                    location: result.location,
+                    resultKind: result.kind,
+                }))
+
+                const selected = await vscode.window.showQuickPick(items, {
+                    placeHolder: `Found ${response.results.length} function(s) matching "${query}"`,
+                    matchOnDescription: true,
+                    matchOnDetail: true,
+                })
+
+                if (selected) {
+                    const uri = vscode.Uri.parse(selected.location.uri)
+                    const range = new vscode.Range(
+                        new vscode.Position(
+                            selected.location.range.start.line,
+                            selected.location.range.start.character,
+                        ),
+                        new vscode.Position(
+                            selected.location.range.end.line,
+                            selected.location.range.end.character,
+                        ),
+                    )
+
+                    const document = await vscode.workspace.openTextDocument(uri)
+                    const editor = await vscode.window.showTextDocument(document)
+                    editor.selection = new vscode.Selection(range.start, range.end)
+                    editor.revealRange(range, vscode.TextEditorRevealType.InCenter)
+                }
+            } catch (error) {
+                console.error("Error in searchByType command:", error)
+                vscode.window.showErrorMessage(
+                    `Search failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+                )
+            }
+        }),
     )
 }
 

@@ -26,7 +26,7 @@ blockchain.
 - [Semantic syntax highlighting]
 - [Code completion] with [auto import], [postfix completion], snippets, [imports completion]
 - Go to [definition], implementation, [type definition]
-- Find all references, workspace symbol search, symbol renaming
+- Find all references, workspace symbol search, symbol renaming, [type-based search]
 - Types and documentation on hover
 - Inlay hints [for types], [parameter names] and [more]
 - On-the-fly [inspections] with quick fixes
@@ -54,6 +54,7 @@ blockchain.
 [Tact template]: https://github.com/tact-lang/tact-template
 [Tact compiler]: https://github.com/tact-lang/tact
 [Misti]: https://nowarp.io/tools/misti/
+[type-based search]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/type-based-search.md
 
 ## Quick start
 
