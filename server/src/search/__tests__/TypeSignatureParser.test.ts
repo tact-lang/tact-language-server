@@ -68,11 +68,10 @@ describe("TypeSignatureParser", () => {
             })
         })
 
-        it("should return null for invalid signature", () => {
+        it("should throw error for invalid signature", () => {
             const parser = new TypeSignatureParser("invalid")
-            const result = parser.parse()
 
-            expect(result).toBeNull()
+            expect(() => parser.parse()).toThrow("Invalid type signature format")
         })
     })
 })

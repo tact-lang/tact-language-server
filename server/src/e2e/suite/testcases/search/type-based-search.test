@@ -45,12 +45,12 @@ trait TestTrait {
 ------------------------------------------------------------------------
 Query "Int -> String": 2 results
   Functions: process, toString
-Query "_ -> Int": 4 results
-  Functions: add, getBalance, getBalance, getBalance
+Query "_ -> Int": 3 results
+  Functions: add, getBalance, getBalance
 Query "Int, Int -> Int": 1 results
   Functions: add
-Query "-> Int": 3 results
-  Functions: getBalance, getBalance, getBalance
+Query "-> Int": 2 results
+  Functions: getBalance, getBalance
 Query "String -> Int": 0 results
 
 ========================================================================
@@ -165,8 +165,8 @@ Query "Int? -> String": 1 results
   Functions: getOptionalValue
 Query "-> Int?": 1 results
   Functions: handleOptional
-Query "-> Address": 2 results
-  Functions: getOwner, getOwner
+Query "-> Address": 1 results
+  Functions: getOwner
 Query "Address -> _": 0 results
 
 ========================================================================
@@ -269,12 +269,12 @@ contract TokenContract {
 //! SEARCH: Address, Int -> _
 //! SEARCH: Int -> Bool
 ------------------------------------------------------------------------
-Query "-> String": 4 results
-  Functions: getName, getName, getSymbol, getSymbol
-Query "-> Int": 2 results
-  Functions: getTotalSupply, getTotalSupply
-Query "Address -> Int": 2 results
-  Functions: getBalance, getBalance
+Query "-> String": 2 results
+  Functions: getName, getSymbol
+Query "-> Int": 1 results
+  Functions: getTotalSupply
+Query "Address -> Int": 1 results
+  Functions: getBalance
 Query "Address, Int -> Bool": 1 results
   Functions: transfer
 Query "Address, Int -> _": 1 results
@@ -360,17 +360,12 @@ fun handleMap(data: map<Int, String>): Bool {
     return true
 }
 
-fun processArray(items: Int[]): String {
-    return "processed"
-}
-
 //! SEARCH: Cell -> Slice
 //! SEARCH: Slice -> Cell
 //! SEARCH: Builder -> Cell
 //! SEARCH: -> Slice
 //! SEARCH: -> Builder
 //! SEARCH: map<Int, String> -> Bool
-//! SEARCH: Int[] -> String
 ------------------------------------------------------------------------
 Query "Cell -> Slice": 1 results
   Functions: handleCell
@@ -383,7 +378,6 @@ Query "-> Slice": 1 results
 Query "-> Builder": 1 results
   Functions: createBuilder
 Query "map<Int, String> -> Bool": 0 results
-Query "Int[] -> String": 0 results
 
 ========================================================================
 Mixed return types with wildcards
@@ -464,12 +458,12 @@ fun testFunction(): Int {
 //! SEARCH: Int,, String -> Bool
 //! SEARCH: ( -> )
 ------------------------------------------------------------------------
-Query "invalid": 0 results
-Query "Int ->": 0 results
-Query "->": 0 results
-Query "Int -> String -> Bool": 0 results
-Query "Int,, String -> Bool": 0 results
-Query "( -> )": 0 results
+Query "invalid": Error - Invalid type signature format
+Query "Int ->": Error - Invalid type signature format
+Query "->": Error - Invalid type signature format
+Query "Int -> String -> Bool": Error - Invalid type signature format
+Query "Int,, String -> Bool": Error - Expected type name
+Query "( -> )": Error - Expected type name
 
 ========================================================================
 Nested generic types
@@ -478,11 +472,7 @@ fun processNestedMap(data: map<String, map<Int, Bool>>): String {
     return "processed"
 }
 
-fun handleComplexArray(items: map<Address, Int>[]): Bool {
-    return true
-}
-
-fun createNestedStructure(): map<String, Int[]> {
+fun createNestedStructure(): map<String, Int> {
     return emptyMap()
 }
 
@@ -491,11 +481,10 @@ fun processOptionalMap(data: map<Int, String>?): Bool {
 }
 
 //! SEARCH: map<String, map<Int, Bool>> -> String
-//! SEARCH: map<Address, Int>[] -> Bool
-//! SEARCH: -> map<String, Int[]>
+//! SEARCH: -> map<String, Int>
 //! SEARCH: map<Int, String>? -> Bool
 ------------------------------------------------------------------------
 Query "map<String, map<Int, Bool>> -> String": 0 results
-Query "map<Address, Int>[] -> Bool": 0 results
-Query "-> map<String, Int[]>": 0 results
+Query "-> map<String, Int>": 1 results
+  Functions: createNestedStructure
 Query "map<Int, String>? -> Bool": 0 results

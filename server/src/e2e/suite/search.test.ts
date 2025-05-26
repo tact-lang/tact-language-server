@@ -52,13 +52,7 @@ suite("Type-Based Search Test Suite", () => {
                 const testQueries = this.parseSearchQueries(testCase.input)
 
                 if (testQueries.length === 0) {
-                    testQueries.push(
-                        "Int -> String",
-                        "_ -> Int",
-                        "Int, Int -> Int",
-                        "-> Int",
-                        "String -> Int",
-                    )
+                    throw new Error(`No search queries found in test case: ${testCase.name}`)
                 }
 
                 const results: string[] = []
@@ -66,12 +60,16 @@ suite("Type-Based Search Test Suite", () => {
                 for (const query of testQueries) {
                     try {
                         const response = await this.searchByType(query)
-                        results.push(`Query "${query}": ${response.results.length} results`)
 
-                        // Add function names for debugging
-                        if (response.results.length > 0) {
-                            const names = response.results.map(r => r.name).sort()
-                            results.push(`  Functions: ${names.join(", ")}`)
+                        if (response.error) {
+                            results.push(`Query "${query}": Error - ${response.error}`)
+                        } else {
+                            results.push(`Query "${query}": ${response.results.length} results`)
+
+                            if (response.results.length > 0) {
+                                const names = response.results.map(r => r.name).sort()
+                                results.push(`  Functions: ${names.join(", ")}`)
+                            }
                         }
                     } catch (error) {
                         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

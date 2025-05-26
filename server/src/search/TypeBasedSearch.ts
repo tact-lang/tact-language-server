@@ -75,18 +75,6 @@ export class TypeBasedSearch {
                     }
                 }
 
-                const getters = node.ownMethods().filter(m => m.isGetMethod)
-                for (const getter of getters) {
-                    const functionSignature = getter.signaturePresentation()
-                    if (TypeSignatureUtils.matchesSignature(functionSignature, signature)) {
-                        const result = TypeBasedSearch.createSearchResult(getter, node.name())
-                        if (result) {
-                            const getterResult = {...result, kind: "getter" as const}
-                            results.push(getterResult)
-                        }
-                    }
-                }
-
                 return true
             }
         })()

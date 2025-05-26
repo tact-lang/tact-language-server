@@ -12,10 +12,13 @@ export class TypeSignatureParser {
 
     public parse(): TypeSignature | null {
         try {
+            if (!this.query || this.query.trim() === "") {
+                throw new Error("Type signature cannot be empty")
+            }
+
             return this.parseSignature()
         } catch (error) {
-            console.debug("Failed to parse type signature:", error)
-            return null
+            throw error instanceof Error ? error : new Error("Invalid type signature format")
         }
     }
 
@@ -24,11 +27,23 @@ export class TypeSignatureParser {
 
         this.skipWhitespace()
         if (!this.consume("->")) {
-            throw new Error("Expected '->' in type signature")
+            if (this.position >= this.query.length) {
+                throw new Error("Invalid type signature format")
+            }
+            throw new Error("Invalid type signature format")
         }
         this.skipWhitespace()
 
+        if (this.position >= this.query.length) {
+            throw new Error("Invalid type signature format")
+        }
+
         const returnType = this.parseType()
+
+        this.skipWhitespace()
+        if (this.position < this.query.length) {
+            throw new Error("Invalid type signature format")
+        }
 
         return {
             parameters,
@@ -70,27 +85,25 @@ export class TypeSignatureParser {
             throw new Error("Expected type name")
         }
 
-        const isOptional = this.peek() === "?"
-        if (isOptional) {
-            this.consume("?")
-        }
+        let fullTypeName = typeName
 
         if (this.peek() === "<") {
             this.consume("<")
             const generics = this.parseGenerics()
             this.consume(">")
 
-            return {
-                kind: "concrete",
-                name: typeName,
-                generics,
-                optional: isOptional || false,
-            }
+            const genericStr = generics.map(g => this.typePatternToString(g)).join(", ")
+            fullTypeName = `${typeName}<${genericStr}>`
+        }
+
+        const isOptional = this.peek() === "?"
+        if (isOptional) {
+            this.consume("?")
         }
 
         return {
             kind: "concrete",
-            name: typeName,
+            name: fullTypeName,
             optional: isOptional || false,
         }
     }
@@ -150,6 +163,18 @@ export class TypeSignatureParser {
             return true
         }
         return false
+    }
+
+    private typePatternToString(pattern: TypePattern): string {
+        if (pattern.kind === "wildcard") {
+            return "_"
+        }
+
+        let result = pattern.name ?? ""
+        if (pattern.optional) {
+            result += "?"
+        }
+        return result
     }
 }
 
@@ -216,12 +241,94 @@ export class TypeSignatureUtils {
             return false
         }
 
-        // TODO: add support for generics and optional types
-        return (
-            actualType === pattern.name ||
-            actualType === `${pattern.name}?` ||
-            (pattern.optional && actualType === pattern.name)
-        )
+        if (pattern.optional) {
+            if (actualType === `${pattern.name}?`) {
+                return this.matchesGenerics(actualType, pattern)
+            }
+            if (actualType === pattern.name) {
+                return this.matchesGenerics(actualType, pattern)
+            }
+        } else {
+            if (actualType === pattern.name) {
+                return this.matchesGenerics(actualType, pattern)
+            }
+        }
+
+        if (actualType.startsWith("map<") && pattern.name.startsWith("map<")) {
+            return this.matchesMapType(actualType, pattern)
+        }
+
+        return false
+    }
+
+    private static matchesGenerics(actualType: string, pattern: TypePattern): boolean {
+        if (!pattern.generics || pattern.generics.length === 0) {
+            return true
+        }
+
+        const genericMatch = /<([^>]+)>/.exec(actualType)
+        if (!genericMatch) {
+            return false
+        }
+
+        const actualGenerics = this.parseGenericTypes(genericMatch[1])
+        if (actualGenerics.length !== pattern.generics.length) {
+            return false
+        }
+
+        for (let i = 0; i < pattern.generics.length; i++) {
+            if (!this.matchesType(actualGenerics[i], pattern.generics[i])) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    private static matchesMapType(actualType: string, pattern: TypePattern): boolean {
+        const actualMatch = /map<([^>]+)>/.exec(actualType)
+        const patternMatch = /map<([^>]+)>/.exec(pattern.name ?? "")
+
+        if (!actualMatch || !patternMatch) {
+            return false
+        }
+
+        const actualGenerics = this.parseGenericTypes(actualMatch[1])
+        const patternGenerics = this.parseGenericTypes(patternMatch[1])
+
+        if (actualGenerics.length !== patternGenerics.length) {
+            return false
+        }
+
+        // TODO: implement proper recursive type matching
+        return actualMatch[1] === patternMatch[1]
+    }
+
+    private static parseGenericTypes(genericsStr: string): string[] {
+        const types: string[] = []
+        let depth = 0
+        let current = ""
+
+        for (const char of genericsStr) {
+            if (char === "<") {
+                depth++
+                current += char
+            } else if (char === ">") {
+                depth--
+                current += char
+            } else if (char === "," && depth === 0) {
+                types.push(current.trim())
+                current = ""
+            } else {
+                current += char
+            }
+        }
+
+        if (current.trim()) {
+            types.push(current.trim())
+        }
+
+        return types
     }
 
     private static parseFunctionSignature(signature: string): {
