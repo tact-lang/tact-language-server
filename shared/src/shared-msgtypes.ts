@@ -3,6 +3,7 @@ import type * as lsp from "vscode-languageserver"
 export const GetTypeAtPositionRequest = "tact/getTypeAtPosition"
 export const GetDocumentationAtPositionRequest = "tact/executeHoverProvider"
 export const SetToolchainVersionNotification = "tact/setToolchainVersion"
+export const GetGasConsumptionForSelectionRequest = "tact/executeGetGasConsumptionForSelection"
 
 export interface GetTypeAtPositionParams {
     readonly textDocument: {
@@ -28,3 +29,19 @@ export interface GetTypeAtPositionResponse {
 
 // eslint-disable-next-line functional/type-declaration-immutability
 export type GetDocumentationAtPositionResponse = lsp.Hover
+
+export interface GetGasConsumptionForSelectionParams {
+    readonly textDocument: {
+        readonly uri: string
+    }
+    readonly range: lsp.Range
+}
+
+export interface GetGasConsumptionForSelectionResponse {
+    readonly gasConsumption: {
+        readonly value: number
+        readonly exact: boolean
+        readonly unknown: boolean
+    } | null
+    readonly error?: string
+}

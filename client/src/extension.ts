@@ -18,6 +18,9 @@ import {
     GetTypeAtPositionResponse,
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
+    GetGasConsumptionForSelectionRequest,
+    GetGasConsumptionForSelectionParams,
+    GetGasConsumptionForSelectionResponse,
 } from "@shared/shared-msgtypes"
 import type {Location} from "vscode-languageclient"
 import type {ClientOptions} from "@shared/config-scheme"
@@ -31,6 +34,7 @@ import {Range, Position, FileSystemWatcher} from "vscode"
 import {detectPackageManager, PackageManager} from "./utils/package-manager"
 
 let client: LanguageClient | null = null
+let gasStatusBarItem: vscode.StatusBarItem | null = null
 
 export function activate(context: vscode.ExtensionContext): void {
     startServer(context).catch(consoleError)
@@ -38,6 +42,7 @@ export function activate(context: vscode.ExtensionContext): void {
     registerOpenBocCommand(context)
     registerSaveBocDecompiledCommand(context)
     registerMistiCommand(context)
+    registerGasConsumptionStatusBar(context)
 
     const config = vscode.workspace.getConfiguration("tact")
     const openDecompiled = config.get<boolean>("boc.openDecompiledOnOpen")
@@ -435,6 +440,115 @@ function registerBocWatcher(bocDecompilerProvider: BocDecompilerProvider): FileS
         }
     })
     return bocWatcher
+}
+
+function registerGasConsumptionStatusBar(context: vscode.ExtensionContext): void {
+    gasStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000)
+    context.subscriptions.push(
+        gasStatusBarItem,
+        vscode.window.onDidChangeTextEditorSelection(async event => {
+            await updateGasStatusBar(event.textEditor)
+        }),
+        vscode.window.onDidChangeActiveTextEditor(async editor => {
+            if (editor) {
+                await updateGasStatusBar(editor)
+            } else {
+                hideGasStatusBar()
+            }
+        }),
+        vscode.workspace.onDidChangeConfiguration(async event => {
+            if (event.affectsConfiguration("tact.gas.showGasStatusBar")) {
+                const editor = vscode.window.activeTextEditor
+                if (editor) {
+                    await updateGasStatusBar(editor)
+                } else {
+                    hideGasStatusBar()
+                }
+            }
+        }),
+    )
+}
+
+async function updateGasStatusBar(editor: vscode.TextEditor): Promise<void> {
+    if (!gasStatusBarItem || !client) {
+        return
+    }
+
+    const config = vscode.workspace.getConfiguration("tact")
+    const showGasStatusBar = config.get<boolean>("gas.showGasStatusBar", true)
+
+    if (!showGasStatusBar) {
+        hideGasStatusBar()
+        return
+    }
+
+    if (!editor.document.fileName.endsWith(".tact")) {
+        hideGasStatusBar()
+        return
+    }
+
+    const selection = editor.selection
+    if (selection.isEmpty) {
+        hideGasStatusBar()
+        return
+    }
+
+    try {
+        const params: GetGasConsumptionForSelectionParams = {
+            textDocument: {
+                uri: editor.document.uri.toString(),
+            },
+            range: {
+                start: {
+                    line: selection.start.line,
+                    character: selection.start.character,
+                },
+                end: {
+                    line: selection.end.line,
+                    character: selection.end.character,
+                },
+            },
+        }
+
+        const result = await client.sendRequest<GetGasConsumptionForSelectionResponse>(
+            GetGasConsumptionForSelectionRequest,
+            params,
+        )
+
+        if (result.error) {
+            hideGasStatusBar()
+            return
+        }
+
+        if (!result.gasConsumption) {
+            hideGasStatusBar()
+            return
+        }
+
+        const {value, exact, unknown} = result.gasConsumption
+
+        if (unknown) {
+            gasStatusBarItem.text = " Gas: Unknown"
+            gasStatusBarItem.tooltip = "Contains instructions with unknown gas costs"
+        } else if (value === 0) {
+            hideGasStatusBar()
+            return
+        } else {
+            const prefix = exact ? "" : "~"
+            gasStatusBarItem.text = `Gas: ${prefix}${value}`
+            gasStatusBarItem.tooltip = `Gas consumption for selected assembly code: ${prefix}${value} gas units`
+        }
+
+        gasStatusBarItem.show()
+    } catch {
+        hideGasStatusBar()
+    }
+}
+
+function hideGasStatusBar(): void {
+    if (gasStatusBarItem) {
+        gasStatusBarItem.hide()
+    }
 }
 
 export interface ExtractToFileIntention {

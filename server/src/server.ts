@@ -28,6 +28,7 @@ import type {ClientOptions} from "@shared/config-scheme"
 import {
     GetDocumentationAtPositionRequest,
     GetDocumentationAtPositionResponse,
+    GetGasConsumptionForSelectionRequest,
     GetTypeAtPositionParams,
     GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
@@ -149,6 +150,7 @@ import {OptimalMathFunctionsInspection} from "@server/inspections/OptimalMathFun
 import {onFileRenamed, processFileRenaming} from "@server/file-renaming"
 import {ExtractToFile} from "@server/intentions/ExtractToFile"
 import {NamingConventionInspection} from "@server/inspections/NamingConventionInspection"
+import {selectionGasConsumption} from "@server/selection-gas-consumption"
 
 /**
  * Whenever LS is initialized.
@@ -2014,6 +2016,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             return provideDocumentation(uri, params)
         },
     )
+
+    connection.onRequest(GetGasConsumptionForSelectionRequest, selectionGasConsumption)
 
     function symbolKind(node: NamedNode): lsp.SymbolKind {
         if (node instanceof Fun) {
