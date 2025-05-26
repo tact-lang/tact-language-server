@@ -570,3 +570,56 @@ Query "_ -> void": 3 results
   Functions: initialize, processData, updateState
 Query "-> Int": 1 results
   Functions: returnValue
+
+========================================================================
+Optional wildcard matching
+========================================================================
+fun processOptionalInt(value: Int?) {
+    // void function with optional parameter
+}
+
+fun processRegularInt(value: Int) {
+    // void function with regular parameter
+}
+
+fun returnOptionalString(): String? {
+    return null
+}
+
+fun returnRegularString(): String {
+    return "hello"
+}
+
+fun processOptionalAndRegular(opt: Int?, reg: String): Bool {
+    return true
+}
+
+fun processTwoOptionals(opt1: Int?, opt2: String?): Bool {
+    return false
+}
+
+//! SEARCH: _? -> void
+//! SEARCH: _ -> void
+//! SEARCH: -> _?
+//! SEARCH: -> _
+//! SEARCH: _?, String -> Bool
+//! SEARCH: _?, _? -> Bool
+//! SEARCH: Int? -> void
+//! SEARCH: Int -> void
+------------------------------------------------------------------------
+Query "_? -> void": 1 results
+  Functions: processOptionalInt
+Query "_ -> void": 2 results
+  Functions: processOptionalInt, processRegularInt
+Query "-> _?": 1 results
+  Functions: returnOptionalString
+Query "-> _": 2 results
+  Functions: returnOptionalString, returnRegularString
+Query "_?, String -> Bool": 1 results
+  Functions: processOptionalAndRegular
+Query "_?, _? -> Bool": 1 results
+  Functions: processTwoOptionals
+Query "Int? -> void": 1 results
+  Functions: processOptionalInt
+Query "Int -> void": 1 results
+  Functions: processRegularInt

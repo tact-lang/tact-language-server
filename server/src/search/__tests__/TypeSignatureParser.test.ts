@@ -93,6 +93,39 @@ describe("TypeSignatureParser", () => {
                 returnType: {kind: "concrete", name: "void", optional: false},
             })
         })
+
+        it("should parse optional wildcard", () => {
+            const parser = new TypeSignatureParser("_? -> String")
+            const result = parser.parse()
+
+            expect(result).toEqual({
+                parameters: [{kind: "wildcard", optional: true}],
+                returnType: {kind: "concrete", name: "String", optional: false},
+            })
+        })
+
+        it("should parse optional wildcard return type", () => {
+            const parser = new TypeSignatureParser("Int -> _?")
+            const result = parser.parse()
+
+            expect(result).toEqual({
+                parameters: [{kind: "concrete", name: "Int", optional: false}],
+                returnType: {kind: "wildcard", optional: true},
+            })
+        })
+
+        it("should parse mixed optional wildcards", () => {
+            const parser = new TypeSignatureParser("_?, String -> _?")
+            const result = parser.parse()
+
+            expect(result).toEqual({
+                parameters: [
+                    {kind: "wildcard", optional: true},
+                    {kind: "concrete", name: "String", optional: false},
+                ],
+                returnType: {kind: "wildcard", optional: true},
+            })
+        })
     })
 })
 
@@ -196,6 +229,52 @@ describe("TypeSignatureUtils", () => {
                 returnType: {kind: "concrete", name: "String", optional: false},
             })
             expect(voidMismatchResult).toBe(false)
+        })
+
+        it("should match optional wildcard correctly", () => {
+            const optionalWildcardMatch = TypeSignatureUtils.matchesSignature("(a: Int?): String", {
+                parameters: [{kind: "wildcard", optional: true}],
+                returnType: {kind: "concrete", name: "String", optional: false},
+            })
+            expect(optionalWildcardMatch).toBe(true)
+
+            const optionalWildcardMismatch = TypeSignatureUtils.matchesSignature(
+                "(a: Int): String",
+                {
+                    parameters: [{kind: "wildcard", optional: true}],
+                    returnType: {kind: "concrete", name: "String", optional: false},
+                },
+            )
+            expect(optionalWildcardMismatch).toBe(false)
+
+            const regularWildcardOptional = TypeSignatureUtils.matchesSignature(
+                "(a: Int?): String",
+                {
+                    parameters: [{kind: "wildcard", optional: false}],
+                    returnType: {kind: "concrete", name: "String", optional: false},
+                },
+            )
+            expect(regularWildcardOptional).toBe(true)
+
+            const regularWildcardNormal = TypeSignatureUtils.matchesSignature("(a: Int): String", {
+                parameters: [{kind: "wildcard", optional: false}],
+                returnType: {kind: "concrete", name: "String", optional: false},
+            })
+            expect(regularWildcardNormal).toBe(true)
+        })
+
+        it("should match optional wildcard return type correctly", () => {
+            const optionalReturnMatch = TypeSignatureUtils.matchesSignature("(a: Int): String?", {
+                parameters: [{kind: "concrete", name: "Int", optional: false}],
+                returnType: {kind: "wildcard", optional: true},
+            })
+            expect(optionalReturnMatch).toBe(true)
+
+            const optionalReturnMismatch = TypeSignatureUtils.matchesSignature("(a: Int): String", {
+                parameters: [{kind: "concrete", name: "Int", optional: false}],
+                returnType: {kind: "wildcard", optional: true},
+            })
+            expect(optionalReturnMismatch).toBe(false)
         })
     })
 })

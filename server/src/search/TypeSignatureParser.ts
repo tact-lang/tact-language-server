@@ -77,7 +77,11 @@ export class TypeSignatureParser {
         this.skipWhitespace()
 
         if (this.consume("_")) {
-            return {kind: "wildcard", optional: false}
+            const isOptional = this.peek() === "?"
+            if (isOptional) {
+                this.consume("?")
+            }
+            return {kind: "wildcard", optional: isOptional}
         }
 
         const typeName = this.parseTypeName()
@@ -167,7 +171,7 @@ export class TypeSignatureParser {
 
     private typePatternToString(pattern: TypePattern): string {
         if (pattern.kind === "wildcard") {
-            return "_"
+            return pattern.optional ? "_?" : "_"
         }
 
         let result = pattern.name ?? ""
@@ -217,7 +221,12 @@ export class TypeSignatureUtils {
             const functionParam = parsed.parameters[i]
 
             if (patternParam.kind === "wildcard") {
-                continue // wildcard matches anything
+                if (patternParam.optional) {
+                    if (!functionParam || !functionParam.endsWith("?")) {
+                        return false
+                    }
+                }
+                continue
             }
 
             if (!functionParam || !this.matchesType(functionParam, patternParam)) {
@@ -234,6 +243,9 @@ export class TypeSignatureUtils {
 
     private static matchesType(actualType: string, pattern: TypePattern): boolean {
         if (pattern.kind === "wildcard") {
+            if (pattern.optional) {
+                return actualType.endsWith("?")
+            }
             return true
         }
 
