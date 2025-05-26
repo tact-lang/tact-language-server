@@ -300,6 +300,13 @@ function registerCommands(disposables: vscode.Disposable[]): void {
                 )
             },
         ),
+        vscode.commands.registerCommand(SearchByTypeRequest, async (params: SearchByTypeParams) => {
+            if (!client) {
+                return {results: [], error: "Language server not running"}
+            }
+
+            return client.sendRequest<SearchByTypeResponse>(SearchByTypeRequest, params)
+        }),
         vscode.commands.registerCommand("tact.searchByType", async () => {
             if (!client) {
                 vscode.window.showErrorMessage("Tact Language Server is not running")

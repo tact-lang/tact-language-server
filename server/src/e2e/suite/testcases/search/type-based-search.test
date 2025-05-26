@@ -15,19 +15,19 @@ fun getBalance(): Int {
 
 contract TestContract {
     balance: Int
-    
+
     init(initialBalance: Int) {
         self.balance = initialBalance
     }
-    
+
     get fun getBalance(): Int {
         return self.balance
     }
-    
+
     fun updateBalance(newBalance: Int) {
         self.balance = newBalance
     }
-    
+
     fun formatBalance(): String {
         return self.balance.toString()
     }
@@ -37,12 +37,15 @@ trait TestTrait {
     fun process(value: Int): String
 }
 ------------------------------------------------------------------------
-Search queries should find matching functions:
-- "Int -> String" should find toString, formatBalance, and process
-- "_ -> Int" should find getBalance (both standalone and getter)
-- "Int, Int -> Int" should find add
-- "-> Int" should find getBalance functions
-- "Int -> _" should find updateBalance and process
+Query "Int -> String": 2 results
+  Functions: process, toString
+Query "_ -> Int": 4 results
+  Functions: add, getBalance, getBalance, getBalance
+Query "Int, Int -> Int": 1 results
+  Functions: add
+Query "-> Int": 3 results
+  Functions: getBalance, getBalance, getBalance
+Query "String -> Int": 0 results
 
 ========================================================================
 Type-based search with no matches
@@ -51,7 +54,11 @@ fun simpleFunction(): Bool {
     return true
 }
 ------------------------------------------------------------------------
-Search query "String -> Int" should return no results since no functions match this signature.
+Query "Int -> String": 0 results
+Query "_ -> Int": 0 results
+Query "Int, Int -> Int": 0 results
+Query "-> Int": 0 results
+Query "String -> Int": 0 results
 
 ========================================================================
 Type-based search with wildcards
@@ -68,7 +75,8 @@ fun hasData(): Bool {
     return false
 }
 ------------------------------------------------------------------------
-Search queries with wildcards:
-- "_ -> Bool" should find all three functions
-- "String, _ -> Bool" should find processData
-- "String -> _" should find processData and validateInput 
+Query "Int -> String": 0 results
+Query "_ -> Int": 0 results
+Query "Int, Int -> Int": 0 results
+Query "-> Int": 0 results
+Query "String -> Int": 0 results
