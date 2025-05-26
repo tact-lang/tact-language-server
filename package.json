@@ -479,7 +479,10 @@
                                 "use-explicit-string-receiver",
                                 "implicit-return-value-discard",
                                 "implicit-message-opcode",
-                                "misspelled-keyword"
+                                "misspelled-keyword",
+                                "deprecated-symbol-usage",
+                                "optimal-math-functions",
+                                "naming-convention"
                             ]
                         },
                         "default": [],

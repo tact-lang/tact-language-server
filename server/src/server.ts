@@ -149,6 +149,7 @@ import {CanBeInlineInspection} from "@server/inspections/CanBeInlineInspection"
 import {OptimalMathFunctionsInspection} from "@server/inspections/OptimalMathFunctionsInspection"
 import {onFileRenamed, processFileRenaming} from "@server/file-renaming"
 import {ExtractToFile} from "@server/intentions/ExtractToFile"
+import {NamingConventionInspection} from "@server/inspections/NamingConventionInspection"
 import {selectionGasConsumption} from "@server/selection-gas-consumption"
 
 /**
@@ -380,6 +381,7 @@ async function runInspections(uri: string, file: File, includeLinters: boolean):
         new MisspelledKeywordInspection(),
         new DeprecatedSymbolUsageInspection(),
         new OptimalMathFunctionsInspection(),
+        new NamingConventionInspection(),
     ]
 
     const settings = await getDocumentSettings(uri)
