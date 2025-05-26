@@ -198,6 +198,6 @@ export class NamingConventionInspection implements Inspection {
         if (name === "_") {
             return true
         }
-        return /^[a-z][\dA-Za-z]*$/.test(name)
+        return /^[_a-z][\dA-Za-z]*$/.test(name)
     }
 }
