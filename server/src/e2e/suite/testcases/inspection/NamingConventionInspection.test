@@ -1,0 +1,324 @@
+========================================================================
+Contract names should be PascalCase (Error)
+========================================================================
+contract myContract {
+    init() {}
+}
+------------------------------------------------------------------------
+0 0:9 to 0:19 Contract name 'myContract' should be in PascalCase (tact)
+
+========================================================================
+Contract names with underscores should be PascalCase (Error)
+========================================================================
+contract my_contract {
+    init() {}
+}
+------------------------------------------------------------------------
+0 0:9 to 0:20 Contract name 'my_contract' should be in PascalCase (tact)
+
+========================================================================
+Correct contract name (PascalCase)
+========================================================================
+contract MyContract {
+    init() {}
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Correct contract name with _ (PascalCase)
+========================================================================
+contract My_Contract {
+    init() {}
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Trait names should be PascalCase (Error)
+========================================================================
+trait myTrait {
+    virtual fun test(): Int;
+}
+------------------------------------------------------------------------
+0 0:6 to 0:13 Trait name 'myTrait' should be in PascalCase (tact)
+
+========================================================================
+Correct trait name (PascalCase)
+========================================================================
+trait MyTrait {
+    virtual fun test(): Int;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Message names should be PascalCase (Error)
+========================================================================
+message sendMessage {
+    value: Int;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Correct message name (PascalCase)
+========================================================================
+message SendMessage {
+    value: Int;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Struct names should be PascalCase (Error)
+========================================================================
+struct userData {
+    name: String;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Correct struct name (PascalCase)
+========================================================================
+struct UserData {
+    name: String;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Function names should be camelCase (Warning)
+========================================================================
+fun CalculateSum(a: Int, b: Int): Int {
+    return a + b;
+}
+------------------------------------------------------------------------
+1 0:4 to 0:16 Function name 'CalculateSum' should be in camelCase (tact)
+
+========================================================================
+Function names with underscores should be camelCase (Warning)
+========================================================================
+fun calculate_sum(a: Int, b: Int): Int {
+    return a + b;
+}
+------------------------------------------------------------------------
+1 0:4 to 0:17 Function name 'calculate_sum' should be in camelCase (tact)
+
+========================================================================
+Correct function name (camelCase)
+========================================================================
+fun calculateSum(a: Int, b: Int): Int {
+    return a + b;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Struct field names should be camelCase (Warning)
+========================================================================
+struct TestStruct {
+    UserName: String;
+    user_age: Int;
+}
+------------------------------------------------------------------------
+1 1:4 to 1:12 Field name 'UserName' should be in camelCase (tact)
+1 2:4 to 2:12 Field name 'user_age' should be in camelCase (tact)
+
+========================================================================
+Correct struct field names (camelCase)
+========================================================================
+struct TestStruct {
+    userName: String;
+    userAge: Int;
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Message field names should be camelCase (Warning)
+========================================================================
+message TestMessage {
+    MessageId: Int;
+    message_text: String;
+}
+------------------------------------------------------------------------
+1 1:4 to 1:13 Field name 'MessageId' should be in camelCase (tact)
+1 2:4 to 2:16 Field name 'message_text' should be in camelCase (tact)
+
+========================================================================
+Contract field names should be camelCase (Warning)
+========================================================================
+contract TestContract {
+    Balance: Int;
+    owner_address: Address;
+
+    init() {
+        self.Balance = 0;
+        self.owner_address = sender();
+    }
+}
+------------------------------------------------------------------------
+1 1:4 to 1:11 Field name 'Balance' should be in camelCase (tact)
+1 2:4 to 2:17 Field name 'owner_address' should be in camelCase (tact)
+
+========================================================================
+Contract method names should be camelCase (Warning)
+========================================================================
+contract TestContract {
+    balance: Int;
+
+    init() {
+        self.balance = 0;
+    }
+
+    fun process_data(): Int {
+        return 0;
+    }
+}
+------------------------------------------------------------------------
+3 7:8 to 7:20 Method 'process_data' is never used (tact)
+1 7:8 to 7:20 Method name 'process_data' should be in camelCase (tact)
+
+========================================================================
+Trait method names should be camelCase (Warning)
+========================================================================
+trait TestTrait {
+    balance: Int;
+
+    init() {
+        self.balance = 0;
+    }
+
+    fun process_data(): Int {
+        return 0;
+    }
+}
+------------------------------------------------------------------------
+1 7:8 to 7:20 Function name 'process_data' should be in camelCase (tact)
+
+========================================================================
+Contract get method names can be any
+========================================================================
+contract TestContract {
+    balance: Int;
+
+    init() {
+        self.balance = 0;
+    }
+
+    get fun GetBalance(): Int {
+        return self.balance;
+    }
+
+    get fun process_data(): Int {
+        return 0;
+    }
+
+    get fun processData2(): Int {
+        return 0;
+    }
+}
+------------------------------------------------------------------------
+no issues
+
+========================================================================
+Function parameter names should be camelCase (Information)
+========================================================================
+fun testFunction(UserName: String, user_age: Int): Bool {
+    return true;
+}
+------------------------------------------------------------------------
+3 0:17 to 0:25 Parameter 'UserName' is never used (tact)
+2 0:17 to 0:25 Parameter name 'UserName' should be in camelCase (tact)
+3 0:35 to 0:43 Parameter 'user_age' is never used (tact)
+2 0:35 to 0:43 Parameter name 'user_age' should be in camelCase (tact)
+
+========================================================================
+Correct function parameter names (camelCase)
+========================================================================
+fun testFunction(userName: String, userAge: Int): Bool {
+    return true;
+}
+------------------------------------------------------------------------
+3 0:17 to 0:25 Parameter 'userName' is never used (tact)
+3 0:35 to 0:42 Parameter 'userAge' is never used (tact)
+
+========================================================================
+Contract parameter names should be camelCase (Information)
+========================================================================
+contract TestContract(InitialBalance: Int, owner_address: Address) {
+    balance: Int;
+
+    init() {
+        self.balance = InitialBalance;
+    }
+}
+------------------------------------------------------------------------
+3 0:22 to 0:36 Field 'InitialBalance' is never used (tact)
+1 0:22 to 0:36 Field name 'InitialBalance' should be in camelCase (tact)
+2 0:22 to 0:36 Parameter name 'InitialBalance' should be in camelCase (tact)
+3 0:43 to 0:56 Field 'owner_address' is never used (tact)
+1 0:43 to 0:56 Field name 'owner_address' should be in camelCase (tact)
+2 0:43 to 0:56 Parameter name 'owner_address' should be in camelCase (tact)
+
+========================================================================
+Variable names should be camelCase (Information)
+========================================================================
+fun testVariables(): Int {
+    let UserName: String = "test";
+    let user_age: Int = 25;
+    return 0;
+}
+------------------------------------------------------------------------
+3 1:8 to 1:16 Variable 'UserName' is never used (tact)
+2 1:8 to 1:16 Variable name 'UserName' should be in camelCase (tact)
+3 2:8 to 2:16 Variable 'user_age' is never used (tact)
+2 2:8 to 2:16 Variable name 'user_age' should be in camelCase (tact)
+
+========================================================================
+Correct variable names (camelCase)
+========================================================================
+fun testVariables(): Int {
+    let userName: String = "test";
+    let userAge: Int = 25;
+    return 0;
+}
+------------------------------------------------------------------------
+3 1:8 to 1:16 Variable 'userName' is never used (tact)
+3 2:8 to 2:15 Variable 'userAge' is never used (tact)
+
+========================================================================
+Multiple naming violations with different severities
+========================================================================
+struct user_data {
+    UserName: String;
+    user_age: Int;
+}
+
+const maxValue: Int = 100;
+
+fun ProcessData(UserParam: String): Int {
+    let LocalVar: String = UserParam;
+    return 0;
+}
+
+contract my_contract {
+    Balance: Int;
+
+    init() {
+        self.Balance = 0;
+    }
+
+    get fun GetData(): Int {
+        return self.Balance;
+    }
+}
+------------------------------------------------------------------------
+1 7:4 to 7:15 Function name 'ProcessData' should be in camelCase (tact)
+2 7:16 to 7:25 Parameter name 'UserParam' should be in camelCase (tact)
+3 8:8 to 8:16 Variable 'LocalVar' is never used (tact)
+2 8:8 to 8:16 Variable name 'LocalVar' should be in camelCase (tact)
+0 12:9 to 12:20 Contract name 'my_contract' should be in PascalCase (tact)
+1 13:4 to 13:11 Field name 'Balance' should be in camelCase (tact)

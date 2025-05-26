@@ -23,6 +23,7 @@ export const InspectionIds = {
     MISSPELLED_KEYWORD: "misspelled-keyword",
     DEPRECATED_SYMBOL_USAGE: "deprecated-symbol-usage",
     OPTIMAL_MATH_FUNCTIONS: "optimal-math-functions",
+    NAMING_CONVENTION: "naming-convention",
     MISTI: "misti",
 } as const
 
