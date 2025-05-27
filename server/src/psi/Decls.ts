@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {AsmInstr, Expression, NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
 import {index, IndexKey} from "@server/indexes"

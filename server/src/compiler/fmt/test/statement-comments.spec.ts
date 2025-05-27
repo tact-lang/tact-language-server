@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {test, intact} from "./helpers"
 
 describe("statement comments formatting", () => {

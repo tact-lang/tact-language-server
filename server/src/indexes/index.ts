@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {NamedNode} from "@server/psi/Node"
 import {File} from "@server/psi/File"
 import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "@server/psi/Decls"

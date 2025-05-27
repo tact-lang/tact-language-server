@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {RenameFilesParams} from "vscode-languageserver"
 import * as lsp from "vscode-languageserver"
 import {filePathToUri, findFile, PARSED_FILES_CACHE} from "@server/indexing-root"

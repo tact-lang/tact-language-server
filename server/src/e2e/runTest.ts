@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as path from "node:path"
 import {runTests} from "@vscode/test-electron"
 

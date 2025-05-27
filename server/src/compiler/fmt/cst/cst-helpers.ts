@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {Builder, createContext, Cst, CstLeaf, CstNode, Module, skip, space} from "./cst-parser"
 import {processDocComments} from "./process-comments"
 import {simplifyCst} from "./simplify-cst"

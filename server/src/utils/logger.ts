@@ -1,3 +1,6 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
+
 /* eslint-disable @typescript-eslint/no-base-to-string */
 import type {Connection} from "vscode-languageserver"
 import * as fs from "node:fs"

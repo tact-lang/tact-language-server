@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
 import {TextDocuments} from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"

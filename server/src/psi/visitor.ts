@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode, TreeCursor} from "web-tree-sitter"
 
 class TreeWalker {

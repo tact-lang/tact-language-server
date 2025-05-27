@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 function makeCRC32TableBigInt(polynomial: bigint): BigInt64Array {
     let c
     const table = new BigInt64Array(256)

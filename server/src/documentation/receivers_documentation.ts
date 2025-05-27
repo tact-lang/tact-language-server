@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import type {InitFunction, MessageFunction} from "@server/psi/Decls"
 import {Expression, extractCommentsDoc} from "@server/psi/Node"
 import {BouncedTy, MessageTy} from "@server/types/BaseTy"

@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 export class CodeBuilder {
     private parts: string[] = []
     private currentIndent: string = ""

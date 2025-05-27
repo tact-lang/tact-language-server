@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import type {Intention, IntentionContext} from "@server/intentions/Intention"
 import type {WorkspaceEdit} from "vscode-languageserver"
 import {FileDiff} from "@server/utils/FileDiff"

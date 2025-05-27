@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {SemanticTokens, SemanticTokensBuilder} from "vscode-languageserver"
 import {File} from "@server/psi/File"
 import {SemanticTokenTypes} from "vscode-languageserver-protocol"

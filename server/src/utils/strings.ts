@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 export function trimSuffix(text: string, prefix: string): string {
     if (text.endsWith(prefix)) {
         return text.slice(0, -prefix.length)

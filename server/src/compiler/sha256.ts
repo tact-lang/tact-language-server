@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {sha256_sync} from "@ton/crypto"
 
 // Witness tag. Do not use, do not export!

@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {Parser, Language} from "web-tree-sitter"
 
 export let tactLanguage: Language | null = null

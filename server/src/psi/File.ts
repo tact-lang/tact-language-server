@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as path from "node:path"
 import {NamedNode} from "./Node"
 import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "./Decls"

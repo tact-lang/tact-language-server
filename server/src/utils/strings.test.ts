@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {trimPrefix, trimSuffix, toPascalCase} from "./strings"
 
 describe("String utils", () => {

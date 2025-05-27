@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
 import type {File} from "@server/psi/File"
 import {Contract, type Field, Fun, Trait} from "@server/psi/Decls"

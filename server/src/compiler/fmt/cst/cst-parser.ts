@@ -1,3 +1,6 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
+
 /* Generated. Do not edit. */
 // @ts-nocheck
 let nextId = 0;

@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {connection} from "./connection"
 import {DocumentStore, getOffsetFromPosition} from "./document-store"
 import {createTactParser, initParser} from "./parser"

@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as vscode from "vscode"
 import {defaultConfig, TactPluginConfigScheme} from "@shared/config-scheme"
 

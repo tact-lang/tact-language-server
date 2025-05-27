@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
 import type {File} from "@server/psi/File"
 import {TactCompiler} from "@server/compiler/TactCompiler"

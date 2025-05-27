@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {CompletionContext} from "./CompletionContext"
 import {CompletionResult} from "@server/completion/WeightedCompletionItem"
 
