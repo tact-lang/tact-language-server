@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 export interface SemanticToken {
     readonly line: number
     readonly start: number

@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import type {Diagnostic, DiagnosticSeverity} from "vscode-languageserver"
 import type {File} from "@server/psi/File"
 import {Inspection, InspectionId, InspectionIds} from "./Inspection"

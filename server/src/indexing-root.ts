@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {File} from "@server/psi/File"
 import {glob} from "glob"
 import * as fs from "node:fs"

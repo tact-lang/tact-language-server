@@ -1,3 +1,6 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
+
 // package.json, configuration properties keys
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface TactPluginConfigScheme {}

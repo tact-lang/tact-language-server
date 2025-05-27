@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {Position} from "vscode-languageclient"
 import type {Node as SyntaxNode, Parser} from "web-tree-sitter"
 import {parse} from "@textlint/markdown-to-ast"

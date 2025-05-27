@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {Constant, Contract, Field, Fun, Trait} from "@server/psi/Decls"
 import {index, IndexKey} from "@server/indexes"
 import {ResolveState, ScopeProcessor} from "@server/psi/Reference"

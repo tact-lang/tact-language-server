@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as vscode from "vscode"
 import {AssemblyWriter, Cell, debugSymbols, disassembleRoot} from "@tact-lang/opcode"
 import {readFileSync, existsSync} from "node:fs"

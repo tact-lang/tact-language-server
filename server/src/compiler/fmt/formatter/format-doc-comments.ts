@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {childByField, childrenByType, visit} from "../cst/cst-helpers"
 import {FormatRule} from "@server/compiler/fmt/formatter/formatter"
 

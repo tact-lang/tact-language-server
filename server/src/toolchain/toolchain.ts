@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as path from "node:path"
 import * as cp from "node:child_process"
 import {SpawnSyncReturns} from "node:child_process"

@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import type {Ty} from "./types/BaseTy"
 import type {NamedNode} from "@server/psi/Node"
 

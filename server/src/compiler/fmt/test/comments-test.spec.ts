@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {childByField, childByType, childrenByType, parseCode, visit} from "../cst/cst-helpers"
 
 describe("comments", () => {

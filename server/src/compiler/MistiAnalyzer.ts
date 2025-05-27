@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as cp from "node:child_process"
 import {CompilerError, Severity, TactCompiler} from "@server/compiler/TactCompiler"
 import {TactSettings} from "@server/utils/settings"

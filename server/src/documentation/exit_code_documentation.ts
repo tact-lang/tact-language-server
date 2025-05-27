@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 export function generateExitCodeDocumentation(code: number): string | null {
     const info = DATA[code]
     if (!info) return null

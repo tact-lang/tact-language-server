@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as path from "node:path"
 import * as Mocha from "mocha"
 import {glob} from "glob"

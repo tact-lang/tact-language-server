@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {NamedNode, Node} from "@server/psi/Node"
 import {TypeInferer} from "@server/TypeInferer"
 import {

@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {RecursiveVisitor} from "@server/psi/visitor"
 import type {File} from "@server/psi/File"
 import {Reference} from "@server/psi/Reference"

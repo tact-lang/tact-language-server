@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {Cst} from "./cst-parser"
 
 export const simplifyCst = (node: Cst): Cst => {

@@ -1,3 +1,6 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
+
 /* eslint-disable @typescript-eslint/no-base-to-string */
 import * as vscode from "vscode"
 

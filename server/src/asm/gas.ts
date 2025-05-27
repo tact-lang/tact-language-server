@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {AsmInstr} from "@server/psi/Node"
 import {getStackPresentation} from "@server/completion/data/types"
 import type {File} from "@server/psi/File"

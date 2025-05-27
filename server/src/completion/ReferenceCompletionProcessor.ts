@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {ResolveState, ScopeProcessor} from "@server/psi/Reference"
 import {NamedNode, Node} from "@server/psi/Node"
 import {Constant, Contract, Field, Fun, Message, Primitive, Struct, Trait} from "@server/psi/Decls"

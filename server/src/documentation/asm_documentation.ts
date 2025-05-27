@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {AsmInstruction, getStackPresentation} from "@server/completion/data/types"
 
 function formatOperands(operands: Record<string, number | string>): string {

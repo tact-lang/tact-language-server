@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import * as fs from "node:fs"
 import * as path from "node:path"
 import {formatCode} from "@server/compiler/fmt/fmt"

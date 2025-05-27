@@ -1,3 +1,6 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
+
 /**
  * Generates the CRC16 lookup table for the given polynomial.
  * (Using polynomial 0x1021)

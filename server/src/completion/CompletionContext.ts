@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {Expression, Node} from "@server/psi/Node"
 import type * as lsp from "vscode-languageserver/node"
 import {parentOfType} from "@server/psi/utils"

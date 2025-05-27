@@ -1,3 +1,5 @@
+//  SPDX-License-Identifier: MIT
+//  Copyright © 2025 TON Studio
 import {Cst} from "./cst/cst-parser"
 import {format} from "./formatter/formatter"
 import {parseCode, visit} from "@server/compiler/fmt/cst/cst-helpers"
