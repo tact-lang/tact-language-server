@@ -13,7 +13,7 @@ import {
     Trait,
 } from "@server/languages/tact/psi/Decls"
 import {CompletionItem, InsertTextFormat, CompletionItemKind} from "vscode-languageserver-types"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {CompletionContext} from "./CompletionContext"
 import {
     CompletionWeight,

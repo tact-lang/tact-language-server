@@ -19,7 +19,7 @@ import type {File} from "./File"
 import {Contract, Field, FieldsOwner, Fun, Message, Struct, Trait} from "./Decls"
 import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "@server/cache"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {filePathToUri} from "@server/indexing-root"
 import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
 

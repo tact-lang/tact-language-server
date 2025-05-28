@@ -18,7 +18,7 @@ import {Reference} from "@server/languages/tact/psi/Reference"
 import {Struct, Message, Fun, Primitive, Contract, Trait} from "@server/languages/tact/psi/Decls"
 import {isTypeOwnerNode} from "@server/languages/tact/psi/utils"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {CACHE} from "./cache"
+import {CACHE} from "../../cache"
 import {index, IndexKey} from "@server/languages/tact/indexes"
 
 export class TypeInferer {

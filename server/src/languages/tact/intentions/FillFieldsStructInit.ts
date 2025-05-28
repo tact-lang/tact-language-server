@@ -9,7 +9,7 @@ import {FileDiff} from "@server/utils/FileDiff"
 import {parentOfType} from "@server/languages/tact/psi/utils"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {NamedNode} from "@server/languages/tact/psi/Node"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {
     FieldsOwnerTy,
     MapTy,

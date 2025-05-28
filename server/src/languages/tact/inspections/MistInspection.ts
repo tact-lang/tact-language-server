@@ -9,7 +9,7 @@ import {Inspection, InspectionIds} from "@server/languages/tact/inspections/Insp
 import * as path from "node:path"
 import {workspaceRoot} from "@server/toolchain"
 import {existsSync} from "node:fs"
-import {getDocumentSettings} from "@server/utils/settings"
+import {getDocumentSettings} from "@server/settings/settings"
 
 export class MistiInspection implements Inspection {
     public readonly id: "misti" = InspectionIds.MISTI

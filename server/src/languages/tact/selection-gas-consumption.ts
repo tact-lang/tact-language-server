@@ -9,7 +9,7 @@ import {asParserPoint} from "@server/utils/position"
 import type {Node as SyntaxNode, Point} from "web-tree-sitter"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import {AsmInstr} from "@server/languages/tact/psi/Node"
-import {getDocumentSettings} from "@server/utils/settings"
+import {getDocumentSettings} from "@server/settings/settings"
 import {computeGasConsumption} from "@server/languages/tact/asm/gas"
 import {File} from "@server/languages/tact/psi/File"
 

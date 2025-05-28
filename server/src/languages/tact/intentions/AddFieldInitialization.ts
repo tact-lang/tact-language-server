@@ -10,7 +10,7 @@ import {Field, InitFunction, StorageMembersOwner} from "@server/languages/tact/p
 import {PrimitiveTy, StructTy, Ty} from "@server/languages/tact/types/BaseTy"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {NamedNode} from "@server/languages/tact/psi/Node"
 
 export class AddFieldInitialization implements Intention {

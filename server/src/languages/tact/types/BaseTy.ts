@@ -15,7 +15,7 @@ import type {
 } from "@server/languages/tact/psi/Decls"
 import {NamedNode} from "@server/languages/tact/psi/Node"
 import {trimPrefix} from "@server/utils/strings"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 
 export interface Ty {
     name(): string

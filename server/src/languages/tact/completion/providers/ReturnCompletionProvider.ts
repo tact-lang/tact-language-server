@@ -6,7 +6,7 @@ import type {CompletionContext} from "@server/languages/tact/completion/Completi
 import {funNodesTypes, parentOfType} from "@server/languages/tact/psi/utils"
 import {Fun} from "@server/languages/tact/psi/Decls"
 import {OptionTy, PrimitiveTy} from "@server/languages/tact/types/BaseTy"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {
     CompletionResult,
     CompletionWeight,

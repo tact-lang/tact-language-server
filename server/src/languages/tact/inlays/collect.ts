@@ -3,7 +3,7 @@
 import {InlayHint, InlayHintKind} from "vscode-languageserver-types"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
 import type {File} from "@server/languages/tact/psi/File"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {Reference} from "@server/languages/tact/psi/Reference"
 import {Field, Fun, InitFunction, Message, MessageFunction} from "@server/languages/tact/psi/Decls"
 import {
