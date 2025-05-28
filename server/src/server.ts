@@ -44,7 +44,7 @@ import {KeywordsCompletionProvider} from "@server/languages/tact/completion/prov
 import type {CompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
 import {SelfCompletionProvider} from "@server/languages/tact/completion/providers/SelfCompletionProvider"
 import {ReturnCompletionProvider} from "@server/languages/tact/completion/providers/ReturnCompletionProvider"
-import {BaseTy, FieldsOwnerTy, Ty} from "@server/languages/tact/types/BaseTy"
+import {FieldsOwnerTy, Ty} from "@server/languages/tact/types/BaseTy"
 import type {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
 import {
     Constant,
@@ -138,7 +138,10 @@ import {
 } from "@server/files"
 import {provideTactDocumentation} from "@server/languages/tact/documentation"
 import {provideFiftDocumentation} from "@server/languages/fift/documentation"
-import {provideTactDefinition} from "@server/languages/tact/find-definitions"
+import {
+    provideTactDefinition,
+    provideTactTypeDefinition,
+} from "@server/languages/tact/find-definitions"
 import {provideTlbDefinition} from "@server/languages/tlb/find-definitions"
 import {provideFiftDefinition} from "@server/languages/fift/find-definitions"
 
@@ -543,33 +546,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.TypeDefinitionRequest.type,
         (params: lsp.TypeDefinitionParams): lsp.Definition | lsp.DefinitionLink[] => {
             const uri = params.textDocument.uri
-            const file = findTactFile(uri)
-            const hoverNode = nodeAtPosition(params, file)
-            if (!hoverNode) return []
-            if (
-                hoverNode.type !== "identifier" &&
-                hoverNode.type !== "self" &&
-                hoverNode.type !== "type_identifier"
-            ) {
-                return []
-            }
 
-            const type = TypeInferer.inferType(new Expression(hoverNode, file))
-            if (type === null) {
-                console.warn(`Cannot infer type for Go to Type Definition for: ${hoverNode.text}`)
-                return []
-            }
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                const hoverNode = nodeAtPosition(params, file)
+                if (!hoverNode) return []
 
-            if (type instanceof BaseTy) {
-                const anchor = type.anchor as NamedNode
-                const name = anchor.nameIdentifier()
-                if (name === null) return []
-                return [
-                    {
-                        uri: anchor.file.uri,
-                        range: asLspRange(name),
-                    },
-                ]
+                return provideTactTypeDefinition(hoverNode, file)
             }
 
             return []
