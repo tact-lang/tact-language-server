@@ -6,7 +6,7 @@ import {parse} from "@textlint/markdown-to-ast"
 import {TxtCodeBlockNode} from "@textlint/ast-node-types"
 import * as lsp from "vscode-languageserver"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
-import {Tokens} from "@server/languages/tact/semantic_tokens/tokens"
+import {Tokens} from "@server/languages/tact/semantic-tokens/tokens"
 import {SemanticTokenTypes} from "vscode-languageserver-protocol"
 
 const KEYWORDS = {

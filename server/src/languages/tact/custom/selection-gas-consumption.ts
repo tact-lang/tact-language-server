@@ -1,8 +1,8 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import {
-    GetGasConsumptionForSelectionParams,
-    GetGasConsumptionForSelectionResponse,
+    GasConsumptionForSelectionParams,
+    GasConsumptionForSelectionResponse,
 } from "@shared/shared-msgtypes"
 import {asParserPoint} from "@server/utils/position"
 import type {Node as SyntaxNode, Point} from "web-tree-sitter"
@@ -13,9 +13,9 @@ import {computeGasConsumption} from "@server/languages/tact/asm/gas"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {findTactFile} from "@server/files"
 
-export async function selectionGasConsumption(
-    params: GetGasConsumptionForSelectionParams,
-): Promise<GetGasConsumptionForSelectionResponse> {
+export async function provideSelectionGasConsumption(
+    params: GasConsumptionForSelectionParams,
+): Promise<GasConsumptionForSelectionResponse> {
     try {
         const uri = params.textDocument.uri
         const file = findTactFile(uri)

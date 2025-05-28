@@ -3,48 +3,34 @@
 import {connection} from "./connection"
 import {DocumentStore} from "./document-store"
 import {initParser} from "./parser"
-import {asLspRange, asNullableLspRange, asParserPoint} from "@server/utils/position"
+import {asParserPoint} from "@server/utils/position"
 import {TypeInferer} from "./languages/tact/TypeInferer"
-import {Referent} from "@server/languages/tact/psi/Referent"
 import {index, IndexRoot} from "@server/languages/tact/indexes"
-import {Expression, NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
-import {Reference} from "@server/languages/tact/psi/Reference"
-import {TactFile} from "@server/languages/tact/psi/TactFile"
 import * as lsp from "vscode-languageserver"
 import {DidChangeWatchedFilesParams, FileChangeType} from "vscode-languageserver"
-import * as inlays from "@server/languages/tact/inlays/collect"
-import * as foldings from "@server/languages/tact/foldings/collect"
-import * as semantic from "@server/languages/tact/semantic_tokens/collect"
-import * as lens from "@server/languages/tact/lens/collect"
-import * as search from "@server/languages/tact/search/implementations"
 import {TypeBasedSearch} from "@server/languages/tact/search/TypeBasedSearch"
 import * as path from "node:path"
 import {existsSync} from "node:fs"
 import type {ClientOptions} from "@shared/config-scheme"
 import {
-    GetDocumentationAtPositionRequest,
-    GetDocumentationAtPositionResponse,
-    GetGasConsumptionForSelectionRequest,
-    GetTypeAtPositionParams,
-    GetTypeAtPositionRequest,
-    GetTypeAtPositionResponse,
+    DocumentationAtPositionRequest,
+    GasConsumptionForSelectionRequest,
+    TypeAtPositionParams,
+    TypeAtPositionRequest,
+    TypeAtPositionResponse,
     SearchByTypeParams,
     SearchByTypeRequest,
     SearchByTypeResponse,
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
 } from "@shared/shared-msgtypes"
-import {Ty} from "@server/languages/tact/types/BaseTy"
-import {Fun, Trait} from "@server/languages/tact/psi/Decls"
-import {measureTime} from "@server/languages/tact/psi/utils"
 import {Logger} from "@server/utils/logger"
-import {CACHE} from "./cache"
+import {CACHE} from "./languages/tact/cache"
 import {IndexingRoot, IndexingRootKind} from "./indexing-root"
 import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/settings/settings"
-import {collectFift} from "@server/languages/fift/foldings/collect"
-import {collectFift as collectFiftSemanticTokens} from "@server/languages/fift/semantic_tokens/collect"
+import {provideFiftFoldingRanges} from "@server/languages/fift/foldings/collect"
+import {provideFiftSemanticTokens as provideFiftSemanticTokens} from "server/src/languages/fift/semantic-tokens"
 import {collectFift as collectFiftInlays} from "@server/languages/fift/inlays/collect"
-import {FiftReferent} from "@server/languages/fift/psi/FiftReferent"
 import {WorkspaceEdit} from "vscode-languageserver-types"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {
@@ -55,10 +41,9 @@ import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
 import * as toolchainManager from "@server/toolchain-manager"
 import {formatCode} from "@server/languages/tact/compiler/fmt/fmt"
 import {fileURLToPath} from "node:url"
-import * as tlbSemantic from "@server/languages/tlb/semantic_tokens/collect"
-import {onFileRenamed, processFileRenaming} from "@server/languages/tact/file-renaming"
-import {selectionGasConsumption} from "@server/languages/tact/selection-gas-consumption"
-import {runInspections} from "@server/inspections"
+import {onFileRenamed, processFileRenaming} from "@server/languages/tact/rename/file-renaming"
+import {provideSelectionGasConsumption} from "@server/languages/tact/custom/selection-gas-consumption"
+import {runInspections} from "@server/languages/tact/inspections"
 import {
     FIFT_PARSED_FILES_CACHE,
     filePathToUri,
@@ -98,6 +83,16 @@ import {
     provideExecuteTactCommand,
     provideTactCodeActions,
 } from "@server/languages/tact/intentions"
+import {provideFiftReferences} from "@server/languages/fift/references"
+import {provideTactReferences} from "@server/languages/tact/references"
+import {provideTactFoldingRanges} from "@server/languages/tact/foldings"
+import {provideTactSemanticTokens} from "@server/languages/tact/semantic-tokens"
+import {provideTlbSemanticTokens} from "@server/languages/tlb/semantic-tokens"
+import {collectTactCodeLenses} from "@server/languages/tact/lens/collectTactCodeLenses"
+import {collectTactInlays} from "@server/languages/tact/inlays"
+import {provideTactDocumentHighlight} from "@server/languages/tact/highlighting"
+import {provideTactImplementations} from "@server/languages/tact/implementations"
+import {provideTactTypeAtPosition} from "@server/languages/tact/custom/type-at-position"
 
 /**
  * Whenever LS is initialized.
@@ -479,10 +474,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         return file.rootNode.descendantForPosition(cursorPosition)
     }
 
-    async function provideDocumentation(
-        uri: string,
-        params: lsp.HoverParams,
-    ): Promise<lsp.Hover | null> {
+    async function provideDocumentation(params: lsp.HoverParams): Promise<lsp.Hover | null> {
+        const uri = params.textDocument.uri
+
         if (isFiftFile(uri)) {
             const file = findFiftFile(uri)
             const hoverNode = nodeAtPosition(params, file)
@@ -500,13 +494,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         return null
     }
 
-    connection.onRequest(
-        lsp.HoverRequest.type,
-        async (params: lsp.HoverParams): Promise<lsp.Hover | null> => {
-            const uri = params.textDocument.uri
-            return provideDocumentation(uri, params)
-        },
-    )
+    connection.onRequest(lsp.HoverRequest.type, provideDocumentation)
 
     connection.onRequest(
         lsp.DefinitionRequest.type,
@@ -589,7 +577,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             if (isTactFile(uri)) {
                 const file = findTactFile(uri)
-                return inlays.collect(file, settings.hints, settings.gas)
+                return collectTactInlays(file, settings.hints, settings.gas)
             }
 
             return null
@@ -598,39 +586,17 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.ImplementationRequest.type,
-        (params: lsp.ImplementationParams): lsp.Definition | lsp.LocationLink[] => {
+        (params: lsp.ImplementationParams): lsp.Definition | lsp.LocationLink[] | null => {
             const uri = params.textDocument.uri
-            const file = findTactFile(uri)
 
-            const elementNode = nodeAtPosition(params, file)
-            if (!elementNode) return []
-            if (
-                elementNode.type !== "identifier" &&
-                elementNode.type !== "self" &&
-                elementNode.type !== "type_identifier"
-            ) {
-                return []
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                const elementNode = nodeAtPosition(params, file)
+                if (!elementNode) return []
+                return provideTactImplementations(elementNode, file)
             }
 
-            const element = NamedNode.create(elementNode, file)
-            const res = Reference.resolve(element)
-            if (res === null) return []
-
-            if (res instanceof Trait) {
-                return search.implementations(res).map(impl => ({
-                    uri: impl.file.uri,
-                    range: asNullableLspRange(impl.nameIdentifier()),
-                }))
-            }
-
-            if (res instanceof Fun) {
-                return search.implementationsFun(res).map(impl => ({
-                    uri: impl.file.uri,
-                    range: asNullableLspRange(impl.nameIdentifier()),
-                }))
-            }
-
-            return []
+            return null
         },
     )
 
@@ -652,6 +618,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.PrepareRenameRequest.type,
         (params: lsp.PrepareRenameParams): lsp.PrepareRenameResult | null => {
             const uri = params.textDocument.uri
+
             if (isTactFile(uri)) {
                 const file = findTactFile(uri)
 
@@ -671,44 +638,16 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     connection.onRequest(
         lsp.DocumentHighlightRequest.type,
         (params: lsp.DocumentHighlightParams): lsp.DocumentHighlight[] | null => {
-            const file = findTactFile(params.textDocument.uri)
-            const highlightNode = nodeAtPosition(params, file)
-            if (!highlightNode) return null
-            if (
-                highlightNode.type !== "identifier" &&
-                highlightNode.type !== "self" &&
-                highlightNode.type !== "type_identifier"
-            ) {
-                return []
+            const uri = params.textDocument.uri
+
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                const node = nodeAtPosition(params, file)
+                if (!node) return null
+                return provideTactDocumentHighlight(node, file)
             }
 
-            const result = new Referent(highlightNode, file).findReferences({
-                includeDefinition: true,
-                sameFileOnly: true,
-                includeSelf: true,
-            })
-            if (result.length === 0) return null
-
-            const usageKind = (value: TactNode): lsp.DocumentHighlightKind => {
-                const parent = value.node.parent
-                if (
-                    parent?.type === "assignment_statement" ||
-                    parent?.type === "augmented_assignment_statement"
-                ) {
-                    if (parent.childForFieldName("left")?.equals(value.node)) {
-                        // left = 10
-                        // ^^^^
-                        return lsp.DocumentHighlightKind.Write
-                    }
-                }
-
-                return lsp.DocumentHighlightKind.Read
-            }
-
-            return result.map(value => ({
-                range: asLspRange(value.node),
-                kind: usageKind(value),
-            }))
+            return null
         },
     )
 
@@ -720,51 +659,18 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
                 const node = nodeAtPosition(params, file)
-                if (!node || node.type !== "identifier") return []
-
-                const result = new FiftReferent(node, file).findReferences(false)
-                if (result.length === 0) return null
-
-                return result.map(n => ({
-                    uri: n.file.uri,
-                    range: asLspRange(n.node),
-                }))
+                if (!node) return null
+                return provideFiftReferences(node, file)
             }
 
-            if (isTlbFile(uri)) return []
-
-            const file = findTactFile(uri)
-            const referenceNode = nodeAtPosition(params, file)
-            if (!referenceNode) return null
-
-            if (
-                referenceNode.type !== "identifier" &&
-                referenceNode.type !== "type_identifier" &&
-                referenceNode.type !== "init"
-            ) {
-                return []
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                const node = nodeAtPosition(params, file)
+                if (!node) return null
+                return provideTactReferences(node, file)
             }
 
-            const result = new Referent(referenceNode, file).findReferences({
-                includeDefinition: false,
-            })
-            if (result.length === 0) return null
-
-            const settings = await getDocumentSettings(file.uri)
-            if (settings.findUsages.scope === "workspace") {
-                // filter out references from stdlib
-                return result
-                    .filter(value => !value.file.fromStdlib && !value.file.fromStubs)
-                    .map(value => ({
-                        uri: value.file.uri,
-                        range: asLspRange(value.node),
-                    }))
-            }
-
-            return result.map(value => ({
-                uri: value.file.uri,
-                range: asLspRange(value.node),
-            }))
+            return null
         },
     )
 
@@ -783,15 +689,20 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.FoldingRangeRequest.type,
-        (params: lsp.FoldingRangeParams): lsp.FoldingRange[] => {
+        (params: lsp.FoldingRangeParams): lsp.FoldingRange[] | null => {
             const uri = params.textDocument.uri
+
             if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
-                return collectFift(file)
+                return provideFiftFoldingRanges(file)
             }
 
-            const file = findTactFile(uri)
-            return measureTime("folding range", () => foldings.collect(file))
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                return provideTactFoldingRanges(file)
+            }
+
+            return null
         },
     )
 
@@ -803,26 +714,35 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
-                return collectFiftSemanticTokens(file, settings.fift.semanticHighlighting)
+                return provideFiftSemanticTokens(file, settings.fift.semanticHighlighting)
             }
 
             if (isTlbFile(uri)) {
                 const file = findTlbFile(uri)
-                return tlbSemantic.collect(file)
+                return provideTlbSemanticTokens(file)
             }
 
-            const file = findTactFile(uri)
-            return semantic.collect(file, settings.highlighting)
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                return provideTactSemanticTokens(file, settings.highlighting)
+            }
+
+            return null
         },
     )
 
     connection.onRequest(
         lsp.CodeLensRequest.type,
-        async (params: lsp.CodeLensParams): Promise<lsp.CodeLens[]> => {
+        async (params: lsp.CodeLensParams): Promise<lsp.CodeLens[] | null> => {
             const uri = params.textDocument.uri
-            const file = findTactFile(uri)
-            const settings = await getDocumentSettings(uri)
-            return lens.collect(file, settings.codeLens)
+
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                const settings = await getDocumentSettings(uri)
+                return collectTactCodeLenses(file, settings.codeLens)
+            }
+
+            return null
         },
     )
 
@@ -847,90 +767,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    function getAdjustedNodeForType(node: SyntaxNode): SyntaxNode {
-        const parent = node.parent
-        if (
-            parent?.type === "method_call_expression" ||
-            parent?.type === "static_call_expression" ||
-            parent?.type === "instance_expression"
-        ) {
-            return parent
-        }
-
-        return node
-    }
-
-    function findTypeForNode(node: SyntaxNode, file: TactFile): {ty: Ty; node: SyntaxNode} | null {
-        let nodeForType: SyntaxNode | null = node
-        while (nodeForType) {
-            const ty = TypeInferer.inferType(new Expression(nodeForType, file))
-            if (ty) return {ty, node: nodeForType}
-            nodeForType = nodeForType.parent
-            if (nodeForType?.type.includes("statement")) break
-        }
-
-        return null
-    }
-
-    connection.onRequest(
-        GetTypeAtPositionRequest,
-        (params: GetTypeAtPositionParams): GetTypeAtPositionResponse => {
-            const file = findTactFile(params.textDocument.uri)
-            const cursorPosition = asParserPoint(params.position)
-
-            const node = file.rootNode.descendantForPosition(cursorPosition)
-            if (!node) return {type: null, range: null}
-
-            const adjustedNode = getAdjustedNodeForType(node)
-
-            const res = findTypeForNode(adjustedNode, file)
-            if (!res) {
-                return {
-                    type: "void or unknown",
-                    range: asLspRange(node),
-                }
-            }
-
-            const {ty, node: actualNode} = res
-
-            return {
-                type: ty.qualifiedName(),
-                range: asLspRange(actualNode),
-            }
-        },
-    )
-
-    connection.onRequest(
-        GetDocumentationAtPositionRequest,
-        async (
-            params: GetTypeAtPositionParams,
-        ): Promise<GetDocumentationAtPositionResponse | null> => {
-            const uri = params.textDocument.uri
-            return provideDocumentation(uri, params)
-        },
-    )
-
-    connection.onRequest(GetGasConsumptionForSelectionRequest, selectionGasConsumption)
-
-    connection.onRequest(
-        SearchByTypeRequest,
-        (params: SearchByTypeParams): SearchByTypeResponse => {
-            try {
-                const results = TypeBasedSearch.search(params.query)
-                return {
-                    results,
-                    error: null,
-                }
-            } catch (error) {
-                console.error("Error in type-based search:", error)
-                return {
-                    results: [],
-                    error: error instanceof Error ? error.message : "Unknown error",
-                }
-            }
-        },
-    )
-
     connection.onRequest(
         lsp.DocumentSymbolRequest.type,
         async (params: lsp.DocumentSymbolParams): Promise<lsp.DocumentSymbol[]> => {
@@ -951,7 +787,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.DocumentFormattingRequest.type,
         (params: lsp.DocumentFormattingParams): lsp.TextEdit[] | null => {
             const uri = params.textDocument.uri
-            if (isFiftFile(uri)) {
+            if (isFiftFile(uri) || isTlbFile(uri)) {
                 return null
             }
 
@@ -991,6 +827,44 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 `Cannot format file: ${formatted.message}, please open a new issue with the file content: https://github.com/tact-lang/tact-language-server/issues`,
             )
             return null
+        },
+    )
+
+    // Custom LSP requests
+
+    connection.onRequest(
+        TypeAtPositionRequest,
+        (params: TypeAtPositionParams): TypeAtPositionResponse => {
+            const uri = params.textDocument.uri
+
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                return provideTactTypeAtPosition(params, file)
+            }
+
+            return {type: null, range: null}
+        },
+    )
+
+    connection.onRequest(DocumentationAtPositionRequest, provideDocumentation)
+    connection.onRequest(GasConsumptionForSelectionRequest, provideSelectionGasConsumption)
+
+    connection.onRequest(
+        SearchByTypeRequest,
+        (params: SearchByTypeParams): SearchByTypeResponse => {
+            try {
+                const results = TypeBasedSearch.search(params.query)
+                return {
+                    results,
+                    error: null,
+                }
+            } catch (error) {
+                console.error("Error in type-based search:", error)
+                return {
+                    results: [],
+                    error: error instanceof Error ? error.message : "Unknown error",
+                }
+            }
         },
     )
 

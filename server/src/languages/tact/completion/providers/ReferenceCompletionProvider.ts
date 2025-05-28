@@ -2,11 +2,12 @@
 //  Copyright © 2025 TON Studio
 import type {CompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
 import type {CompletionContext} from "@server/languages/tact/completion/CompletionContext"
-import {Reference, ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
+import {Reference, ScopeProcessor} from "@server/languages/tact/psi/Reference"
 import {ReferenceCompletionProcessor} from "@server/languages/tact/completion/ReferenceCompletionProcessor"
 import {NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
 import {FieldsOwner} from "@server/languages/tact/psi/Decls"
 import type {CompletionResult} from "@server/languages/tact/completion/WeightedCompletionItem"
+import {ResolveState} from "@server/psi/ResolveState"
 
 enum CompletionKind {
     ONLY_FIELDS = "ONLY_FIELDS",

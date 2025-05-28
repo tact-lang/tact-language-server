@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {encode, SemanticToken} from "@server/languages/tact/semantic_tokens/utils"
+import {encode, SemanticToken} from "@server/languages/tact/semantic-tokens/utils"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {Position} from "vscode-languageclient"
 import * as lsp from "vscode-languageserver"

@@ -12,10 +12,11 @@ import {
     Trait,
 } from "@server/languages/tact/psi/Decls"
 import {isNamedFunNode} from "@server/languages/tact/psi/utils"
-import {ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
-import {CACHE} from "@server/cache"
+import {ScopeProcessor} from "@server/languages/tact/psi/Reference"
+import {CACHE} from "@server/languages/tact/cache"
 import {fileURLToPath} from "node:url"
 import {PARSED_FILES_CACHE} from "@server/files"
+import {ResolveState} from "@server/psi/ResolveState"
 
 export interface IndexKeyToType {
     readonly [IndexKey.Contracts]: Contract

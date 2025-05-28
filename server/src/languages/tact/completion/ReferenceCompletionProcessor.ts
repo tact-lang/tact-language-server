@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
+import {ScopeProcessor} from "@server/languages/tact/psi/Reference"
 import {NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
 import {
     Constant,
@@ -24,6 +24,7 @@ import {MessageTy, StructTy} from "@server/languages/tact/types/BaseTy"
 import {tactCodeBlock} from "@server/languages/tact/documentation/documentation"
 import {trimPrefix} from "@server/utils/strings"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
+import {ResolveState} from "@server/psi/ResolveState"
 
 export interface CompletionItemAdditionalInformation {
     readonly name: string | undefined

@@ -9,7 +9,7 @@ import {TlbReference} from "@server/languages/tlb/psi/TlbReference"
 import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
 import {TlbNode} from "@server/languages/tlb/psi/TlbNode"
 
-export function collect(file: TlbFile): SemanticTokens {
+export function provideTlbSemanticTokens(file: TlbFile): SemanticTokens {
     const builder = new SemanticTokensBuilder()
 
     function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes): void {

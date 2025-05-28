@@ -14,15 +14,15 @@ import {
 import {consoleError, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
-    GetDocumentationAtPositionRequest,
-    GetTypeAtPositionParams,
-    GetTypeAtPositionRequest,
-    GetTypeAtPositionResponse,
+    DocumentationAtPositionRequest,
+    TypeAtPositionParams,
+    TypeAtPositionRequest,
+    TypeAtPositionResponse,
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
-    GetGasConsumptionForSelectionRequest,
-    GetGasConsumptionForSelectionParams,
-    GetGasConsumptionForSelectionResponse,
+    GasConsumptionForSelectionRequest,
+    GasConsumptionForSelectionParams,
+    GasConsumptionForSelectionResponse,
     SearchByTypeRequest,
     SearchByTypeParams,
     SearchByTypeResponse,
@@ -376,8 +376,8 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
             },
         ),
         vscode.commands.registerCommand(
-            GetTypeAtPositionRequest,
-            async (params: GetTypeAtPositionParams | undefined) => {
+            TypeAtPositionRequest,
+            async (params: TypeAtPositionParams | undefined) => {
                 if (!client) {
                     return null
                 }
@@ -400,8 +400,8 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
                     }
                 }
 
-                const result = await client.sendRequest<GetTypeAtPositionResponse>(
-                    GetTypeAtPositionRequest,
+                const result = await client.sendRequest<TypeAtPositionResponse>(
+                    TypeAtPositionRequest,
                     params,
                 )
 
@@ -424,14 +424,14 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
             },
         ),
         vscode.commands.registerCommand(
-            GetDocumentationAtPositionRequest,
-            async (params: GetTypeAtPositionParams | undefined) => {
+            DocumentationAtPositionRequest,
+            async (params: TypeAtPositionParams | undefined) => {
                 if (!client || !params) {
                     return null
                 }
 
-                return client.sendRequest<GetTypeAtPositionResponse>(
-                    GetDocumentationAtPositionRequest,
+                return client.sendRequest<TypeAtPositionResponse>(
+                    DocumentationAtPositionRequest,
                     params,
                 )
             },
@@ -992,7 +992,7 @@ async function updateGasStatusBar(editor: vscode.TextEditor): Promise<void> {
     }
 
     try {
-        const params: GetGasConsumptionForSelectionParams = {
+        const params: GasConsumptionForSelectionParams = {
             textDocument: {
                 uri: editor.document.uri.toString(),
             },
@@ -1008,8 +1008,8 @@ async function updateGasStatusBar(editor: vscode.TextEditor): Promise<void> {
             },
         }
 
-        const result = await client.sendRequest<GetGasConsumptionForSelectionResponse>(
-            GetGasConsumptionForSelectionRequest,
+        const result = await client.sendRequest<GasConsumptionForSelectionResponse>(
+            GasConsumptionForSelectionRequest,
             params,
         )
 
