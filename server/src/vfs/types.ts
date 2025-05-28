@@ -12,7 +12,6 @@ export interface VirtualFile {
 
 /**
  * Simple file system provider interface
- * Covers the basic needs: reading files, checking existence, and listing files
  */
 export interface FileSystemProvider {
     /**

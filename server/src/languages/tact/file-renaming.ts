@@ -9,11 +9,13 @@ import {TextEdit} from "vscode-languageserver-types"
 import {index} from "@server/languages/tact/indexes"
 import {filePathToUri, findTactFile, PARSED_FILES_CACHE} from "@server/files"
 
-export function processFileRenaming(params: RenameFilesParams): lsp.WorkspaceEdit | null {
+export async function processFileRenaming(
+    params: RenameFilesParams,
+): Promise<lsp.WorkspaceEdit | null> {
     const changes: Record<lsp.DocumentUri, lsp.TextEdit[]> = {}
 
     for (const fileRename of params.files) {
-        processFileRename(fileRename, changes)
+        await processFileRename(fileRename, changes)
     }
 
     return Object.keys(changes).length > 0 ? {changes} : null
@@ -42,7 +44,10 @@ export function onFileRenamed(params: RenameFilesParams): void {
     }
 }
 
-function processFileRename(fileRename: lsp.FileRename, changes: Record<string, TextEdit[]>): void {
+async function processFileRename(
+    fileRename: lsp.FileRename,
+    changes: Record<string, TextEdit[]>,
+): Promise<void> {
     const oldUri = fileRename.oldUri
     const newUri = fileRename.newUri
 
@@ -69,7 +74,7 @@ function processFileRename(fileRename: lsp.FileRename, changes: Record<string, T
                 continue
             }
 
-            const oldFile = findTactFile(oldUri)
+            const oldFile = await findTactFile(oldUri)
             const newFile = new File(newUri, oldFile.tree, oldFile.content)
             const newImportPath = newFile.importPath(file)
             const range = asLspRange(pathNode)

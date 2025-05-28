@@ -1,17 +1,9 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 
-export type {FileSystemProvider, VirtualFile, VFSConfig} from "./types"
+export type {FileSystemProvider, VirtualFile} from "./types"
 
-export {
-    createVFS,
-    readFile,
-    exists,
-    listFiles,
-    invalidateCache,
-    clearCache,
-    getCacheStats,
-} from "./vfs"
+export {createVFS, readFile, exists, listFiles} from "./vfs"
 export type {VFS} from "./vfs"
 
 export {createNodeFSProvider} from "./fs-provider"

@@ -3,7 +3,6 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as path from "node:path"
 import type {File} from "./File"
-import {existsSync} from "node:fs"
 import {trimPrefix, trimSuffix} from "@server/utils/strings"
 import {projectStdlibPath} from "@server/languages/tact/toolchain/toolchain"
 import {filePathToUri, PARSED_FILES_CACHE} from "@server/files"
@@ -40,7 +39,12 @@ export class ImportResolver {
     }
 
     private static checkFile(targetPath: string, check: boolean): string | null {
-        if (check && !existsSync(targetPath)) return null
+        if (check) {
+            // TODO
+            // const targetUri = filePathToUri(targetPath)
+            // const exists = await existsVFS(globalVFS, targetUri)
+            // if (!exists) return null
+        }
         return targetPath
     }
 

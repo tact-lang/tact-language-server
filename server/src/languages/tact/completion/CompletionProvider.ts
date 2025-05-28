@@ -7,3 +7,8 @@ export interface CompletionProvider {
     isAvailable(ctx: CompletionContext): boolean
     addCompletion(ctx: CompletionContext, result: CompletionResult): void
 }
+
+export interface AsyncCompletionProvider {
+    isAvailable(ctx: CompletionContext): boolean
+    addCompletion(ctx: CompletionContext, result: CompletionResult): Promise<void>
+}
