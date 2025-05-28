@@ -6,8 +6,9 @@ export const TypeAtPositionRequest = "tact/getTypeAtPosition"
 export const DocumentationAtPositionRequest = "tact/executeHoverProvider"
 export const SetToolchainVersionNotification = "tact/setToolchainVersion"
 export const GasConsumptionForSelectionRequest = "tact/executeGetGasConsumptionForSelection"
+export const SearchByTypeRequest = "tact/searchByType"
 
-export interface GetTypeAtPositionParams {
+export interface TypeAtPositionParams {
     readonly textDocument: {
         readonly uri: string
     }
@@ -38,19 +39,19 @@ export interface SetToolchainVersionParams {
     readonly environment: EnvironmentInfo
 }
 
-export interface GetTypeAtPositionResponse {
+export interface TypeAtPositionResponse {
     readonly type: string | null
     readonly range: lsp.Range | null
 }
 
-export interface GetGasConsumptionForSelectionParams {
+export interface GasConsumptionForSelectionParams {
     readonly textDocument: {
         readonly uri: string
     }
     readonly range: lsp.Range
 }
 
-export interface GetGasConsumptionForSelectionResponse {
+export interface GasConsumptionForSelectionResponse {
     readonly gasConsumption: {
         readonly value: number
         readonly exact: boolean
@@ -58,8 +59,6 @@ export interface GetGasConsumptionForSelectionResponse {
     } | null
     readonly error?: string
 }
-
-export const SearchByTypeRequest = "tact/searchByType"
 
 export interface SearchByTypeParams {
     readonly query: string

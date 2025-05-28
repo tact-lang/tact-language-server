@@ -3,13 +3,13 @@ import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Ty} from "@server/languages/tact/types/BaseTy"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {Expression} from "@server/languages/tact/psi/TactNode"
-import {GetTypeAtPositionParams, GetTypeAtPositionResponse} from "@shared/shared-msgtypes"
+import {TypeAtPositionParams, TypeAtPositionResponse} from "@shared/shared-msgtypes"
 import {asLspRange, asParserPoint} from "@server/utils/position"
 
 export function provideTactTypeAtPosition(
-    params: GetTypeAtPositionParams,
+    params: TypeAtPositionParams,
     file: TactFile,
-): GetTypeAtPositionResponse {
+): TypeAtPositionResponse {
     const cursorPosition = asParserPoint(params.position)
     const node = file.rootNode.descendantForPosition(cursorPosition)
     if (!node) return {type: null, range: null}

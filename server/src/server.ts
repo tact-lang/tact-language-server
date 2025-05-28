@@ -15,9 +15,9 @@ import type {ClientOptions} from "@shared/config-scheme"
 import {
     DocumentationAtPositionRequest,
     GasConsumptionForSelectionRequest,
-    GetTypeAtPositionParams,
+    TypeAtPositionParams,
     TypeAtPositionRequest,
-    GetTypeAtPositionResponse,
+    TypeAtPositionResponse,
     SearchByTypeParams,
     SearchByTypeRequest,
     SearchByTypeResponse,
@@ -834,7 +834,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         TypeAtPositionRequest,
-        (params: GetTypeAtPositionParams): GetTypeAtPositionResponse => {
+        (params: TypeAtPositionParams): TypeAtPositionResponse => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
