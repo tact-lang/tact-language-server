@@ -29,7 +29,7 @@ export default tseslint.config(
             "docs/*",
             "tree-sitter-fift/",
             "tree-sitter-tact/",
-            "server/src/compiler/fmt/cst/cst-parser.ts",
+            "server/src/languages/tact/compiler/fmt/cst/cst-parser.ts",
         ],
     },
 

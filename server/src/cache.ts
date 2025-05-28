@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import type {Ty} from "./types/BaseTy"
-import type {NamedNode} from "@server/psi/Node"
+import type {Ty} from "@server/languages/tact/types/BaseTy"
+import type {NamedNode} from "@server/languages/tact/psi/Node"
 
 export class Cache<TKey, TValue> {
     private readonly data: Map<TKey, TValue>
