@@ -65,9 +65,18 @@ const config = {
                     from: "./server/src/languages/tact/stubs/stubs.tact",
                     to: path.join(distDir, "stubs"),
                 },
-                {from: "./tree-sitter-tact/tree-sitter-tact.wasm", to: distDir},
-                {from: "./tree-sitter-fift/tree-sitter-fift.wasm", to: distDir},
-                {from: "./tree-sitter-tlb/tree-sitter-tlb.wasm", to: distDir},
+                {
+                    from: "./server/src/languages/tact/tree-sitter-tact/tree-sitter-tact.wasm",
+                    to: distDir,
+                },
+                {
+                    from: "./server/src/languages/fift/tree-sitter-fift/tree-sitter-fift.wasm",
+                    to: distDir,
+                },
+                {
+                    from: "./server/src/languages/tlb/tree-sitter-tlb/tree-sitter-tlb.wasm",
+                    to: distDir,
+                },
                 {from: "./client/src/assets/icons/ton-icon.svg", to: path.join(distDir, "icons")},
                 {
                     from: "./client/src/assets/icons/icon-tact-dark.svg",
