@@ -1,4 +1,4 @@
-name: E2E and Unit tests
+name: Building tree-sitter grammars
 
 on:
   pull_request:
@@ -44,21 +44,16 @@ jobs:
           node-version: 22.x
           cache: "yarn"
 
+      - name: Setup EMSDK
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 3.1.54
+          actions-cache-folder: "emsdk-cache"
+
       - name: Install dependencies
         env:
           YARN_ENABLE_HARDENED_MODE: false
         run: yarn install --immutable
 
-      - name: Build Extension
-        run: yarn build
-
-      - name: Run unit tests
-        run: yarn test
-
-      - name: Run e2e tests
-        if: matrix.os == 'ubuntu-latest'
-        run: xvfb-run -a yarn run test:e2e
-
-      - name: Run e2e tests
-        if: matrix.os != 'ubuntu-latest'
-        run: yarn run test:e2e
+      - name: Build WASM
+        run: yarn grammar:wasm
