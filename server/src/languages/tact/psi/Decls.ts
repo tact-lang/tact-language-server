@@ -409,7 +409,7 @@ export class Fun extends NamedNode {
         const lastChild = body.lastChild
         if (!firstChild || !lastChild) return false
 
-        return firstChild.startPosition.row - lastChild.startPosition.row <= maxLines
+        return lastChild.startPosition.row - firstChild.startPosition.row <= maxLines
     }
 
     public bodyPresentation(maxLines: number): string {
