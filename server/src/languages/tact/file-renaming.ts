@@ -2,12 +2,12 @@
 //  Copyright © 2025 TON Studio
 import {RenameFilesParams} from "vscode-languageserver"
 import * as lsp from "vscode-languageserver"
-import {filePathToUri, findFile, PARSED_FILES_CACHE} from "@server/indexing-root"
 import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
 import {File} from "@server/languages/tact/psi/File"
 import {asLspRange} from "@server/utils/position"
 import {TextEdit} from "vscode-languageserver-types"
 import {index} from "@server/languages/tact/indexes"
+import {filePathToUri, findTactFile, PARSED_FILES_CACHE} from "@server/files"
 
 export function processFileRenaming(params: RenameFilesParams): lsp.WorkspaceEdit | null {
     const changes: Record<lsp.DocumentUri, lsp.TextEdit[]> = {}
@@ -69,7 +69,7 @@ function processFileRename(fileRename: lsp.FileRename, changes: Record<string, T
                 continue
             }
 
-            const oldFile = findFile(oldUri)
+            const oldFile = findTactFile(oldUri)
             const newFile = new File(newUri, oldFile.tree, oldFile.content)
             const newImportPath = newFile.importPath(file)
             const range = asLspRange(pathNode)

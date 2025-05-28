@@ -35,11 +35,11 @@ import {
     GetTypeAtPositionParams,
     GetTypeAtPositionRequest,
     GetTypeAtPositionResponse,
+    SearchByTypeParams,
+    SearchByTypeRequest,
+    SearchByTypeResponse,
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
-    SearchByTypeRequest,
-    SearchByTypeParams,
-    SearchByTypeResponse,
 } from "@shared/shared-msgtypes"
 import {KeywordsCompletionProvider} from "@server/languages/tact/completion/providers/KeywordsCompletionProvider"
 import type {CompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
@@ -70,22 +70,8 @@ import {TopLevelFunctionCompletionProvider} from "@server/languages/tact/complet
 import {measureTime, parentOfType} from "@server/languages/tact/psi/utils"
 import {Logger} from "@server/utils/logger"
 import {MapTypeCompletionProvider} from "@server/languages/tact/completion/providers/MapTypeCompletionProvider"
-import {UnusedParameterInspection} from "@server/languages/tact/inspections/UnusedParameterInspection"
-import {EmptyBlockInspection} from "@server/languages/tact/inspections/EmptyBlockInspection"
-import {UnusedVariableInspection} from "@server/languages/tact/inspections/UnusedVariableInspection"
 import {CACHE} from "./cache"
-import {
-    FIFT_PARSED_FILES_CACHE,
-    filePathToUri,
-    findFiftFile,
-    findFile,
-    IndexingRoot,
-    IndexingRootKind,
-    findTlbFile,
-    PARSED_FILES_CACHE,
-    TLB_PARSED_FILES_CACHE,
-} from "./indexing-root"
-import {StructInitializationInspection} from "@server/languages/tact/inspections/StructInitializationInspection"
+import {IndexingRoot, IndexingRootKind} from "./indexing-root"
 import {AsmInstructionCompletionProvider} from "@server/languages/tact/completion/providers/AsmInstructionCompletionProvider"
 import {generateAsmDoc} from "@server/languages/tact/documentation/asm_documentation"
 import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/settings/settings"
@@ -95,12 +81,10 @@ import {collectFift as collectFiftSemanticTokens} from "@server/languages/fift/s
 import {collectFift as collectFiftInlays} from "@server/languages/fift/inlays/collect"
 import {FiftReferent} from "@server/languages/fift/psi/FiftReferent"
 import {generateFiftDocFor} from "@server/languages/fift/documentation/documentation"
-import {UnusedContractMembersInspection} from "@server/languages/tact/inspections/UnusedContractMembersInspection"
 import {
-    generateKeywordDoc,
     generateAttributeKeywordDoc,
+    generateKeywordDoc,
 } from "@server/languages/tact/documentation/keywords_documentation"
-import {UnusedImportInspection} from "@server/languages/tact/inspections/UnusedImportInspection"
 import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
 import {SnippetsCompletionProvider} from "@server/languages/tact/completion/providers/SnippetsCompletionProvider"
 import {CompletionResult} from "@server/languages/tact/completion/WeightedCompletionItem"
@@ -117,7 +101,6 @@ import type {
 } from "@server/languages/tact/intentions/Intention"
 import {AddExplicitType} from "@server/languages/tact/intentions/AddExplicitType"
 import {AddImport} from "@server/languages/tact/intentions/AddImport"
-import {NotImportedSymbolInspection} from "@server/languages/tact/inspections/NotImportedSymbolInspection"
 import {
     FillFieldsStructInit,
     FillRequiredStructInit,
@@ -143,34 +126,34 @@ import {ImportPathCompletionProvider} from "@server/languages/tact/completion/pr
 import {FileDiff} from "@server/utils/FileDiff"
 import {CompletionItemAdditionalInformation} from "@server/languages/tact/completion/ReferenceCompletionProcessor"
 import {GetterCompletionProvider} from "@server/languages/tact/completion/providers/GetterCompletionProvider"
-import {CompilerInspection} from "@server/languages/tact/inspections/CompilerInspection"
 import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
-import {MistiInspection} from "@server/languages/tact/inspections/MistInspection"
-import {DontUseTextReceiversInspection} from "@server/languages/tact/inspections/DontUseTextReceiversInspection"
 import {ReplaceTextReceiverWithBinary} from "@server/languages/tact/intentions/ReplaceTextReceiverWithBinary"
 import {generateExitCodeDocumentation} from "@server/languages/tact/documentation/exit_code_documentation"
-import {RewriteInspection} from "@server/languages/tact/inspections/RewriteInspection"
 import {TypeTlbSerializationCompletionProvider} from "@server/languages/tact/completion/providers/TypeTlbSerializationCompletionProvider"
-import {DontUseDeployableInspection} from "@server/languages/tact/inspections/DontUseDeployableInspection"
-import {RewriteAsAugmentedAssignment} from "@server/languages/tact/inspections/RewriteAsAugmentedAssignment"
-import {CanBeStandaloneFunctionInspection} from "@server/languages/tact/inspections/CanBeStandaloneFunctionInspection"
-import {UseExplicitStringReceiverInspection} from "@server/languages/tact/inspections/UseExplicitStringReceiverInspection"
-import {ImplicitReturnValueDiscardInspection} from "@server/languages/tact/inspections/ImplicitReturnValueDiscardInspection"
 import {formatCode} from "@server/languages/tact/compiler/fmt/fmt"
-import {ImplicitMessageId} from "@server/languages/tact/inspections/ImplicitMessageId"
 import {fileURLToPath} from "node:url"
-import {MisspelledKeywordInspection} from "@server/languages/tact/inspections/MisspelledKeywordInspection"
 import * as tlbSemantic from "@server/languages/tlb/semantic_tokens/collect"
 import {TlbReference} from "@server/languages/tlb/psi/TlbReference"
 import {FiftReference} from "@server/languages/fift/psi/FiftReference"
-import {MissedMembersInContractInspection} from "@server/languages/tact/inspections/MissedMembersInContractInspection"
-import {DeprecatedSymbolUsageInspection} from "@server/languages/tact/inspections/DeprecatedSymbolUsageInspection"
-import {CanBeInlineInspection} from "@server/languages/tact/inspections/CanBeInlineInspection"
-import {OptimalMathFunctionsInspection} from "@server/languages/tact/inspections/OptimalMathFunctionsInspection"
 import {onFileRenamed, processFileRenaming} from "@server/languages/tact/file-renaming"
 import {ExtractToFile} from "@server/languages/tact/intentions/ExtractToFile"
-import {NamingConventionInspection} from "@server/languages/tact/inspections/NamingConventionInspection"
 import {selectionGasConsumption} from "@server/languages/tact/selection-gas-consumption"
+import {runInspections} from "@server/inspections"
+import {
+    isFiftFile,
+    isTactFile,
+    isTlbFile,
+    FIFT_PARSED_FILES_CACHE,
+    filePathToUri,
+    findFiftFile,
+    findTactFile,
+    findTlbFile,
+    PARSED_FILES_CACHE,
+    reparseFiftFile,
+    reparseTactFile,
+    reparseTlbFile,
+    TLB_PARSED_FILES_CACHE,
+} from "@server/files"
 
 /**
  * Whenever LS is initialized.
@@ -184,7 +167,7 @@ let initializationFinished = false
 let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
 
 /**
- * Root folders for project.
+ * Root folders for a project.
  * Used to find files to index.
  */
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
@@ -348,8 +331,8 @@ function findConfigFileDir(startPath: string, fileName: string): string | null {
     return null
 }
 
-// For some reason some editors (like Neovim) doesn't pass workspace folders to initialization.
-// So we need to find root first and then call initialize.
+// For some reason, some editors (like Neovim) don't pass workspace folders to initialization.
+// So we need to find root first and then call `initialize`.
 async function initializeFallback(uri: string): Promise<void> {
     // let's try to initialize with this way
     const filepath = fileURLToPath(uri)
@@ -375,67 +358,6 @@ async function initializeFallback(uri: string): Promise<void> {
         },
     ]
     await initialize()
-}
-
-async function runInspections(uri: string, file: File, includeLinters: boolean): Promise<void> {
-    if (!initializationFinished) return
-
-    const inspections = [
-        new UnusedParameterInspection(),
-        new EmptyBlockInspection(),
-        new UnusedVariableInspection(),
-        new StructInitializationInspection(),
-        new UnusedContractMembersInspection(),
-        new UnusedImportInspection(),
-        new MissedMembersInContractInspection(),
-        new NotImportedSymbolInspection(),
-        new DontUseTextReceiversInspection(),
-        new DontUseDeployableInspection(),
-        new RewriteAsAugmentedAssignment(),
-        new CanBeStandaloneFunctionInspection(),
-        new CanBeInlineInspection(),
-        new UseExplicitStringReceiverInspection(),
-        new ImplicitReturnValueDiscardInspection(),
-        new ImplicitMessageId(),
-        new RewriteInspection(),
-        new MisspelledKeywordInspection(),
-        new DeprecatedSymbolUsageInspection(),
-        new OptimalMathFunctionsInspection(),
-        new NamingConventionInspection(),
-    ]
-
-    const settings = await getDocumentSettings(uri)
-    const diagnostics: lsp.Diagnostic[] = []
-
-    for (const inspection of inspections) {
-        if (settings.inspections.disabled.includes(inspection.id)) {
-            continue
-        }
-        diagnostics.push(...inspection.inspect(file))
-    }
-
-    if (includeLinters) {
-        const asyncInspections = [
-            ...(settings.linters.compiler.enable ? [new CompilerInspection()] : []),
-            ...(settings.linters.misti.enable ? [new MistiInspection()] : []),
-        ]
-
-        for (const inspection of asyncInspections) {
-            if (settings.inspections.disabled.includes(inspection.id)) {
-                continue
-            }
-
-            const allDiagnostics = diagnostics
-
-            void inspection.inspect(file).then(diagnostics => {
-                if (diagnostics.length === 0) return
-                allDiagnostics.push(...diagnostics)
-                void connection.sendDiagnostics({uri, diagnostics: allDiagnostics})
-            })
-        }
-    }
-
-    await connection.sendDiagnostics({uri, diagnostics})
 }
 
 connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.InitializeResult> => {
@@ -465,11 +387,21 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             await initializeFallback(uri)
         }
 
-        const file = findFile(uri)
-        index.addFile(uri, file)
+        if (isFiftFile(uri, event)) {
+            findFiftFile(uri)
+        }
 
-        if (event.document.languageId === "tact" || uri.endsWith(".tact")) {
-            await runInspections(uri, file, true)
+        if (isTlbFile(uri, event)) {
+            findTlbFile(uri)
+        }
+
+        if (isTactFile(uri, event)) {
+            const file = findTactFile(uri)
+            index.addFile(uri, file)
+
+            if (initializationFinished) {
+                await runInspections(uri, file, true)
+            }
         }
     })
 
@@ -481,56 +413,58 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const uri = event.document.uri
         console.info("changed:", uri)
 
-        if (uri.endsWith(".fif")) {
+        if (isFiftFile(uri, event)) {
             FIFT_PARSED_FILES_CACHE.delete(uri)
-            findFiftFile(uri, event.document.getText())
-            return
+            reparseFiftFile(uri, event.document.getText())
         }
 
-        if (uri.endsWith(".tlb")) {
+        if (isTlbFile(uri, event)) {
             TLB_PARSED_FILES_CACHE.delete(uri)
-            findTlbFile(uri, event.document.getText())
-            return
+            reparseTlbFile(uri, event.document.getText())
         }
 
-        index.fileChanged(uri)
-        const file = findFile(uri, event.document.getText(), true)
-        index.addFile(uri, file, false)
+        if (isTactFile(uri, event)) {
+            index.fileChanged(uri)
+            const file = reparseTactFile(uri, event.document.getText())
+            index.addFile(uri, file, false)
 
-        if (event.document.languageId === "tact" || uri.endsWith(".tact")) {
-            await runInspections(uri, file, false) // linters require saved files, see onDidSave
+            if (initializationFinished) {
+                await runInspections(uri, file, false) // linters require saved files, see onDidSave
+            }
         }
     })
 
     documents.onDidSave(async event => {
         const uri = event.document.uri
-        if (event.document.languageId === "tact" || uri.endsWith(".tact")) {
-            const file = findFile(uri)
-            await runInspections(uri, file, true)
+        if (isTactFile(uri, event)) {
+            if (initializationFinished) {
+                const file = findTactFile(uri)
+                await runInspections(uri, file, true)
+            }
         }
     })
 
     connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams) => {
         for (const change of params.changes) {
             const uri = change.uri
-            if (!uri.endsWith(".tact")) continue
+            if (!isTactFile(uri)) continue
 
             if (change.type === FileChangeType.Created) {
                 console.info(`Find external create of ${uri}`)
-                const file = findFile(uri)
+                const file = findTactFile(uri)
                 index.addFile(uri, file)
                 continue
             }
 
             if (!PARSED_FILES_CACHE.has(uri)) {
-                // we don't care about this file
+                // we don't care about non-parsed files
                 continue
             }
 
             if (change.type === FileChangeType.Changed) {
                 console.info(`Find external change of ${uri}`)
                 index.fileChanged(uri)
-                const file = findFile(uri, undefined, true)
+                const file = findTactFile(uri, true)
                 index.addFile(uri, file, false)
             }
 
@@ -579,7 +513,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
         if (!uri.endsWith(".tact")) return null
 
-        const file = findFile(params.textDocument.uri)
+        const file = findTactFile(params.textDocument.uri)
         const hoverNode = nodeAtPosition(params, file)
         if (!hoverNode) return null
 
@@ -990,7 +924,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             if (uri.endsWith(".tlb")) return []
 
-            const file = findFile(uri)
+            const file = findTactFile(uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return []
 
@@ -1069,7 +1003,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.TypeDefinitionRequest.type,
         (params: lsp.TypeDefinitionParams): lsp.Definition | lsp.DefinitionLink[] => {
             const uri = params.textDocument.uri
-            const file = findFile(uri)
+            const file = findTactFile(uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return []
             if (
@@ -1118,8 +1052,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const settings = await getDocumentSettings(data.file.uri)
             if (!settings.completion.addImports) return item
 
-            const file = findFile(data.file.uri)
-            const elementFile = findFile(data.elementFile.uri)
+            const file = findTactFile(data.file.uri)
+            const elementFile = findTactFile(data.elementFile.uri)
 
             // skip the same file element
             if (file.uri === elementFile.uri) return item
@@ -1149,7 +1083,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.CompletionRequest.type,
         async (params: lsp.CompletionParams): Promise<lsp.CompletionItem[]> => {
             const uri = params.textDocument.uri
-            const file = findFile(uri)
+            const file = findTactFile(uri)
             const content = file.content
             const parser = createTactParser()
 
@@ -1260,7 +1194,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return collectFiftInlays(file, settings.hints.gasFormat, settings.fift.hints)
             }
 
-            const file = findFile(uri)
+            const file = findTactFile(uri)
             return inlays.collect(file, settings.hints, settings.gas)
         },
     )
@@ -1269,7 +1203,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.ImplementationRequest.type,
         (params: lsp.ImplementationParams): lsp.Definition | lsp.LocationLink[] => {
             const uri = params.textDocument.uri
-            const file = findFile(uri)
+            const file = findTactFile(uri)
 
             const elementNode = nodeAtPosition(params, file)
             if (!elementNode) return []
@@ -1338,7 +1272,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(lsp.RenameRequest.type, (params: lsp.RenameParams) => {
         const uri = params.textDocument.uri
-        const file = findFile(uri)
+        const file = findTactFile(uri)
 
         const renameNode = findRenameTarget(params, file)
         if (!renameNode) return null
@@ -1387,7 +1321,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.PrepareRenameRequest.type,
         (params: lsp.PrepareRenameParams): PrepareRenameResult | null => {
             const uri = params.textDocument.uri
-            const file = findFile(uri)
+            const file = findTactFile(uri)
 
             const renameNode = findRenameTarget(params, file)
             if (!renameNode) return null
@@ -1415,7 +1349,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     connection.onRequest(
         lsp.DocumentHighlightRequest.type,
         (params: lsp.DocumentHighlightParams): lsp.DocumentHighlight[] | null => {
-            const file = findFile(params.textDocument.uri)
+            const file = findTactFile(params.textDocument.uri)
             const highlightNode = nodeAtPosition(params, file)
             if (!highlightNode) return null
             if (
@@ -1477,7 +1411,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             if (uri.endsWith(".tlb")) return []
 
-            const file = findFile(uri)
+            const file = findTactFile(uri)
             const referenceNode = nodeAtPosition(params, file)
             if (!referenceNode) return null
 
@@ -1700,7 +1634,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     connection.onRequest(
         lsp.SignatureHelpRequest.type,
         (params: lsp.SignatureHelpParams): lsp.SignatureHelp | null => {
-            const file = findFile(params.textDocument.uri)
+            const file = findTactFile(params.textDocument.uri)
 
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
@@ -1784,7 +1718,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return collectFift(file)
             }
 
-            const file = findFile(uri)
+            const file = findTactFile(uri)
             return measureTime("folding range", () => foldings.collect(file))
         },
     )
@@ -1803,7 +1737,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return tlbSemantic.collect(file)
             }
 
-            const file = findFile(uri)
+            const file = findTactFile(uri)
             return semantic.collect(file, settings.highlighting)
         },
     )
@@ -1812,7 +1746,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.CodeLensRequest.type,
         async (params: lsp.CodeLensParams): Promise<lsp.CodeLens[]> => {
             const uri = params.textDocument.uri
-            const file = findFile(uri)
+            const file = findTactFile(uri)
             const settings = await getDocumentSettings(uri)
             return lens.collect(file, settings.codeLens)
         },
@@ -1865,7 +1799,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             const args = params.arguments[0] as IntentionArguments
 
-            const file = findFile(args.fileUri)
+            const file = findTactFile(args.fileUri)
 
             const ctx: IntentionContext = {
                 file: file,
@@ -1928,7 +1862,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return null
             }
 
-            const file = findFile(uri)
+            const file = findTactFile(uri)
 
             const ctx: IntentionContext = {
                 file: file,
@@ -2002,7 +1936,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     connection.onRequest(
         GetTypeAtPositionRequest,
         (params: GetTypeAtPositionParams): GetTypeAtPositionResponse => {
-            const file = findFile(params.textDocument.uri)
+            const file = findTactFile(params.textDocument.uri)
             const cursorPosition = asParserPoint(params.position)
 
             const node = file.rootNode.descendantForPosition(cursorPosition)
@@ -2092,7 +2026,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const uri = params.textDocument.uri
             if (!uri.endsWith(".tact")) return []
 
-            const file = findFile(uri)
+            const file = findTactFile(uri)
 
             const settings = await getDocumentSettings(file.uri)
 
@@ -2255,7 +2189,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return null
             }
 
-            const file = findFile(uri)
+            const file = findTactFile(uri)
             const formatted = formatCode(file.content)
 
             if (formatted.$ === "FormattedCode") {

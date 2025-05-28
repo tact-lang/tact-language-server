@@ -4,7 +4,6 @@ import {
     GetGasConsumptionForSelectionParams,
     GetGasConsumptionForSelectionResponse,
 } from "@shared/shared-msgtypes"
-import {findFile} from "@server/indexing-root"
 import {asParserPoint} from "@server/utils/position"
 import type {Node as SyntaxNode, Point} from "web-tree-sitter"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
@@ -12,13 +11,14 @@ import {AsmInstr} from "@server/languages/tact/psi/Node"
 import {getDocumentSettings} from "@server/settings/settings"
 import {computeGasConsumption} from "@server/languages/tact/asm/gas"
 import {File} from "@server/languages/tact/psi/File"
+import {findTactFile} from "@server/files"
 
 export async function selectionGasConsumption(
     params: GetGasConsumptionForSelectionParams,
 ): Promise<GetGasConsumptionForSelectionResponse> {
     try {
         const uri = params.textDocument.uri
-        const file = findFile(uri)
+        const file = findTactFile(uri)
 
         const startPoint = asParserPoint(params.range.start)
         const endPoint = asParserPoint(params.range.end)

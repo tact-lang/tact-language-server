@@ -14,8 +14,8 @@ import {
 import {isNamedFunNode} from "@server/languages/tact/psi/utils"
 import {ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
 import {CACHE} from "@server/cache"
-import {PARSED_FILES_CACHE} from "@server/indexing-root"
 import {fileURLToPath} from "node:url"
+import {PARSED_FILES_CACHE} from "@server/files"
 
 export interface IndexKeyToType {
     readonly [IndexKey.Contracts]: Contract

@@ -6,8 +6,8 @@ import {NamedNode, Node} from "./Node"
 import {Reference} from "./Reference"
 import type {File} from "./File"
 import {isFunNode, isNamedFunNode, parentOfType} from "./utils"
-import {PARSED_FILES_CACHE} from "@server/indexing-root"
 import {Contract} from "@server/languages/tact/psi/Decls"
+import {PARSED_FILES_CACHE} from "@server/files"
 
 /**
  * Describes a scope that contains all possible uses of a certain symbol.
