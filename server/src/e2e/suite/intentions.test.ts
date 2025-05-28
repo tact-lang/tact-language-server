@@ -43,8 +43,6 @@ suite("Intentions Test Suite", () => {
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Intention: ${testCase.name}`, async () => {
-                await this.setupAdditionalFiles(testCase)
-
                 await this.replaceDocumentText(testCase.input)
                 const actions = await this.getCodeActions(this.document.getText())
 
@@ -96,8 +94,6 @@ suite("Intentions Test Suite", () => {
                 } else {
                     assert.strictEqual(resultText.trim(), expected)
                 }
-
-                await this.cleanupAdditionalFiles(testCase)
             })
         }
     })()
