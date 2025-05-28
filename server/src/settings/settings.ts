@@ -4,12 +4,19 @@ import {connection} from "@server/connection"
 
 export type FindUsagesScope = "workspace" | "everywhere"
 
+export interface ToolchainConfig {
+    readonly name: string
+    readonly path: string
+    readonly description?: string
+}
+
 export interface TactSettings {
     readonly stdlib: {
         readonly path: string | null
     }
     readonly toolchain: {
-        readonly compilerPath: string
+        readonly activeToolchain: string
+        readonly toolchains: Record<string, ToolchainConfig>
         readonly showShortCommitInStatusBar: boolean
     }
     readonly highlighting: {
@@ -93,7 +100,14 @@ const defaultSettings: TactSettings = {
         highlightCodeInComments: true,
     },
     toolchain: {
-        compilerPath: "",
+        activeToolchain: "auto",
+        toolchains: {
+            auto: {
+                name: "Auto-detected",
+                path: "",
+                description: "Automatically detect Tact compiler in node_modules",
+            },
+        },
         showShortCommitInStatusBar: false,
     },
     findUsages: {
@@ -179,8 +193,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
                 defaultSettings.highlighting.highlightCodeInComments,
         },
         toolchain: {
-            compilerPath:
-                vsSettings.toolchain?.compilerPath ?? defaultSettings.toolchain.compilerPath,
+            activeToolchain:
+                vsSettings.toolchain?.activeToolchain ?? defaultSettings.toolchain.activeToolchain,
+            toolchains: vsSettings.toolchain?.toolchains ?? defaultSettings.toolchain.toolchains,
             showShortCommitInStatusBar:
                 vsSettings.toolchain?.showShortCommitInStatusBar ??
                 defaultSettings.toolchain.showShortCommitInStatusBar,
