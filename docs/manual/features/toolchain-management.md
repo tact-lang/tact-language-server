@@ -31,8 +31,8 @@ If you want to add a specific Tact installation:
 1. **Open Command Palette**: `Ctrl+Shift+P` / `Cmd+Shift+P`
 2. **Run**: `Tact: Add Toolchain`
 3. **Follow the wizard**:
-    - Enter a unique ID (e.g., `tact-1.5.0`, `local-dev`)
-    - Provide a display name (e.g., `Tact 1.5.0`, `Local Development`)
+    - Enter a unique ID (e.g., `tact-1.6.0`, `local-dev`)
+    - Provide a display name (e.g., `Tact 1.6.0`, `Local Development`)
     - Choose how to specify the path:
         - **Browse**: Use file picker to select the executable
         - **Manual**: Type the path directly
