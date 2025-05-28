@@ -41,6 +41,7 @@ import {detectPackageManager, PackageManager} from "./utils/package-manager"
 
 let client: LanguageClient | null = null
 let gasStatusBarItem: vscode.StatusBarItem | null = null
+let cachedToolchainInfo: SetToolchainVersionParams | null = null
 
 export function activate(context: vscode.ExtensionContext): void {
     startServer(context).catch(consoleError)
@@ -148,15 +149,44 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
 
     langStatusBar.text = "Tact"
 
-    client.onNotification(SetToolchainVersionNotification, (version: SetToolchainVersionParams) => {
+    client.onNotification(SetToolchainVersionNotification, (params: SetToolchainVersionParams) => {
+        cachedToolchainInfo = params
+
         const settings = vscode.workspace.getConfiguration("tact")
         const hash =
             settings.get<boolean>("toolchain.showShortCommitInStatusBar") &&
-            version.version.commit.length > 8
-                ? ` (${version.version.commit.slice(-8)})`
+            params.version.commit.length > 8
+                ? ` (${params.version.commit.slice(-8)})`
                 : ""
 
-        langStatusBar.text = `Tact ${version.version.number}${hash}`
+        langStatusBar.text = `Tact ${params.version.number}${hash}`
+
+        const tooltipLines = [
+            `**Tact Toolchain Information**`,
+            ``,
+            `**Version:** ${params.version.number}`,
+            ``,
+            `**Commit:** ${params.version.commit || "Unknown"}`,
+            ``,
+            `**Toolchain:**`,
+            `- Path: \`${params.toolchain.path}\``,
+            `- Auto-detected: ${params.toolchain.isAutoDetected ? "Yes" : "No"}`,
+            ...(params.toolchain.detectionMethod
+                ? [`- Detection method: ${params.toolchain.detectionMethod}`]
+                : []),
+            ``,
+            `**Environment:**`,
+            `- Platform: ${params.environment.platform}`,
+            `- Architecture: ${params.environment.arch}`,
+            ...(params.environment.nodeVersion
+                ? [`- Node.js: ${params.environment.nodeVersion}`]
+                : []),
+            ``,
+            `*Click for more details*`,
+        ]
+
+        langStatusBar.tooltip = new vscode.MarkdownString(tooltipLines.join("\n"))
+        langStatusBar.command = "tact.showToolchainInfo"
         langStatusBar.show()
     })
 
@@ -221,6 +251,55 @@ async function showReferencesImpl(
 
 function registerCommands(disposables: vscode.Disposable[]): void {
     disposables.push(
+        vscode.commands.registerCommand("tact.showToolchainInfo", async () => {
+            if (!cachedToolchainInfo) {
+                vscode.window.showInformationMessage("Toolchain information not available")
+                return
+            }
+
+            const info = cachedToolchainInfo
+            const items = [
+                {
+                    label: "$(info) Version Information",
+                    detail: `Tact ${info.version.number}`,
+                    description: info.version.commit
+                        ? `Commit: ${info.version.commit}`
+                        : "No commit info",
+                },
+                {
+                    label: "$(tools) Toolchain Details",
+                    detail: info.toolchain.path,
+                    description: `${info.toolchain.isAutoDetected ? "Auto-detected" : "Manual"} (${info.toolchain.detectionMethod ?? "unknown"})`,
+                },
+                {
+                    label: "$(device-desktop) Environment",
+                    detail: `${info.environment.platform} ${info.environment.arch}`,
+                    description: info.environment.nodeVersion
+                        ? `Node.js ${info.environment.nodeVersion}`
+                        : "Node.js version unknown",
+                },
+            ]
+
+            const selected = await vscode.window.showQuickPick(items, {
+                placeHolder: "Tact Toolchain Information",
+                canPickMany: false,
+            })
+
+            if (selected) {
+                const clipboardText = `Tact Toolchain Information:
+Version: ${info.version.number}
+Commit: ${info.version.commit || "Unknown"}
+Path: ${info.toolchain.path}
+Auto-detected: ${info.toolchain.isAutoDetected}
+Detection method: ${info.toolchain.detectionMethod ?? "Unknown"}
+Platform: ${info.environment.platform}
+Architecture: ${info.environment.arch}
+Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
+
+                await vscode.env.clipboard.writeText(clipboardText)
+                vscode.window.showInformationMessage("Toolchain information copied to clipboard")
+            }
+        }),
         vscode.commands.registerCommand(
             "tact.showParent",
             async (uri: string, position: Position) => {

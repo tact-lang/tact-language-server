@@ -17,11 +17,25 @@ export interface GetTypeAtPositionParams {
     }
 }
 
+export interface EnvironmentInfo {
+    readonly nodeVersion?: string
+    readonly platform: string
+    readonly arch: string
+}
+
+export interface ToolchainInfo {
+    readonly path: string
+    readonly isAutoDetected: boolean
+    readonly detectionMethod?: string
+}
+
 export interface SetToolchainVersionParams {
     readonly version: {
         readonly number: string
         readonly commit: string
     }
+    readonly toolchain: ToolchainInfo
+    readonly environment: EnvironmentInfo
 }
 
 export interface GetTypeAtPositionResponse {
