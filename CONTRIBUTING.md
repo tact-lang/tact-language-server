@@ -58,6 +58,15 @@ Language-specific editor features like comment toggling, bracket matching, and a
   Fift)
 - [client/src/languages/tasm-language-configuration.json](client/src/languages/tasm-language-configuration.json) (for
   TASM)
+- [client/src/languages/tlb-language-configuration.json](client/src/languages/tlb-language-configuration.json) (for
+  TL-B)
+
+Language-specific highlighting grammars are defined in:
+
+- [client/src/languages/syntaxes/tact.tmLanguage.json](client/src/languages/syntaxes/tact.tmLanguage.json) (for Tact)
+- [client/src/languages/syntaxes/fift.tmLanguage.json](client/src/languages/syntaxes/fift.tmLanguage.json) (for Fift)
+- [client/src/languages/syntaxes/tasm.tmLanguage.json](client/src/languages/syntaxes/tasm.tmLanguage.json) (for TASM)
+- [client/src/languages/syntaxes/tlb.tmLanguage.json](client/src/languages/syntaxes/tlb.tmLanguage.json) (for TL-B)
 
 Refer to
 the [VS Code Language Configuration Guide](https://code.visualstudio.com/api/language-extensions/language-configuration-guide)

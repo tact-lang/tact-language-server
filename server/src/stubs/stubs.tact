@@ -201,7 +201,7 @@ fun rawSlice(hex: String): Slice;
 ///     a: Int = ascii("a");            // 97 or 0x61, one byte in total
 ///     zap: Int = ascii("⚡");         // 14850721 or 0xE29AA1, 3 bytes in total
 ///     doubleZap: Int = ascii("⚡⚡"); // 249153768823457 or 0xE29AA1E29AA1,
-//                                      // 6 bytes in total
+///                                   // 6 bytes in total
 /// }
 /// ```
 ///
