@@ -1,23 +1,17 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import {connection} from "./connection"
-import {DocumentStore, getOffsetFromPosition} from "./document-store"
-import {createTactParser, initParser} from "./parser"
+import {DocumentStore} from "./document-store"
+import {initParser} from "./parser"
 import {asLspRange, asNullableLspRange, asParserPoint} from "@server/utils/position"
 import {TypeInferer} from "./languages/tact/TypeInferer"
-import {LocalSearchScope, Referent} from "@server/languages/tact/psi/Referent"
-import {index, IndexKey, IndexRoot} from "@server/languages/tact/indexes"
-import {CallLike, Expression, NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
-import {Reference, ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
+import {Referent} from "@server/languages/tact/psi/Referent"
+import {index, IndexRoot} from "@server/languages/tact/indexes"
+import {Expression, NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
+import {Reference} from "@server/languages/tact/psi/Reference"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
-import {CompletionContext} from "@server/languages/tact/completion/CompletionContext"
 import * as lsp from "vscode-languageserver"
-import {
-    DidChangeWatchedFilesParams,
-    FileChangeType,
-    ParameterInformation,
-    SymbolKind,
-} from "vscode-languageserver"
+import {DidChangeWatchedFilesParams, FileChangeType} from "vscode-languageserver"
 import * as inlays from "@server/languages/tact/inlays/collect"
 import * as foldings from "@server/languages/tact/foldings/collect"
 import * as semantic from "@server/languages/tact/semantic_tokens/collect"
@@ -40,85 +34,29 @@ import {
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
 } from "@shared/shared-msgtypes"
-import {KeywordsCompletionProvider} from "@server/languages/tact/completion/providers/KeywordsCompletionProvider"
-import type {CompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
-import {SelfCompletionProvider} from "@server/languages/tact/completion/providers/SelfCompletionProvider"
-import {ReturnCompletionProvider} from "@server/languages/tact/completion/providers/ReturnCompletionProvider"
-import {FieldsOwnerTy, Ty} from "@server/languages/tact/types/BaseTy"
-import type {PrepareRenameResult} from "vscode-languageserver-protocol/lib/common/protocol"
-import {
-    Constant,
-    Contract,
-    Field,
-    Fun,
-    Message,
-    Primitive,
-    StorageMembersOwner,
-    Struct,
-    Trait,
-} from "@server/languages/tact/psi/Decls"
-import {ReferenceCompletionProvider} from "@server/languages/tact/completion/providers/ReferenceCompletionProvider"
-import {OverrideCompletionProvider} from "@server/languages/tact/completion/providers/OverrideCompletionProvider"
-import {TraitOrContractFieldsCompletionProvider} from "@server/languages/tact/completion/providers/TraitOrContractFieldsCompletionProvider"
-import {TlbSerializationCompletionProvider} from "@server/languages/tact/completion/providers/TlbSerializationCompletionProvider"
-import {MessageMethodCompletionProvider} from "@server/languages/tact/completion/providers/MessageMethodCompletionProvider"
-import {MemberFunctionCompletionProvider} from "@server/languages/tact/completion/providers/MemberFunctionCompletionProvider"
-import {TopLevelFunctionCompletionProvider} from "@server/languages/tact/completion/providers/TopLevelFunctionCompletionProvider"
-import {measureTime, parentOfType} from "@server/languages/tact/psi/utils"
+import {Ty} from "@server/languages/tact/types/BaseTy"
+import {Fun, Trait} from "@server/languages/tact/psi/Decls"
+import {measureTime} from "@server/languages/tact/psi/utils"
 import {Logger} from "@server/utils/logger"
-import {MapTypeCompletionProvider} from "@server/languages/tact/completion/providers/MapTypeCompletionProvider"
 import {CACHE} from "./cache"
 import {IndexingRoot, IndexingRootKind} from "./indexing-root"
-import {AsmInstructionCompletionProvider} from "@server/languages/tact/completion/providers/AsmInstructionCompletionProvider"
 import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/settings/settings"
-import {ContractDeclCompletionProvider} from "@server/languages/tact/completion/providers/ContractDeclCompletionProvider"
 import {collectFift} from "@server/languages/fift/foldings/collect"
 import {collectFift as collectFiftSemanticTokens} from "@server/languages/fift/semantic_tokens/collect"
 import {collectFift as collectFiftInlays} from "@server/languages/fift/inlays/collect"
 import {FiftReferent} from "@server/languages/fift/psi/FiftReferent"
-import {SnippetsCompletionProvider} from "@server/languages/tact/completion/providers/SnippetsCompletionProvider"
-import {CompletionResult} from "@server/languages/tact/completion/WeightedCompletionItem"
-import type {DocumentUri, TextEdit} from "vscode-languageserver-types"
+import {WorkspaceEdit} from "vscode-languageserver-types"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {TraitOrContractConstantsCompletionProvider} from "@server/languages/tact/completion/providers/TraitOrContractConstantsCompletionProvider"
-import {BouncedTypeCompletionProvider} from "@server/languages/tact/completion/providers/BouncedTypeCompletionProvider"
-import {TopLevelCompletionProvider} from "@server/languages/tact/completion/providers/TopLevelCompletionProvider"
-import type {
-    Intention,
-    IntentionArguments,
-    IntentionContext,
-} from "@server/languages/tact/intentions/Intention"
-import {AddExplicitType} from "@server/languages/tact/intentions/AddExplicitType"
-import {AddImport} from "@server/languages/tact/intentions/AddImport"
-import {
-    FillFieldsStructInit,
-    FillRequiredStructInit,
-} from "@server/languages/tact/intentions/FillFieldsStructInit"
-import {AsKeywordCompletionProvider} from "@server/languages/tact/completion/providers/AsKeywordCompletionProvider"
-import {AddFieldInitialization} from "@server/languages/tact/intentions/AddFieldInitialization"
-import {
-    WrapSelectedToRepeat,
-    WrapSelectedToTry,
-    WrapSelectedToTryCatch,
-} from "@server/languages/tact/intentions/WrapSelected"
-import {PostfixCompletionProvider} from "@server/languages/tact/completion/providers/PostfixCompletionProvider"
 import {
     InvalidToolchainError,
     setProjectStdlibPath,
 } from "@server/languages/tact/toolchain/toolchain"
-import {ImportPathCompletionProvider} from "@server/languages/tact/completion/providers/ImportPathCompletionProvider"
-import {FileDiff} from "@server/utils/FileDiff"
-import {CompletionItemAdditionalInformation} from "@server/languages/tact/completion/ReferenceCompletionProcessor"
-import {GetterCompletionProvider} from "@server/languages/tact/completion/providers/GetterCompletionProvider"
 import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
 import * as toolchainManager from "@server/toolchain-manager"
-import {ReplaceTextReceiverWithBinary} from "@server/languages/tact/intentions/ReplaceTextReceiverWithBinary"
-import {TypeTlbSerializationCompletionProvider} from "@server/languages/tact/completion/providers/TypeTlbSerializationCompletionProvider"
 import {formatCode} from "@server/languages/tact/compiler/fmt/fmt"
 import {fileURLToPath} from "node:url"
 import * as tlbSemantic from "@server/languages/tlb/semantic_tokens/collect"
 import {onFileRenamed, processFileRenaming} from "@server/languages/tact/file-renaming"
-import {ExtractToFile} from "@server/languages/tact/intentions/ExtractToFile"
 import {selectionGasConsumption} from "@server/languages/tact/selection-gas-consumption"
 import {runInspections} from "@server/inspections"
 import {
@@ -145,6 +83,21 @@ import {
 import {provideTlbDefinition} from "@server/languages/tlb/find-definitions"
 import {provideFiftDefinition} from "@server/languages/fift/find-definitions"
 import {File} from "@server/psi/File"
+import {
+    provideTactCompletion,
+    provideTactCompletionResolve,
+} from "@server/languages/tact/completion"
+import {provideTactSignatureInfo} from "@server/languages/tact/signature-help"
+import {provideTactRename, provideTactRenamePrepare} from "@server/languages/tact/rename"
+import {
+    provideTactDocumentSymbols,
+    provideTactWorkspaceSymbols,
+} from "@server/languages/tact/symbols"
+import {
+    INTENTIONS,
+    provideExecuteTactCommand,
+    provideTactCodeActions,
+} from "@server/languages/tact/intentions"
 
 /**
  * Whenever LS is initialized.
@@ -605,147 +558,18 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    connection.onRequest(
-        lsp.CompletionResolveRequest.type,
-        async (item: lsp.CompletionItem): Promise<lsp.CompletionItem> => {
-            if (!item.data) return item
-            const data = item.data as CompletionItemAdditionalInformation
-            if (
-                data.file === undefined ||
-                data.elementFile === undefined ||
-                data.name === undefined
-            ) {
-                return item
-            }
-
-            const settings = await getDocumentSettings(data.file.uri)
-            if (!settings.completion.addImports) return item
-
-            const file = findTactFile(data.file.uri)
-            const elementFile = findTactFile(data.elementFile.uri)
-
-            // skip the same file element
-            if (file.uri === elementFile.uri) return item
-            const importPath = elementFile.importPath(file)
-            // already imported
-            if (file.alreadyImport(importPath)) return item
-            // some files like stubs or stdlib imported implicitly
-            if (elementFile.isImportedImplicitly()) return item
-            // guard for multi projects
-            if (index.hasSeveralDeclarations(data.name)) return item
-
-            const positionToInsert = file.positionForNextImport()
-
-            const extraLine = positionToInsert.line === 0 && file.imports().length === 0 ? "\n" : ""
-
-            const diff = FileDiff.forFile(elementFile.uri)
-            diff.appendAsPrevLine(positionToInsert.line, `import "${importPath}";${extraLine}`)
-
-            return {
-                ...item,
-                additionalTextEdits: diff.toTextEdits(),
-            }
-        },
-    )
-
+    connection.onRequest(lsp.CompletionResolveRequest.type, provideTactCompletionResolve)
     connection.onRequest(
         lsp.CompletionRequest.type,
         async (params: lsp.CompletionParams): Promise<lsp.CompletionItem[]> => {
             const uri = params.textDocument.uri
-            const file = findTactFile(uri)
-            const content = file.content
-            const parser = createTactParser()
 
-            const offset = getOffsetFromPosition(
-                content,
-                params.position.line,
-                params.position.character + 1,
-            )
-            const start = content.slice(0, offset)
-            const end = content.slice(offset)
-
-            // Let's say we want to get autocompletion in the following code:
-            //
-            //   fun foo(p: Builder) {
-            //      p.
-            //   } // ^ caret here
-            //
-            // Regular parsers, including those that can recover from errors, will not
-            // be able to parse this code well enough for us to recognize this situation.
-            // Some Language Servers try to do this, but they end up with a lot of
-            // incomprehensible and complex code that doesn't work well.
-            //
-            // The approach we use is very simple, instead of parsing the code above,
-            // we transform it into:
-            //
-            //    fun foo(p: Builder) {
-            //       p.dummyIdentifier
-            //    } // ^ caret here
-            //
-            // Which will be parsed without any problems now.
-            //
-            // Now that we have valid code, we can use `Reference.processResolveVariants`
-            // to resolve `DummyIdentifier` into a list of possible variants, which will
-            // become the autocompletion list. See `Reference` class documentation.
-            const newContent = `${start}DummyIdentifier${end}`
-            const tree = parser.parse(newContent)
-            if (!tree) return []
-
-            const cursorPosition = asParserPoint(params.position)
-            const cursorNode = tree.rootNode.descendantForPosition(cursorPosition)
-            if (
-                cursorNode === null ||
-                (cursorNode.type !== "identifier" &&
-                    cursorNode.type !== "type_identifier" &&
-                    cursorNode.type !== "string" &&
-                    cursorNode.type !== "tvm_instruction")
-            ) {
-                return []
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                return provideTactCompletion(file, params, uri)
             }
 
-            const element = new NamedNode(cursorNode, new TactFile(uri, tree, newContent))
-            const ref = new Reference(element)
-
-            const ctx = new CompletionContext(
-                newContent,
-                element,
-                params.position,
-                params.context?.triggerKind ?? lsp.CompletionTriggerKind.Invoked,
-                await getDocumentSettings(uri),
-            )
-
-            const result = new CompletionResult()
-            const providers: CompletionProvider[] = [
-                new SnippetsCompletionProvider(),
-                new KeywordsCompletionProvider(),
-                new AsKeywordCompletionProvider(),
-                new ImportPathCompletionProvider(),
-                new MapTypeCompletionProvider(),
-                new BouncedTypeCompletionProvider(),
-                new GetterCompletionProvider(),
-                new ContractDeclCompletionProvider(),
-                new TopLevelFunctionCompletionProvider(),
-                new TopLevelCompletionProvider(),
-                new MemberFunctionCompletionProvider(),
-                new MessageMethodCompletionProvider(),
-                new TlbSerializationCompletionProvider(),
-                new OverrideCompletionProvider(),
-                new TraitOrContractFieldsCompletionProvider(),
-                new TraitOrContractConstantsCompletionProvider(),
-                new SelfCompletionProvider(),
-                new ReturnCompletionProvider(),
-                new ReferenceCompletionProvider(ref),
-                new AsmInstructionCompletionProvider(),
-                new PostfixCompletionProvider(),
-                new TypeTlbSerializationCompletionProvider(),
-            ]
-
-            providers.forEach((provider: CompletionProvider) => {
-                if (!provider.isAvailable(ctx)) return
-                provider.addCompletion(ctx, result)
-            })
-
-            return result.sorted()
+            return []
         },
     )
 
@@ -758,13 +582,17 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return null
             }
 
-            if (uri.endsWith(".fif")) {
+            if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
                 return collectFiftInlays(file, settings.hints.gasFormat, settings.fift.hints)
             }
 
-            const file = findTactFile(uri)
-            return inlays.collect(file, settings.hints, settings.gas)
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                return inlays.collect(file, settings.hints, settings.gas)
+            }
+
+            return null
         },
     )
 
@@ -806,112 +634,37 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    const findRenameTarget = (
-        params: lsp.TextDocumentPositionParams,
-        file: TactFile,
-    ): SyntaxNode | null => {
-        const node = nodeAtPosition(params, file)
-        if (node?.type !== "identifier" && node?.type !== "type_identifier") {
-            // Imagine case:
-            //
-            // foo: Int;
-            // ^^^ selection
-            //
-            // position will be point to `:`, not to the last ` o `, so we need to
-            // move the cursor to the right to find the identifier.
-            const prevNode = nodeAtPosition(
-                {
-                    ...params,
-                    position: {
-                        line: params.position.line,
-                        character: params.position.character - 1,
-                    },
-                },
-                file,
-            )
+    connection.onRequest(
+        lsp.RenameRequest.type,
+        (params: lsp.RenameParams): WorkspaceEdit | null => {
+            const uri = params.textDocument.uri
 
-            if (prevNode?.type !== "identifier" && prevNode?.type !== "type_identifier") {
-                return null
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                return provideTactRename(params, file)
             }
 
-            return prevNode
-        }
-        return node
-    }
-
-    connection.onRequest(lsp.RenameRequest.type, (params: lsp.RenameParams) => {
-        const uri = params.textDocument.uri
-        const file = findTactFile(uri)
-
-        const renameNode = findRenameTarget(params, file)
-        if (!renameNode) return null
-
-        const result = new Referent(renameNode, file).findReferences({
-            includeDefinition: true,
-            sameFileOnly: false,
-            includeSelf: false,
-        })
-        if (result.length === 0) return null
-
-        const changes: Record<DocumentUri, TextEdit[]> = {}
-
-        for (const node of result) {
-            const uri = node.file.uri
-            const element = {
-                range: asLspRange(node.node),
-                newText: params.newName,
-            }
-
-            const parent = node.node.parent
-
-            // process renaming of a short instance field:
-            // Foo { bar } -> Foo { bar: baz }
-            if (parent?.type === "instance_argument") {
-                const fieldName = parent.childForFieldName("name")?.text
-                // when Foo { bar } and not Foo { bar: baz }
-                const short = parent.childForFieldName("value") === null
-                if (short) {
-                    element.newText = `${fieldName}: ${params.newName}`
-                }
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            if (changes[uri]) {
-                changes[uri].push(element)
-            } else {
-                changes[uri] = [element]
-            }
-        }
-
-        return {changes}
-    })
+            return null
+        },
+    )
 
     connection.onRequest(
         lsp.PrepareRenameRequest.type,
-        (params: lsp.PrepareRenameParams): PrepareRenameResult | null => {
+        (params: lsp.PrepareRenameParams): lsp.PrepareRenameResult | null => {
             const uri = params.textDocument.uri
-            const file = findTactFile(uri)
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
 
-            const renameNode = findRenameTarget(params, file)
-            if (!renameNode) return null
-            if (renameNode.type !== "identifier" && renameNode.type !== "type_identifier") {
-                return null
+                const result = provideTactRenamePrepare(params, file)
+                if (typeof result === "string") {
+                    showErrorMessage(result)
+                    return null
+                }
+
+                return result
             }
 
-            const element = NamedNode.create(renameNode, file)
-            const res = Reference.resolve(element)
-            if (res === null) return null
-
-            if (res.file.fromStdlib || res.file.fromStubs) {
-                showErrorMessage(`Can not rename element from Standard Library`)
-                return null
-            }
-
-            return {
-                range: asLspRange(renameNode),
-                defaultBehavior: true,
-                placeholder: renameNode.text,
-            }
+            return null
         },
     )
 
@@ -964,7 +717,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         async (params: lsp.ReferenceParams): Promise<lsp.Location[] | null> => {
             const uri = params.textDocument.uri
 
-            if (uri.endsWith(".fif")) {
+            if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
                 const node = nodeAtPosition(params, file)
                 if (!node || node.type !== "identifier") return []
@@ -978,7 +731,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 }))
             }
 
-            if (uri.endsWith(".tlb")) return []
+            if (isTlbFile(uri)) return []
 
             const file = findTactFile(uri)
             const referenceNode = nodeAtPosition(params, file)
@@ -1015,266 +768,16 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    const findSignatureHelpTarget = (
-        hoverNode: SyntaxNode,
-        file: TactFile,
-    ): {
-        rawArguments: SyntaxNode[]
-        parametersInfo: lsp.ParameterInformation[]
-        presentation: string
-        isMethod: boolean
-        isStructField: boolean
-        structFieldIndex: number
-    } | null => {
-        const findParameters = (element: NamedNode): TactNode[] => {
-            if (element instanceof Contract) {
-                const initFunction = element.initFunction()
-                if (initFunction) {
-                    return initFunction.parameters()
-                }
-                return element.parameters()
-            }
-
-            const parameters = element.node.childForFieldName("parameters")
-            if (!parameters) return []
-
-            return parameters.children
-                .filter(param => param?.type === "parameter")
-                .filter(param => param !== null)
-                .map(param => new TactNode(param, element.file))
-        }
-
-        const findSignatureHelpNode = (node: SyntaxNode): SyntaxNode | null => {
-            const targetNodes = [
-                "static_call_expression",
-                "method_call_expression",
-                "initOf",
-                "instance_expression",
-                "instance_argument",
-                "instance_argument_list",
-            ]
-            const callNode = parentOfType(node, ...targetNodes)
-            if (!callNode) return null
-
-            // Foo { some: 10 }
-            //     ^ this
-            const isOpenBrace =
-                callNode.type === "instance_argument_list" && callNode.firstChild?.equals(node)
-
-            // Foo { some: 10 }
-            // ^^^ this
-            const isInstanceName =
-                callNode.type === "instance_expression" &&
-                callNode.childForFieldName("name")?.equals(node)
-
-            // Search for parent call for the following case
-            // ```
-            // foo(Fo<caret>o { value: 10 })
-            // ```
-            if (isInstanceName || isOpenBrace) {
-                return findSignatureHelpNode(callNode)
-            }
-
-            if (
-                callNode.type === "instance_expression" ||
-                callNode.type === "instance_argument" ||
-                callNode.type === "instance_argument_list"
-            ) {
-                return callNode
-            }
-
-            const call = new CallLike(callNode, file)
-
-            // check if the current node within arguments
-            //
-            // foo() // <cursor>
-            //   .bar()
-            // > no
-            //
-            // foo(<caret>)
-            //   .bar()
-            // > yes
-            const args = call.rawArguments()
-            const openBrace = args.at(0)
-            const closeBrace = args.at(-1)
-            if (!openBrace || !closeBrace) return null
-
-            const startIndex = openBrace.startIndex
-            const endIndexIndex = closeBrace.endIndex
-
-            if (node.startIndex < startIndex || node.endIndex > endIndexIndex) {
-                const parent = node.parent
-                if (!parent) return null
-                return findSignatureHelpNode(parent)
-            }
-
-            return callNode
-        }
-
-        const callNode = findSignatureHelpNode(hoverNode)
-        if (!callNode) return null
-
-        if (callNode.type === "instance_argument_list" || callNode.type === "instance_argument") {
-            let name =
-                callNode.childForFieldName("name") ??
-                (hoverNode.type === "instance_argument"
-                    ? hoverNode.firstChild
-                    : hoverNode.previousNamedSibling)
-
-            if (!name) return null
-            if (name.type === "instance_argument") {
-                name = name.firstChild
-            }
-            if (!name) return null
-
-            const type = new Expression(name, file).type()
-            if (!type) return null
-
-            const instanceExpression = parentOfType(callNode, "instance_expression")
-            if (!instanceExpression) return null
-
-            const instanceName = instanceExpression.childForFieldName("name")
-            if (!instanceName) return null
-
-            const instanceType = new Expression(instanceName, file).type()
-            if (!instanceType) return null
-            if (!(instanceType instanceof FieldsOwnerTy)) return null
-
-            const fields = instanceType.fields()
-            const fieldPresentations = fields.map(
-                field => `${field.name()}: ${field.typeNode()?.node.text ?? ""}`,
-            )
-
-            const fieldsInfo = fieldPresentations.map(
-                name =>
-                    ({
-                        label: name,
-                    }) as ParameterInformation,
-            )
-
-            const presentation = instanceType.name() + " { " + fieldPresentations.join(", ") + " }"
-
-            return {
-                rawArguments: [],
-                parametersInfo: fieldsInfo,
-                presentation: presentation,
-                isMethod: false,
-                isStructField: true,
-                structFieldIndex: fields.findIndex(f => f.name() === name.text),
-            }
-        }
-
-        const call = new CallLike(callNode, file)
-
-        const res = Reference.resolve(call.nameNode())
-        if (res === null) return null
-
-        const parameters = findParameters(res)
-        const parametersInfo: lsp.ParameterInformation[] = parameters.map(param => ({
-            label: param.node.text,
-        }))
-        const parametersString = parametersInfo.map(el => el.label).join(", ")
-
-        const rawArguments = call.rawArguments()
-
-        if (callNode.type === "initOf") {
-            return {
-                rawArguments,
-                parametersInfo,
-                presentation: `init(${parametersString})`,
-                isMethod: false,
-                isStructField: false,
-                structFieldIndex: 0,
-            }
-        }
-
-        if (!(res instanceof Fun)) return null
-
-        return {
-            rawArguments,
-            parametersInfo,
-            presentation: `fun ${call.name()}(${parametersString})`,
-            isMethod: callNode.type === "method_call_expression" && res.withSelf(),
-            isStructField: false,
-            structFieldIndex: 0,
-        }
-    }
-
     connection.onRequest(
         lsp.SignatureHelpRequest.type,
         (params: lsp.SignatureHelpParams): lsp.SignatureHelp | null => {
-            const file = findTactFile(params.textDocument.uri)
+            const uri = params.textDocument.uri
 
-            const hoverNode = nodeAtPosition(params, file)
-            if (!hoverNode) return null
-
-            const res = findSignatureHelpTarget(hoverNode, file)
-            if (!res) return null
-
-            const {
-                parametersInfo,
-                rawArguments,
-                isMethod,
-                presentation,
-                isStructField,
-                structFieldIndex,
-            } = res
-
-            if (isStructField) {
-                return {
-                    signatures: [
-                        {
-                            label: presentation,
-                            parameters: parametersInfo,
-                            activeParameter: structFieldIndex,
-                        },
-                    ],
-                }
+            if (isTactFile(uri)) {
+                return provideTactSignatureInfo(params)
             }
 
-            // The algorithm below uses the positions of commas and parentheses to findTo find the active parameter, it is enough to find the last comma, which has a position in the line less than the cursor position. In order not to complicate the algorithm, we consider the opening bracket as a kind of comma for the zero element. If the cursor position is greater than the position of any comma, then we consider that this is the last element. the active parameter.
-            //
-            // foo(1000, 2000, 3000)
-            //    ^    ^     ^
-            //    |    |     |______ argsCommas
-            //    |    |____________|
-            //    |_________________|
-            //
-            // To find the active parameter, it is enough to find the last comma, which has a position in
-            // the line less than the cursor position. To simplify the algorithm, we consider the opening
-            // bracket as a kind of comma for the zero element.
-            // If the cursor position is greater than the position of any comma, then we consider that this
-            // is the last parameter.
-            //
-            // TODO: support multiline calls and functions with self
-
-            const argsCommas = rawArguments.filter(
-                value => value.text === "," || value.text === "(",
-            )
-
-            let currentIndex = 0
-            for (const [i, argComma] of argsCommas.entries()) {
-                if (argComma.endPosition.column > params.position.character) {
-                    // found comma after cursor
-                    break
-                }
-                currentIndex = i
-            }
-
-            if (isMethod) {
-                // skip self
-                currentIndex++
-            }
-
-            return {
-                signatures: [
-                    {
-                        label: presentation,
-                        parameters: parametersInfo,
-                        activeParameter: currentIndex,
-                    },
-                ],
-            }
+            return null
         },
     )
 
@@ -1282,7 +785,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.FoldingRangeRequest.type,
         (params: lsp.FoldingRangeParams): lsp.FoldingRange[] => {
             const uri = params.textDocument.uri
-            if (uri.endsWith(".fif")) {
+            if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
                 return collectFift(file)
             }
@@ -1298,12 +801,12 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const uri = params.textDocument.uri
             const settings = await getDocumentSettings(uri)
 
-            if (uri.endsWith(".fif")) {
+            if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
                 return collectFiftSemanticTokens(file, settings.fift.semanticHighlighting)
             }
 
-            if (uri.endsWith(".tlb")) {
+            if (isTlbFile(uri)) {
                 const file = findTlbFile(uri)
                 return tlbSemantic.collect(file)
             }
@@ -1323,105 +826,10 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    const intentions: Intention[] = [
-        new AddExplicitType(),
-        new AddImport(),
-        new ReplaceTextReceiverWithBinary(),
-        new FillFieldsStructInit(),
-        new FillRequiredStructInit(),
-        new AddFieldInitialization(),
-        new WrapSelectedToTry(),
-        new WrapSelectedToTryCatch(),
-        new WrapSelectedToRepeat(),
-        new ExtractToFile(),
-    ]
-
     connection.onRequest(
         lsp.ExecuteCommandRequest.type,
-        async (params: lsp.ExecuteCommandParams) => {
-            if (params.command === "tact/executeGetScopeProvider") {
-                const commandParams = params.arguments?.[0] as
-                    | lsp.TextDocumentPositionParams
-                    | undefined
-                if (!commandParams) return "Invalid parameters"
-
-                const file = PARSED_FILES_CACHE.get(commandParams.textDocument.uri)
-                if (!file) {
-                    return "File not found"
-                }
-
-                const node = nodeAtPosition(commandParams, file)
-                if (!node) {
-                    return "Node not found"
-                }
-
-                const referent = new Referent(node, file)
-                const scope = referent.useScope()
-                if (!scope) return "Scope not found"
-
-                if (scope instanceof LocalSearchScope) return scope.toString()
-                return "GlobalSearchScope"
-            }
-
-            if (!params.arguments || params.arguments.length === 0) return null
-
-            const intention = intentions.find(it => it.id === params.command)
-            if (!intention) return null
-
-            const args = params.arguments[0] as IntentionArguments
-
-            const file = findTactFile(args.fileUri)
-
-            const ctx: IntentionContext = {
-                file: file,
-                range: args.range,
-                position: args.position,
-                noSelection:
-                    args.range.start.line === args.range.end.line &&
-                    args.range.start.character === args.range.end.character,
-                customFileName: args.customFileName,
-            }
-
-            if (intention instanceof ExtractToFile && !ctx.customFileName) {
-                const getElementInfoForExtraction = (
-                    intention: ExtractToFile,
-                    ctx: IntentionContext,
-                ): {elementName: string; suggestedFileName: string} | null => {
-                    const element = intention.findExtractableElement(ctx)
-                    if (!element) return null
-
-                    const suggestedFileName = intention.getSuggestedFileName(ctx)
-                    if (!suggestedFileName) return null
-
-                    return {
-                        elementName: element.name(),
-                        suggestedFileName: suggestedFileName,
-                    }
-                }
-
-                const elementInfo = getElementInfoForExtraction(intention, ctx)
-                if (!elementInfo) return null
-
-                await connection.sendNotification("tact/extractToFileWithInput", {
-                    fileUri: args.fileUri,
-                    range: args.range,
-                    position: args.position,
-                    elementName: elementInfo.elementName,
-                    suggestedFileName: elementInfo.suggestedFileName,
-                })
-
-                return null
-            }
-
-            const edits = intention.invoke(ctx)
-            if (!edits) return null
-
-            await connection.sendRequest(lsp.ApplyWorkspaceEditRequest.method, {
-                label: `Intention "${intention.name}"`,
-                edit: edits,
-            } as lsp.ApplyWorkspaceEditParams)
-
-            return null
+        async (params: lsp.ExecuteCommandParams): Promise<string | null> => {
+            return provideExecuteTactCommand(params)
         },
     )
 
@@ -1429,53 +837,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.CodeActionRequest.type,
         (params: lsp.CodeActionParams): lsp.CodeAction[] | null => {
             const uri = params.textDocument.uri
-            if (uri.endsWith(".fif")) {
-                return null
+
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                return provideTactCodeActions(file, params)
             }
 
-            const file = findTactFile(uri)
-
-            const ctx: IntentionContext = {
-                file: file,
-                range: params.range,
-                position: params.range.start,
-                noSelection:
-                    params.range.start.line === params.range.end.line &&
-                    params.range.start.character === params.range.end.character,
-            }
-
-            const actions: lsp.CodeAction[] = []
-
-            intentions.forEach(intention => {
-                if (!intention.isAvailable(ctx)) return
-
-                actions.push({
-                    title: intention.name,
-                    kind: lsp.CodeActionKind.QuickFix,
-                    command: {
-                        title: intention.name,
-                        command: intention.id,
-                        arguments: [
-                            {
-                                fileUri: file.uri,
-                                range: params.range,
-                                position: params.range.start,
-                            } as IntentionArguments,
-                        ],
-                    },
-                })
-            })
-
-            for (const diagnostic of params.context.diagnostics) {
-                const data = diagnostic.data as undefined | lsp.CodeAction
-                if (data === undefined || !("title" in data) || !("edit" in data)) {
-                    continue
-                }
-
-                actions.push(data)
-            }
-
-            return actions
+            return null
         },
     )
 
@@ -1563,200 +931,27 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    function symbolKind(node: NamedNode): lsp.SymbolKind {
-        if (node instanceof Fun) {
-            return lsp.SymbolKind.Function
-        }
-        if (node instanceof Contract) {
-            return lsp.SymbolKind.Class
-        }
-        if (node instanceof Message) {
-            return lsp.SymbolKind.Struct
-        }
-        if (node instanceof Struct) {
-            return lsp.SymbolKind.Struct
-        }
-        if (node instanceof Trait) {
-            return lsp.SymbolKind.TypeParameter
-        }
-        if (node instanceof Primitive) {
-            return lsp.SymbolKind.Property
-        }
-        if (node instanceof Constant) {
-            return lsp.SymbolKind.Constant
-        }
-        if (node instanceof Field) {
-            return lsp.SymbolKind.Field
-        }
-        return lsp.SymbolKind.Object
-    }
-
     connection.onRequest(
         lsp.DocumentSymbolRequest.type,
         async (params: lsp.DocumentSymbolParams): Promise<lsp.DocumentSymbol[]> => {
             const uri = params.textDocument.uri
-            if (!uri.endsWith(".tact")) return []
 
-            const file = findTactFile(uri)
-
-            const settings = await getDocumentSettings(file.uri)
-
-            const result: lsp.DocumentSymbol[] = []
-
-            function symbolDetail(element: NamedNode | Fun | Field | Constant): string {
-                if (element instanceof Fun) {
-                    return element.signaturePresentation()
-                }
-                if (element instanceof Field) {
-                    const type = element.typeNode()?.node.text ?? "unknown"
-                    return `: ${type}`
-                }
-                if (element instanceof Constant) {
-                    const type = element.typeNode()?.node.text ?? "unknown"
-                    const value = element.value()?.node.text ?? "unknown"
-                    return `: ${type} = ${value}`
-                }
-                return ""
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                return provideTactDocumentSymbols(file)
             }
 
-            function createSymbol(element: NamedNode): lsp.DocumentSymbol {
-                const detail = symbolDetail(element)
-                const kind = symbolKind(element)
-                const children = symbolChildren(element)
-
-                return {
-                    name: element.name(),
-                    kind: kind,
-                    range: asLspRange(element.node),
-                    detail: detail,
-                    selectionRange: asNullableLspRange(element.nameIdentifier()),
-                    children: children,
-                }
-            }
-
-            function addMessageFunctions(
-                element: StorageMembersOwner,
-                to: lsp.DocumentSymbol[],
-            ): void {
-                const messageFunctions = element.messageFunctions()
-                messageFunctions.forEach(messageFunction => {
-                    to.push({
-                        name: messageFunction.nameLike(),
-                        range: asLspRange(messageFunction.node),
-                        selectionRange: asNullableLspRange(messageFunction.kindIdentifier()),
-                        kind: SymbolKind.Method,
-                    })
-                })
-            }
-
-            function symbolChildren(element: NamedNode): lsp.DocumentSymbol[] {
-                const children: NamedNode[] = []
-                const additionalChildren: lsp.DocumentSymbol[] = []
-
-                if (element instanceof Struct && settings.documentSymbols.showStructFields) {
-                    children.push(...element.fields())
-                }
-
-                if (element instanceof Message && settings.documentSymbols.showMessageFields) {
-                    children.push(...element.fields())
-                }
-
-                if (element instanceof Contract) {
-                    children.push(
-                        ...element.ownConstants(),
-                        ...element.ownFields(),
-                        ...element.ownMethods(),
-                    )
-
-                    const initFunction = element.initFunction()
-                    if (initFunction) {
-                        additionalChildren.push({
-                            name: initFunction.nameLike(),
-                            range: asNullableLspRange(initFunction.node),
-                            selectionRange: asNullableLspRange(initFunction.initIdentifier()),
-                            kind: SymbolKind.Constructor,
-                        })
-                    }
-
-                    addMessageFunctions(element, additionalChildren)
-                }
-
-                if (element instanceof Trait) {
-                    children.push(
-                        ...element.ownConstants(),
-                        ...element.ownFields(),
-                        ...element.ownMethods(),
-                    )
-
-                    addMessageFunctions(element, additionalChildren)
-                }
-
-                return [...children.map(el => createSymbol(el)), ...additionalChildren]
-            }
-
-            file.imports().forEach(imp => {
-                result.push({
-                    name: imp.text,
-                    range: asLspRange(imp),
-                    selectionRange: asLspRange(imp),
-                    kind: SymbolKind.Module,
-                })
-            })
-
-            file.getFuns().forEach(n => result.push(createSymbol(n)))
-            file.getStructs().forEach(n => result.push(createSymbol(n)))
-            file.getMessages().forEach(n => result.push(createSymbol(n)))
-            file.getTraits().forEach(n => result.push(createSymbol(n)))
-            file.getConstants().forEach(n => result.push(createSymbol(n)))
-            file.getContracts().forEach(n => result.push(createSymbol(n)))
-            file.getPrimitives().forEach(n => result.push(createSymbol(n)))
-
-            return result.sort((a, b) => a.range.start.line - b.range.start.line)
+            return []
         },
     )
 
-    connection.onRequest(
-        lsp.WorkspaceSymbolRequest.type,
-        (_params: lsp.WorkspaceSymbolParams): lsp.WorkspaceSymbol[] => {
-            const result: lsp.WorkspaceSymbol[] = []
-
-            const state = new ResolveState()
-            const proc = new (class implements ScopeProcessor {
-                public execute(node: TactNode, _state: ResolveState): boolean {
-                    if (!(node instanceof NamedNode)) return true
-                    const nameIdentifier = node.nameIdentifier()
-                    if (!nameIdentifier) return true
-
-                    result.push({
-                        name: node.name(),
-                        containerName: "",
-                        kind: symbolKind(node),
-                        location: {
-                            uri: node.file.uri,
-                            range: asLspRange(nameIdentifier),
-                        },
-                    })
-                    return true
-                }
-            })()
-
-            index.processElementsByKey(IndexKey.Contracts, proc, state)
-            index.processElementsByKey(IndexKey.Funs, proc, state)
-            index.processElementsByKey(IndexKey.Messages, proc, state)
-            index.processElementsByKey(IndexKey.Structs, proc, state)
-            index.processElementsByKey(IndexKey.Traits, proc, state)
-            index.processElementsByKey(IndexKey.Primitives, proc, state)
-            index.processElementsByKey(IndexKey.Constants, proc, state)
-
-            return result
-        },
-    )
+    connection.onRequest(lsp.WorkspaceSymbolRequest.type, provideTactWorkspaceSymbols)
 
     connection.onRequest(
         lsp.DocumentFormattingRequest.type,
         (params: lsp.DocumentFormattingParams): lsp.TextEdit[] | null => {
             const uri = params.textDocument.uri
-            if (uri.endsWith(".fif")) {
+            if (isFiftFile(uri)) {
                 return null
             }
 
@@ -1844,7 +1039,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 codeActionKinds: [lsp.CodeActionKind.QuickFix],
             },
             executeCommandProvider: {
-                commands: ["tact/executeGetScopeProvider", ...intentions.map(it => it.id)],
+                commands: ["tact/executeGetScopeProvider", ...INTENTIONS.map(it => it.id)],
             },
             workspace: {
                 workspaceFolders: {
