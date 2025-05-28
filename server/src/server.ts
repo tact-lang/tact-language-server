@@ -111,7 +111,7 @@ import {FileDiff} from "@server/utils/FileDiff"
 import {CompletionItemAdditionalInformation} from "@server/languages/tact/completion/ReferenceCompletionProcessor"
 import {GetterCompletionProvider} from "@server/languages/tact/completion/providers/GetterCompletionProvider"
 import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
-import {toolchainManager} from "@server/toolchain-manager"
+import * as toolchainManager from "@server/toolchain-manager"
 import {ReplaceTextReceiverWithBinary} from "@server/languages/tact/intentions/ReplaceTextReceiverWithBinary"
 import {TypeTlbSerializationCompletionProvider} from "@server/languages/tact/completion/providers/TypeTlbSerializationCompletionProvider"
 import {formatCode} from "@server/languages/tact/compiler/fmt/fmt"
@@ -239,7 +239,6 @@ async function initialize(): Promise<void> {
     const settings = await getDocumentSettings(rootUri)
 
     try {
-        // Initialize toolchain manager with settings
         toolchainManager.setWorkspaceRoot(rootDir)
         toolchainManager.setToolchains(
             settings.toolchain.toolchains,

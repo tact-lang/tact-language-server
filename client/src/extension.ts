@@ -715,7 +715,23 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
                 toolchains,
                 vscode.ConfigurationTarget.Workspace,
             )
-            vscode.window.showInformationMessage(`Added toolchain: ${name}`)
+
+            const activateNow = await vscode.window.showInformationMessage(
+                `Added toolchain: ${name}. Do you want to activate it now?`,
+                "Activate",
+                "Keep Current",
+            )
+
+            if (activateNow === "Activate") {
+                await config.update(
+                    "toolchain.activeToolchain",
+                    id,
+                    vscode.ConfigurationTarget.Workspace,
+                )
+                vscode.window.showInformationMessage(`Activated toolchain: ${name}`)
+            } else {
+                vscode.window.showInformationMessage(`Toolchain ${name} added but not activated`)
+            }
         }),
         vscode.commands.registerCommand("tact.removeToolchain", async () => {
             const config = vscode.workspace.getConfiguration("tact")
@@ -753,11 +769,14 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
             )
 
             if (confirmation === "Remove") {
-                // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-                delete toolchains[selected.id]
+                // Create a new object without the selected toolchain instead of modifying the existing one
+                const updatedToolchains = Object.fromEntries(
+                    Object.entries(toolchains).filter(([id]) => id !== selected.id),
+                )
+
                 await config.update(
                     "toolchain.toolchains",
-                    toolchains,
+                    updatedToolchains,
                     vscode.ConfigurationTarget.Workspace,
                 )
 
