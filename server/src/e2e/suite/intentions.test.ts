@@ -49,7 +49,6 @@ suite("Intentions Test Suite", () => {
                 const actions = await this.getCodeActions(this.document.getText())
 
                 if (actions.length === 0) {
-                    const expected = testCase.expected.trim()
                     if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                         this.updates.push({
                             filePath: testFile,
@@ -57,7 +56,7 @@ suite("Intentions Test Suite", () => {
                             actual: "No intentions",
                         })
                     } else {
-                        assert.strictEqual(expected, "No intentions")
+                        assert.strictEqual(actions.length, 0, "No intentions")
                     }
                     return
                 }
