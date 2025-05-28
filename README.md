@@ -68,7 +68,8 @@ The easiest way to get started with Tact is to use VS Code or editors based on i
    or [in VS Code-based editors](https://open-vsx.org/extension/tonstudio/vscode-tact)
 2. That's it!
 
-The extension automatically detects your Tact compiler installation. If you need to work with multiple Tact versions or custom builds, check out the [Toolchain management] guide.
+The extension automatically detects your Tact compiler installation. If you need to work with multiple Tact versions or
+custom-builds, check out the [toolchain management] guide.
 
 ![editor.png](docs/manual/assets/editor.png)
 
