@@ -64,12 +64,13 @@ suite("Intentions Test Suite", () => {
                 const intentionName = testCase.properties.get("intention")
                 if (intentionName) {
                     const found = actions.find(action => action.title === intentionName)
-                    assert.ok(
-                        found,
-                        `Intention "${intentionName}" not found. Available intentions: ${actions
-                            .map(a => a.title)
-                            .join(", ")}`,
-                    )
+                    if (!found) {
+                        throw new Error(
+                            `Intention "${intentionName}" not found. Available intentions: ${actions
+                                .map(a => a.title)
+                                .join(", ")}`,
+                        )
+                    }
                     selectedAction = found
                 }
 
