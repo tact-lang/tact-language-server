@@ -28,7 +28,9 @@ blockchain.
 - [Code completion] with [auto import], [postfix completion], snippets, [imports completion]
 - Go to [definition], implementation, [type definition]
 - Find all references, workspace symbol search, symbol renaming, [type-based search]
+- Automatic import updates when renaming and moving files
 - Types and documentation on hover
+- Beginner documentation for all keywords on hover
 - Inlay hints [for types], [parameter names] and [more]
 - On-the-fly [inspections] with quick fixes
 - Signature help inside calls, `initOf` and struct initialization
