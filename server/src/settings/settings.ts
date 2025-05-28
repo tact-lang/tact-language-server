@@ -149,7 +149,7 @@ const defaultSettings: TactSettings = {
     documentation: {
         showTlb: true,
         showKeywordDocumentation: true,
-        maximumLinesBodyToShowInDocumentation: 2,
+        maximumLinesBodyToShowInDocumentation: 3,
         showNumbersInDifferentNumberSystems: true,
     },
     fift: {
