@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import {NamedNode, Node} from "@server/languages/tact/psi/Node"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {
     Constant,
     Contract,
@@ -17,7 +17,7 @@ import {
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {trimPrefix} from "@server/utils/strings"
 import * as compiler from "@server/languages/tact/compiler/utils"
-import {getDocumentSettings, TactSettings} from "@server/utils/settings"
+import {getDocumentSettings, TactSettings} from "@server/settings/settings"
 import {File} from "@server/languages/tact/psi/File"
 import {
     ContractTy,

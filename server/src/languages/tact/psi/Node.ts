@@ -3,7 +3,7 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {File} from "./File"
 import {Ty} from "@server/languages/tact/types/BaseTy"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {Range} from "vscode-languageserver-textdocument"
 import {AsmInstruction, findInstruction} from "@server/languages/tact/completion/data/types"
 import {Position} from "vscode-languageclient"

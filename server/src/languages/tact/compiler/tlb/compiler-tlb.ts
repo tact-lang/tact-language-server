@@ -10,7 +10,7 @@ import {
     Ty,
 } from "@server/languages/tact/types/BaseTy"
 import {Field} from "@server/languages/tact/psi/Decls"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {highest32ofSha256, sha256} from "@server/languages/tact/compiler/sha256"
 
 export function messageOpcode(message: MessageTy): undefined | bigint {

@@ -2,7 +2,7 @@
 //  Copyright © 2025 TON Studio
 import * as cp from "node:child_process"
 import {CompilerError, Severity, TactCompiler} from "@server/languages/tact/compiler/TactCompiler"
-import {TactSettings} from "@server/utils/settings"
+import {TactSettings} from "@server/settings/settings"
 
 export interface MistiJsonOutput {
     readonly kind: "warnings"

@@ -11,7 +11,7 @@ import {
     Ty,
 } from "@server/languages/tact/types/BaseTy"
 import {Field} from "@server/languages/tact/psi/Decls"
-import {TypeInferer} from "@server/TypeInferer"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 
 export function generateTlb(ty: Ty, forField: boolean = false): string {
     if (ty instanceof PrimitiveTy) {

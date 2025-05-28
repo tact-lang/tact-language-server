@@ -4,8 +4,8 @@ import {Expression, Node} from "@server/languages/tact/psi/Node"
 import type * as lsp from "vscode-languageserver/node"
 import {parentOfType} from "@server/languages/tact/psi/utils"
 import {MapTy, NullTy, OptionTy, Ty} from "@server/languages/tact/types/BaseTy"
-import {TypeInferer} from "@server/TypeInferer"
-import type {TactSettings} from "@server/utils/settings"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
+import type {TactSettings} from "@server/settings/settings"
 
 export class CompletionContext {
     public element: Node
