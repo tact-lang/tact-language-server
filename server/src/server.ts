@@ -7,7 +7,7 @@ import {asLspRange, asNullableLspRange, asParserPoint} from "@server/utils/posit
 import {TypeInferer} from "./languages/tact/TypeInferer"
 import {LocalSearchScope, Referent} from "@server/languages/tact/psi/Referent"
 import {index, IndexKey, IndexRoot} from "@server/languages/tact/indexes"
-import {AsmInstr, CallLike, Expression, NamedNode, Node} from "@server/languages/tact/psi/Node"
+import {CallLike, Expression, NamedNode, Node} from "@server/languages/tact/psi/Node"
 import {Reference, ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
 import {File} from "@server/languages/tact/psi/File"
 import {CompletionContext} from "@server/languages/tact/completion/CompletionContext"
@@ -18,7 +18,6 @@ import {
     ParameterInformation,
     SymbolKind,
 } from "vscode-languageserver"
-import * as docs from "@server/languages/tact/documentation/documentation"
 import * as inlays from "@server/languages/tact/inlays/collect"
 import * as foldings from "@server/languages/tact/foldings/collect"
 import * as semantic from "@server/languages/tact/semantic_tokens/collect"
@@ -52,9 +51,7 @@ import {
     Contract,
     Field,
     Fun,
-    InitFunction,
     Message,
-    MessageFunction,
     Primitive,
     StorageMembersOwner,
     Struct,
@@ -73,25 +70,17 @@ import {MapTypeCompletionProvider} from "@server/languages/tact/completion/provi
 import {CACHE} from "./cache"
 import {IndexingRoot, IndexingRootKind} from "./indexing-root"
 import {AsmInstructionCompletionProvider} from "@server/languages/tact/completion/providers/AsmInstructionCompletionProvider"
-import {generateAsmDoc} from "@server/languages/tact/documentation/asm_documentation"
 import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/settings/settings"
 import {ContractDeclCompletionProvider} from "@server/languages/tact/completion/providers/ContractDeclCompletionProvider"
 import {collectFift} from "@server/languages/fift/foldings/collect"
 import {collectFift as collectFiftSemanticTokens} from "@server/languages/fift/semantic_tokens/collect"
 import {collectFift as collectFiftInlays} from "@server/languages/fift/inlays/collect"
 import {FiftReferent} from "@server/languages/fift/psi/FiftReferent"
-import {generateFiftDocFor} from "@server/languages/fift/documentation/documentation"
-import {
-    generateAttributeKeywordDoc,
-    generateKeywordDoc,
-} from "@server/languages/tact/documentation/keywords_documentation"
-import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
 import {SnippetsCompletionProvider} from "@server/languages/tact/completion/providers/SnippetsCompletionProvider"
 import {CompletionResult} from "@server/languages/tact/completion/WeightedCompletionItem"
 import type {DocumentUri, TextEdit} from "vscode-languageserver-types"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {TraitOrContractConstantsCompletionProvider} from "@server/languages/tact/completion/providers/TraitOrContractConstantsCompletionProvider"
-import {generateTlBTypeDoc} from "@server/languages/tact/documentation/tlb_type_documentation"
 import {BouncedTypeCompletionProvider} from "@server/languages/tact/completion/providers/BouncedTypeCompletionProvider"
 import {TopLevelCompletionProvider} from "@server/languages/tact/completion/providers/TopLevelCompletionProvider"
 import type {
@@ -105,10 +94,6 @@ import {
     FillFieldsStructInit,
     FillRequiredStructInit,
 } from "@server/languages/tact/intentions/FillFieldsStructInit"
-import {
-    generateInitDoc,
-    generateReceiverDoc,
-} from "@server/languages/tact/documentation/receivers_documentation"
 import {AsKeywordCompletionProvider} from "@server/languages/tact/completion/providers/AsKeywordCompletionProvider"
 import {AddFieldInitialization} from "@server/languages/tact/intentions/AddFieldInitialization"
 import {
@@ -128,32 +113,34 @@ import {CompletionItemAdditionalInformation} from "@server/languages/tact/comple
 import {GetterCompletionProvider} from "@server/languages/tact/completion/providers/GetterCompletionProvider"
 import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
 import {ReplaceTextReceiverWithBinary} from "@server/languages/tact/intentions/ReplaceTextReceiverWithBinary"
-import {generateExitCodeDocumentation} from "@server/languages/tact/documentation/exit_code_documentation"
 import {TypeTlbSerializationCompletionProvider} from "@server/languages/tact/completion/providers/TypeTlbSerializationCompletionProvider"
 import {formatCode} from "@server/languages/tact/compiler/fmt/fmt"
 import {fileURLToPath} from "node:url"
 import * as tlbSemantic from "@server/languages/tlb/semantic_tokens/collect"
-import {TlbReference} from "@server/languages/tlb/psi/TlbReference"
-import {FiftReference} from "@server/languages/fift/psi/FiftReference"
 import {onFileRenamed, processFileRenaming} from "@server/languages/tact/file-renaming"
 import {ExtractToFile} from "@server/languages/tact/intentions/ExtractToFile"
 import {selectionGasConsumption} from "@server/languages/tact/selection-gas-consumption"
 import {runInspections} from "@server/inspections"
 import {
-    isFiftFile,
-    isTactFile,
-    isTlbFile,
     FIFT_PARSED_FILES_CACHE,
     filePathToUri,
     findFiftFile,
     findTactFile,
     findTlbFile,
+    isFiftFile,
+    isTactFile,
+    isTlbFile,
     PARSED_FILES_CACHE,
     reparseFiftFile,
     reparseTactFile,
     reparseTlbFile,
     TLB_PARSED_FILES_CACHE,
 } from "@server/files"
+import {provideTactDocumentation} from "@server/languages/tact/documentation"
+import {provideFiftDocumentation} from "@server/languages/fift/documentation"
+import {provideTactDefinition} from "@server/languages/tact/find-definitions"
+import {provideTlbDefinition} from "@server/languages/tlb/find-definitions"
+import {provideFiftDefinition} from "@server/languages/fift/find-definitions"
 
 /**
  * Whenever LS is initialized.
@@ -494,383 +481,21 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         uri: string,
         params: lsp.HoverParams,
     ): Promise<lsp.Hover | null> {
-        if (uri.endsWith(".fif")) {
+        if (isFiftFile(uri)) {
             const file = findFiftFile(uri)
             const hoverNode = nodeAtPosition(params, file)
-            if (!hoverNode || hoverNode.type !== "identifier") return null
-
-            const doc = generateFiftDocFor(hoverNode, file)
-            if (doc === null) return null
-
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
+            if (!hoverNode) return null
+            return provideFiftDocumentation(hoverNode, file)
         }
 
-        if (!uri.endsWith(".tact")) return null
-
-        const file = findTactFile(params.textDocument.uri)
-        const hoverNode = nodeAtPosition(params, file)
-        if (!hoverNode) return null
-
-        const settings = await getDocumentSettings(params.textDocument.uri)
-
-        function isKeyword(node: SyntaxNode, text: string): boolean {
-            return node.type === text && node.text === text
+        if (isTactFile(uri)) {
+            const file = findTactFile(params.textDocument.uri)
+            const hoverNode = nodeAtPosition(params, file)
+            if (!hoverNode) return null
+            return provideTactDocumentation(params, hoverNode, file)
         }
 
-        function generateKeywordMarkdownHoverDocFor(node: SyntaxNode): lsp.Hover | null {
-            if (!settings.documentation.showKeywordDocumentation) {
-                return null
-            }
-            const doc = generateKeywordDoc(node.text)
-            if (doc === null) return null
-            return {
-                range: asLspRange(node),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        // Keyword hover docs, literally:
-        // - initOf and codeOf
-        // - null
-        // - import
-        // - primitive
-        // - struct and message
-        // - contract and trait
-
-        if (
-            isKeyword(hoverNode, "initOf") ||
-            isKeyword(hoverNode, "codeOf") ||
-            isKeyword(hoverNode, "null") ||
-            isKeyword(hoverNode, "import") ||
-            isKeyword(hoverNode, "primitive") ||
-            isKeyword(hoverNode, "struct") ||
-            isKeyword(hoverNode, "message") ||
-            isKeyword(hoverNode, "contract") ||
-            isKeyword(hoverNode, "trait")
-        ) {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (hoverNode.type === "tvm_instruction") {
-            const asmExpression = hoverNode.parent
-            if (!asmExpression) return null
-
-            const instr = new AsmInstr(asmExpression, file)
-            const info = instr.info()
-            if (!info) return null
-
-            const doc = generateAsmDoc(info)
-            if (doc === null) return null
-
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        const parent = hoverNode.parent
-        if (parent?.type === "tlb_serialization") {
-            const doc = generateTlBTypeDoc(hoverNode.text)
-            if (doc === null) return null
-
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        // TODO: Support @interface("...") attribute of contracts and traits elsewhere
-        // See: https://docs.tact-lang.org/book/contracts/#interfaces
-        //
-        // if (parent?.type === "contract_attributes" &&
-        //     hoverNode.type === "@interface") {
-        //     // TODO: here we need to see whether the
-        //     //       attribute is for the trait or for the contract
-        //     const doc = generateAnnotationKeywordDoc(hoverNode.text, "contract" | "trait")
-        //     if (doc === null) return null
-        //     return mkMarkdownRangeDoc(doc, hoverNode)
-        // }
-        //
-        // NOTE: perhaps, the following checks can be simplified and the checks for parent nodes
-        //       can be removed for the majority of the following if clauses.
-
-        // Keyword hover docs, with different type and text and/or other specifics:
-        // - true and false (type "boolean")
-        // - with (inside trait lists)
-        // - const, several types of nodes: definitions and declarations
-        // - constant attributes: virtual, override, abstract
-        // - fun, several types of nodes: declarations and definitions
-        // - native functions
-        // - asm functions
-        // - function attributes: virtual, override, abstract, get, extends, mutates, inline
-
-        if (hoverNode.type === "boolean") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (parent?.type === "trait_list" && hoverNode.type === "with") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (
-            hoverNode.type === "const" &&
-            (parent?.type === "storage_constant" || parent?.type === "global_constant")
-        ) {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (parent?.type === "constant_attributes") {
-            const doc = generateAttributeKeywordDoc(hoverNode.text, "const")
-            if (doc === null) return null
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        if (
-            hoverNode.type === "fun" &&
-            (parent?.type === "storage_function" ||
-                parent?.type === "global_function" ||
-                parent?.type === "asm_function")
-        ) {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (
-            parent?.type === "function_attributes" ||
-            (parent?.type === "get_attribute" && hoverNode.type === "get")
-        ) {
-            const doc = generateAttributeKeywordDoc(hoverNode.text, "fun")
-            if (doc === null) return null
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        if (parent?.type === "native_function" && hoverNode.type === "native") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (parent?.type === "name_attribute" && hoverNode.type === "@name") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (parent?.type === "asm_function" && hoverNode.type === "asm") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (parent?.type === "asm_arrangement_rets" && hoverNode.type === "->") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        // Keywords within statements:
-        // - let statement, destructuring assignment let
-        // - return statement
-        // - branches: if...else, try...catch
-        // - loops: repeat, while, do...until, foreach (and "in")
-
-        if (parent?.type === "let_statement" && hoverNode.type === "let") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (parent?.type === "destruct_statement" && hoverNode.type === "let") {
-            // A pseudo-keyword let_destruct just for the generateKeywordDoc()
-            const doc = generateKeywordDoc("let_destruct")
-            if (doc === null) return null
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        if (
-            isKeyword(hoverNode, "return") ||
-            isKeyword(hoverNode, "if") ||
-            isKeyword(hoverNode, "else") ||
-            isKeyword(hoverNode, "try") ||
-            isKeyword(hoverNode, "catch") ||
-            isKeyword(hoverNode, "repeat") ||
-            isKeyword(hoverNode, "while") ||
-            isKeyword(hoverNode, "do") ||
-            isKeyword(hoverNode, "until") ||
-            isKeyword(hoverNode, "foreach")
-        ) {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (parent?.type === "foreach_statement" && hoverNode.type === "in") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        // Keywords within type ascriptions:
-        // - as
-        // - map<K, V>
-        // - bounced<M>
-        // - ? for optionals (not a keyword per se, but just in case)
-        //   TODO: optional_type node from the latest tree-sitter-tact
-        //         is not supported here yet
-
-        // TODO: debug me pls
-        if (parent?.type === "tlb_serialization" && hoverNode.type === "as") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (parent?.type === "map_type" && hoverNode.type === "map") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (parent?.type === "bounced_type" && hoverNode.type === "bounced") {
-            return generateKeywordMarkdownHoverDocFor(hoverNode)
-        }
-
-        if (
-            hoverNode.type === "receive" ||
-            hoverNode.type === "external" ||
-            hoverNode.type === "bounced"
-        ) {
-            const parent = hoverNode.parent
-            if (!parent) return null
-            const func = new MessageFunction(parent, file)
-            const doc = generateReceiverDoc(func)
-            if (doc === null) return null
-
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        if (hoverNode.type === "init") {
-            const parent = hoverNode.parent
-            if (!parent) return null
-            const func = new InitFunction(parent, file)
-            const doc = generateInitDoc(func)
-            if (doc === null) return null
-
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        if (
-            hoverNode.type === "integer" &&
-            hoverNode.parent?.type !== "argument" &&
-            settings.documentation.showNumbersInDifferentNumberSystems
-        ) {
-            const num = BigInt(hoverNode.text)
-            const bin = num.toString(2)
-            const dec = num.toString(10)
-            const hex = num.toString(16)
-
-            const doc = `**Binary**: 0b${bin}\n\n**Decimal**: ${dec}\n\n**Hexadecimal**: 0x${hex}`
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        // Hover documentation for 10 in `throwIf(10, cond)
-        if (hoverNode.type === "integer" && hoverNode.parent?.type === "argument") {
-            const call = hoverNode.parent.parent?.parent
-            if (!call) return null
-            if (call.type !== "static_call_expression") return null
-            const name = call.childForFieldName("name")?.text
-            if (!name) return null
-
-            if (
-                ![
-                    "throw",
-                    "throwIf",
-                    "throwUnless",
-                    "nativeThrow",
-                    "nativeThrowIf",
-                    "nativeThrowUnless",
-                ].includes(name)
-            ) {
-                return null
-            }
-
-            const doc = generateExitCodeDocumentation(Number.parseInt(hoverNode.text))
-            if (doc === null) return null
-
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "markdown",
-                    value: doc,
-                },
-            }
-        }
-
-        if (
-            hoverNode.type !== "identifier" &&
-            hoverNode.type !== "type_identifier" &&
-            hoverNode.type !== "self"
-        ) {
-            return null
-        }
-
-        const res = Reference.resolve(NamedNode.create(hoverNode, file))
-        if (res === null) {
-            if (process.env["TACT_LS_DEV"] !== "true") {
-                return null
-            }
-
-            return {
-                range: asLspRange(hoverNode),
-                contents: {
-                    kind: "plaintext",
-                    value: hoverNode.type,
-                },
-            }
-        }
-
-        const doc = await docs.generateDocFor(res, hoverNode)
-        if (doc === null) return null
-
-        return {
-            range: asLspRange(hoverNode),
-            contents: {
-                kind: "markdown",
-                value: doc,
-            },
-        }
+        return null
     }
 
     connection.onRequest(
@@ -886,116 +511,31 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         (params: lsp.DefinitionParams): lsp.Location[] | lsp.LocationLink[] => {
             const uri = params.textDocument.uri
 
-            if (uri.endsWith(".fif")) {
+            if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
                 const node = nodeAtPosition(params, file)
                 if (!node || node.type !== "identifier") return []
 
-                const definition = FiftReference.resolve(node, file)
-                if (!definition) return []
-
-                return [
-                    {
-                        uri: file.uri,
-                        range: asLspRange(definition),
-                    },
-                ]
+                return provideFiftDefinition(node, file)
             }
 
-            if (uri.endsWith(".tlb")) {
+            if (isTlbFile(uri)) {
                 const file = findTlbFile(uri)
                 const hoverNode = nodeAtPosition(params, file)
                 if (!hoverNode) return []
 
-                if (hoverNode.type === "identifier" || hoverNode.type === "type_identifier") {
-                    const ref = new TlbReference(hoverNode, file)
-                    const target = ref.resolve()
-                    if (target) {
-                        return [
-                            {
-                                uri: file.uri,
-                                range: asLspRange(target),
-                            },
-                        ]
-                    }
-                }
-                return []
+                return provideTlbDefinition(hoverNode, file)
             }
 
-            if (uri.endsWith(".tlb")) return []
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                const hoverNode = nodeAtPosition(params, file)
+                if (!hoverNode) return []
 
-            const file = findTactFile(uri)
-            const hoverNode = nodeAtPosition(params, file)
-            if (!hoverNode) return []
-
-            if (hoverNode.type === "string" && hoverNode.parent?.type === "import") {
-                const importedFile = ImportResolver.resolveNode(file, hoverNode)
-                if (!importedFile) return []
-
-                const startOfFile = {
-                    start: {line: 0, character: 0},
-                    end: {line: 0, character: 0},
-                }
-
-                const hoverRange = asLspRange(hoverNode)
-                return [
-                    {
-                        targetUri: filePathToUri(importedFile),
-                        targetRange: startOfFile,
-                        targetSelectionRange: startOfFile,
-                        originSelectionRange: {
-                            start: {
-                                line: hoverRange.start.line,
-                                character: hoverRange.start.character + 1,
-                            },
-                            end: {
-                                line: hoverRange.end.line,
-                                character: hoverRange.end.character - 1,
-                            },
-                        },
-                    } as lsp.LocationLink,
-                ]
+                return provideTactDefinition(hoverNode, file)
             }
 
-            // resolve `initOf Foo()`
-            //          ^^^^^^ this
-            // to `init` function of the contract or contract name
-            if (hoverNode.type === "initOf") {
-                const resolved = Reference.resolveInitOf(hoverNode, file)
-                if (!resolved) return []
-
-                return [
-                    {
-                        uri: resolved.file.uri,
-                        range: asLspRange(resolved.node),
-                    },
-                ]
-            }
-
-            if (
-                hoverNode.type !== "identifier" &&
-                hoverNode.type !== "self" &&
-                hoverNode.type !== "type_identifier"
-            ) {
-                return []
-            }
-
-            const element = NamedNode.create(hoverNode, file)
-            const res = Reference.resolve(element)
-            if (res === null) {
-                console.warn(`Cannot find definition for: ${hoverNode.text}`)
-                return []
-            }
-
-            const ident = res.nameIdentifier()
-            if (ident === null) return []
-
-            return [
-                {
-                    uri: res.file.uri,
-                    range: asLspRange(ident),
-                },
-            ]
+            return []
         },
     )
 
