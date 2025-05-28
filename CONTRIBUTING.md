@@ -98,10 +98,11 @@ The general architecture of the LS can be described as follows:
 We use [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) to parse code and build Concrete Syntax Trees (CSTs).
 The primary grammars are:
 
-1. [tree-sitter-tact](tree-sitter-tact) — Tact grammar, which mostly mirrors the official
+1. [server/src/languages/tact/tree-sitter-tact](server/src/languages/tact/tree-sitter-tact) — Tact grammar, which mostly mirrors the official
    one (https://github.com/tact-lang/tree-sitter-tact). One of the main differences is that it makes some semicolons
    optional for better error recovery in invalid code.
-2. [tree-sitter-fift](tree-sitter-fift) — TVM Assembly grammar
+2. [server/src/languages/fift/tree-sitter-fift](server/src/languages/fift/tree-sitter-fift) — TVM Assembly grammar
+3. [server/src/languages/tlb/tree-sitter-tlb](server/src/languages/tlb/tree-sitter-tlb) — TL-B grammar
 
 #### Indexes
 

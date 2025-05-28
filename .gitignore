@@ -8,6 +8,7 @@ test-workspace/
 *.wasm
 !tree-sitter-fift/tree-sitter-fift.wasm
 !tree-sitter-tact/tree-sitter-tact.wasm
+!tree-sitter-tact/tree-sitter-tlb.wasm
 
 # tests
 server/src/e2e/out
