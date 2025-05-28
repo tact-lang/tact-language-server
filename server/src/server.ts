@@ -105,13 +105,13 @@ import {PostfixCompletionProvider} from "@server/languages/tact/completion/provi
 import {
     InvalidToolchainError,
     setProjectStdlibPath,
-    Toolchain,
 } from "@server/languages/tact/toolchain/toolchain"
 import {ImportPathCompletionProvider} from "@server/languages/tact/completion/providers/ImportPathCompletionProvider"
 import {FileDiff} from "@server/utils/FileDiff"
 import {CompletionItemAdditionalInformation} from "@server/languages/tact/completion/ReferenceCompletionProcessor"
 import {GetterCompletionProvider} from "@server/languages/tact/completion/providers/GetterCompletionProvider"
 import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
+import * as toolchainManager from "@server/toolchain-manager"
 import {ReplaceTextReceiverWithBinary} from "@server/languages/tact/intentions/ReplaceTextReceiverWithBinary"
 import {TypeTlbSerializationCompletionProvider} from "@server/languages/tact/completion/providers/TypeTlbSerializationCompletionProvider"
 import {formatCode} from "@server/languages/tact/compiler/fmt/fmt"
@@ -239,18 +239,27 @@ async function initialize(): Promise<void> {
     const settings = await getDocumentSettings(rootUri)
 
     try {
-        setToolchain(
-            settings.toolchain.compilerPath === ""
-                ? Toolchain.autoDetect(rootDir)
-                : Toolchain.fromPath(settings.toolchain.compilerPath),
+        toolchainManager.setWorkspaceRoot(rootDir)
+        toolchainManager.setToolchains(
+            settings.toolchain.toolchains,
+            settings.toolchain.activeToolchain,
         )
-        console.info(`using toolchain ${toolchain.toString()}`)
 
-        await connection.sendNotification(SetToolchainVersionNotification, {
-            version: toolchain.version,
-            toolchain: toolchain.getToolchainInfo(),
-            environment: toolchain.getEnvironmentInfo(),
-        } satisfies SetToolchainVersionParams)
+        const activeToolchain = toolchainManager.getActiveToolchain()
+        if (activeToolchain) {
+            setToolchain(activeToolchain)
+            console.info(
+                `using toolchain ${toolchain.toString()} (${toolchainManager.getActiveToolchainId()})`,
+            )
+
+            await connection.sendNotification(SetToolchainVersionNotification, {
+                version: toolchain.version,
+                toolchain: toolchain.getToolchainInfo(),
+                environment: toolchain.getEnvironmentInfo(),
+            } satisfies SetToolchainVersionParams)
+        } else {
+            console.warn(`No active toolchain found for ${settings.toolchain.activeToolchain}`)
+        }
     } catch (error) {
         if (error instanceof InvalidToolchainError) {
             console.info(`toolchain is invalid ${error.message}`)
@@ -470,8 +479,42 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     connection.onRequest("workspace/willRenameFiles", processFileRenaming)
     connection.onNotification("workspace/didRenameFiles", onFileRenamed)
 
-    connection.onDidChangeConfiguration(() => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    connection.onDidChangeConfiguration(async () => {
         clearDocumentSettings()
+
+        if (workspaceFolders && workspaceFolders.length > 0) {
+            const rootUri = workspaceFolders[0].uri
+            const newSettings = await getDocumentSettings(rootUri)
+
+            if (newSettings.toolchain.activeToolchain !== toolchainManager.getActiveToolchainId()) {
+                try {
+                    toolchainManager.setToolchains(
+                        newSettings.toolchain.toolchains,
+                        newSettings.toolchain.activeToolchain,
+                    )
+
+                    const activeToolchain = toolchainManager.getActiveToolchain()
+                    if (activeToolchain) {
+                        setToolchain(activeToolchain)
+                        console.info(
+                            `switched to toolchain ${toolchain.toString()} (${toolchainManager.getActiveToolchainId()})`,
+                        )
+
+                        await connection.sendNotification(SetToolchainVersionNotification, {
+                            version: toolchain.version,
+                            toolchain: toolchain.getToolchainInfo(),
+                            environment: toolchain.getEnvironmentInfo(),
+                        } satisfies SetToolchainVersionParams)
+                    }
+                } catch (error) {
+                    if (error instanceof InvalidToolchainError) {
+                        console.error(`Failed to switch toolchain: ${error.message}`)
+                        showErrorMessage(`Failed to switch toolchain: ${error.message}`)
+                    }
+                }
+            }
+        }
 
         void connection.sendRequest(lsp.InlayHintRefreshRequest.type)
         void connection.sendRequest(lsp.CodeLensRefreshRequest.type)
