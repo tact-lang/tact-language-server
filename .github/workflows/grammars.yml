@@ -1,3 +1,5 @@
+name: Building tree-sitter grammars
+
 on:
   pull_request:
     branches:
