@@ -12,14 +12,14 @@ import {
     StructTy,
     TraitTy,
     Ty,
-} from "./types/BaseTy"
-import {CallLike, Expression, NamedNode, Node} from "@server/psi/Node"
-import {Reference} from "@server/psi/Reference"
-import {Struct, Message, Fun, Primitive, Contract, Trait} from "@server/psi/Decls"
-import {isTypeOwnerNode} from "@server/psi/utils"
+} from "@server/languages/tact/types/BaseTy"
+import {CallLike, Expression, NamedNode, Node} from "@server/languages/tact/psi/Node"
+import {Reference} from "@server/languages/tact/psi/Reference"
+import {Struct, Message, Fun, Primitive, Contract, Trait} from "@server/languages/tact/psi/Decls"
+import {isTypeOwnerNode} from "@server/languages/tact/psi/utils"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {CACHE} from "./cache"
-import {index, IndexKey} from "./indexes"
+import {index, IndexKey} from "@server/languages/tact/indexes"
 
 export class TypeInferer {
     public static inferType(node: Node): Ty | null {

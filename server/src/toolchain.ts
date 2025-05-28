@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {fallbackToolchain, Toolchain} from "@server/toolchain/toolchain"
+import {fallbackToolchain, Toolchain} from "@server/languages/tact/toolchain/toolchain"
 
 export let toolchain: Toolchain = fallbackToolchain
 

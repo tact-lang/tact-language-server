@@ -1,7 +1,7 @@
 ========================================================================
 Cross-file struct completion
 ========================================================================
-import "./types.tact";
+import "@server/languages/tact/types.tact";
 
 contract Test {
     init() {

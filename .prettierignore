@@ -1,1 +1,1 @@
-server/src/compiler/fmt/cst/cst-parser.ts
+server/src/languages/tact/compiler/fmt/cst/cst-parser.ts

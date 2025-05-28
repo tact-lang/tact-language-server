@@ -1,12 +1,12 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {File} from "@server/psi/File"
+import {File} from "@server/languages/tact/psi/File"
 import {glob} from "glob"
 import * as fs from "node:fs"
 import {URI} from "vscode-uri"
 import {createTactParser, createFiftParser, createTlbParser} from "./parser"
-import {index} from "./indexes"
-import {measureTime} from "@server/psi/utils"
+import {index} from "@server/languages/tact/indexes"
+import {measureTime} from "@server/languages/tact/psi/utils"
 import {fileURLToPath, pathToFileURL} from "node:url"
 import * as path from "node:path"
 
