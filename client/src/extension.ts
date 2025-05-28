@@ -629,7 +629,7 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
         vscode.commands.registerCommand("tact.addToolchain", async () => {
             const id = await vscode.window.showInputBox({
                 prompt: "Enter unique ID for the new toolchain",
-                placeHolder: "e.g., tact-1.5.0, local-build",
+                placeHolder: "e.g., tact-1.6.0, local-build",
                 validateInput: (value: string) => {
                     if (!value.trim()) return "ID cannot be empty"
                     if (!/^[\w-]+$/.test(value))
@@ -650,7 +650,7 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
 
             const name = await vscode.window.showInputBox({
                 prompt: "Enter display name for the toolchain",
-                placeHolder: "e.g., Tact 1.5.0, Local Development Build",
+                placeHolder: "e.g., Tact 1.6.0, Local Development Build",
             })
 
             if (!name) return

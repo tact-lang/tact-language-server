@@ -36,6 +36,7 @@ blockchain.
 - [Gas estimates] for assembly functions
 - Build and test projects based on [Blueprint] and [Tact template]
 - Integration with [Tact compiler] and [Misti] static analyzer
+- Flexible [toolchain management] with multiple compiler versions and custom builds
 - Formatting
 
 [Semantic syntax highlighting]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/highlighting.md
@@ -56,6 +57,7 @@ blockchain.
 [Tact compiler]: https://github.com/tact-lang/tact
 [Misti]: https://nowarp.io/tools/misti/
 [type-based search]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/type-based-search.md
+[toolchain management]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/toolchain-management.md
 
 ## Quick start
 
@@ -65,6 +67,8 @@ The easiest way to get started with Tact is to use VS Code or editors based on i
    [in VS Code](https://marketplace.visualstudio.com/items?itemName=tonstudio.vscode-tact)
    or [in VS Code-based editors](https://open-vsx.org/extension/tonstudio/vscode-tact)
 2. That's it!
+
+The extension automatically detects your Tact compiler installation. If you need to work with multiple Tact versions or custom builds, check out the [Toolchain management] guide.
 
 ![editor.png](docs/manual/assets/editor.png)
 
