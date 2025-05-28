@@ -278,11 +278,7 @@ async function initialize(): Promise<void> {
     reporter.report(80, "Indexing: (3/3) Workspace")
     index.withRoots([new IndexRoot("workspace", rootUri)])
     const workspaceRoot = new IndexingRoot(rootUri, IndexingRootKind.Workspace)
-    const startTime = performance.now()
     await workspaceRoot.index()
-    const endTime = performance.now()
-    const time = endTime - startTime
-    console.info(`index workspace root: ${time}ms`)
 
     reporter.report(100, "Ready")
 
