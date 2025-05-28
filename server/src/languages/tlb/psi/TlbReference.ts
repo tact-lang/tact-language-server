@@ -4,6 +4,7 @@ import type {Node} from "web-tree-sitter"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import {TlbNode} from "@server/languages/tlb/psi/TlbNode"
 import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
+import {ResolveState} from "@server/psi/ResolveState"
 
 export class TlbReference {
     private readonly element: TlbNode
@@ -104,4 +105,8 @@ export class TlbReference {
 
         return paramNode
     }
+}
+
+export interface ScopeProcessor {
+    execute(node: TlbNode, state: ResolveState): boolean
 }

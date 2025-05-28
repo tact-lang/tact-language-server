@@ -15,8 +15,9 @@ import {
     Trait,
 } from "@server/languages/tact/psi/Decls"
 import {asLspRange, asNullableLspRange} from "@server/utils/position"
-import {ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
+import {ScopeProcessor} from "@server/languages/tact/psi/Reference"
 import {index, IndexKey} from "@server/languages/tact/indexes"
+import {ResolveState} from "@server/psi/ResolveState"
 
 export async function provideTactDocumentSymbols(file: TactFile): Promise<lsp.DocumentSymbol[]> {
     const settings = await getDocumentSettings(file.uri)

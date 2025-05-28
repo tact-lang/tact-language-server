@@ -8,10 +8,10 @@ import * as lsp from "vscode-languageserver"
 import type {SemanticTokens} from "vscode-languageserver"
 import {isDocCommentOwner, isNamedFunNode} from "@server/languages/tact/psi/utils"
 import {createTactParser, createTlbParser} from "@server/parser"
-import {processDocComment} from "@server/languages/tact/semantic_tokens/comments"
-import {Tokens} from "@server/languages/tact/semantic_tokens/tokens"
+import {processDocComment} from "@server/languages/tact/semantic-tokens/comments"
+import {Tokens} from "@server/languages/tact/semantic-tokens/tokens"
 
-export function collect(
+export function provideTactSemanticTokens(
     file: TactFile,
     highlighting: {
         highlightCodeInComments: boolean

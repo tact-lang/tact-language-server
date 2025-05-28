@@ -11,7 +11,7 @@ import {Referent} from "@server/languages/tact/psi/Referent"
 import {asLspRange, asNullableLspRange} from "@server/utils/position"
 import * as search from "@server/languages/tact/search/implementations"
 
-export function collect(
+export function collectTactCodeLenses(
     file: TactFile,
     settings: {
         enabled: boolean

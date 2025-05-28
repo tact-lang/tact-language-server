@@ -6,7 +6,7 @@ import type {Point} from "web-tree-sitter"
 import type * as lsp from "vscode-languageserver"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 
-export function collectFift(file: FiftFile): FoldingRange[] {
+export function provideFiftFoldingRanges(file: FiftFile): FoldingRange[] {
     const result: FoldingRange[] = []
 
     const genericFolding = (start: Point, end: Point): lsp.FoldingRange => {

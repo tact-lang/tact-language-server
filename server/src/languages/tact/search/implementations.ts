@@ -2,8 +2,9 @@
 //  Copyright © 2025 TON Studio
 import {Constant, Contract, Field, Fun, Trait} from "@server/languages/tact/psi/Decls"
 import {index, IndexKey} from "@server/languages/tact/indexes"
-import {ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
+import {ScopeProcessor} from "@server/languages/tact/psi/Reference"
 import type {TactNode} from "@server/languages/tact/psi/TactNode"
+import {ResolveState} from "@server/psi/ResolveState"
 
 export function implementations(trait: Trait): (Contract | Trait)[] {
     const result: (Contract | Trait)[] = []

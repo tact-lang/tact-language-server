@@ -8,7 +8,7 @@ import type * as lsp from "vscode-languageserver"
 import {isDocCommentOwner} from "@server/languages/tact/psi/utils"
 import {extractCommentsDocContent, TactNode} from "@server/languages/tact/psi/TactNode"
 
-export function collect(file: TactFile): FoldingRange[] {
+export function provideTactFoldingRanges(file: TactFile): FoldingRange[] {
     const result: FoldingRange[] = []
 
     const genericFolding = (start: Point, end: Point): lsp.FoldingRange => {

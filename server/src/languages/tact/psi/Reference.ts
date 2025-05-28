@@ -18,24 +18,11 @@ import {CallLike, Expression, NamedNode, TactNode} from "./TactNode"
 import type {TactFile} from "./TactFile"
 import {Contract, Field, FieldsOwner, Fun, Message, Struct, Trait} from "./Decls"
 import {isFunNode, parentOfType} from "./utils"
-import {CACHE} from "@server/cache"
+import {CACHE} from "@server/languages/tact/cache"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
 import {filePathToUri} from "@server/files"
-
-export class ResolveState {
-    private values: Map<string, string> = new Map()
-
-    public get(key: string): string | null {
-        return this.values.get(key) ?? null
-    }
-
-    public withValue(key: string, value: string): ResolveState {
-        const state = new ResolveState()
-        state.values = this.values.set(key, value)
-        return state
-    }
-}
+import {ResolveState} from "@server/psi/ResolveState"
 
 export interface ScopeProcessor {
     execute(node: TactNode, state: ResolveState): boolean
@@ -49,7 +36,7 @@ export interface ScopeProcessor {
  * what to do with an element.
  *
  * For example, when resolving names, when definition was found, the proc
- * returns false, which ends the resolving process and the result is returned to
+ * returns false, which ends the resolving process, and the result is returned to
  * the caller (see [`Reference.resolve`]).
  *
  * At the same time, when autocompleting, all possible variants are collected in

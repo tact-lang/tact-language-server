@@ -162,7 +162,7 @@ function hasObviousType(expr: SyntaxNode): boolean {
     return false
 }
 
-export function collect(
+export function collectTactInlays(
     file: TactFile,
     hints: {
         types: boolean

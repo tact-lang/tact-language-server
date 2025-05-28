@@ -9,7 +9,7 @@ import * as lsp from "vscode-languageserver"
 import {FiftReference} from "@server/languages/fift/psi/FiftReference"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 
-export function collectFift(
+export function provideFiftSemanticTokens(
     file: FiftFile,
     settings: {
         enabled: boolean
