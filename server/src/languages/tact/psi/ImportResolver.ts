@@ -2,11 +2,11 @@
 //  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as path from "node:path"
-import {filePathToUri, PARSED_FILES_CACHE} from "@server/indexing-root"
 import type {File} from "./File"
 import {existsSync} from "node:fs"
 import {trimPrefix, trimSuffix} from "@server/utils/strings"
 import {projectStdlibPath} from "@server/languages/tact/toolchain/toolchain"
+import {filePathToUri, PARSED_FILES_CACHE} from "@server/files"
 
 export class ImportResolver {
     public static resolveImport(fromFile: File, importPath: string, check: boolean): string | null {

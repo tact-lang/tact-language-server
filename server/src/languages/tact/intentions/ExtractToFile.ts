@@ -20,8 +20,8 @@ import {
 import * as path from "node:path"
 import {fileURLToPath} from "node:url"
 import * as lsp from "vscode-languageserver"
-import {filePathToUri} from "@server/indexing-root"
 import {existsSync} from "node:fs"
+import {filePathToUri} from "@server/files"
 
 export class ExtractToFile implements Intention {
     public readonly id: string = "tact.extract-to-file"
