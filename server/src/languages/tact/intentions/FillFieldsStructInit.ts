@@ -43,7 +43,27 @@ export class FillStructInitBase implements Intention {
         const args = argumentsNode.children
             .filter(it => it?.type === "instance_argument")
             .filter(it => it !== null)
-        return args.length === 0
+
+        if (args.length > 0) {
+            return false
+        }
+
+        //    let some = Foo{}
+        //               ^^^ this
+        const name = instance.childForFieldName("name")
+        if (!name) return false
+
+        const type = TypeInferer.inferType(new NamedNode(name, ctx.file))
+        if (type === null) {
+            // available only if struct/message is known
+            return false
+        }
+
+        if (type instanceof FieldsOwnerTy) {
+            return type.fields().length > 0
+        }
+
+        return false
     }
 
     private static findBraces(instance: SyntaxNode): {

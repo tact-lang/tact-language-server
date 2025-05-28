@@ -43,10 +43,13 @@ suite("Intentions Test Suite", () => {
 
         protected runTest(testFile: string, testCase: TestCase): void {
             test(`Intention: ${testCase.name}`, async () => {
+                await this.setupAdditionalFiles(testCase)
+
                 await this.replaceDocumentText(testCase.input)
                 const actions = await this.getCodeActions(this.document.getText())
 
                 if (actions.length === 0) {
+                    const expected = testCase.expected.trim()
                     if (BaseTestSuite.UPDATE_SNAPSHOTS) {
                         this.updates.push({
                             filePath: testFile,
@@ -54,7 +57,7 @@ suite("Intentions Test Suite", () => {
                             actual: "No intentions",
                         })
                     } else {
-                        assert.strictEqual(actions.length, 0, "No intentions")
+                        assert.strictEqual(expected, "No intentions")
                     }
                     return
                 }
@@ -64,12 +67,13 @@ suite("Intentions Test Suite", () => {
                 const intentionName = testCase.properties.get("intention")
                 if (intentionName) {
                     const found = actions.find(action => action.title === intentionName)
-                    assert.ok(
-                        found,
-                        `Intention "${intentionName}" not found. Available intentions: ${actions
-                            .map(a => a.title)
-                            .join(", ")}`,
-                    )
+                    if (!found) {
+                        throw new Error(
+                            `Intention "${intentionName}" not found. Available intentions: ${actions
+                                .map(a => a.title)
+                                .join(", ")}`,
+                        )
+                    }
                     selectedAction = found
                 }
 
@@ -93,6 +97,8 @@ suite("Intentions Test Suite", () => {
                 } else {
                     assert.strictEqual(resultText.trim(), expected)
                 }
+
+                await this.cleanupAdditionalFiles(testCase)
             })
         }
     })()
