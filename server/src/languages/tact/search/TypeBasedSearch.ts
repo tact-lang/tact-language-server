@@ -7,7 +7,7 @@ import {
 } from "@server/languages/tact/search/TypeSignatureParser"
 import {index, IndexKey} from "@server/languages/tact/indexes"
 import {ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
-import {Node} from "@server/languages/tact/psi/Node"
+import {TactNode} from "@server/languages/tact/psi/TactNode"
 import {Fun, Contract, Trait} from "@server/languages/tact/psi/Decls"
 import {asLspRange} from "@server/utils/position"
 import type {TypeSearchResult} from "@shared/shared-msgtypes"
@@ -41,7 +41,7 @@ export class TypeBasedSearch {
         const state = new ResolveState()
 
         const processor = new (class implements ScopeProcessor {
-            public execute(node: Node, _state: ResolveState): boolean {
+            public execute(node: TactNode, _state: ResolveState): boolean {
                 if (!(node instanceof Fun)) return true
 
                 const functionSignature = node.signaturePresentation()
@@ -67,7 +67,7 @@ export class TypeBasedSearch {
         const state = new ResolveState()
 
         const processor = new (class implements ScopeProcessor {
-            public execute(node: Node, _state: ResolveState): boolean {
+            public execute(node: TactNode, _state: ResolveState): boolean {
                 if (!(node instanceof Contract)) return true
 
                 const methods = node.ownMethods()
@@ -92,7 +92,7 @@ export class TypeBasedSearch {
         const state = new ResolveState()
 
         const processor = new (class implements ScopeProcessor {
-            public execute(node: Node, _state: ResolveState): boolean {
+            public execute(node: TactNode, _state: ResolveState): boolean {
                 if (!(node instanceof Trait)) return true
 
                 const methods = node.ownMethods()

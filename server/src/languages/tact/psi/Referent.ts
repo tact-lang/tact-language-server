@@ -2,9 +2,9 @@
 //  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
-import {NamedNode, Node} from "./Node"
+import {NamedNode, TactNode} from "./TactNode"
 import {Reference} from "./Reference"
-import type {File} from "./File"
+import type {TactFile} from "./TactFile"
 import {isFunNode, isNamedFunNode, parentOfType} from "./utils"
 import {Contract} from "@server/languages/tact/psi/Decls"
 import {PARSED_FILES_CACHE} from "@server/files"
@@ -41,7 +41,7 @@ export class GlobalSearchScope implements SearchScope {
         return new GlobalSearchScope(files)
     }
 
-    public constructor(public files: File[]) {}
+    public constructor(public files: TactFile[]) {}
 
     public toString(): string {
         return `GlobalSearchScope:\n${this.files.map(f => `- ${f.uri}`).join("\n")}`
@@ -87,9 +87,9 @@ export interface FindReferenceOptions {
  */
 export class Referent {
     private readonly resolved: NamedNode | null = null
-    private readonly file: File
+    private readonly file: TactFile
 
-    public constructor(node: SyntaxNode, file: File) {
+    public constructor(node: SyntaxNode, file: TactFile) {
         this.file = file
         const element = new NamedNode(node, file)
         this.resolved = Reference.resolve(element)
@@ -103,14 +103,14 @@ export class Referent {
         includeSelf = true,
         sameFileOnly = false,
         limit = Infinity,
-    }: FindReferenceOptions): Node[] {
+    }: FindReferenceOptions): TactNode[] {
         const resolved = this.resolved
         if (!resolved) return []
 
         const useScope = this.useScope()
         if (!useScope) return []
 
-        const result: Node[] = []
+        const result: TactNode[] = []
         if (includeDefinition && (!sameFileOnly || resolved.file.uri === this.file.uri)) {
             const nameNode = resolved.nameNode()
             if (nameNode) {
@@ -126,7 +126,7 @@ export class Referent {
         scope: SearchScope,
         sameFileOnly: boolean,
         includeSelf: boolean,
-        result: Node[],
+        result: TactNode[],
         limit: number,
     ): void {
         if (!this.resolved) return
@@ -151,10 +151,10 @@ export class Referent {
     }
 
     private traverseTree(
-        file: File,
+        file: TactFile,
         node: SyntaxNode,
         includeSelf: boolean,
-        result: Node[],
+        result: TactNode[],
         limit: number,
     ): void {
         const resolved = this.resolved
@@ -222,7 +222,7 @@ export class Referent {
 
             // check if this `initOf Foo()` reference our `init` function
             if (res.node.type === "init" && nodeName === "initOf") {
-                const owner = parentOfType(resolved.node, "contract")
+                const owner = resolved.parentOfType("contract")
                 if (!owner) return true
                 if (owner.type !== "contract") return true
                 const initOf = node.parent
@@ -237,7 +237,7 @@ export class Referent {
                 }
 
                 // found new reference
-                result.push(new Node(node, file))
+                result.push(new TactNode(node, file))
                 return true
             }
 
@@ -251,7 +251,7 @@ export class Referent {
                 (identifier.text === resolved.name() || identifier.text === "self")
             ) {
                 // found new reference
-                result.push(new Node(node, file))
+                result.push(new TactNode(node, file))
                 if (result.length === limit) return "stop" // end iteration
             }
             return true

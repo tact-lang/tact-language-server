@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspPosition, asLspRange} from "@server/utils/position"
@@ -12,7 +12,7 @@ export class RewriteAsAugmentedAssignment implements Inspection {
     public readonly id: "rewrite-as-augmented-assignment" =
         InspectionIds.REWRITE_AS_AUGMENTED_ASSIGNMENT
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
 
         const diagnostics: lsp.Diagnostic[] = []
@@ -115,7 +115,7 @@ export class RewriteAsAugmentedAssignment implements Inspection {
         afterAssign: SyntaxNode,
         right: SyntaxNode,
         assign: SyntaxNode,
-        file: File,
+        file: TactFile,
     ): undefined | lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
 

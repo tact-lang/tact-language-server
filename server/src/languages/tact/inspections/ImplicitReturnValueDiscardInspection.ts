@@ -1,12 +1,12 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspPosition, asLspRange} from "@server/utils/position"
 import {Fun} from "@server/languages/tact/psi/Decls"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
-import {CallLike} from "@server/languages/tact/psi/Node"
+import {CallLike} from "@server/languages/tact/psi/TactNode"
 import {Reference} from "@server/languages/tact/psi/Reference"
 import {FileDiff} from "@server/utils/FileDiff"
 
@@ -14,14 +14,14 @@ export class ImplicitReturnValueDiscardInspection implements Inspection {
     public readonly id: "implicit-return-value-discard" =
         InspectionIds.IMPLICIT_RETURN_VALUE_DISCARD
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         if (file.fromStdlib) return
 
         RecursiveVisitor.visit(file.rootNode, node => {
@@ -50,7 +50,7 @@ export class ImplicitReturnValueDiscardInspection implements Inspection {
         })
     }
 
-    private appendExplicitDiscard(call: CallLike, file: File): undefined | lsp.CodeAction {
+    private appendExplicitDiscard(call: CallLike, file: TactFile): undefined | lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
 
         diff.appendTo(asLspPosition(call.node.startPosition), "let _ = ")

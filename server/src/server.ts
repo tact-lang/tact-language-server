@@ -7,9 +7,9 @@ import {asLspRange, asNullableLspRange, asParserPoint} from "@server/utils/posit
 import {TypeInferer} from "./languages/tact/TypeInferer"
 import {LocalSearchScope, Referent} from "@server/languages/tact/psi/Referent"
 import {index, IndexKey, IndexRoot} from "@server/languages/tact/indexes"
-import {CallLike, Expression, NamedNode, Node} from "@server/languages/tact/psi/Node"
+import {CallLike, Expression, NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
 import {Reference, ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {CompletionContext} from "@server/languages/tact/completion/CompletionContext"
 import * as lsp from "vscode-languageserver"
 import {
@@ -144,6 +144,7 @@ import {
 } from "@server/languages/tact/find-definitions"
 import {provideTlbDefinition} from "@server/languages/tlb/find-definitions"
 import {provideFiftDefinition} from "@server/languages/fift/find-definitions"
+import {File} from "@server/psi/File"
 
 /**
  * Whenever LS is initialized.
@@ -702,7 +703,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return []
             }
 
-            const element = new NamedNode(cursorNode, new File(uri, tree, newContent))
+            const element = new NamedNode(cursorNode, new TactFile(uri, tree, newContent))
             const ref = new Reference(element)
 
             const ctx = new CompletionContext(
@@ -807,7 +808,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     const findRenameTarget = (
         params: lsp.TextDocumentPositionParams,
-        file: File,
+        file: TactFile,
     ): SyntaxNode | null => {
         const node = nodeAtPosition(params, file)
         if (node?.type !== "identifier" && node?.type !== "type_identifier") {
@@ -935,7 +936,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             })
             if (result.length === 0) return null
 
-            const usageKind = (value: Node): lsp.DocumentHighlightKind => {
+            const usageKind = (value: TactNode): lsp.DocumentHighlightKind => {
                 const parent = value.node.parent
                 if (
                     parent?.type === "assignment_statement" ||
@@ -1016,7 +1017,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     const findSignatureHelpTarget = (
         hoverNode: SyntaxNode,
-        file: File,
+        file: TactFile,
     ): {
         rawArguments: SyntaxNode[]
         parametersInfo: lsp.ParameterInformation[]
@@ -1025,7 +1026,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         isStructField: boolean
         structFieldIndex: number
     } | null => {
-        const findParameters = (element: NamedNode): Node[] => {
+        const findParameters = (element: NamedNode): TactNode[] => {
             if (element instanceof Contract) {
                 const initFunction = element.initFunction()
                 if (initFunction) {
@@ -1040,7 +1041,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             return parameters.children
                 .filter(param => param?.type === "parameter")
                 .filter(param => param !== null)
-                .map(param => new Node(param, element.file))
+                .map(param => new TactNode(param, element.file))
         }
 
         const findSignatureHelpNode = (node: SyntaxNode): SyntaxNode | null => {
@@ -1300,7 +1301,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (uri.endsWith(".fif")) {
                 const file = findFiftFile(uri)
                 return collectFiftSemanticTokens(file, settings.fift.semanticHighlighting)
-            } else if (uri.endsWith(".tlb")) {
+            }
+
+            if (uri.endsWith(".tlb")) {
                 const file = findTlbFile(uri)
                 return tlbSemantic.collect(file)
             }
@@ -1489,7 +1492,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         return node
     }
 
-    function findTypeForNode(node: SyntaxNode, file: File): {ty: Ty; node: SyntaxNode} | null {
+    function findTypeForNode(node: SyntaxNode, file: TactFile): {ty: Ty; node: SyntaxNode} | null {
         let nodeForType: SyntaxNode | null = node
         while (nodeForType) {
             const ty = TypeInferer.inferType(new Expression(nodeForType, file))
@@ -1719,7 +1722,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             const state = new ResolveState()
             const proc = new (class implements ScopeProcessor {
-                public execute(node: Node, _state: ResolveState): boolean {
+                public execute(node: TactNode, _state: ResolveState): boolean {
                     if (!(node instanceof NamedNode)) return true
                     const nameIdentifier = node.nameIdentifier()
                     if (!nameIdentifier) return true

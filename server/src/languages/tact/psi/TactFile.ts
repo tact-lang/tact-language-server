@@ -1,21 +1,15 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as path from "node:path"
-import {NamedNode} from "./Node"
+import {NamedNode} from "./TactNode"
 import {Constant, Contract, Fun, Message, Primitive, Struct, Trait} from "./Decls"
-import type {Node as SyntaxNode, Tree} from "web-tree-sitter"
+import type {Node as SyntaxNode} from "web-tree-sitter"
 import type {Position} from "vscode-languageclient"
 import {trimSuffix} from "@server/utils/strings"
 import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
-import {fileURLToPath} from "node:url"
+import {File} from "@server/psi/File"
 
-export class File {
-    public constructor(
-        public readonly uri: string,
-        public readonly tree: Tree,
-        public readonly content: string,
-    ) {}
-
+export class TactFile extends File {
     public get fromStdlib(): boolean {
         return this.uri.includes("stdlib")
     }
@@ -24,20 +18,8 @@ export class File {
         return this.uri.endsWith("stubs.tact")
     }
 
-    public get rootNode(): SyntaxNode {
-        return this.tree.rootNode
-    }
-
     public symbolAt(offset: number): string {
         return this.content[offset] ?? ""
-    }
-
-    public get path(): string {
-        return fileURLToPath(this.uri)
-    }
-
-    public get name(): string {
-        return path.basename(this.path, ".tact")
     }
 
     public isImportedImplicitly(): boolean {
@@ -96,7 +78,7 @@ export class File {
             .filter(it => it !== null)
     }
 
-    public importPath(inFile: File): string {
+    public importPath(inFile: TactFile): string {
         const filePath = this.path
 
         if (this.fromStdlib) {
@@ -172,7 +154,7 @@ export class File {
 
     private getNodesByType<T extends NamedNode>(
         nodeType: string | string[],
-        constructor: new (node: SyntaxNode, file: File) => T,
+        constructor: new (node: SyntaxNode, file: TactFile) => T,
     ): T[] {
         const tree = this.tree
         const types = Array.isArray(nodeType) ? nodeType : [nodeType]

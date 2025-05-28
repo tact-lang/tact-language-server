@@ -1,36 +1,36 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {Node} from "web-tree-sitter"
-import {File} from "@server/languages/tact/psi/File"
-import {parentOfType} from "@server/languages/tact/psi/utils"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
+import {TlbNode} from "@server/languages/tlb/psi/TlbNode"
+import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
 
 export class TlbReference {
-    private readonly element: Node
-    private readonly file: File
+    private readonly element: TlbNode
+    private readonly file: TlbFile
 
-    public static resolve(node: Node | null, file: File): Node | null {
+    public static resolve(node: TlbNode | null): TlbNode | null {
         if (node === null) return null
-        return new TlbReference(node, file).resolve()
+        return new TlbReference(node, node.file).resolve()
     }
 
-    public constructor(element: Node, file: File) {
+    public constructor(element: TlbNode, file: TlbFile) {
         this.element = element
         this.file = file
     }
 
-    public resolve(): Node | null {
-        const result: Node[] = []
+    public resolve(): TlbNode | null {
+        const result: TlbNode[] = []
         this.processResolveVariants(result)
         if (result.length === 0) return null
         return result[0]
     }
 
-    private processResolveVariants(result: Node[]): boolean {
-        const parent = this.element.parent
+    private processResolveVariants(result: TlbNode[]): boolean {
+        const parent = this.element.node.parent
         if (parent?.type === "combinator") return true
 
-        const name = this.element.text
+        const name = this.element.node.text
 
         if (!this.processBlock(result)) return false
 
@@ -44,7 +44,7 @@ export class TlbReference {
             if (!declName) continue
 
             if (name === declName.text) {
-                result.push(declName)
+                result.push(new TlbNode(declName, this.file))
                 return false
             }
         }
@@ -52,8 +52,8 @@ export class TlbReference {
         return true
     }
 
-    public processBlock(result: Node[]): boolean {
-        const declaration = parentOfType(this.element, "declaration")
+    public processBlock(result: TlbNode[]): boolean {
+        const declaration = this.element.parentOfType("declaration")
         if (!declaration) return true
 
         const fields = declaration.children
@@ -61,7 +61,7 @@ export class TlbReference {
             .map(it => it?.firstChild)
             .filter(it => it !== null && it !== undefined)
 
-        const name = this.element.text
+        const name = this.element.node.text
 
         for (const field of fields) {
             if (field.type === "field_named") {
@@ -69,7 +69,7 @@ export class TlbReference {
                 if (!fieldName) continue
 
                 if (name === fieldName.text) {
-                    result.push(fieldName)
+                    result.push(new TlbNode(fieldName, this.file))
                     return false
                 }
             }
@@ -84,7 +84,7 @@ export class TlbReference {
             if (!paramNode) continue
 
             if (name === paramNode.text) {
-                result.push(paramNode)
+                result.push(new TlbNode(paramNode, this.file))
                 return false
             }
         }

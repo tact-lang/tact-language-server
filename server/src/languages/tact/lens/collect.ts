@@ -1,18 +1,18 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {isNamedFunNode, parentOfType} from "@server/languages/tact/psi/utils"
 import {Fun, StorageMembersOwner, Struct, Trait} from "@server/languages/tact/psi/Decls"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 import {Referent} from "@server/languages/tact/psi/Referent"
 import {asLspRange, asNullableLspRange} from "@server/utils/position"
 import * as search from "@server/languages/tact/search/implementations"
 
 export function collect(
-    file: File,
+    file: TactFile,
     settings: {
         enabled: boolean
         showUsages: boolean
@@ -196,7 +196,7 @@ export function collect(
     return result
 }
 
-function usagesLens(n: SyntaxNode, file: File, result: lsp.CodeLens[]): void {
+function usagesLens(n: SyntaxNode, file: TactFile, result: lsp.CodeLens[]): void {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (file.fromStdlib || !file.fromStdlib) {
         // disabled for now

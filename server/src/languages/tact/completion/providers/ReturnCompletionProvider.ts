@@ -3,7 +3,7 @@
 import type {CompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import type {CompletionContext} from "@server/languages/tact/completion/CompletionContext"
-import {funNodesTypes, parentOfType} from "@server/languages/tact/psi/utils"
+import {funNodesTypes} from "@server/languages/tact/psi/utils"
 import {Fun} from "@server/languages/tact/psi/Decls"
 import {OptionTy, PrimitiveTy} from "@server/languages/tact/types/BaseTy"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
@@ -18,7 +18,7 @@ export class ReturnCompletionProvider implements CompletionProvider {
     }
 
     public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
-        const outerFunctionNode = parentOfType(ctx.element.node, ...funNodesTypes()) // TODO: support receivers
+        const outerFunctionNode = ctx.element.parentOfType(...funNodesTypes()) // TODO: support receivers
         if (!outerFunctionNode) return
         const outerFunction = new Fun(outerFunctionNode, ctx.element.file)
 

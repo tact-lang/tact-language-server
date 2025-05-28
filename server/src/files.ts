@@ -1,15 +1,17 @@
 import * as lsp from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {fileURLToPath, pathToFileURL} from "node:url"
 import {createFiftParser, createTactParser, createTlbParser} from "@server/parser"
 import * as fs from "node:fs"
+import {FiftFile} from "@server/languages/fift/psi/FiftFile"
+import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
 
-export const PARSED_FILES_CACHE: Map<string, File> = new Map()
-export const FIFT_PARSED_FILES_CACHE: Map<string, File> = new Map()
-export const TLB_PARSED_FILES_CACHE: Map<string, File> = new Map()
+export const PARSED_FILES_CACHE: Map<string, TactFile> = new Map()
+export const FIFT_PARSED_FILES_CACHE: Map<string, FiftFile> = new Map()
+export const TLB_PARSED_FILES_CACHE: Map<string, TlbFile> = new Map()
 
-export function findTactFile(uri: string, changed: boolean = false): File {
+export function findTactFile(uri: string, changed: boolean = false): TactFile {
     const cached = PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined && !changed) {
         return cached
@@ -24,14 +26,14 @@ export function findTactFile(uri: string, changed: boolean = false): File {
     return reparseTactFile(uri, content)
 }
 
-export function reparseTactFile(uri: string, content: string): File {
+export function reparseTactFile(uri: string, content: string): TactFile {
     const parser = createTactParser()
     const tree = parser.parse(content)
     if (!tree) {
         throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
     }
 
-    const file = new File(uri, tree, content)
+    const file = new TactFile(uri, tree, content)
     PARSED_FILES_CACHE.set(uri, file)
     return file
 }
@@ -41,7 +43,7 @@ export const filePathToUri = (filePath: string): string => {
     return url.replace(/c:/g, "c%3A").replace(/d:/g, "d%3A")
 }
 
-export function findFiftFile(uri: string): File {
+export function findFiftFile(uri: string): FiftFile {
     const cached = FIFT_PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined) {
         return cached
@@ -56,19 +58,19 @@ export function findFiftFile(uri: string): File {
     return reparseFiftFile(uri, content)
 }
 
-export function reparseFiftFile(uri: string, content: string): File {
+export function reparseFiftFile(uri: string, content: string): FiftFile {
     const parser = createFiftParser()
     const tree = parser.parse(content)
     if (!tree) {
         throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
     }
 
-    const file = new File(uri, tree, content)
+    const file = new FiftFile(uri, tree, content)
     FIFT_PARSED_FILES_CACHE.set(uri, file)
     return file
 }
 
-export function findTlbFile(uri: string): File {
+export function findTlbFile(uri: string): TlbFile {
     const cached = TLB_PARSED_FILES_CACHE.get(uri)
     if (cached) {
         return cached
@@ -83,14 +85,14 @@ export function findTlbFile(uri: string): File {
     return reparseTlbFile(uri, content)
 }
 
-export function reparseTlbFile(uri: string, content: string): File {
+export function reparseTlbFile(uri: string, content: string): TlbFile {
     const parser = createTlbParser()
     const tree = parser.parse(content)
     if (!tree) {
         throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
     }
 
-    const file = new File(uri, tree, content)
+    const file = new TlbFile(uri, tree, content)
     TLB_PARSED_FILES_CACHE.set(uri, file)
     return file
 }

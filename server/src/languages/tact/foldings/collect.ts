@@ -2,13 +2,13 @@
 //  Copyright © 2025 TON Studio
 import {FoldingRange, FoldingRangeKind} from "vscode-languageserver-types"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import type {Point} from "web-tree-sitter"
 import type * as lsp from "vscode-languageserver"
 import {isDocCommentOwner} from "@server/languages/tact/psi/utils"
-import {extractCommentsDocContent, Node} from "@server/languages/tact/psi/Node"
+import {extractCommentsDocContent, TactNode} from "@server/languages/tact/psi/TactNode"
 
-export function collect(file: File): FoldingRange[] {
+export function collect(file: TactFile): FoldingRange[] {
     const result: FoldingRange[] = []
 
     const genericFolding = (start: Point, end: Point): lsp.FoldingRange => {
@@ -41,7 +41,7 @@ export function collect(file: File): FoldingRange[] {
         }
 
         if (isDocCommentOwner(n)) {
-            const node = new Node(n, file)
+            const node = new TactNode(n, file)
             const comment = extractCommentsDocContent(node.node)
             if (!comment) return true
 

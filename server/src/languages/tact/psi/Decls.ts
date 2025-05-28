@@ -1,9 +1,8 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {AsmInstr, Expression, NamedNode, Node} from "./Node"
+import {AsmInstr, Expression, NamedNode, TactNode} from "./TactNode"
 import {Reference} from "./Reference"
 import {index, IndexKey} from "@server/languages/tact/indexes"
-import {parentOfType} from "./utils"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {crc16} from "@server/utils/crc16"
 import {Position} from "vscode-languageclient"
@@ -300,7 +299,7 @@ export class Contract extends StorageMembersOwner {
     }
 }
 
-export class InitFunction extends Node {
+export class InitFunction extends TactNode {
     public nameLike(): string {
         const parametersNode = this.node.childForFieldName("parameters")
         if (!parametersNode) return "init()"
@@ -360,7 +359,7 @@ export class InitFunction extends Node {
     }
 }
 
-export class MessageFunction extends Node {
+export class MessageFunction extends TactNode {
     public nameLike(): string {
         const parametersNode = this.node.childForFieldName("parameter")
         const kindIdent = this.kindIdentifier()
@@ -520,7 +519,7 @@ export class Fun extends NamedNode {
     }
 
     public owner(): StorageMembersOwner | null {
-        const ownerNode = parentOfType(this.node, "trait", "contract")
+        const ownerNode = this.parentOfType("trait", "contract")
         if (!ownerNode) return null
 
         return new StorageMembersOwner(ownerNode, this.file)
@@ -613,14 +612,14 @@ export class Field extends NamedNode {
     }
 
     public owner(): StorageMembersOwner | null {
-        const ownerNode = parentOfType(this.node, "trait", "contract")
+        const ownerNode = this.parentOfType("trait", "contract")
         if (!ownerNode) return null
 
         return new StorageMembersOwner(ownerNode, this.file)
     }
 
     public dataOwner(): FieldsOwner | null {
-        const ownerNode = parentOfType(this.node, "struct", "message", "trait", "contract")
+        const ownerNode = this.parentOfType("struct", "message", "trait", "contract")
         if (!ownerNode) return null
 
         return new FieldsOwner(ownerNode, this.file)
@@ -641,7 +640,7 @@ export class Constant extends NamedNode {
     }
 
     public owner(): StorageMembersOwner | null {
-        const ownerNode = parentOfType(this.node, "trait", "contract")
+        const ownerNode = this.parentOfType("trait", "contract")
         if (!ownerNode) return null
 
         return new StorageMembersOwner(ownerNode, this.file)

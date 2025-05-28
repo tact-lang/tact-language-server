@@ -2,7 +2,7 @@
 //  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {index} from "@server/languages/tact/indexes"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 
 export function parentOfType(node: SyntaxNode, ...types: readonly string[]): SyntaxNode | null {
     let parent = node.parent

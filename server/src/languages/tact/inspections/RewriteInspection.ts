@@ -1,19 +1,19 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import {Inspection, InspectionIds} from "./Inspection"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {FileDiff} from "@server/utils/FileDiff"
-import {CallLike} from "@server/languages/tact/psi/Node"
+import {CallLike} from "@server/languages/tact/psi/TactNode"
 import {toolchain} from "@server/toolchain"
 
 export class RewriteInspection implements Inspection {
     public readonly id: "rewrite" = InspectionIds.REWRITE
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (!toolchain.isTact16() && process.env["TACT_TESTS"] !== "true") return []
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
@@ -121,7 +121,7 @@ export class RewriteInspection implements Inspection {
         return callName?.text === "context"
     }
 
-    private rewriteContextSenderAction(node: SyntaxNode, file: File): lsp.CodeAction {
+    private rewriteContextSenderAction(node: SyntaxNode, file: TactFile): lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
         diff.replace(asLspRange(node), "sender()")
         const edit = diff.toWorkspaceEdit()
@@ -154,7 +154,7 @@ export class RewriteInspection implements Inspection {
         return true
     }
 
-    private isSend(node: SyntaxNode, file: File): undefined | Map<string, string> {
+    private isSend(node: SyntaxNode, file: TactFile): undefined | Map<string, string> {
         if (node.type !== "static_call_expression") return undefined
         const callName = node.childForFieldName("name")
         if (callName?.text !== "send") return undefined
@@ -200,7 +200,7 @@ export class RewriteInspection implements Inspection {
 
     private rewriteSendWithAction(
         node: SyntaxNode,
-        file: File,
+        file: TactFile,
         functionName: string,
         paramsName: string,
     ): undefined | lsp.CodeAction {
@@ -262,7 +262,7 @@ export class RewriteInspection implements Inspection {
     private rewriteSelfReplyAction(
         callNode: SyntaxNode,
         dataArgNode: SyntaxNode,
-        file: File,
+        file: TactFile,
     ): lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
         const dataValue = dataArgNode.text
@@ -312,7 +312,7 @@ export class RewriteInspection implements Inspection {
         return argValueNode?.type === "null"
     }
 
-    private rewriteSelfNotifyAction(callNode: SyntaxNode, file: File): lsp.CodeAction {
+    private rewriteSelfNotifyAction(callNode: SyntaxNode, file: TactFile): lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
         const replacement = `cashback(sender())`
 
@@ -364,7 +364,7 @@ export class RewriteInspection implements Inspection {
     private rewriteSelfForwardAction(
         callNode: SyntaxNode,
         [to, body, bounced, initOf]: [SyntaxNode, SyntaxNode, SyntaxNode, SyntaxNode],
-        file: File,
+        file: TactFile,
     ): lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
         const tempVarName = "initState"

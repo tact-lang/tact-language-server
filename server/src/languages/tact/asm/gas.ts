@@ -1,8 +1,8 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {AsmInstr} from "@server/languages/tact/psi/Node"
+import {AsmInstr} from "@server/languages/tact/psi/TactNode"
 import {getStackPresentation} from "@server/languages/tact/completion/data/types"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Node as SyntaxNode} from "web-tree-sitter"
 
 export interface GasConsumption {
@@ -13,7 +13,7 @@ export interface GasConsumption {
 
 export function computeSeqGasConsumption(
     arg: SyntaxNode,
-    file: File,
+    file: TactFile,
     gasSettings: {
         loopGasCoefficient: number
     },

@@ -13,7 +13,7 @@ import type {
     InitFunction,
     Field,
 } from "@server/languages/tact/psi/Decls"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 import {trimPrefix} from "@server/utils/strings"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
 

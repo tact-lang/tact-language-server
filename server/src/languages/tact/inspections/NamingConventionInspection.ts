@@ -1,17 +1,17 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {Diagnostic, DiagnosticSeverity} from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Inspection, InspectionId, InspectionIds} from "./Inspection"
 import {asLspRange} from "@server/utils/position"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import * as lsp from "vscode-languageserver"
 
 export class NamingConventionInspection implements Inspection {
     public readonly id: InspectionId = InspectionIds.NAMING_CONVENTION
 
-    public inspect(file: File): Diagnostic[] {
+    public inspect(file: TactFile): Diagnostic[] {
         const diagnostics: Diagnostic[] = []
 
         this.checkPascalCase(
@@ -115,7 +115,7 @@ export class NamingConventionInspection implements Inspection {
         return diagnostics
     }
 
-    private checkVariables(file: File, diagnostics: Diagnostic[]): void {
+    private checkVariables(file: TactFile, diagnostics: Diagnostic[]): void {
         RecursiveVisitor.visit(file.rootNode, node => {
             if (node.type === "destruct_bind") {
                 const target = node.childForFieldName("bind") ?? node.childForFieldName("name")

@@ -1,7 +1,7 @@
 import * as lsp from "vscode-languageserver"
 import {connection} from "@server/connection"
 import {getDocumentSettings} from "@server/settings/settings"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {UnusedParameterInspection} from "@server/languages/tact/inspections/UnusedParameterInspection"
 import {EmptyBlockInspection} from "@server/languages/tact/inspections/EmptyBlockInspection"
 import {UnusedVariableInspection} from "@server/languages/tact/inspections/UnusedVariableInspection"
@@ -28,7 +28,7 @@ import {MistiInspection} from "@server/languages/tact/inspections/MistInspection
 
 export async function runInspections(
     uri: string,
-    file: File,
+    file: TactFile,
     includeLinters: boolean,
 ): Promise<void> {
     const inspections = [

@@ -3,7 +3,6 @@
 import type {CompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
 import {CompletionItemKind, InsertTextFormat} from "vscode-languageserver-types"
 import type {CompletionContext} from "@server/languages/tact/completion/CompletionContext"
-import {parentOfType} from "@server/languages/tact/psi/utils"
 import {StorageMembersOwner} from "@server/languages/tact/psi/Decls"
 import {
     CompletionResult,
@@ -16,7 +15,7 @@ export class OverrideCompletionProvider implements CompletionProvider {
     }
 
     public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
-        const ownerNode = parentOfType(ctx.element.node, "trait", "contract")
+        const ownerNode = ctx.element.parentOfType("trait", "contract")
         if (!ownerNode) return
 
         const owner = new StorageMembersOwner(ownerNode, ctx.element.file)

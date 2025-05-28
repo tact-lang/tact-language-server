@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Contract, type Field, Fun, Trait} from "@server/languages/tact/psi/Decls"
 import {asLspPosition, asLspRange} from "@server/utils/position"
 import {Inspection, InspectionIds} from "./Inspection"
@@ -10,14 +10,14 @@ import {FileDiff} from "@server/utils/FileDiff"
 export class MissedMembersInContractInspection implements Inspection {
     public readonly id: "missed-members-in-contract" = InspectionIds.MISSED_METHOD_IN_CONTRACT
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         for (const contract of file.getContracts()) {
             this.inspectContract(contract, diagnostics)
         }
@@ -127,7 +127,7 @@ function implementTrait(
     contract: Contract,
     notImplementedFields: Map<string, Field>,
     notImplementedMethods: Map<string, Fun>,
-    file: File,
+    file: TactFile,
 ): undefined | lsp.CodeAction {
     const diff = FileDiff.forFile(file.uri)
 

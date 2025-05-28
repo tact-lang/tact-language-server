@@ -2,12 +2,12 @@
 //  Copyright © 2025 TON Studio
 import type {Intention, IntentionContext} from "@server/languages/tact/intentions/Intention"
 import type {WorkspaceEdit} from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspRange, asParserPoint} from "@server/utils/position"
 import type {Position} from "vscode-languageclient"
 import {FileDiff} from "@server/utils/FileDiff"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 import {
     Contract,
     Fun,
@@ -43,7 +43,7 @@ export class ExtractToFile implements Intention {
         return null
     }
 
-    private static createElementFromNode(node: SyntaxNode, file: File): NamedNode | null {
+    private static createElementFromNode(node: SyntaxNode, file: TactFile): NamedNode | null {
         switch (node.type) {
             case "global_function": {
                 return new Fun(node, file)
@@ -215,7 +215,7 @@ export class ExtractToFile implements Intention {
         return `${kebabCaseName}.tact`
     }
 
-    private generateFileUri(fileName: string, currentFile: File): string {
+    private generateFileUri(fileName: string, currentFile: TactFile): string {
         const currentFilePath = fileURLToPath(currentFile.uri)
         const currentDir = path.dirname(currentFilePath)
         const newFilePath = path.join(currentDir, fileName)
@@ -241,7 +241,7 @@ export class ExtractToFile implements Intention {
     }
 }
 
-function nodeAtPosition(pos: Position, file: File): SyntaxNode | null {
+function nodeAtPosition(pos: Position, file: TactFile): SyntaxNode | null {
     const cursorPosition = asParserPoint(pos)
     return file.rootNode.descendantForPosition(cursorPosition)
 }

@@ -1,16 +1,16 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {SemanticTokens} from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
 import {SemanticTokensBuilder} from "vscode-languageserver/lib/common/semanticTokens"
 import {SemanticTokenTypes} from "vscode-languageserver-protocol"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"
 import {FiftReference} from "@server/languages/fift/psi/FiftReference"
+import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 
 export function collectFift(
-    file: File,
+    file: FiftFile,
     settings: {
         enabled: boolean
     },
