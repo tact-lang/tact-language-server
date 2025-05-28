@@ -2,10 +2,10 @@
 //  Copyright © 2025 TON Studio
 import type * as lsp from "vscode-languageserver"
 
-export const GetTypeAtPositionRequest = "tact/getTypeAtPosition"
-export const GetDocumentationAtPositionRequest = "tact/executeHoverProvider"
+export const TypeAtPositionRequest = "tact/getTypeAtPosition"
+export const DocumentationAtPositionRequest = "tact/executeHoverProvider"
 export const SetToolchainVersionNotification = "tact/setToolchainVersion"
-export const GetGasConsumptionForSelectionRequest = "tact/executeGetGasConsumptionForSelection"
+export const GasConsumptionForSelectionRequest = "tact/executeGetGasConsumptionForSelection"
 
 export interface GetTypeAtPositionParams {
     readonly textDocument: {
@@ -42,9 +42,6 @@ export interface GetTypeAtPositionResponse {
     readonly type: string | null
     readonly range: lsp.Range | null
 }
-
-// eslint-disable-next-line functional/type-declaration-immutability
-export type GetDocumentationAtPositionResponse = lsp.Hover
 
 export interface GetGasConsumptionForSelectionParams {
     readonly textDocument: {

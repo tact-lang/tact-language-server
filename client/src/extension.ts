@@ -14,13 +14,13 @@ import {
 import {consoleError, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
-    GetDocumentationAtPositionRequest,
+    DocumentationAtPositionRequest,
     GetTypeAtPositionParams,
-    GetTypeAtPositionRequest,
+    TypeAtPositionRequest,
     GetTypeAtPositionResponse,
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
-    GetGasConsumptionForSelectionRequest,
+    GasConsumptionForSelectionRequest,
     GetGasConsumptionForSelectionParams,
     GetGasConsumptionForSelectionResponse,
     SearchByTypeRequest,
@@ -376,7 +376,7 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
             },
         ),
         vscode.commands.registerCommand(
-            GetTypeAtPositionRequest,
+            TypeAtPositionRequest,
             async (params: GetTypeAtPositionParams | undefined) => {
                 if (!client) {
                     return null
@@ -401,7 +401,7 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
                 }
 
                 const result = await client.sendRequest<GetTypeAtPositionResponse>(
-                    GetTypeAtPositionRequest,
+                    TypeAtPositionRequest,
                     params,
                 )
 
@@ -424,14 +424,14 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
             },
         ),
         vscode.commands.registerCommand(
-            GetDocumentationAtPositionRequest,
+            DocumentationAtPositionRequest,
             async (params: GetTypeAtPositionParams | undefined) => {
                 if (!client || !params) {
                     return null
                 }
 
                 return client.sendRequest<GetTypeAtPositionResponse>(
-                    GetDocumentationAtPositionRequest,
+                    DocumentationAtPositionRequest,
                     params,
                 )
             },
@@ -1009,7 +1009,7 @@ async function updateGasStatusBar(editor: vscode.TextEditor): Promise<void> {
         }
 
         const result = await client.sendRequest<GetGasConsumptionForSelectionResponse>(
-            GetGasConsumptionForSelectionRequest,
+            GasConsumptionForSelectionRequest,
             params,
         )
 

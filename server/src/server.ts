@@ -13,10 +13,10 @@ import * as path from "node:path"
 import {existsSync} from "node:fs"
 import type {ClientOptions} from "@shared/config-scheme"
 import {
-    GetDocumentationAtPositionRequest,
-    GetGasConsumptionForSelectionRequest,
+    DocumentationAtPositionRequest,
+    GasConsumptionForSelectionRequest,
     GetTypeAtPositionParams,
-    GetTypeAtPositionRequest,
+    TypeAtPositionRequest,
     GetTypeAtPositionResponse,
     SearchByTypeParams,
     SearchByTypeRequest,
@@ -42,7 +42,7 @@ import * as toolchainManager from "@server/toolchain-manager"
 import {formatCode} from "@server/languages/tact/compiler/fmt/fmt"
 import {fileURLToPath} from "node:url"
 import {onFileRenamed, processFileRenaming} from "@server/languages/tact/rename/file-renaming"
-import {selectionGasConsumption} from "@server/languages/tact/selection-gas-consumption"
+import {provideSelectionGasConsumption} from "@server/languages/tact/custom/selection-gas-consumption"
 import {runInspections} from "@server/languages/tact/inspections"
 import {
     FIFT_PARSED_FILES_CACHE,
@@ -833,7 +833,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     // Custom LSP requests
 
     connection.onRequest(
-        GetTypeAtPositionRequest,
+        TypeAtPositionRequest,
         (params: GetTypeAtPositionParams): GetTypeAtPositionResponse => {
             const uri = params.textDocument.uri
 
@@ -846,8 +846,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
-    connection.onRequest(GetDocumentationAtPositionRequest, provideDocumentation)
-    connection.onRequest(GetGasConsumptionForSelectionRequest, selectionGasConsumption)
+    connection.onRequest(DocumentationAtPositionRequest, provideDocumentation)
+    connection.onRequest(GasConsumptionForSelectionRequest, provideSelectionGasConsumption)
 
     connection.onRequest(
         SearchByTypeRequest,

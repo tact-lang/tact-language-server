@@ -13,7 +13,7 @@ import {computeGasConsumption} from "@server/languages/tact/asm/gas"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {findTactFile} from "@server/files"
 
-export async function selectionGasConsumption(
+export async function provideSelectionGasConsumption(
     params: GetGasConsumptionForSelectionParams,
 ): Promise<GetGasConsumptionForSelectionResponse> {
     try {
