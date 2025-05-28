@@ -44,8 +44,8 @@
     },
     "scripts": {
         "install": "node_modules/.bin/node-gyp-build",
-        "prestart": "node_modules/.bin/tree-sitter build --wasm",
-        "start": "node_modules/.bin/tree-sitter playground",
+        "prestart": "tree-sitter build --wasm",
+        "start": "tree-sitter playground",
         "test": "node --test bindings/node/*_test.js"
     },
     "packageManager": "yarn@4.6.0"

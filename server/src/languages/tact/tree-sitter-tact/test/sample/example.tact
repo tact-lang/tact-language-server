@@ -1,4 +1,4 @@
-import "../../../../../../../../tact-template/node_modules/@tact-lang/compiler/dist/stdlib/stdlib/libs/ownable.tact";
+import "@stdlib/ownable";
 
 struct SampleStruct {
     message: Int?;
