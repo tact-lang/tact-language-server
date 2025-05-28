@@ -5,7 +5,9 @@ import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
 import {asLspRange} from "@server/utils/position"
 import {filePathToUri} from "@server/files"
 import {Reference} from "@server/languages/tact/psi/Reference"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {Expression, NamedNode} from "@server/languages/tact/psi/Node"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
+import {BaseTy} from "@server/languages/tact/types/BaseTy"
 
 export function provideTactDefinition(
     hoverNode: SyntaxNode,
@@ -77,6 +79,37 @@ export function provideTactDefinition(
         {
             uri: res.file.uri,
             range: asLspRange(ident),
+        },
+    ]
+}
+
+export function provideTactTypeDefinition(
+    hoverNode: SyntaxNode,
+    file: File,
+): lsp.Definition | lsp.DefinitionLink[] {
+    if (
+        hoverNode.type !== "identifier" &&
+        hoverNode.type !== "self" &&
+        hoverNode.type !== "type_identifier"
+    ) {
+        return []
+    }
+
+    const type = TypeInferer.inferType(new Expression(hoverNode, file))
+    if (type === null) {
+        console.error(`Cannot infer type for Go to Type Definition for: ${hoverNode.text}`)
+        return []
+    }
+    if (!(type instanceof BaseTy)) return []
+
+    const anchor = type.anchor as NamedNode
+    const name = anchor.nameIdentifier()
+    if (name === null) return []
+
+    return [
+        {
+            uri: anchor.file.uri,
+            range: asLspRange(name),
         },
     ]
 }
