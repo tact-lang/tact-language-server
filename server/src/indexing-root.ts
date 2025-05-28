@@ -22,6 +22,8 @@ export class IndexingRoot {
             this.kind === IndexingRootKind.Stdlib
                 ? []
                 : [
+                      ".git/**",
+                      "allure-results/**",
                       "**/node_modules/**",
                       "**/cli/tact/output/**",
                       "**/dist/**",
