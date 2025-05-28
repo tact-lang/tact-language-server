@@ -36,7 +36,7 @@ blockchain.
 - [Gas estimates] for assembly functions
 - Build and test projects based on [Blueprint] and [Tact template]
 - Integration with [Tact compiler] and [Misti] static analyzer
-- Flexible [toolchain management] with multiple compiler versions and custom builds
+- Flexible [toolchain management]
 - Formatting
 
 [Semantic syntax highlighting]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/highlighting.md
