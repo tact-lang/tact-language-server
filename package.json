@@ -221,6 +221,12 @@
                 "title": "Search by Type Signature",
                 "category": "Tact",
                 "icon": "$(symbol-method)"
+            },
+            {
+                "command": "tact.showToolchainInfo",
+                "title": "Show Toolchain Information",
+                "category": "Tact",
+                "icon": "$(info)"
             }
         ],
         "keybindings": [

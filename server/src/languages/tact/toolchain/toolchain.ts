@@ -5,6 +5,8 @@ import * as cp from "node:child_process"
 import {SpawnSyncReturns} from "node:child_process"
 import {existsSync} from "node:fs"
 import * as console from "node:console"
+import * as os from "node:os"
+import {EnvironmentInfo, ToolchainInfo} from "@shared/shared-msgtypes"
 
 export class InvalidToolchainError extends Error {
     public constructor(message: string) {
@@ -15,13 +17,21 @@ export class InvalidToolchainError extends Error {
 
 export class Toolchain {
     public readonly compilerPath: string
+    public readonly isAutoDetected: boolean
+    public readonly detectionMethod?: string
     public version: {
         number: string
         commit: string
     }
 
-    public constructor(compilerPath: string) {
+    public constructor(
+        compilerPath: string,
+        isAutoDetected: boolean = false,
+        detectionMethod?: string,
+    ) {
         this.compilerPath = compilerPath
+        this.isAutoDetected = isAutoDetected
+        this.detectionMethod = detectionMethod
         this.version = {
             number: "",
             commit: "",
@@ -42,15 +52,43 @@ export class Toolchain {
             return fallbackToolchain
         }
 
-        return new Toolchain(foundPath).setVersion()
+        const detectionMethod = foundPath.includes("node_modules") ? "node_modules" : "project_bin"
+        return new Toolchain(foundPath, true, detectionMethod).setVersion()
     }
 
     public static fromPath(path: string): Toolchain {
-        return new Toolchain(path).validate()
+        return new Toolchain(path, false, "manual").validate()
     }
 
     public isTact16(): boolean {
         return this.version.number.startsWith("1.6")
+    }
+
+    public getEnvironmentInfo(): EnvironmentInfo {
+        try {
+            const result = cp.execSync("node --version", {encoding: "utf8"})
+            return {
+                nodeVersion: result.trim(),
+                platform: os.platform(),
+                arch: os.arch(),
+            }
+        } catch {
+            // node version not available
+        }
+
+        return {
+            nodeVersion: undefined,
+            platform: os.platform(),
+            arch: os.arch(),
+        }
+    }
+
+    public getToolchainInfo(): ToolchainInfo {
+        return {
+            path: this.compilerPath,
+            isAutoDetected: this.isAutoDetected,
+            detectionMethod: this.detectionMethod,
+        }
     }
 
     private setVersion(): this {
@@ -112,4 +150,4 @@ export function setProjectStdlibPath(path: string | null): void {
     projectStdlibPath = path
 }
 
-export const fallbackToolchain = new Toolchain("./node_modules/.bin/tact")
+export const fallbackToolchain = new Toolchain("./node_modules/.bin/tact", true, "fallback")

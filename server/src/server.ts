@@ -248,6 +248,8 @@ async function initialize(): Promise<void> {
 
         await connection.sendNotification(SetToolchainVersionNotification, {
             version: toolchain.version,
+            toolchain: toolchain.getToolchainInfo(),
+            environment: toolchain.getEnvironmentInfo(),
         } satisfies SetToolchainVersionParams)
     } catch (error) {
         if (error instanceof InvalidToolchainError) {
