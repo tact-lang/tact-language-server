@@ -14,8 +14,8 @@ import {
     Ty,
 } from "@server/languages/tact/types/BaseTy"
 import {index, IndexFinder, IndexKey} from "@server/languages/tact/indexes"
-import {CallLike, Expression, NamedNode, Node} from "./Node"
-import type {File} from "./File"
+import {CallLike, Expression, NamedNode, TactNode} from "./TactNode"
+import type {TactFile} from "./TactFile"
 import {Contract, Field, FieldsOwner, Fun, Message, Struct, Trait} from "./Decls"
 import {isFunNode, parentOfType} from "./utils"
 import {CACHE} from "@server/cache"
@@ -38,7 +38,7 @@ export class ResolveState {
 }
 
 export interface ScopeProcessor {
-    execute(node: Node, state: ResolveState): boolean
+    execute(node: TactNode, state: ResolveState): boolean
 }
 
 /**
@@ -86,9 +86,9 @@ export class Reference {
         return result[0]
     }
 
-    private static createResolveProcessor(result: Node[], element: Node): ScopeProcessor {
+    private static createResolveProcessor(result: TactNode[], element: TactNode): ScopeProcessor {
         return new (class implements ScopeProcessor {
-            public execute(node: Node, state: ResolveState): boolean {
+            public execute(node: TactNode, state: ResolveState): boolean {
                 if (node.node.equals(element.node)) {
                     result.push(node)
                     return false
@@ -332,8 +332,8 @@ export class Reference {
         if (!name || name === "" || name === "_") return true
 
         if (name === "self") {
-            const ownerNode = parentOfType(this.element.node, "contract", "trait")
-            if (ownerNode !== null) {
+            const ownerNode = this.element.parentOfType("contract", "trait")
+            if (ownerNode !== undefined) {
                 const constructor = ownerNode.type === "contract" ? Contract : Trait
                 const owner = new constructor(ownerNode, this.element.file)
 
@@ -344,8 +344,7 @@ export class Reference {
         }
 
         if (state.get("completion")) {
-            const ownerNode = parentOfType(
-                this.element.node,
+            const ownerNode = this.element.parentOfType(
                 "contract_body",
                 "trait_body",
                 "global_function",
@@ -526,7 +525,11 @@ export class Reference {
         return true
     }
 
-    public static findDestructField(bindNode: SyntaxNode, file: File, name: string): Field | null {
+    public static findDestructField(
+        bindNode: SyntaxNode,
+        file: TactFile,
+        name: string,
+    ): Field | null {
         // `let Foo { name } = foo()`
         //  ^^^^^^^^^^^^^^^^^^^^^^^^ this
         const destructStatement = bindNode.parent?.parent
@@ -580,7 +583,7 @@ export class Reference {
 
         if (state.get("completion")) {
             const processor = new (class implements ScopeProcessor {
-                public execute(node: Node, state: ResolveState): boolean {
+                public execute(node: TactNode, state: ResolveState): boolean {
                     if (!(node instanceof Fun)) return true
                     if (node.withSelf()) return true // don't add methods to unqualified completion
                     if (
@@ -861,7 +864,7 @@ export class Reference {
         return true
     }
 
-    private static getQualifier(node: Node): Expression | null {
+    private static getQualifier(node: TactNode): Expression | null {
         const parent = node.node.parent
         if (!parent) {
             return null
@@ -888,7 +891,7 @@ export class Reference {
         return null
     }
 
-    private static declarationAstToNode(node: SyntaxNode, file: File): NamedNode {
+    private static declarationAstToNode(node: SyntaxNode, file: TactFile): NamedNode {
         if (node.type === "struct") {
             return new Struct(node, file)
         }
@@ -913,12 +916,12 @@ export class Reference {
         return new NamedNode(node, file)
     }
 
-    public static resolveInitOf(node: SyntaxNode, file: File): Node | null {
+    public static resolveInitOf(node: SyntaxNode, file: TactFile): TactNode | null {
         const actualNode = node.parent
         if (!actualNode) return null
         const name = actualNode.childForFieldName("name")
         if (!name) return null
-        const type = TypeInferer.inferType(new Node(name, file))
+        const type = TypeInferer.inferType(new TactNode(name, file))
         if (!type) return null
         if (!(type instanceof ContractTy)) return null
         const initFunc = type.initFunction()
@@ -927,11 +930,11 @@ export class Reference {
             if (!type.anchor) return null
             const nameNode = type.anchor.nameNode()
             if (!nameNode) return null
-            return new Node(nameNode.node, file)
+            return new TactNode(nameNode.node, file)
         }
 
         const initIdent = initFunc.initIdentifier()
         if (!initIdent) return null
-        return new Node(initIdent, file)
+        return new TactNode(initIdent, file)
     }
 }

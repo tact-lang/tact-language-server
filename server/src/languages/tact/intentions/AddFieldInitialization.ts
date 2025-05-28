@@ -2,7 +2,7 @@
 //  Copyright © 2025 TON Studio
 import type {Intention, IntentionContext} from "@server/languages/tact/intentions/Intention"
 import type {WorkspaceEdit} from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspPosition, asParserPoint} from "@server/utils/position"
 import type {Position} from "vscode-languageclient"
 import {FileDiff} from "@server/utils/FileDiff"
@@ -11,7 +11,7 @@ import {PrimitiveTy, StructTy, Ty} from "@server/languages/tact/types/BaseTy"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 
 export class AddFieldInitialization implements Intention {
     public readonly id: string = "tact.add-field-to-init"
@@ -238,7 +238,7 @@ export class AddFieldInitialization implements Intention {
     }
 }
 
-function nodeAtPosition(pos: Position, file: File): SyntaxNode | null {
+function nodeAtPosition(pos: Position, file: TactFile): SyntaxNode | null {
     const cursorPosition = asParserPoint(pos)
     return file.rootNode.descendantForPosition(cursorPosition)
 }

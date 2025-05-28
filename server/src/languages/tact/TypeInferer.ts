@@ -13,7 +13,7 @@ import {
     TraitTy,
     Ty,
 } from "@server/languages/tact/types/BaseTy"
-import {CallLike, Expression, NamedNode, Node} from "@server/languages/tact/psi/Node"
+import {CallLike, Expression, NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
 import {Reference} from "@server/languages/tact/psi/Reference"
 import {Struct, Message, Fun, Primitive, Contract, Trait} from "@server/languages/tact/psi/Decls"
 import {isTypeOwnerNode} from "@server/languages/tact/psi/utils"
@@ -22,15 +22,15 @@ import {CACHE} from "../../cache"
 import {index, IndexKey} from "@server/languages/tact/indexes"
 
 export class TypeInferer {
-    public static inferType(node: Node): Ty | null {
+    public static inferType(node: TactNode): Ty | null {
         return new TypeInferer().inferType(node)
     }
 
-    public inferType(node: Node): Ty | null {
+    public inferType(node: TactNode): Ty | null {
         return CACHE.typeCache.cached(node.node.id, () => this.inferTypeImpl(node))
     }
 
-    private inferTypeImpl(node: Node): Ty | null {
+    private inferTypeImpl(node: TactNode): Ty | null {
         if (node.node.type === "string") {
             return this.primitiveType("String")
         }
@@ -394,7 +394,7 @@ export class TypeInferer {
         return new PrimitiveTy(name, node, null)
     }
 
-    private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: Node): Ty | null {
+    private inferTypeMaybeOption(typeNode: SyntaxNode, resolved: TactNode): Ty | null {
         const inferred = this.inferType(new Expression(typeNode, resolved.file))
         if (inferred && !(inferred instanceof OptionTy) && typeNode.nextSibling?.text === "?") {
             return new OptionTy(inferred)
@@ -402,7 +402,7 @@ export class TypeInferer {
         return inferred
     }
 
-    private inferTypeMaybeTlB(typeNode: SyntaxNode, resolved: Node): Ty | null {
+    private inferTypeMaybeTlB(typeNode: SyntaxNode, resolved: TactNode): Ty | null {
         const inferredType = this.inferTypeMaybeOption(typeNode, resolved)
         if (inferredType instanceof PrimitiveTy) {
             const tlb = resolved.node.childForFieldName("tlb")
@@ -433,7 +433,7 @@ export class TypeInferer {
         return null
     }
 
-    private inferChildFieldType(node: Node, fieldName: string): Ty | null {
+    private inferChildFieldType(node: TactNode, fieldName: string): Ty | null {
         const child = node.node.childForFieldName(fieldName)
         if (!child) return null
         return this.inferType(new Expression(child, node.file))

@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspPosition, asLspRange} from "@server/utils/position"
 import {Fun} from "@server/languages/tact/psi/Decls"
@@ -11,14 +11,14 @@ import {Referent} from "@server/languages/tact/psi/Referent"
 export class CanBeInlineInspection implements Inspection {
     public readonly id: "can-be-inline-function" = InspectionIds.CAN_BE_INLINE_FUNCTION
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         if (file.fromStdlib) return
 
         const functions = file.getFuns()
@@ -37,7 +37,7 @@ export class CanBeInlineInspection implements Inspection {
         }
     }
 
-    private warn(f: Fun, diagnostics: lsp.Diagnostic[], file: File): void {
+    private warn(f: Fun, diagnostics: lsp.Diagnostic[], file: TactFile): void {
         const nameNode = f.nameIdentifier()
         if (!nameNode) return
 
@@ -71,7 +71,7 @@ export class CanBeInlineInspection implements Inspection {
         return this.usedOnce(fun)
     }
 
-    private rewriteAsInline(method: Fun, file: File): undefined | lsp.CodeAction {
+    private rewriteAsInline(method: Fun, file: TactFile): undefined | lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
 
         diff.appendTo(asLspPosition(method.node.startPosition), "inline ")

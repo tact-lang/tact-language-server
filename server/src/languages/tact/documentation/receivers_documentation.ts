@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {InitFunction, MessageFunction} from "@server/languages/tact/psi/Decls"
-import {Expression, extractCommentsDoc} from "@server/languages/tact/psi/Node"
+import {Expression, extractCommentsDoc} from "@server/languages/tact/psi/TactNode"
 import {BouncedTy, MessageTy} from "@server/languages/tact/types/BaseTy"
 
 const CODE_FENCE = "```"

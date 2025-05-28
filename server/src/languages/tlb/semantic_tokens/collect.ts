@@ -1,15 +1,15 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import {SemanticTokens, SemanticTokensBuilder} from "vscode-languageserver"
-import {File} from "@server/languages/tact/psi/File"
 import {SemanticTokenTypes} from "vscode-languageserver-protocol"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"
 import {TlbReference} from "@server/languages/tlb/psi/TlbReference"
-import {parentOfType} from "@server/languages/tact/psi/utils"
+import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
+import {TlbNode} from "@server/languages/tlb/psi/TlbNode"
 
-export function collect(file: File): SemanticTokens {
+export function collect(file: TlbFile): SemanticTokens {
     const builder = new SemanticTokensBuilder()
 
     function pushToken(n: SyntaxNode, tokenType: lsp.SemanticTokenTypes): void {
@@ -29,9 +29,10 @@ export function collect(file: File): SemanticTokens {
                 break
             }
             case "identifier": {
-                const resolved = TlbReference.resolve(node, file)
+                const resolved = TlbReference.resolve(new TlbNode(node, file))
                 if (resolved) {
-                    const insideTypeParameter = parentOfType(resolved, "type_parameter") !== null
+                    const insideTypeParameter =
+                        resolved.parentOfType("type_parameter") !== undefined
                     if (insideTypeParameter) {
                         pushToken(node, SemanticTokenTypes.typeParameter)
                         break
@@ -48,13 +49,14 @@ export function collect(file: File): SemanticTokens {
                     break
                 }
 
-                const resolved = TlbReference.resolve(node, file)
+                const resolved = TlbReference.resolve(new TlbNode(node, file))
                 if (resolved) {
-                    if (resolved.parent?.type === "field_named") {
+                    if (resolved.node.parent?.type === "field_named") {
                         pushToken(node, SemanticTokenTypes.variable)
                         break
                     }
-                    const insideTypeParameter = parentOfType(resolved, "type_parameter") !== null
+                    const insideTypeParameter =
+                        resolved.parentOfType("type_parameter") !== undefined
                     if (insideTypeParameter) {
                         pushToken(node, SemanticTokenTypes.typeParameter)
                         break

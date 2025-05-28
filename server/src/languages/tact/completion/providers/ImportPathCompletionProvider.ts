@@ -9,7 +9,7 @@ import {
 } from "@server/languages/tact/completion/WeightedCompletionItem"
 import * as path from "node:path"
 import * as fs from "node:fs"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {projectStdlibPath} from "@server/languages/tact/toolchain/toolchain"
 import {trimSuffix} from "@server/utils/strings"
 
@@ -47,7 +47,12 @@ export class ImportPathCompletionProvider implements CompletionProvider {
         })
     }
 
-    private addEntries(dir: string, file: File, prefix: string, result: CompletionResult): void {
+    private addEntries(
+        dir: string,
+        file: TactFile,
+        prefix: string,
+        result: CompletionResult,
+    ): void {
         this.files(dir, file).forEach(name => {
             this.addFile(`${prefix}${name}`, result)
         })
@@ -72,7 +77,7 @@ export class ImportPathCompletionProvider implements CompletionProvider {
         })
     }
 
-    private files(dir: string, currentFile: File): string[] {
+    private files(dir: string, currentFile: TactFile): string[] {
         return fs
             .readdirSync(dir)
             .filter(file => file.endsWith(".tact"))

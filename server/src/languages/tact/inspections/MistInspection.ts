@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {URI} from "vscode-uri"
 import {MistiAnalyzer} from "@server/languages/tact/compiler/MistiAnalyzer"
 import {Severity} from "@server/languages/tact/compiler/TactCompiler"
@@ -14,7 +14,7 @@ import {getDocumentSettings} from "@server/settings/settings"
 export class MistiInspection implements Inspection {
     public readonly id: "misti" = InspectionIds.MISTI
 
-    public async inspect(file: File): Promise<lsp.Diagnostic[]> {
+    public async inspect(file: TactFile): Promise<lsp.Diagnostic[]> {
         if (file.fromStdlib) return []
 
         const configPath = path.join(workspaceRoot, "tact.config.json")

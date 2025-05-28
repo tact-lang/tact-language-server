@@ -3,7 +3,7 @@
 import {Constant, Contract, Field, Fun, Trait} from "@server/languages/tact/psi/Decls"
 import {index, IndexKey} from "@server/languages/tact/indexes"
 import {ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
-import type {Node} from "@server/languages/tact/psi/Node"
+import type {TactNode} from "@server/languages/tact/psi/TactNode"
 
 export function implementations(trait: Trait): (Contract | Trait)[] {
     const result: (Contract | Trait)[] = []
@@ -21,7 +21,7 @@ class ImplementationProcessor implements ScopeProcessor {
         public result: (Contract | Trait)[],
     ) {}
 
-    public execute(node: Node, _state: ResolveState): boolean {
+    public execute(node: TactNode, _state: ResolveState): boolean {
         if (!(node instanceof Trait) && !(node instanceof Contract)) return true
 
         const inheritsFromTrait = node

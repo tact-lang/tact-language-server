@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {NamedNode, Node} from "@server/languages/tact/psi/Node"
+import {NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {
     Constant,
@@ -18,7 +18,7 @@ import type {Node as SyntaxNode} from "web-tree-sitter"
 import {trimPrefix} from "@server/utils/strings"
 import * as compiler from "@server/languages/tact/compiler/utils"
 import {getDocumentSettings, TactSettings} from "@server/settings/settings"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {
     ContractTy,
     FieldsOwnerTy,
@@ -306,7 +306,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
     return null
 }
 
-function generateMembers(nodes: Node[][]): string {
+function generateMembers(nodes: TactNode[][]): string {
     const parts = nodes
         .map(nodesPars =>
             nodesPars
@@ -319,7 +319,7 @@ function generateMembers(nodes: Node[][]): string {
     return parts.join("\n\n")
 }
 
-function generateMemberDocFor(node: Node): string | null {
+function generateMemberDocFor(node: TactNode): string | null {
     const astNode = node.node
     switch (astNode.type) {
         case "storage_function": {
@@ -367,7 +367,11 @@ function generateMemberDocFor(node: Node): string | null {
     return null
 }
 
-function requireFunctionDoc(place: SyntaxNode, file: File, settings: TactSettings): string | null {
+function requireFunctionDoc(
+    place: SyntaxNode,
+    file: TactFile,
+    settings: TactSettings,
+): string | null {
     const callNode = place.parent
     if (!callNode) return null
 

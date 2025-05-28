@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
@@ -9,14 +9,14 @@ import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 export class MisspelledKeywordInspection implements Inspection {
     public readonly id: "misspelled-keyword" = InspectionIds.MISSPELLED_KEYWORD
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         if (file.fromStdlib) return
 
         RecursiveVisitor.visit(file.rootNode, node => {

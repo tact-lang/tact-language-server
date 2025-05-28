@@ -1,12 +1,12 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {WorkspaceEdit} from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import type {Position} from "vscode-languageclient"
 import type {Range} from "vscode-languageserver-textdocument"
 
 export interface IntentionContext {
-    readonly file: File
+    readonly file: TactFile
     readonly range: Range
     readonly position: Position
     readonly noSelection: boolean

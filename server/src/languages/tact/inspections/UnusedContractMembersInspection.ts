@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import type {Contract} from "@server/languages/tact/psi/Decls"
 import {UnusedInspection} from "./UnusedInspection"
 import {superConstant, superField, superMethod} from "@server/languages/tact/search/implementations"
@@ -10,7 +10,7 @@ import {Inspection, InspectionIds} from "./Inspection"
 export class UnusedContractMembersInspection extends UnusedInspection implements Inspection {
     public readonly id: "unused-contract-members" = InspectionIds.UNUSED_CONTRACT_MEMBERS
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         file.getContracts().forEach(contract => {
             this.inspectContract(contract, diagnostics)
         })

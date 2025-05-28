@@ -7,10 +7,10 @@ import {
 import {asParserPoint} from "@server/utils/position"
 import type {Node as SyntaxNode, Point} from "web-tree-sitter"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
-import {AsmInstr} from "@server/languages/tact/psi/Node"
+import {AsmInstr} from "@server/languages/tact/psi/TactNode"
 import {getDocumentSettings} from "@server/settings/settings"
 import {computeGasConsumption} from "@server/languages/tact/asm/gas"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {findTactFile} from "@server/files"
 
 export async function selectionGasConsumption(
@@ -79,7 +79,7 @@ export async function selectionGasConsumption(
 }
 
 function findOuterAssemblyFunction(
-    file: File,
+    file: TactFile,
     startPoint: Point,
     endPoint: Point,
 ): SyntaxNode | undefined {

@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {File} from "./File"
+import {TactFile} from "./TactFile"
 import {Ty} from "@server/languages/tact/types/BaseTy"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {Range} from "vscode-languageserver-textdocument"
@@ -9,25 +9,27 @@ import {AsmInstruction, findInstruction} from "@server/languages/tact/completion
 import {Position} from "vscode-languageclient"
 import {trimPrefix} from "@server/utils/strings"
 import {asLspPosition} from "@server/utils/position"
+import {BaseNode} from "@server/psi/BaseNode"
 
-export class Node {
+export class TactNode extends BaseNode {
     public node: SyntaxNode
-    public file: File
+    public file: TactFile
 
-    public constructor(node: SyntaxNode, file: File) {
+    public constructor(node: SyntaxNode, file: TactFile) {
+        super()
         this.node = node
         this.file = file
     }
 }
 
-export class Expression extends Node {
+export class Expression extends TactNode {
     public type(): Ty | null {
         return TypeInferer.inferType(this)
     }
 }
 
-export class NamedNode extends Node {
-    public static create(node: SyntaxNode, file: File): NamedNode {
+export class NamedNode extends TactNode {
+    public static create(node: SyntaxNode, file: TactFile): NamedNode {
         return new NamedNode(node, file)
     }
 

@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspRange} from "@server/utils/position"
 import {MessageFunction} from "@server/languages/tact/psi/Decls"
@@ -10,14 +10,14 @@ import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 export class UseExplicitStringReceiverInspection implements Inspection {
     public readonly id: "use-explicit-string-receiver" = InspectionIds.USE_EXPLICIT_STRING_RECEIVER
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         if (file.fromStdlib) return
 
         const contracts = file.getContracts()

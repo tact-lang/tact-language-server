@@ -1,9 +1,9 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Reference} from "@server/languages/tact/psi/Reference"
-import {extractCommentsDocContent, NamedNode, Node} from "@server/languages/tact/psi/Node"
+import {extractCommentsDocContent, NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
 import * as lsp from "vscode-languageserver"
 import type {SemanticTokens} from "vscode-languageserver"
 import {isDocCommentOwner, isNamedFunNode} from "@server/languages/tact/psi/utils"
@@ -12,7 +12,7 @@ import {processDocComment} from "@server/languages/tact/semantic_tokens/comments
 import {Tokens} from "@server/languages/tact/semantic_tokens/tokens"
 
 export function collect(
-    file: File,
+    file: TactFile,
     highlighting: {
         highlightCodeInComments: boolean
     },
@@ -140,7 +140,7 @@ export function collect(
         }
 
         if (highlighting.highlightCodeInComments && isDocCommentOwner(n)) {
-            const node = new Node(n, file)
+            const node = new TactNode(n, file)
 
             const comment = extractCommentsDocContent(node.node)
             if (!comment) return true

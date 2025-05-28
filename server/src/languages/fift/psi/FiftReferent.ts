@@ -1,28 +1,28 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import type {File} from "@server/languages/tact/psi/File"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
-import {Node} from "@server/languages/tact/psi/Node"
 import {FiftReference} from "./FiftReference"
+import {FiftFile} from "@server/languages/fift/psi/FiftFile"
+import {FiftNode} from "@server/languages/fift/psi/FiftNode"
 
 export class FiftReferent {
     private readonly node: SyntaxNode
-    private readonly file: File
+    private readonly file: FiftFile
     private readonly resolved: SyntaxNode | null = null
 
-    public constructor(node: SyntaxNode, file: File) {
+    public constructor(node: SyntaxNode, file: FiftFile) {
         this.node = node
         this.file = file
         this.resolved = FiftReference.resolve(node, file)
     }
 
-    public findReferences(includeDefinition: boolean = false): Node[] {
+    public findReferences(includeDefinition: boolean = false): FiftNode[] {
         if (!this.resolved) return []
 
-        const result: Node[] = []
+        const result: FiftNode[] = []
         if (includeDefinition) {
-            result.push(new Node(this.resolved, this.file))
+            result.push(new FiftNode(this.resolved, this.file))
         }
 
         const word = this.resolved.text
@@ -46,7 +46,7 @@ export class FiftReferent {
 
             const def = FiftReference.resolve(node, this.file)
             if (def?.equals(this.node)) {
-                result.push(new Node(node, this.file))
+                result.push(new FiftNode(node, this.file))
             }
 
             return true

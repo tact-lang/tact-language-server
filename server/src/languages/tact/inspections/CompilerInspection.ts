@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {TactCompiler} from "@server/languages/tact/compiler/TactCompiler"
 import {Inspection, InspectionIds} from "./Inspection"
 import {URI} from "vscode-uri"
@@ -12,7 +12,7 @@ import {existsSync} from "node:fs"
 export class CompilerInspection implements Inspection {
     public readonly id: "tact-compiler-errors" = InspectionIds.COMPILER
 
-    public async inspect(file: File): Promise<lsp.Diagnostic[]> {
+    public async inspect(file: TactFile): Promise<lsp.Diagnostic[]> {
         if (file.fromStdlib) return []
 
         const configPath = path.join(workspaceRoot, "tact.config.json")

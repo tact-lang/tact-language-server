@@ -1,25 +1,25 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Inspection, InspectionIds} from "./Inspection"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import {Reference} from "@server/languages/tact/psi/Reference"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 import {asLspRange} from "@server/utils/position"
 import {isDeprecated} from "@server/languages/tact/psi/utils"
 
 export class DeprecatedSymbolUsageInspection implements Inspection {
     public readonly id: "deprecated-symbol-usage" = InspectionIds.DEPRECATED_SYMBOL_USAGE
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         RecursiveVisitor.visit(file.rootNode, node => {
             if (node.type !== "identifier" && node.type !== "type_identifier") return
 

@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspRange} from "@server/utils/position"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
@@ -10,7 +10,7 @@ import {Inspection, InspectionIds} from "./Inspection"
 export class UnusedImportInspection implements Inspection {
     public readonly id: "unused-import" = InspectionIds.UNUSED_IMPORT
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 
@@ -63,7 +63,7 @@ export class UnusedImportInspection implements Inspection {
         return diagnostics
     }
 
-    private static usedInFile(names: Set<string>, file: File): boolean {
+    private static usedInFile(names: Set<string>, file: TactFile): boolean {
         const lines = file.content.split(/\r?\n/)
 
         for (const line of lines) {

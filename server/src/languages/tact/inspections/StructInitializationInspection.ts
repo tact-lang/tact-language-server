@@ -1,20 +1,20 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {Inspection, InspectionIds} from "./Inspection"
 import {Reference} from "@server/languages/tact/psi/Reference"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 import {Field, FieldsOwner} from "@server/languages/tact/psi/Decls"
 import {OptionTy} from "@server/languages/tact/types/BaseTy"
 
 export class StructInitializationInspection implements Inspection {
     public readonly id: "struct-initialization" = InspectionIds.STRUCT_INITIALIZATION
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 
@@ -27,7 +27,11 @@ export class StructInitializationInspection implements Inspection {
         return diagnostics
     }
 
-    private checkStructLiteral(node: SyntaxNode, file: File, diagnostics: lsp.Diagnostic[]): void {
+    private checkStructLiteral(
+        node: SyntaxNode,
+        file: TactFile,
+        diagnostics: lsp.Diagnostic[],
+    ): void {
         const structName = node.childForFieldName("name")
         if (!structName) return
         const args = node.childForFieldName("arguments")

@@ -3,7 +3,7 @@
 import {RenameFilesParams} from "vscode-languageserver"
 import * as lsp from "vscode-languageserver"
 import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspRange} from "@server/utils/position"
 import {TextEdit} from "vscode-languageserver-types"
 import {index} from "@server/languages/tact/indexes"
@@ -33,7 +33,7 @@ export function onFileRenamed(params: RenameFilesParams): void {
         const file = PARSED_FILES_CACHE.get(oldUri)
         if (file) {
             PARSED_FILES_CACHE.delete(oldUri)
-            const newFile = new File(newUri, file.tree, file.content)
+            const newFile = new TactFile(newUri, file.tree, file.content)
             PARSED_FILES_CACHE.set(newUri, newFile)
 
             index.removeFile(oldUri)
@@ -70,7 +70,7 @@ function processFileRename(fileRename: lsp.FileRename, changes: Record<string, T
             }
 
             const oldFile = findTactFile(oldUri)
-            const newFile = new File(newUri, oldFile.tree, oldFile.content)
+            const newFile = new TactFile(newUri, oldFile.tree, oldFile.content)
             const newImportPath = newFile.importPath(file)
             const range = asLspRange(pathNode)
 

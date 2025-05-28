@@ -2,7 +2,7 @@
 //  Copyright © 2025 TON Studio
 import {InlayHint, InlayHintKind} from "vscode-languageserver-types"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {Reference} from "@server/languages/tact/psi/Reference"
 import {Field, Fun, InitFunction, Message, MessageFunction} from "@server/languages/tact/psi/Decls"
@@ -11,9 +11,9 @@ import {
     CallLike,
     Expression,
     NamedNode,
-    Node,
+    TactNode,
     VarDeclaration,
-} from "@server/languages/tact/psi/Node"
+} from "@server/languages/tact/psi/TactNode"
 import {
     BaseTy,
     BouncedTy,
@@ -163,7 +163,7 @@ function hasObviousType(expr: SyntaxNode): boolean {
 }
 
 export function collect(
-    file: File,
+    file: TactFile,
     hints: {
         types: boolean
         parameters: boolean
@@ -698,7 +698,7 @@ function renderTypeToParts(ty: Ty): InlayHintLabelPart[] {
     ]
 }
 
-function toLocation(node: Node | null | undefined): Location | undefined {
+function toLocation(node: TactNode | null | undefined): Location | undefined {
     if (!node) return undefined
 
     return {
