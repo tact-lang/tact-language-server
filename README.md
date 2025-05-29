@@ -55,6 +55,7 @@ In addition to Tact, the extension provides support for Fift assembly, TL-B, and
     - Go-to definitions
     - Completion for fields, parameters, and types
     - Go-to references for types
+    - Document symbols with all declarations
 - TON Bag-of-Cells (BoC):
     - Automatic BoC disassembly with syntax highlighting
     - Automatic updates on BoC changes
