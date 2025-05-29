@@ -47,7 +47,7 @@ export class IndexingRoot {
                   ]
 
         const rootDir = fileURLToPath(this.root)
-        const files = await glob(["**/*.tact"], {
+        const files = await glob("**/*.tact", {
             cwd: rootDir,
             ignore: ignore,
         })
