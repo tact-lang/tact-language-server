@@ -96,6 +96,7 @@ import {provideTactTypeAtPosition} from "@server/languages/tact/custom/type-at-p
 import {provideTlbDocumentSymbols} from "@server/languages/tlb/symbols"
 import {provideTlbCompletion} from "@server/languages/tlb/completion"
 import {TLB_CACHE} from "@server/languages/tlb/cache"
+import {provideTlbReferences} from "@server/languages/tlb/references"
 
 /**
  * Whenever LS is initialized.
@@ -671,6 +672,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 const node = nodeAtPosition(params, file)
                 if (!node) return null
                 return provideFiftReferences(node, file)
+            }
+
+            if (isTlbFile(uri)) {
+                const file = findTlbFile(uri)
+                const node = nodeAtPosition(params, file)
+                if (!node) return null
+                return provideTlbReferences(node, file)
             }
 
             if (isTactFile(uri)) {

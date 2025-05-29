@@ -1,7 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import type {Ty} from "@server/languages/tact/types/BaseTy"
-import {TlbNode} from "@server/languages/tlb/psi/TlbNode"
+import {NamedNode} from "@server/languages/tlb/psi/TlbNode"
 
 export class Cache<TKey, TValue> {
     private readonly data: Map<TKey, TValue>
@@ -31,19 +30,14 @@ export class Cache<TKey, TValue> {
 }
 
 export class CacheManager {
-    public readonly typeCache: Cache<number, Ty | null>
-    public readonly resolveCache: Cache<number, TlbNode | null>
+    public readonly resolveCache: Cache<number, NamedNode[]>
 
     public constructor() {
-        this.typeCache = new Cache()
         this.resolveCache = new Cache()
     }
 
     public clear(): void {
-        console.info(
-            `Clearing caches (types: ${this.typeCache.size}, resolve: ${this.resolveCache.size})`,
-        )
-        this.typeCache.clear()
+        console.info(`Clearing caches (resolve: ${this.resolveCache.size})`)
         this.resolveCache.clear()
     }
 }
