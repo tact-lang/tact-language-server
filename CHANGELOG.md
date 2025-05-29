@@ -23,11 +23,7 @@ All notable changes to this project will be documented in this file.
 - feat(lenses): add lenses for messages with received and sent count in https://github.com/tact-lang/tact-language-server/pull/733
 - feat(references/resolve): support go-to-references for TL-B types and support multi-declarations in https://github.com/tact-lang/tact-language-server/pull/744
 - feat(renaming): rename import on file rename or move in https://github.com/tact-lang/tact-language-server/pull/698
-- feat(testing): add filtering for e2e tests and fix e2e tests on windows in https://github.com/tact-lang/tact-language-server/pull/693
-- feat(testing): support multi files tests in https://github.com/tact-lang/tact-language-server/pull/694
-- feat(tests): add code lenses tests in https://github.com/tact-lang/tact-language-server/pull/735
-- feat(tests): add tests for document symbols in https://github.com/tact-lang/tact-language-server/pull/696
-- feat(tests): add tests for type definition in https://github.com/tact-lang/tact-language-server/pull/717
+- feat(tests): add filtering for e2e tests and fix e2e tests on windows in https://github.com/tact-lang/tact-language-server/pull/693
 - feat(tlb): add basic highlight TL-B code blocks inside Tact comments in https://github.com/tact-lang/tact-language-server/pull/670
 - feat(tlb): add initial completion for declarations, parameters, fields and builtin types in https://github.com/tact-lang/tact-language-server/pull/740
 - feat(tlb): add tree-sitter grammar for TL-B in https://github.com/tact-lang/tact-language-server/pull/669
@@ -54,6 +50,11 @@ All notable changes to this project will be documented in this file.
 - fix: delay file open event until indexing is in progress in https://github.com/tact-lang/tact-language-server/pull/747
 
 ### Internal
+
+- feat(tests): support multi files tests in https://github.com/tact-lang/tact-language-server/pull/694
+- feat(tests): add code lenses tests in https://github.com/tact-lang/tact-language-server/pull/735
+- feat(tests): add tests for document symbols in https://github.com/tact-lang/tact-language-server/pull/696
+- feat(tests): add tests for type definition in https://github.com/tact-lang/tact-language-server/pull/717
 
 - refactor: move `*-language-configuration.json` to `client/src/languages` in https://github.com/tact-lang/tact-language-server/pull/660
 - refactor: move syntaxes to `client/` and stubs to `server/` in https://github.com/tact-lang/tact-language-server/pull/709
