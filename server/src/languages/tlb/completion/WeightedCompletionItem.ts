@@ -4,23 +4,8 @@ import {CompletionItem} from "vscode-languageserver-types"
 
 export enum CompletionWeight {
     CONTEXT_ELEMENT = 0,
-    VARIABLE = 50,
-    PARAM = 60,
-    FIELD = 70,
     KEYWORD = 80,
-    FUNCTION = 90,
-    SNIPPET = 95,
-    CONSTANT = 100,
-    PRIMITIVE = 105,
-    STRUCT = 110,
-    TRAIT = 120,
-    CONTRACT = 130,
     LOWEST = 500,
-}
-
-export function contextWeight(weight: CompletionWeight, match: boolean): CompletionWeight {
-    if (match) return weight
-    return weight + 500
 }
 
 // eslint-disable-next-line functional/type-declaration-immutability
