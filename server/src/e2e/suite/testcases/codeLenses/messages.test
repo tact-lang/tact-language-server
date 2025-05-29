@@ -1,0 +1,90 @@
+========================================================================
+Message with receivers and senders
+========================================================================
+message Transfer {
+    to: Address;
+    amount: Int;
+}
+
+contract Wallet {
+    owner: Address;
+    
+    receive(msg: Transfer) {
+        // handle transfer
+    }
+    
+    fun sendTransfer(to: Address, amount: Int) {
+        send(SendParameters{
+            to: to, 
+            value: amount,
+            body: Transfer{to: to, amount: amount}.toCell()
+        });
+    }
+}
+
+contract Exchange {
+    receive(msg: Transfer) {
+        // handle transfer
+    }
+}
+------------------------------------------------------------------------
+/* Received 2 times *//* Sent 1 time */message Transfer {
+    to: Address;
+    amount: Int;
+}
+
+contract Wallet {
+    owner: Address;
+    
+    receive(msg: Transfer) {
+        // handle transfer
+    }
+    
+    fun sendTransfer(to: Address, amount: Int) {
+        send(SendParameters{
+            to: to, 
+            value: amount,
+            body: Transfer{to: to, amount: amount}.toCell()
+        });
+    }
+}
+
+contract Exchange {
+    receive(msg: Transfer) {
+        // handle transfer
+    }
+}
+
+========================================================================
+Message with no usage
+========================================================================
+message UnusedMessage {
+    data: Int;
+}
+------------------------------------------------------------------------
+/* Received 0 times *//* Sent 0 times */message UnusedMessage {
+    data: Int;
+}
+
+========================================================================
+Message only received
+========================================================================
+message NotifyMessage {
+    info: String;
+}
+
+contract Receiver {
+    receive(msg: NotifyMessage) {
+        // handle notification
+    }
+}
+------------------------------------------------------------------------
+/* Received 1 time *//* Sent 0 times */message NotifyMessage {
+    info: String;
+}
+
+contract Receiver {
+    receive(msg: NotifyMessage) {
+        // handle notification
+    }
+} 

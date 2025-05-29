@@ -1,0 +1,68 @@
+========================================================================
+Trait implementations
+========================================================================
+trait BaseTrait {
+    abstract fun foo();
+}
+
+contract MyContract with BaseTrait {
+    fun foo() {
+    }
+}
+
+contract AnotherContract with BaseTrait {
+    fun foo() {
+    }
+}
+------------------------------------------------------------------------
+/* 2 implementations */trait BaseTrait {
+    /* 2 implementations */abstract fun foo();
+}
+
+contract MyContract with BaseTrait {
+    fun foo() {
+    }
+}
+
+contract AnotherContract with BaseTrait {
+    fun foo() {
+    }
+}
+
+========================================================================
+Trait with no implementations
+========================================================================
+trait UnusedTrait {
+    abstract fun bar();
+}
+------------------------------------------------------------------------
+/* 0 implementation */trait UnusedTrait {
+    /* 0 implementation */abstract fun bar();
+}
+
+========================================================================
+Virtual function overrides
+========================================================================
+trait VirtualTrait {
+    virtual fun process(): Int {
+        return 42;
+    }
+}
+
+contract OverrideContract with VirtualTrait {
+    override fun process(): Int {
+        return 100;
+    }
+}
+------------------------------------------------------------------------
+/* 1 implementation */trait VirtualTrait {
+    /* 1 override */virtual fun process(): Int {
+        return 42;
+    }
+}
+
+contract OverrideContract with VirtualTrait {
+    /* Go to parent */override fun process(): Int {
+        return 100;
+    }
+} 
