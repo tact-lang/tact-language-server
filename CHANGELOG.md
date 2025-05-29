@@ -55,7 +55,6 @@ All notable changes to this project will be documented in this file.
 - feat(tests): add code lenses tests in https://github.com/tact-lang/tact-language-server/pull/735
 - feat(tests): add tests for document symbols in https://github.com/tact-lang/tact-language-server/pull/696
 - feat(tests): add tests for type definition in https://github.com/tact-lang/tact-language-server/pull/717
-
 - refactor: move `*-language-configuration.json` to `client/src/languages` in https://github.com/tact-lang/tact-language-server/pull/660
 - refactor: move syntaxes to `client/` and stubs to `server/` in https://github.com/tact-lang/tact-language-server/pull/709
 - refactor: split languages to separate folders inside `server/src/languages` in https://github.com/tact-lang/tact-language-server/pull/710
