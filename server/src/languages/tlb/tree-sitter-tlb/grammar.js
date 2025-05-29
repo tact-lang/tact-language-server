@@ -168,7 +168,8 @@ module.exports = grammar({
 
         builtin_expr: $ => choice($.builtin_one_arg, $.builtin_zero_args),
 
-        builtin_one_arg: $ => seq("(", choice("#<=", "#<"), $.ref_expr, ")"),
+        builtin_one_arg: $ =>
+            seq("(", alias(choice("#<=", "#<"), $.type_identifier), $.ref_expr, ")"),
 
         builtin_zero_args: _ => "#",
 

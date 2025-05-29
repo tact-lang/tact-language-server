@@ -1030,17 +1030,22 @@
                     "value": "("
                 },
                 {
-                    "type": "CHOICE",
-                    "members": [
-                        {
-                            "type": "STRING",
-                            "value": "#<="
-                        },
-                        {
-                            "type": "STRING",
-                            "value": "#<"
-                        }
-                    ]
+                    "type": "ALIAS",
+                    "content": {
+                        "type": "CHOICE",
+                        "members": [
+                            {
+                                "type": "STRING",
+                                "value": "#<="
+                            },
+                            {
+                                "type": "STRING",
+                                "value": "#<"
+                            }
+                        ]
+                    },
+                    "named": true,
+                    "value": "type_identifier"
                 },
                 {
                     "type": "SYMBOL",
