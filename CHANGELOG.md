@@ -7,7 +7,6 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - feat: add flexible toolchain settings in https://github.com/tact-lang/tact-language-server/pull/723
-- feat: add TL-B basic highlighting in https://github.com/tact-lang/tact-language-server/pull/666
 - feat: don't index `.git` and `allure-results` folders in https://github.com/tact-lang/tact-language-server/pull/715
 - feat: support contract `Contract.toCell/toSlice` from Tact 1.6.11 and `Contract.fromCell/fromSlice` from Tact 1.6.12 in https://github.com/tact-lang/tact-language-server/pull/746
 - feat(ci): move tree-sitter grammars to separate job in https://github.com/tact-lang/tact-language-server/pull/718
@@ -24,6 +23,7 @@ All notable changes to this project will be documented in this file.
 - feat(references/resolve): support go-to-references for TL-B types and support multi-declarations in https://github.com/tact-lang/tact-language-server/pull/744
 - feat(renaming): rename import on file rename or move in https://github.com/tact-lang/tact-language-server/pull/698
 - feat(tests): add filtering for e2e tests and fix e2e tests on windows in https://github.com/tact-lang/tact-language-server/pull/693
+- feat(tlb): add TL-B basic highlighting in https://github.com/tact-lang/tact-language-server/pull/666
 - feat(tlb): add basic highlight TL-B code blocks inside Tact comments in https://github.com/tact-lang/tact-language-server/pull/670
 - feat(tlb): add initial completion for declarations, parameters, fields and builtin types in https://github.com/tact-lang/tact-language-server/pull/740
 - feat(tlb): add tree-sitter grammar for TL-B in https://github.com/tact-lang/tact-language-server/pull/669
