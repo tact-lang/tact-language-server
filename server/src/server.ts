@@ -277,7 +277,7 @@ async function initialize(): Promise<void> {
         index.withStdlibRoot(new IndexRoot("stdlib", stdlibUri))
 
         const stdlibRoot = new IndexingRoot(stdlibUri, IndexingRootKind.Stdlib)
-        stdlibRoot.index()
+        await stdlibRoot.index()
     }
 
     setProjectStdlibPath(stdlibPath)
@@ -289,13 +289,13 @@ async function initialize(): Promise<void> {
         index.withStubsRoot(new IndexRoot("stubs", stubsUri))
 
         const stubsRoot = new IndexingRoot(stubsUri, IndexingRootKind.Stdlib)
-        stubsRoot.index()
+        await stubsRoot.index()
     }
 
     reporter.report(80, "Indexing: (3/3) Workspace")
     index.withRoots([new IndexRoot("workspace", rootUri)])
     const workspaceRoot = new IndexingRoot(rootUri, IndexingRootKind.Workspace)
-    workspaceRoot.index()
+    await workspaceRoot.index()
 
     reporter.report(100, "Ready")
 
