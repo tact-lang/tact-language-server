@@ -93,6 +93,11 @@ import {collectTactInlays} from "@server/languages/tact/inlays"
 import {provideTactDocumentHighlight} from "@server/languages/tact/highlighting"
 import {provideTactImplementations} from "@server/languages/tact/implementations"
 import {provideTactTypeAtPosition} from "@server/languages/tact/custom/type-at-position"
+import {
+    provideTactTypeHierarchyPrepare,
+    provideTactTypeHierarchySupertypes,
+    provideTactTypeHierarchySubtypes,
+} from "@server/languages/tact/type-hierarchy"
 
 /**
  * Whenever LS is initialized.
@@ -830,6 +835,34 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         },
     )
 
+    connection.onRequest(
+        lsp.TypeHierarchyPrepareRequest.type,
+        (params: lsp.TypeHierarchyPrepareParams): lsp.TypeHierarchyItem[] | null => {
+            const uri = params.textDocument.uri
+
+            if (isTactFile(uri)) {
+                const file = findTactFile(uri)
+                return provideTactTypeHierarchyPrepare(params, file)
+            }
+
+            return null
+        },
+    )
+
+    connection.onRequest(
+        lsp.TypeHierarchySupertypesRequest.type,
+        (params: lsp.TypeHierarchySupertypesParams): lsp.TypeHierarchyItem[] | null => {
+            return provideTactTypeHierarchySupertypes(params)
+        },
+    )
+
+    connection.onRequest(
+        lsp.TypeHierarchySubtypesRequest.type,
+        (params: lsp.TypeHierarchySubtypesParams): lsp.TypeHierarchyItem[] | null => {
+            return provideTactTypeHierarchySubtypes(params)
+        },
+    )
+
     // Custom LSP requests
 
     connection.onRequest(
@@ -890,6 +923,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             documentHighlightProvider: true,
             foldingRangeProvider: true,
             implementationProvider: true,
+            typeHierarchyProvider: true,
             completionProvider: {
                 resolveProvider: true,
                 triggerCharacters: ["."],

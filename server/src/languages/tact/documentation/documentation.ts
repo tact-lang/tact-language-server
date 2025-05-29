@@ -1,10 +1,8 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
-import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {
-    Constant,
     Contract,
+    Constant,
     Field,
     FieldsOwner,
     Fun,
@@ -14,20 +12,23 @@ import {
     Struct,
     Trait,
 } from "@server/languages/tact/psi/Decls"
-import type {Node as SyntaxNode} from "web-tree-sitter"
-import {trimPrefix} from "@server/utils/strings"
-import * as compiler from "@server/languages/tact/compiler/utils"
-import {getDocumentSettings, TactSettings} from "@server/settings/settings"
+import {TactSettings, getDocumentSettings} from "@server/settings/settings"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
+import {NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
+import type {Node as SyntaxNode} from "web-tree-sitter"
+import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {
     ContractTy,
     FieldsOwnerTy,
     MessageTy,
-    sizeOfPresentation,
     StructTy,
     Ty,
+    sizeOfPresentation,
 } from "@server/languages/tact/types/BaseTy"
 import {generateTlb} from "@server/languages/tact/compiler/tlb/tlb"
+import {ContractDependencies} from "@server/languages/tact/psi/ContractDependencies"
+import {trimPrefix} from "@server/utils/strings"
+import * as compiler from "@server/languages/tact/compiler/utils"
 
 const CODE_FENCE = "```"
 const DOC_TMPL = `${CODE_FENCE}tact\n{signature}\n${CODE_FENCE}\n{documentation}\n`
@@ -142,7 +143,13 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
 
             const tlb = genTlb(new ContractTy(contract.name(), contract))
 
-            return defaultResult(`contract ${node.name()}${inheritedString} ${body}`, tlb + doc)
+            const dependencySummary = ContractDependencies.getDependencySummary(contract)
+            const dependencyDoc = dependencySummary ? `\n\n---\n\n${dependencySummary}` : ""
+
+            return defaultResult(
+                `contract ${node.name()}${inheritedString} ${body}`,
+                tlb + doc + dependencyDoc,
+            )
         }
         case "trait": {
             const trait = new Trait(astNode, node.file)

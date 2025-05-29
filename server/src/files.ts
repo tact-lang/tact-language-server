@@ -6,6 +6,7 @@ import {createFiftParser, createTactParser, createTlbParser} from "@server/parse
 import * as fs from "node:fs"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
+import {ContractDependencies} from "@server/languages/tact/psi/ContractDependencies"
 
 export const PARSED_FILES_CACHE: Map<string, TactFile> = new Map()
 export const FIFT_PARSED_FILES_CACHE: Map<string, FiftFile> = new Map()
@@ -35,6 +36,9 @@ export function reparseTactFile(uri: string, content: string): TactFile {
 
     const file = new TactFile(uri, tree, content)
     PARSED_FILES_CACHE.set(uri, file)
+
+    ContractDependencies.clearCache()
+
     return file
 }
 

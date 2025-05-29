@@ -52,6 +52,7 @@ export function isDocCommentOwner(node: SyntaxNode): boolean {
         node.type === "bounced_function" ||
         node.type === "external_function" ||
         node.type === "storage_variable" ||
+        node.type === "storage_function" ||
         node.type === "storage_constant"
     )
 }
