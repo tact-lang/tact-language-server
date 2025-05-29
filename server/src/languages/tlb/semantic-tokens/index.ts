@@ -7,7 +7,7 @@ import type {Node as SyntaxNode} from "web-tree-sitter"
 import * as lsp from "vscode-languageserver"
 import {TlbReference} from "@server/languages/tlb/psi/TlbReference"
 import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
-import {TlbNode} from "@server/languages/tlb/psi/TlbNode"
+import {NamedNode} from "@server/languages/tlb/psi/TlbNode"
 
 export function provideTlbSemanticTokens(file: TlbFile): SemanticTokens {
     const builder = new SemanticTokensBuilder()
@@ -29,7 +29,7 @@ export function provideTlbSemanticTokens(file: TlbFile): SemanticTokens {
                 break
             }
             case "identifier": {
-                const resolved = TlbReference.resolve(new TlbNode(node, file))
+                const resolved = TlbReference.resolve(new NamedNode(node, file))
                 if (resolved) {
                     const insideTypeParameter =
                         resolved.parentOfType("type_parameter") !== undefined
@@ -49,7 +49,7 @@ export function provideTlbSemanticTokens(file: TlbFile): SemanticTokens {
                     break
                 }
 
-                const resolved = TlbReference.resolve(new TlbNode(node, file))
+                const resolved = TlbReference.resolve(new NamedNode(node, file))
                 if (resolved) {
                     if (resolved.node.parent?.type === "field_named") {
                         pushToken(node, SemanticTokenTypes.variable)

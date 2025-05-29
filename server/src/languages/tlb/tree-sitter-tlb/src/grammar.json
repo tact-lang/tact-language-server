@@ -204,8 +204,12 @@
                     "value": "{"
                 },
                 {
-                    "type": "SYMBOL",
-                    "name": "identifier"
+                    "type": "FIELD",
+                    "name": "name",
+                    "content": {
+                        "type": "SYMBOL",
+                        "name": "identifier"
+                    }
                 },
                 {
                     "type": "STRING",
@@ -229,8 +233,16 @@
                     "value": "{"
                 },
                 {
-                    "type": "SYMBOL",
-                    "name": "curly_expression"
+                    "type": "CHOICE",
+                    "members": [
+                        {
+                            "type": "SYMBOL",
+                            "name": "curly_expression"
+                        },
+                        {
+                            "type": "BLANK"
+                        }
+                    ]
                 },
                 {
                     "type": "STRING",
@@ -1052,19 +1064,27 @@
                     "value": "("
                 },
                 {
-                    "type": "ALIAS",
+                    "type": "FIELD",
+                    "name": "name",
                     "content": {
-                        "type": "SYMBOL",
-                        "name": "_type_identifier"
-                    },
-                    "named": true,
-                    "value": "type_identifier"
+                        "type": "ALIAS",
+                        "content": {
+                            "type": "SYMBOL",
+                            "name": "_type_identifier"
+                        },
+                        "named": true,
+                        "value": "type_identifier"
+                    }
                 },
                 {
-                    "type": "REPEAT1",
+                    "type": "FIELD",
+                    "name": "params",
                     "content": {
-                        "type": "SYMBOL",
-                        "name": "type_expr"
+                        "type": "REPEAT1",
+                        "content": {
+                            "type": "SYMBOL",
+                            "name": "type_expr"
+                        }
                     }
                 },
                 {
@@ -1121,8 +1141,17 @@
             ]
         },
         "curly_expression": {
-            "type": "SYMBOL",
-            "name": "compare_expr"
+            "type": "CHOICE",
+            "members": [
+                {
+                    "type": "SYMBOL",
+                    "name": "compare_expr"
+                },
+                {
+                    "type": "SYMBOL",
+                    "name": "identifier"
+                }
+            ]
         },
         "field_anon_ref": {
             "type": "SEQ",

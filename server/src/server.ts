@@ -94,6 +94,8 @@ import {provideTactDocumentHighlight} from "@server/languages/tact/highlighting"
 import {provideTactImplementations} from "@server/languages/tact/implementations"
 import {provideTactTypeAtPosition} from "@server/languages/tact/custom/type-at-position"
 import {provideTlbDocumentSymbols} from "@server/languages/tlb/symbols"
+import {provideTlbCompletion} from "@server/languages/tlb/completion"
+import {TLB_CACHE} from "@server/languages/tlb/cache"
 
 /**
  * Whenever LS is initialized.
@@ -255,6 +257,7 @@ async function initialize(): Promise<void> {
         await connection.sendRequest(lsp.InlayHintRefreshRequest.type)
     }
     CACHE.clear()
+    TLB_CACHE.clear()
 
     reporter.done()
     initializationFinished = true
@@ -371,6 +374,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
         if (isTlbFile(uri, event)) {
             TLB_PARSED_FILES_CACHE.delete(uri)
+            TLB_CACHE.clear()
             reparseTlbFile(uri, event.document.getText())
         }
 
@@ -556,6 +560,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (isTactFile(uri)) {
                 const file = findTactFile(uri)
                 return provideTactCompletion(file, params, uri)
+            }
+
+            if (isTlbFile(uri)) {
+                const file = findTlbFile(uri)
+                return provideTlbCompletion(file, params, uri)
             }
 
             return []
