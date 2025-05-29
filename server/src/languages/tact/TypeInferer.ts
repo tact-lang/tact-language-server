@@ -261,7 +261,9 @@ export class TypeInferer {
             // Handle `Struct.fromCell()` calls
             if (
                 qualifier &&
-                (calledName.startsWith("AnyStruct_") || calledName.startsWith("AnyMessage_"))
+                (calledName.startsWith("AnyStruct_") ||
+                    calledName.startsWith("AnyMessage_") ||
+                    calledName.startsWith("AnyContract_"))
             ) {
                 return new Expression(qualifier, node.file).type()
             }

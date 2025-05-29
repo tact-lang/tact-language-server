@@ -17,6 +17,7 @@ import {
 import {
     BaseTy,
     BouncedTy,
+    ContractTy,
     MapTy,
     MessageTy,
     OptionTy,
@@ -128,6 +129,8 @@ function processToCellCall(call: CallLike, result: InlayHint[], showToCellSize: 
     if (!ty) {
         return
     }
+
+    if (ty instanceof ContractTy) return
 
     const sizeof = ty.sizeOf(new Map())
     if (!sizeof.valid) {

@@ -9,7 +9,7 @@ fun AnyStruct_fromSlice(slice: Slice): S {}
 struct Foo {}
 
 fun test() {
-    let f = Foo.<caret>;
+    let f = Foo.fromSlice();
     //  ^! Foo
 }
 ------------------------------------------------------------------------
@@ -26,7 +26,24 @@ fun AnyMessage_fromSlice(slice: Slice): M {}
 message Foo {}
 
 fun test() {
-    let f = Foo.<caret>;
+    let f = Foo.fromCell();
+    //  ^! Foo
+}
+------------------------------------------------------------------------
+ok
+
+========================================================================
+fromCell/fromSlice for contracts
+========================================================================
+primitive Int;
+
+fun AnyContract_fromCell(cell: Cell): M {}
+fun AnyContract_fromSlice(slice: Slice): M {}
+
+contract Foo {}
+
+fun test() {
+    let f = Foo.fromCell();
     //  ^! Foo
 }
 ------------------------------------------------------------------------

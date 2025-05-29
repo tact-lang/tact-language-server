@@ -82,7 +82,10 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const extraDoc =
                 func.name() === "require" ? requireFunctionDoc(place, node.file, settings) : ""
 
-            const name = trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyStruct_")
+            const name = trimPrefix(
+                trimPrefix(trimPrefix(node.name(), "AnyContract_"), "AnyMessage_"),
+                "AnyStruct_",
+            )
 
             return defaultResult(
                 `${func.modifiers()}fun ${name}${func.signaturePresentation()}${func.bodyPresentation(maxLinesBody)}`,

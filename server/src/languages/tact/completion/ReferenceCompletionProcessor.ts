@@ -83,8 +83,16 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         if (!(node instanceof NamedNode)) return true
 
         const prefix = state.get("prefix") ?? ""
-        const name = trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyStruct_")
-        if (name.endsWith("DummyIdentifier") || name === "AnyStruct" || name === "AnyMessage") {
+        const name = trimPrefix(
+            trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyContract_"),
+            "AnyStruct_",
+        )
+        if (
+            name.endsWith("DummyIdentifier") ||
+            name === "AnyStruct" ||
+            name === "AnyMessage" ||
+            name === "AnyContract"
+        ) {
             return true
         }
 
