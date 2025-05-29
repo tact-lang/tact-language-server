@@ -33,3 +33,21 @@ fun test() {
 ```tact
 fun fromSlice(slice: Slice): M {}
 ```
+
+========================================================================
+fromCell/fromSlice for contract
+========================================================================
+primitive Int;
+
+fun AnyContract_fromCell(cell: Cell): M {}
+fun AnyContract_fromSlice(slice: Slice): M {}
+
+contract Foo {}
+
+fun test() {
+    Foo.<caret>fromSlice();
+}
+------------------------------------------------------------------------
+```tact
+fun fromSlice(slice: Slice): M {}
+```

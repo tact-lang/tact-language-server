@@ -227,6 +227,42 @@ export class Reference {
             }
         }
 
+        if (qualifierType instanceof ContractTy) {
+            const methodRef = qualifier.node.parent?.type === "method_call_expression"
+
+            if (qualifier.node.type === "identifier") {
+                const resolved = Reference.resolve(new NamedNode(qualifier.node, qualifier.file))
+                if (resolved instanceof Contract) {
+                    // found `Contract.fromCell` case
+                    const fromCellName = "AnyContract_fromCell"
+                    const fromCell = index.elementByName(IndexKey.Funs, fromCellName)
+                    if (fromCell) {
+                        const newState = state.withValue(
+                            "search-name",
+                            "AnyContract_" + this.element.name(),
+                        )
+                        if (!proc.execute(fromCell, newState)) return false
+                    }
+
+                    const fromSliceName = "AnyContract_fromSlice"
+                    const fromSlice = index.elementByName(IndexKey.Funs, fromSliceName)
+                    if (fromSlice) {
+                        const newState = state.withValue(
+                            "search-name",
+                            "AnyContract_" + this.element.name(),
+                        )
+                        if (!proc.execute(fromSlice, newState)) return false
+                    }
+                }
+            }
+
+            const nodeContract = index.elementByName(IndexKey.Primitives, "AnyContract")
+            if (nodeContract && (methodRef || state.get("completion"))) {
+                const contractPrimitiveTy = new PrimitiveTy("AnyContract", nodeContract, null)
+                if (!this.processType(qualifier, contractPrimitiveTy, proc, state)) return false
+            }
+        }
+
         if (qualifierType instanceof BouncedTy) {
             return this.processType(qualifier, qualifierType.innerTy, proc, state)
         }
@@ -575,7 +611,8 @@ export class Reference {
                     if (node.withSelf()) return true // don't add methods to unqualified completion
                     if (
                         node.name().startsWith("AnyStruct_") ||
-                        node.name().startsWith("AnyMessage_")
+                        node.name().startsWith("AnyMessage_") ||
+                        node.name().startsWith("AnyContract_")
                     ) {
                         // this functions in fact static methods
                         return true
