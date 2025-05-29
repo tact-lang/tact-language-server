@@ -4,24 +4,17 @@ import * as lsp from "vscode-languageserver"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {isNamedFunNode, parentOfType} from "@server/languages/tact/psi/utils"
-import {Fun, StorageMembersOwner, Struct, Trait} from "@server/languages/tact/psi/Decls"
-import {NamedNode} from "@server/languages/tact/psi/TactNode"
+import {isNamedFunNode, isReceiveFunNode, parentOfType} from "@server/languages/tact/psi/utils"
+import {Fun, Message, StorageMembersOwner, Struct, Trait} from "@server/languages/tact/psi/Decls"
+import {CallLike, NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
 import {Referent} from "@server/languages/tact/psi/Referent"
 import {asLspRange, asNullableLspRange} from "@server/utils/position"
 import * as search from "@server/languages/tact/search/implementations"
+import {TactSettings} from "@server/settings/settings"
 
 export function collectTactCodeLenses(
     file: TactFile,
-    settings: {
-        enabled: boolean
-        showUsages: boolean
-        showOverrides: boolean
-        showTraitImplementations: boolean
-        showFunctionImplementations: boolean
-        showParentTraitFields: boolean
-        showParentTraitFunctions: boolean
-    },
+    settings: TactSettings["codeLens"],
 ): lsp.CodeLens[] {
     if (file.fromStdlib || !settings.enabled) {
         // we don't need to count usages or show anything for stdlib symbols
@@ -178,6 +171,10 @@ export function collectTactCodeLenses(
             )
         }
 
+        if (n.type === "message") {
+            messageReceiversLens(n, file, result, settings)
+        }
+
         if (
             settings.showUsages &&
             (n.type === "trait" ||
@@ -204,40 +201,96 @@ function usagesLens(n: SyntaxNode, file: TactFile, result: lsp.CodeLens[]): void
     }
 
     const struct = new Struct(n, file)
-    const nodeIdentifier = struct.nameIdentifier()
-    if (!nodeIdentifier) return
-    const references = new Referent(nodeIdentifier, file).findReferences({
+    const name = struct.nameIdentifier()
+    if (!name) return
+    const references = new Referent(name, file).findReferences({
         includeDefinition: false,
         sameFileOnly: false,
         includeSelf: false,
     })
 
-    result.push(
-        newLens(n, {
-            title: `${references.length} usages`,
-            command: "tact.showReferences",
-            arguments: [
-                file.uri,
-                {
-                    line: nodeIdentifier.startPosition.row,
-                    character: nodeIdentifier.startPosition.column,
-                } as lsp.Position,
-                references.map(r => {
-                    return {
-                        uri: r.file.uri,
-                        range: asLspRange(r.node),
-                    } as lsp.Location
-                }),
-            ],
-        }),
-    )
+    result.push(referencesLens(`${references.length} usages`, struct, references, name))
+}
+
+function messageReceiversLens(
+    n: SyntaxNode,
+    file: TactFile,
+    result: lsp.CodeLens[],
+    settings: TactSettings["codeLens"],
+): void {
+    const message = new Message(n, file)
+    const name = message.nameIdentifier()
+    if (!name) return
+
+    const references = new Referent(name, file).findReferences({
+        includeDefinition: false,
+        sameFileOnly: false,
+        includeSelf: false,
+    })
+
+    const receives = references.filter(it => isReceiveReference(it))
+    const sends = references.filter(it => isSendReference(it))
+
+    if (settings.showMessageReceivedCount) {
+        const msg = `Received ${receives.length} time${receives.length === 1 ? "" : "s"}`
+        result.push(referencesLens(msg, message, receives, name))
+    }
+
+    if (settings.showMessageSentCount) {
+        const msg = `Sent ${sends.length} time${sends.length === 1 ? "" : "s"}`
+        result.push(referencesLens(msg, message, sends, name))
+    }
+}
+
+function isReceiveReference(node: TactNode): boolean {
+    // check if `receive(msg: Foo) {}`
+    //                        ^^^ node
+    const parent = node.node.parent
+    if (parent?.type !== "parameter") return false
+    const grand = parent.parent
+    if (!grand) return false
+    return isReceiveFunNode(grand)
+}
+
+function isSendReference(node: TactNode): boolean {
+    // check if `Foo {}.toCell()`
+    //           ^^^ node
+    const grand = node.node.parent?.parent
+    if (grand?.type !== "method_call_expression") return false
+    const call = new CallLike(grand, node.file)
+    return call.name() === "toCell"
+}
+
+function referencesLens(
+    title: string,
+    node: TactNode,
+    references: TactNode[],
+    ident: SyntaxNode,
+): lsp.CodeLens {
+    return newLens(node.node, {
+        title: title,
+        command: "tact.showReferences",
+        arguments: [
+            node.file.uri,
+            {
+                line: ident.startPosition.row,
+                character: ident.startPosition.column,
+            } as lsp.Position,
+            references.map(r => {
+                return {
+                    uri: r.file.uri,
+                    range: asLspRange(r.node),
+                } as lsp.Location
+            }),
+        ],
+    })
 }
 
 function newLens(node: SyntaxNode, cmd: lsp.Command): lsp.CodeLens {
-    const start = {
+    const start: lsp.Position = {
         line: node.startPosition.row,
         character: node.startPosition.column,
-    } as lsp.Position
+    }
     return {
         range: {
             start: start,
