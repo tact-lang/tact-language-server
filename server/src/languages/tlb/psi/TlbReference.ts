@@ -12,9 +12,14 @@ export class TlbReference {
     private readonly element: TlbNode
     private readonly file: TlbFile
 
-    public static resolve(node: TlbNode | null): TlbNode | null {
+    public static resolve(node: TlbNode | null): NamedNode | null {
         if (node === null) return null
         return new TlbReference(node, node.file).resolve()
+    }
+
+    public static multiResolve(node: TlbNode | null): NamedNode[] {
+        if (node === null) return []
+        return new TlbReference(node, node.file).multiResolve()
     }
 
     public constructor(element: TlbNode, file: TlbFile) {
@@ -22,27 +27,31 @@ export class TlbReference {
         this.file = file
     }
 
-    public resolve(): TlbNode | null {
+    public resolve(): NamedNode | null {
+        const elements = this.multiResolve()
+        return elements[0] ?? null
+    }
+
+    public multiResolve(): NamedNode[] {
         return TLB_CACHE.resolveCache.cached(this.element.node.id, () => this.resolveImpl())
     }
 
-    public resolveImpl(): TlbNode | null {
-        const result: TlbNode[] = []
+    public resolveImpl(): NamedNode[] {
+        const result: NamedNode[] = []
         const state = new ResolveState()
         this.processResolveVariants(
             TlbReference.createResolveProcessor(result, this.element),
             state,
         )
-        if (result.length === 0) return null
-        return result[0]
+        if (result.length === 0) return []
+        return result
     }
 
     private static createResolveProcessor(result: TlbNode[], element: TlbNode): ScopeProcessor {
         return new (class implements ScopeProcessor {
             public execute(node: TlbNode, state: ResolveState): boolean {
                 if (node.node.equals(element.node)) {
-                    result.push(node)
-                    return false
+                    return true
                 }
 
                 if (!(node instanceof NamedNode) || !(element instanceof NamedNode)) {
@@ -53,7 +62,7 @@ export class TlbReference {
 
                 if (node.name() === searchName) {
                     result.push(node)
-                    return false
+                    return true
                 }
 
                 return true
@@ -63,8 +72,14 @@ export class TlbReference {
 
     public processResolveVariants(proc: ScopeProcessor, state: ResolveState): boolean {
         const parent = this.element.node.parent
-        if (parent?.type === "combinator") return true
-        if (parent && parentOfType(parent, "type_parameter") !== null) return true
+        if (parent?.type === "combinator") {
+            const declaration = parent.parent
+            if (declaration?.type === "declaration") {
+                return proc.execute(new DeclarationNode(declaration, this.file), state)
+            }
+        }
+
+        if (parentOfType(this.element.node, "type_parameter") !== null) return true
 
         for (const decl of this.file.getDeclarations()) {
             if (!proc.execute(decl, state)) return false

@@ -11,25 +11,21 @@ export function provideTlbDefinition(
 ): lsp.Location[] | lsp.LocationLink[] {
     if (node.type !== "identifier" && node.type !== "type_identifier") return []
 
-    const target = TlbReference.resolve(new NamedNode(node, file))
-    if (!target) return []
+    const targets = TlbReference.multiResolve(new NamedNode(node, file))
+    if (targets.length === 0) return []
 
-    if (target instanceof NamedNode) {
+    return targets.map(target => {
         const nameNode = target.nameNode()
         if (nameNode) {
-            return [
-                {
-                    uri: file.uri,
-                    range: asLspRange(nameNode.node),
-                },
-            ]
+            return {
+                uri: file.uri,
+                range: asLspRange(nameNode.node),
+            }
         }
-    }
 
-    return [
-        {
+        return {
             uri: file.uri,
             range: asLspRange(target.node),
-        },
-    ]
+        }
+    })
 }
