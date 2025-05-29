@@ -97,6 +97,13 @@ import {provideTlbDocumentSymbols} from "@server/languages/tlb/symbols"
 import {provideTlbCompletion} from "@server/languages/tlb/completion"
 import {TLB_CACHE} from "@server/languages/tlb/cache"
 import {provideTlbReferences} from "@server/languages/tlb/references"
+import {TextDocument} from "vscode-languageserver-textdocument"
+
+interface PendingFileEvent {
+    readonly uri: string
+    readonly content?: string
+    readonly textDocumentEvent: lsp.TextDocumentChangeEvent<TextDocument>
+}
 
 /**
  * Whenever LS is initialized.
@@ -107,6 +114,7 @@ import {provideTlbReferences} from "@server/languages/tlb/references"
 let initialized = false
 let initializationFinished = false
 
+let pendingFileEvents: PendingFileEvent[] = []
 let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
 
 /**
@@ -114,6 +122,48 @@ let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
  * Used to find files to index.
  */
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
+
+async function processPendingEvents(): Promise<void> {
+    console.info(`Processing ${pendingFileEvents.length} pending file events`)
+
+    for (const event of pendingFileEvents) {
+        await handleFileOpen(event.textDocumentEvent, true)
+    }
+
+    pendingFileEvents = []
+}
+
+async function handleFileOpen(
+    event: lsp.TextDocumentChangeEvent<TextDocument>,
+    skipQueue: boolean,
+): Promise<void> {
+    const uri = event.document.uri
+
+    if (!skipQueue && !initializationFinished) {
+        pendingFileEvents.push({
+            uri,
+            textDocumentEvent: event,
+        })
+        return
+    }
+
+    if (isFiftFile(uri, event)) {
+        findFiftFile(uri)
+    }
+
+    if (isTlbFile(uri, event)) {
+        findTlbFile(uri)
+    }
+
+    if (isTactFile(uri, event)) {
+        const file = findTactFile(uri)
+        index.addFile(uri, file)
+
+        if (initializationFinished) {
+            await runInspections(uri, file, true)
+        }
+    }
+}
 
 const showErrorMessage = (msg: string): void => {
     void connection.sendNotification(lsp.ShowMessageNotification.type, {
@@ -227,7 +277,7 @@ async function initialize(): Promise<void> {
         index.withStdlibRoot(new IndexRoot("stdlib", stdlibUri))
 
         const stdlibRoot = new IndexingRoot(stdlibUri, IndexingRootKind.Stdlib)
-        await stdlibRoot.index()
+        stdlibRoot.index()
     }
 
     setProjectStdlibPath(stdlibPath)
@@ -239,15 +289,18 @@ async function initialize(): Promise<void> {
         index.withStubsRoot(new IndexRoot("stubs", stubsUri))
 
         const stubsRoot = new IndexingRoot(stubsUri, IndexingRootKind.Stdlib)
-        await stubsRoot.index()
+        stubsRoot.index()
     }
 
     reporter.report(80, "Indexing: (3/3) Workspace")
     index.withRoots([new IndexRoot("workspace", rootUri)])
     const workspaceRoot = new IndexingRoot(rootUri, IndexingRootKind.Workspace)
-    await workspaceRoot.index()
+    workspaceRoot.index()
 
     reporter.report(100, "Ready")
+
+    CACHE.clear()
+    TLB_CACHE.clear()
 
     // When we are ready, just reload all applied highlighting and hints and clear cache
     // This way we support fast local resolving and then full resolving after indexing.
@@ -257,11 +310,11 @@ async function initialize(): Promise<void> {
         await connection.sendRequest(lsp.SemanticTokensRefreshRequest.type)
         await connection.sendRequest(lsp.InlayHintRefreshRequest.type)
     }
-    CACHE.clear()
-    TLB_CACHE.clear()
 
     reporter.done()
     initializationFinished = true
+
+    await processPendingEvents()
 }
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -342,22 +395,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             await initializeFallback(uri)
         }
 
-        if (isFiftFile(uri, event)) {
-            findFiftFile(uri)
-        }
-
-        if (isTlbFile(uri, event)) {
-            findTlbFile(uri)
-        }
-
-        if (isTactFile(uri, event)) {
-            const file = findTactFile(uri)
-            index.addFile(uri, file)
-
-            if (initializationFinished) {
-                await runInspections(uri, file, true)
-            }
-        }
+        await handleFileOpen(event, false)
     })
 
     documents.onDidChangeContent(async event => {

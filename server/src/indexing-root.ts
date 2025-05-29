@@ -17,7 +17,7 @@ export class IndexingRoot {
         public kind: IndexingRootKind,
     ) {}
 
-    public async index(): Promise<void> {
+    public index(): void {
         const ignore =
             this.kind === IndexingRootKind.Stdlib
                 ? []
@@ -38,6 +38,7 @@ export class IndexingRoot {
                       "**/test/codegen/**",
                       "**/test/contracts/**",
                       "**/test/e2e-emulated/**",
+                      "**/e2e-slow/**",
                       "**/__testdata/**",
                       "**/test-failed/**",
                       "**/types/stmts-failed/**",
@@ -46,7 +47,7 @@ export class IndexingRoot {
                   ]
 
         const rootDir = fileURLToPath(this.root)
-        const files = await glob("**/*.tact", {
+        const files = globSync(["**/*.tact"], {
             cwd: rootDir,
             ignore: ignore,
         })
@@ -61,4 +62,9 @@ export class IndexingRoot {
             index.addFile(uri, file, false)
         }
     }
+}
+
+// node.js 20+ builtin
+const globSync = (globs: string[], options: {cwd: string; ignore: string[]}): string[] => {
+    return globs.flatMap(g => glob.sync(g, options))
 }

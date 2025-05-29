@@ -88,11 +88,17 @@ export class MistiAnalyzer {
 
     private static async runMistiCommand(...args: string[]): Promise<CompilerError[]> {
         return new Promise((resolve, reject) => {
-            const process = cp.exec(args.join(" "), (_error, stdout, stderr) => {
-                const output = stdout + "\n" + stderr
-                const errors = this.parseCompilerOutput(output)
-                resolve(errors)
-            })
+            const process = cp.exec(
+                args.join(" "),
+                {
+                    maxBuffer: 1024 * 1024 * 256,
+                },
+                (_error, stdout, stderr) => {
+                    const output = stdout + "\n" + stderr
+                    const errors = this.parseCompilerOutput(output)
+                    resolve(errors)
+                },
+            )
 
             process.on("error", error => {
                 console.error(`Failed to start misti: ${error}`)
