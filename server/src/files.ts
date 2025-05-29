@@ -1,11 +1,12 @@
 import * as lsp from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
-import {fileURLToPath, pathToFileURL} from "node:url"
+import {pathToFileURL} from "node:url"
 import {createFiftParser, createTactParser, createTlbParser} from "@server/parser"
 import * as fs from "node:fs"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
+import {URI} from "vscode-uri"
 
 export const PARSED_FILES_CACHE: Map<string, TactFile> = new Map()
 export const FIFT_PARSED_FILES_CACHE: Map<string, FiftFile> = new Map()
@@ -36,11 +37,6 @@ export function reparseTactFile(uri: string, content: string): TactFile {
     const file = new TactFile(uri, tree, content)
     PARSED_FILES_CACHE.set(uri, file)
     return file
-}
-
-export const filePathToUri = (filePath: string): string => {
-    const url = pathToFileURL(filePath).toString()
-    return url.replace(/c:/g, "c%3A").replace(/d:/g, "d%3A")
 }
 
 export function findFiftFile(uri: string): FiftFile {
@@ -119,3 +115,13 @@ export const isTlbFile = (
     uri: string,
     event?: lsp.TextDocumentChangeEvent<TextDocument>,
 ): boolean => event?.document.languageId === "tlb" || uri.endsWith(".tlb")
+
+export const filePathToUri = (filePath: string): string => {
+    const url = pathToFileURL(filePath).toString()
+    return url.replace(/c:/g, "c%3A").replace(/d:/g, "d%3A")
+}
+
+function fileURLToPath(uri: string): string {
+    const normalizedUri = uri.replace(/\\/g, "/")
+    return URI.parse(normalizedUri).fsPath
+}
