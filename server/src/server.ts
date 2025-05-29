@@ -99,12 +99,6 @@ import {TLB_CACHE} from "@server/languages/tlb/cache"
 import {provideTlbReferences} from "@server/languages/tlb/references"
 import {TextDocument} from "vscode-languageserver-textdocument"
 
-interface PendingFileEvent {
-    readonly uri: string
-    readonly content?: string
-    readonly textDocumentEvent: lsp.TextDocumentChangeEvent<TextDocument>
-}
-
 /**
  * Whenever LS is initialized.
  *
@@ -114,7 +108,7 @@ interface PendingFileEvent {
 let initialized = false
 let initializationFinished = false
 
-let pendingFileEvents: PendingFileEvent[] = []
+let pendingFileEvents: lsp.TextDocumentChangeEvent<TextDocument>[] = []
 let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
 
 /**
@@ -127,7 +121,7 @@ async function processPendingEvents(): Promise<void> {
     console.info(`Processing ${pendingFileEvents.length} pending file events`)
 
     for (const event of pendingFileEvents) {
-        await handleFileOpen(event.textDocumentEvent, true)
+        await handleFileOpen(event, true)
     }
 
     pendingFileEvents = []
@@ -140,10 +134,7 @@ async function handleFileOpen(
     const uri = event.document.uri
 
     if (!skipQueue && !initializationFinished) {
-        pendingFileEvents.push({
-            uri,
-            textDocumentEvent: event,
-        })
+        pendingFileEvents.push(event)
         return
     }
 
