@@ -1,0 +1,98 @@
+========================================================================
+Parent trait field navigation
+========================================================================
+trait BaseTrait {
+    balance: Int;
+}
+
+contract MyContract with BaseTrait {
+    balance: Int;
+
+    init() {
+        self.balance = 0;
+    }
+}
+------------------------------------------------------------------------
+/* 1 implementation */trait BaseTrait {
+    balance: Int;
+}
+
+contract MyContract with BaseTrait {
+    /* Go to parent */balance: Int;
+
+    init() {
+        self.balance = 0;
+    }
+}
+
+========================================================================
+Parent trait function navigation
+========================================================================
+trait Processable {
+    virtual fun process(): Int {
+        return 42;
+    }
+}
+
+contract ProcessingContract with Processable {
+    override fun process(): Int {
+        return 100;
+    }
+}
+------------------------------------------------------------------------
+/* 1 implementation */trait Processable {
+    /* 1 override */virtual fun process(): Int {
+        return 42;
+    }
+}
+
+contract ProcessingContract with Processable {
+    /* Go to parent */override fun process(): Int {
+        return 100;
+    }
+}
+
+========================================================================
+Multiple inheritance levels
+========================================================================
+trait Level1 {
+    value1: Int;
+    virtual fun getValue(): Int {
+        return 1;
+    }
+}
+
+trait Level2 with Level1 {
+    value1: Int;
+    override fun getValue(): Int {
+        return 2;
+    }
+}
+
+contract FinalContract with Level2 {
+    value1: Int;
+    override fun getValue(): Int {
+        return 3;
+    }
+}
+------------------------------------------------------------------------
+/* 1 implementation */trait Level1 {
+    value1: Int;
+    /* 1 override */virtual fun getValue(): Int {
+        return 1;
+    }
+}
+
+/* 1 implementation */trait Level2 with Level1 {
+    /* Go to parent */value1: Int;
+    /* Go to parent */override fun getValue(): Int {
+        return 2;
+    }
+}
+
+contract FinalContract with Level2 {
+    /* Go to parent */value1: Int;
+    /* Go to parent */override fun getValue(): Int {
+        return 3;
+    }
+}
