@@ -93,6 +93,7 @@ import {collectTactInlays} from "@server/languages/tact/inlays"
 import {provideTactDocumentHighlight} from "@server/languages/tact/highlighting"
 import {provideTactImplementations} from "@server/languages/tact/implementations"
 import {provideTactTypeAtPosition} from "@server/languages/tact/custom/type-at-position"
+import {provideTlbDocumentSymbols} from "@server/languages/tlb/symbols"
 
 /**
  * Whenever LS is initialized.
@@ -775,6 +776,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (isTactFile(uri)) {
                 const file = findTactFile(uri)
                 return provideTactDocumentSymbols(file)
+            }
+
+            if (isTlbFile(uri)) {
+                const file = findTlbFile(uri)
+                return provideTlbDocumentSymbols(file)
             }
 
             return []

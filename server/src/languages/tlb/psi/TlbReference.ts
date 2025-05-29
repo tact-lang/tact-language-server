@@ -35,10 +35,7 @@ export class TlbReference {
 
         if (!this.processBlock(result)) return false
 
-        const combinators = this.file.rootNode.children
-            .filter(it => it?.type === "source_element")
-            .map(it => it?.firstChild)
-            .filter(it => it !== null && it !== undefined)
+        const combinators = this.file.rootNode.children.filter(it => it !== null)
 
         for (const decl of combinators) {
             const declName = decl.childForFieldName("combinator")?.childForFieldName("name")
@@ -78,7 +75,7 @@ export class TlbReference {
 
         const combinator = declaration.childForFieldName("combinator")
         const typeParams =
-            combinator?.childForFieldName("type_params")?.children.filter(it => it !== null) ?? []
+            combinator?.childForFieldName("params")?.children.filter(it => it !== null) ?? []
 
         for (const param of typeParams) {
             const paramNode = TlbReference.findTypeParameterNode(param)

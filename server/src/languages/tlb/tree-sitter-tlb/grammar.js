@@ -2,6 +2,8 @@
  * @file A tree-sitter grammar for the TL-B language
  * @author Petr Makhnev
  * @license MIT
+ *
+ * Based on https://github.com/ton-community/tlb-parser/blob/master/src/grammar/tlb.ts
  */
 
 /// <reference types="tree-sitter-cli/dsl" />
@@ -12,9 +14,9 @@ module.exports = grammar({
 
     extras: $ => [/\s/, $.comment],
 
-    conflicts: $ => [],
+    conflicts: _ => [],
 
-    precedences: $ => [
+    precedences: _ => [
         [
             "unary",
             "conditional",
@@ -26,21 +28,23 @@ module.exports = grammar({
     ],
 
     rules: {
-        program: $ => repeat($.source_element),
-
-        source_element: $ => choice($.declaration, $.comment),
-
-        comment: _ => choice(seq("//", /.*/), seq("/*", /[^*]*\*+([^/*][^*]*\*+)*/, "/")),
+        program: $ => repeat($.declaration),
 
         declaration: $ =>
-            seq($.constructor_, repeat($.field), "=", field("combinator", $.combinator), ";"),
+            seq(
+                field("constructor", $.constructor_),
+                repeat($.field),
+                "=",
+                field("combinator", $.combinator),
+                ";",
+            ),
 
         constructor_: $ =>
             prec.right(
                 seq(
                     optional("!"),
-                    choice(alias("_", $.identifier), $.identifier),
-                    optional($.constructor_tag),
+                    field("name", choice(alias("_", $.identifier), $.identifier)),
+                    field("tag", optional($.constructor_tag)),
                 ),
             ),
 
@@ -65,12 +69,13 @@ module.exports = grammar({
 
         field_anonymous: $ => choice($.field_anon_ref, $.field_named_anon_ref),
 
-        field_named: $ => seq(field("name", $.identifier), ":", $.cond_expr),
+        field_named: $ => seq(field("name", $.identifier), ":", field("expr", $.cond_expr)),
 
         field_expr: $ => $.cond_expr,
 
         identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
         _type_identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
+
         number: _ => /[0-9]+/,
         binary_number: _ => /[01]+/,
         hex: _ => /[0-9a-fA-F]+/,
@@ -80,7 +85,7 @@ module.exports = grammar({
         combinator: $ =>
             seq(
                 field("name", alias($._type_identifier, $.type_identifier)),
-                field("type_params", repeat($.type_parameter)),
+                field("params", repeat($.type_parameter)),
             ),
 
         type_parameter: $ => $.simple_expr,
@@ -206,5 +211,7 @@ module.exports = grammar({
                 "binary_multiplication",
                 seq("##", field("size", choice($.number, $.parens_expr))),
             ),
+
+        comment: _ => choice(seq("//", /.*/), seq("/*", /[^*]*\*+([^/*][^*]*\*+)*/, "/")),
     },
 })

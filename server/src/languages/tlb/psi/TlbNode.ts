@@ -12,3 +12,15 @@ export class TlbNode extends BaseNode {
         this.file = file
     }
 }
+
+export class DeclarationNode extends TlbNode {
+    public name(): string {
+        return this.nameIdentifier()?.text ?? ""
+    }
+
+    public nameIdentifier(): SyntaxNode | null {
+        const ctor = this.node.childForFieldName("constructor")
+        if (!ctor) return null
+        return ctor.childForFieldName("name")
+    }
+}
