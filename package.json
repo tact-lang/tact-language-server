@@ -493,6 +493,16 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Show 'Go to parent' lens for functions inherited from traits"
+                    },
+                    "tact.codeLens.showMessageReceivedCount": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show 'Received X times' lens for messages"
+                    },
+                    "tact.codeLens.showMessageSentCount": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show 'Sent X times' lens for messages"
                     }
                 }
             },

@@ -54,6 +54,8 @@ export interface TactSettings {
         readonly showFunctionImplementations: boolean
         readonly showParentTraitFields: boolean
         readonly showParentTraitFunctions: boolean
+        readonly showMessageReceivedCount: boolean
+        readonly showMessageSentCount: boolean
     }
     readonly inspections: {
         readonly disabled: readonly string[] // list of disabled inspection ids
@@ -142,6 +144,8 @@ const defaultSettings: TactSettings = {
         showFunctionImplementations: true,
         showParentTraitFields: true,
         showParentTraitFunctions: true,
+        showMessageReceivedCount: true,
+        showMessageSentCount: true,
     },
     inspections: {
         disabled: [], // no disabled inspections by default
@@ -255,6 +259,12 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             showParentTraitFunctions:
                 vsSettings.codeLens?.showParentTraitFunctions ??
                 defaultSettings.codeLens.showParentTraitFunctions,
+            showMessageReceivedCount:
+                vsSettings.codeLens?.showMessageReceivedCount ??
+                defaultSettings.codeLens.showMessageReceivedCount,
+            showMessageSentCount:
+                vsSettings.codeLens?.showMessageSentCount ??
+                defaultSettings.codeLens.showMessageSentCount,
         },
         inspections: {
             disabled: vsSettings.inspections?.disabled ?? defaultSettings.inspections.disabled,
