@@ -290,9 +290,6 @@ async function initialize(): Promise<void> {
 
     reporter.report(100, "Ready")
 
-    CACHE.clear()
-    TLB_CACHE.clear()
-
     // When we are ready, just reload all applied highlighting and hints and clear cache
     // This way we support fast local resolving and then full resolving after indexing.
 
@@ -301,6 +298,8 @@ async function initialize(): Promise<void> {
         await connection.sendRequest(lsp.SemanticTokensRefreshRequest.type)
         await connection.sendRequest(lsp.InlayHintRefreshRequest.type)
     }
+    CACHE.clear()
+    TLB_CACHE.clear()
 
     reporter.done()
     initializationFinished = true
