@@ -63,9 +63,9 @@ module.exports = grammar({
                 $.field_expr,
             ),
 
-        field_builtin: $ => seq("{", $.identifier, ":", $.builtin_field, "}"),
+        field_builtin: $ => seq("{", field("name", $.identifier), ":", $.builtin_field, "}"),
 
-        field_curly_expr: $ => seq("{", $.curly_expression, "}"),
+        field_curly_expr: $ => seq("{", optional($.curly_expression), "}"),
 
         field_anonymous: $ => choice($.field_anon_ref, $.field_named_anon_ref),
 
@@ -173,7 +173,12 @@ module.exports = grammar({
         builtin_zero_args: _ => "#",
 
         combinator_expr: $ =>
-            seq("(", alias($._type_identifier, $.type_identifier), repeat1($.type_expr), ")"),
+            seq(
+                "(",
+                field("name", alias($._type_identifier, $.type_identifier)),
+                field("params", repeat1($.type_expr)),
+                ")",
+            ),
 
         parens_type_expr: $ => seq("(", $.type_expr, ")"),
 
@@ -181,7 +186,7 @@ module.exports = grammar({
 
         parens_compare_expr: $ => seq("(", $.compare_expr, ")"),
 
-        curly_expression: $ => $.compare_expr,
+        curly_expression: $ => choice($.compare_expr, $.identifier),
 
         field_anon_ref: $ => seq(optional("^"), "[", repeat($.field), "]"),
 
