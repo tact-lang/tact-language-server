@@ -7,7 +7,7 @@ trait BaseTrait {
 
 contract MyContract with BaseTrait {
     balance: Int;
-    
+
     init() {
         self.balance = 0;
     }
@@ -19,7 +19,7 @@ contract MyContract with BaseTrait {
 
 contract MyContract with BaseTrait {
     /* Go to parent */balance: Int;
-    
+
     init() {
         self.balance = 0;
     }
@@ -95,4 +95,4 @@ contract FinalContract with Level2 {
     /* Go to parent */override fun getValue(): Int {
         return 3;
     }
-} 
+}

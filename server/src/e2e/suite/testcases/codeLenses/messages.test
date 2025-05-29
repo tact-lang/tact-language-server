@@ -8,14 +8,14 @@ message Transfer {
 
 contract Wallet {
     owner: Address;
-    
+
     receive(msg: Transfer) {
         // handle transfer
     }
-    
+
     fun sendTransfer(to: Address, amount: Int) {
         send(SendParameters{
-            to: to, 
+            to: to,
             value: amount,
             body: Transfer{to: to, amount: amount}.toCell()
         });
@@ -35,14 +35,14 @@ contract Exchange {
 
 contract Wallet {
     owner: Address;
-    
+
     receive(msg: Transfer) {
         // handle transfer
     }
-    
+
     fun sendTransfer(to: Address, amount: Int) {
         send(SendParameters{
-            to: to, 
+            to: to,
             value: amount,
             body: Transfer{to: to, amount: amount}.toCell()
         });
@@ -87,4 +87,4 @@ contract Receiver {
     receive(msg: NotifyMessage) {
         // handle notification
     }
-} 
+}

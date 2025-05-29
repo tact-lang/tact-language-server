@@ -65,4 +65,4 @@ contract OverrideContract with VirtualTrait {
     /* Go to parent */override fun process(): Int {
         return 100;
     }
-} 
+}
