@@ -9,10 +9,8 @@ All notable changes to this project will be documented in this file.
 - feat: add flexible toolchain settings in https://github.com/tact-lang/tact-language-server/pull/723
 - feat: don't index `.git` and `allure-results` folders in https://github.com/tact-lang/tact-language-server/pull/715
 - feat: support contract `Contract.toCell/toSlice` from Tact 1.6.11 and `Contract.fromCell/fromSlice` from Tact 1.6.12 in https://github.com/tact-lang/tact-language-server/pull/746
-- feat(ci): move tree-sitter grammars to separate job in https://github.com/tact-lang/tact-language-server/pull/718
 - feat(documentation): show number in different number systems on hover in https://github.com/tact-lang/tact-language-server/pull/684
 - feat(documentation): support constant values for message opcodes in https://github.com/tact-lang/tact-language-server/pull/677
-- feat(icons): update icons in https://github.com/tact-lang/tact-language-server/pull/679
 - feat(inspections): add `CanBeInline` inspection and optimize find references in https://github.com/tact-lang/tact-language-server/pull/691
 - feat(inspections): add `DeprecatedSymbolUsage` inspection in https://github.com/tact-lang/tact-language-server/pull/690
 - feat(inspections): add `MissedMembersInContract` inspection with quickfix to implement trait in https://github.com/tact-lang/tact-language-server/pull/686
@@ -22,7 +20,6 @@ All notable changes to this project will be documented in this file.
 - feat(lenses): add lenses for messages with received and sent count in https://github.com/tact-lang/tact-language-server/pull/733
 - feat(references/resolve): support go-to-references for TL-B types and support multi-declarations in https://github.com/tact-lang/tact-language-server/pull/744
 - feat(renaming): rename import on file rename or move in https://github.com/tact-lang/tact-language-server/pull/698
-- feat(tests): add filtering for e2e tests and fix e2e tests on windows in https://github.com/tact-lang/tact-language-server/pull/693
 - feat(tlb): add TL-B basic highlighting in https://github.com/tact-lang/tact-language-server/pull/666
 - feat(tlb): add basic highlight TL-B code blocks inside Tact comments in https://github.com/tact-lang/tact-language-server/pull/670
 - feat(tlb): add initial completion for declarations, parameters, fields and builtin types in https://github.com/tact-lang/tact-language-server/pull/740
@@ -35,6 +32,7 @@ All notable changes to this project will be documented in this file.
 - feat(vscode): show gas consumption for selected instructions in https://github.com/tact-lang/tact-language-server/pull/702
 - feat(vscode): show toolchain information on status bar widget hover in https://github.com/tact-lang/tact-language-server/pull/722
 - feat(vscode): type-based search in https://github.com/tact-lang/tact-language-server/pull/706
+- feat(icons): update icons in https://github.com/tact-lang/tact-language-server/pull/679
 
 ### Fixes
 
@@ -51,6 +49,8 @@ All notable changes to this project will be documented in this file.
 
 ### Internal
 
+- feat(ci): move tree-sitter grammars to separate job in https://github.com/tact-lang/tact-language-server/pull/718
+- feat(tests): add filtering for e2e tests and fix e2e tests on windows in https://github.com/tact-lang/tact-language-server/pull/693
 - feat(tests): support multi files tests in https://github.com/tact-lang/tact-language-server/pull/694
 - feat(tests): add code lenses tests in https://github.com/tact-lang/tact-language-server/pull/735
 - feat(tests): add tests for document symbols in https://github.com/tact-lang/tact-language-server/pull/696
