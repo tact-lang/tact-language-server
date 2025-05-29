@@ -97,6 +97,7 @@ import {provideTlbDocumentSymbols} from "@server/languages/tlb/symbols"
 import {provideTlbCompletion} from "@server/languages/tlb/completion"
 import {TLB_CACHE} from "@server/languages/tlb/cache"
 import {provideTlbReferences} from "@server/languages/tlb/references"
+import {TextDocument} from "vscode-languageserver-textdocument"
 
 /**
  * Whenever LS is initialized.
@@ -107,6 +108,7 @@ import {provideTlbReferences} from "@server/languages/tlb/references"
 let initialized = false
 let initializationFinished = false
 
+let pendingFileEvents: lsp.TextDocumentChangeEvent<TextDocument>[] = []
 let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
 
 /**
@@ -114,6 +116,45 @@ let clientInfo: {name?: string; version?: string} = {name: "", version: ""}
  * Used to find files to index.
  */
 let workspaceFolders: lsp.WorkspaceFolder[] | null = null
+
+async function processPendingEvents(): Promise<void> {
+    console.info(`Processing ${pendingFileEvents.length} pending file events`)
+
+    for (const event of pendingFileEvents) {
+        await handleFileOpen(event, true)
+    }
+
+    pendingFileEvents = []
+}
+
+async function handleFileOpen(
+    event: lsp.TextDocumentChangeEvent<TextDocument>,
+    skipQueue: boolean,
+): Promise<void> {
+    const uri = event.document.uri
+
+    if (!skipQueue && !initializationFinished) {
+        pendingFileEvents.push(event)
+        return
+    }
+
+    if (isFiftFile(uri, event)) {
+        findFiftFile(uri)
+    }
+
+    if (isTlbFile(uri, event)) {
+        findTlbFile(uri)
+    }
+
+    if (isTactFile(uri, event)) {
+        const file = findTactFile(uri)
+        index.addFile(uri, file)
+
+        if (initializationFinished) {
+            await runInspections(uri, file, true)
+        }
+    }
+}
 
 const showErrorMessage = (msg: string): void => {
     void connection.sendNotification(lsp.ShowMessageNotification.type, {
@@ -262,6 +303,8 @@ async function initialize(): Promise<void> {
 
     reporter.done()
     initializationFinished = true
+
+    await processPendingEvents()
 }
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -342,22 +385,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             await initializeFallback(uri)
         }
 
-        if (isFiftFile(uri, event)) {
-            findFiftFile(uri)
-        }
-
-        if (isTlbFile(uri, event)) {
-            findTlbFile(uri)
-        }
-
-        if (isTactFile(uri, event)) {
-            const file = findTactFile(uri)
-            index.addFile(uri, file)
-
-            if (initializationFinished) {
-                await runInspections(uri, file, true)
-            }
-        }
+        await handleFileOpen(event, false)
     })
 
     documents.onDidChangeContent(async event => {
