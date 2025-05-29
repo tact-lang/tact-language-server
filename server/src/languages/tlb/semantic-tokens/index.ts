@@ -114,21 +114,8 @@ function isBuiltinType(name: string): boolean {
         name === "Int" ||
         name === "UInt" ||
         name === "Bits" ||
-        name === "bits" ||
-        name === "uint" ||
-        name === "uint8" ||
-        name === "uint16" ||
-        name === "uint32" ||
-        name === "uint64" ||
-        name === "uint128" ||
-        name === "uint256" ||
-        name === "int" ||
-        name === "int8" ||
-        name === "int16" ||
-        name === "int32" ||
-        name === "int64" ||
-        name === "int128" ||
-        name === "int256" ||
-        name === "int257"
+        name.startsWith("bits") ||
+        name.startsWith("uint") ||
+        name.startsWith("int")
     )
 }

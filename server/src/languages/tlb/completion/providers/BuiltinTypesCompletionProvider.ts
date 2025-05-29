@@ -26,7 +26,7 @@ export class BuiltinTypesCompletionProvider implements CompletionProvider {
         ["Int", "257 bits"],
         ["UInt", "256 bits"],
         ["Bits", "1023 bits"],
-        ["bits", "1023 bits"],
+        ["bits", "X bits"],
         ["uint", ""],
         ["uint8", ""],
         ["uint16", ""],
