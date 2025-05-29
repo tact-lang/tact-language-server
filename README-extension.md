@@ -48,6 +48,7 @@ In addition to Tact, the extension provides support for Fift assembly, TL-B, and
     - Basic and semantic syntax highlighting
     - Go-to definitions
     - Inlay hints with gas consumption for instructions
+    - Hover documentation for instructions
 - TL-B:
     - Basic and semantic syntax highlighting
     - Go-to definitions
