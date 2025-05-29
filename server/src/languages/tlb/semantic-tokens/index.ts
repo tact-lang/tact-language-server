@@ -24,7 +24,11 @@ export function provideTlbSemanticTokens(file: TlbFile): SemanticTokens {
 
     RecursiveVisitor.visit(file.rootNode, (node): boolean => {
         switch (node.type) {
-            case "##": {
+            case "#":
+            case "##":
+            case "#<":
+            case "#<=":
+            case "builtin_field": {
                 pushToken(node, SemanticTokenTypes.macro)
                 break
             }
@@ -41,6 +45,11 @@ export function provideTlbSemanticTokens(file: TlbFile): SemanticTokens {
                 break
             }
             case "type_identifier": {
+                if (isBuiltinType(node.text)) {
+                    pushToken(node, SemanticTokenTypes.macro)
+                    break
+                }
+
                 const parent = node.parent
                 if (!parent) break
 
@@ -91,13 +100,35 @@ export function provideTlbSemanticTokens(file: TlbFile): SemanticTokens {
             case "combinator": {
                 break
             }
-            case "builtin_field": {
-                pushToken(node, SemanticTokenTypes.property)
-                break
-            }
         }
         return true
     })
 
     return builder.build()
+}
+
+function isBuiltinType(name: string): boolean {
+    return (
+        name === "Any" ||
+        name === "Cell" ||
+        name === "Int" ||
+        name === "UInt" ||
+        name === "Bits" ||
+        name === "bits" ||
+        name === "uint" ||
+        name === "uint8" ||
+        name === "uint16" ||
+        name === "uint32" ||
+        name === "uint64" ||
+        name === "uint128" ||
+        name === "uint256" ||
+        name === "int" ||
+        name === "int8" ||
+        name === "int16" ||
+        name === "int32" ||
+        name === "int64" ||
+        name === "int128" ||
+        name === "int256" ||
+        name === "int257"
+    )
 }
