@@ -7,23 +7,11 @@ import {crc32BigInt} from "@server/languages/tact/compiler/crc32"
 
 const isWebEnvironment =
     typeof importScripts === "function" ||
-    (typeof self !== "undefined" && typeof self.importScripts === "function")
+    (typeof globalThis !== "undefined" && typeof globalThis.importScripts === "function")
 
 let createHash: any
 
-if (!isWebEnvironment) {
-    try {
-        const crypto = require("node:crypto")
-        createHash = crypto.createHash
-    } catch (error) {
-        console.warn("Failed to load node:crypto:", error)
-        createHash = (algorithm: string) => ({
-            update: (data: string) => ({
-                digest: () => Buffer.from("fallback", "utf8"),
-            }),
-        })
-    }
-} else {
+if (isWebEnvironment) {
     createHash = (algorithm: string) => ({
         update: (data: string) => ({
             digest: () => {
@@ -47,6 +35,18 @@ if (!isWebEnvironment) {
             },
         }),
     })
+} else {
+    try {
+        const crypto = require("node:crypto")
+        createHash = crypto.createHash
+    } catch (error) {
+        console.warn("Failed to load node:crypto:", error)
+        createHash = (algorithm: string) => ({
+            update: (data: string) => ({
+                digest: () => Buffer.from("fallback", "utf8"),
+            }),
+        })
+    }
 }
 
 export function requireFunctionExitCode(

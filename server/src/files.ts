@@ -2,7 +2,7 @@ import * as lsp from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {createFiftParser, createTactParser, createTlbParser} from "@server/parser"
-import {readFileVFS, globalVFS} from "@server/vfs/files-adapter"
+import {globalVFS, readFileVFS} from "@server/vfs/files-adapter"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
 import {URI} from "vscode-uri"
@@ -11,7 +11,19 @@ export const PARSED_FILES_CACHE: Map<string, TactFile> = new Map()
 export const FIFT_PARSED_FILES_CACHE: Map<string, FiftFile> = new Map()
 export const TLB_PARSED_FILES_CACHE: Map<string, TlbFile> = new Map()
 
+const isWebEnvironment = typeof process === "undefined" || typeof process.cwd !== "function"
+
 export async function findTactFile(uri: string, changed: boolean = false): Promise<TactFile> {
+    if (isWebEnvironment) {
+        const rawContent = await readOrUndefined(uri)
+        if (rawContent === undefined) {
+            console.error(`cannot read ${uri} file`)
+        }
+
+        const content = rawContent ?? ""
+        return reparseTactFile(uri, content)
+    }
+
     const cached = PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined && !changed) {
         return cached

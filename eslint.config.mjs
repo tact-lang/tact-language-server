@@ -25,6 +25,7 @@ export default tseslint.config(
             ".github/*",
             ".yarn/*",
             ".vscode-test/*",
+            ".vscode-test-web",
             "dist/*",
             "docs/*",
             "server/src/languages/fift/tree-sitter-fift/",

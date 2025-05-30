@@ -5,7 +5,7 @@ import {TactSettings} from "@server/settings/settings"
 
 const isWebEnvironment =
     typeof importScripts === "function" ||
-    (typeof self !== "undefined" && typeof self.importScripts === "function")
+    (typeof globalThis !== "undefined" && typeof globalThis.importScripts === "function")
 
 export interface MistiJsonOutput {
     readonly kind: "warnings"

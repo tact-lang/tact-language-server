@@ -39,56 +39,60 @@ export async function glob(
 
     const results: string[] = []
 
+    const ignoreRegexps = ignore.map(pattern => {
+        const escapedPattern = pattern
+            .replace(/\./g, "\\.")
+            .replace(/\*\*/g, ".*")
+            .replace(/\*/g, "[^/]*")
+        return new RegExp(`^${escapedPattern}$`)
+    })
+
+    const shouldIgnore = (filePath: string): boolean => {
+        return ignoreRegexps.some(regex => regex.test(filePath))
+    }
+
+    const compilePattern = (pattern: string): RegExp => {
+        const escapedPattern = pattern
+            .replace(/\./g, "\\.")
+            .replace(/\*\*/g, ".*")
+            .replace(/\*/g, "[^/]*")
+        return new RegExp(`^${escapedPattern}$`)
+    }
+
+    const patternRegex = compilePattern(pattern)
+
     async function walkDirectory(dirUri: string, currentPath: string): Promise<void> {
         try {
+            if (shouldIgnore(currentPath)) {
+                return
+            }
+
             const files = await listFiles(vfs, dirUri)
             const dirs = await listDirs(vfs, dirUri)
 
-            // Проверяем файлы
             for (const file of files) {
                 const filePath = currentPath ? `${currentPath}/${file}` : file
 
-                // Проверяем, не игнорируется ли файл
-                const isIgnored = ignore.some(ignorePattern =>
-                    matchesPattern(filePath, ignorePattern),
-                )
-
-                if (!isIgnored && matchesPattern(filePath, pattern)) {
+                if (!shouldIgnore(filePath) && patternRegex.test(filePath)) {
                     results.push(filePath)
                 }
             }
 
-            // Рекурсивно обходим директории
             for (const dir of dirs) {
                 const dirPath = currentPath ? `${currentPath}/${dir}` : dir
+                const subDirUri = dirUri ? `${dirUri}/${dir}` : dir
 
-                // Проверяем, не игнорируется ли директория
-                const isIgnored = ignore.some(ignorePattern =>
-                    matchesPattern(dirPath, ignorePattern),
-                )
-
-                if (!isIgnored) {
-                    const childDirUri = `${dirUri}/${dir}`
-                    await walkDirectory(childDirUri, dirPath)
+                if (!shouldIgnore(dirPath)) {
+                    await walkDirectory(subDirUri, dirPath)
                 }
             }
         } catch (error) {
-            // Игнорируем ошибки доступа к директориям
-            console.debug(`Failed to read directory ${dirUri}:`, error)
+            console.warn(`Error walking directory ${dirUri}:`, error)
         }
     }
 
-    await walkDirectory(cwd, "")
-    return results
-}
+    const startUri = cwd || ""
+    await walkDirectory(startUri, "")
 
-function matchesPattern(filePath: string, pattern: string): boolean {
-    const regexPattern = pattern
-        .replace(/\*\*/g, ".*") // ** -> .*
-        .replace(/\*/g, "[^/]*") // * -> [^/]*
-        .replace(/\./g, "\\.") // . -> \.
-        .replace(/\?/g, ".") // ? -> .
-
-    const regex = new RegExp(`^${regexPattern}$`)
-    return regex.test(filePath)
+    return results.sort()
 }

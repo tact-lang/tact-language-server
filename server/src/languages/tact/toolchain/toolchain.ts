@@ -7,7 +7,7 @@ import {filePathToUri} from "@server/files"
 
 const isWebEnvironment =
     typeof importScripts === "function" ||
-    (typeof self !== "undefined" && typeof self.importScripts === "function")
+    (typeof globalThis !== "undefined" && typeof globalThis.importScripts === "function")
 
 export class InvalidToolchainError extends Error {
     public constructor(message: string) {

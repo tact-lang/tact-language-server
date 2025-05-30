@@ -7,7 +7,7 @@ import {Connection} from "vscode-languageserver"
 declare const self: DedicatedWorkerGlobalScope
 
 export const isWeb = (): boolean => {
-    return typeof self !== "undefined" && typeof importScripts === "function"
+    return self !== undefined && typeof importScripts === "function"
 }
 
 export const openConnection = (): Connection => {

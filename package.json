@@ -55,7 +55,7 @@
         "test:e2e:folding": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --suite folding",
         "test:e2e:intentions": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --suite intentions",
         "test:e2e:verbose": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --verbose",
-        "test:web:open": "yarn build:web && vscode-test-web --browserType=chromium --browserOption=--disable-web-security --extensionDevelopmentPath=. ./test-workspace-web",
+        "test:web:open": "vscode-test-web --browserType=chromium --browserOption=--disable-web-security --extensionDevelopmentPath=. ./test-workspace-web",
         "pack:ls": "cd dist && npm pack",
         "publish:ls": "cd dist && npm publish",
         "build-server-package-and-publish": "yarn build && yarn pack:ls && yarn publish:ls",

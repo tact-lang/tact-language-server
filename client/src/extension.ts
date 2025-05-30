@@ -160,13 +160,19 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
 
         const worker = new Worker(serverModule)
 
+        // eslint-disable-next-line unicorn/prefer-add-event-listener
         worker.onerror = error => {
             console.error("Worker error:", error)
             outputChannel.appendLine(`Worker error: ${error.message}`)
         }
 
+        // eslint-disable-next-line unicorn/prefer-add-event-listener
         worker.onmessage = message => {
             console.log("Worker message:", message)
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (message.data?.method === "vfs/requestFile") {
+                void handleFileRequest(message.data.params.uri)
+            }
         }
 
         client = new lspBrowser.LanguageClient(
@@ -175,6 +181,8 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
             clientOptions,
             worker,
         )
+
+        setupFileRequestHandler()
     }
 
     try {
@@ -184,8 +192,6 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         outputChannel.appendLine("Tact Language Server started successfully")
     } catch (error) {
         console.error("Failed to start Tact Language Server:", error)
-        outputChannel.appendLine(`Failed to start Tact Language Server: ${error}`)
-        vscode.window.showErrorMessage(`Failed to start Tact Language Server: ${error}`)
         throw error
     }
 
@@ -1060,4 +1066,87 @@ export interface ExtractToFileIntention {
     readonly position: Position
     readonly elementName?: string
     readonly suggestedFileName?: string
+}
+
+function setupFileRequestHandler(): void {
+    if (!client) return
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    client.onNotification("vfs/requestFile", async (params: {uri: string}) => {
+        await handleFileRequest(params.uri)
+    })
+
+    client.onRequest("vfs/getFile", async (params: {uri: string}) => {
+        return handleGetFileRequest(params.uri)
+    })
+
+    client.onRequest("vfs/getDirectory", async (params: {uri: string}) => {
+        return handleGetDirectoryRequest(params.uri)
+    })
+}
+
+async function handleFileRequest(uri: string): Promise<void> {
+    if (!client) return
+
+    try {
+        const document = await vscode.workspace.openTextDocument(vscode.Uri.parse(uri))
+        const content = document.getText()
+
+        await client.sendNotification("vfs/syncFile", {
+            uri: uri,
+            content: content,
+        })
+
+        console.debug(`Provided requested file: ${uri}`)
+    } catch (error) {
+        console.warn(`Failed to provide requested file ${uri}:`, error)
+
+        await client.sendNotification("vfs/syncFile", {
+            uri: uri,
+            content: "",
+        })
+    }
+}
+
+async function handleGetFileRequest(
+    uri: string,
+): Promise<{uri: string; content: string | null; exists: boolean}> {
+    try {
+        const document = await vscode.workspace.openTextDocument(vscode.Uri.parse(uri))
+        const content = document.getText()
+        return {
+            uri: uri,
+            content: content,
+            exists: true,
+        }
+    } catch (error) {
+        console.warn(`Client: Failed to read file ${uri}:`, error)
+        return {
+            uri: uri,
+            content: null,
+            exists: false,
+        }
+    }
+}
+
+async function handleGetDirectoryRequest(uri: string): Promise<{uri: string; items: string[]}> {
+    try {
+        const folderUri = vscode.Uri.parse(uri)
+
+        const items = await vscode.workspace.fs.readDirectory(folderUri)
+        const itemNames = items.map(([name, type]) => {
+            return type === vscode.FileType.Directory ? name + "/" : name
+        })
+
+        return {
+            uri: uri,
+            items: itemNames,
+        }
+    } catch (error) {
+        console.warn(`Client: Failed to read directory ${uri}:`, error)
+        return {
+            uri: uri,
+            items: [],
+        }
+    }
 }

@@ -15,7 +15,6 @@ import type {
 import {SnippetsCompletionProvider} from "@server/languages/tact/completion/providers/SnippetsCompletionProvider"
 import {KeywordsCompletionProvider} from "@server/languages/tact/completion/providers/KeywordsCompletionProvider"
 import {AsKeywordCompletionProvider} from "@server/languages/tact/completion/providers/AsKeywordCompletionProvider"
-import {ImportPathCompletionProvider} from "@server/languages/tact/completion/providers/ImportPathCompletionProvider"
 import {MapTypeCompletionProvider} from "@server/languages/tact/completion/providers/MapTypeCompletionProvider"
 import {BouncedTypeCompletionProvider} from "@server/languages/tact/completion/providers/BouncedTypeCompletionProvider"
 import {GetterCompletionProvider} from "@server/languages/tact/completion/providers/GetterCompletionProvider"
@@ -31,7 +30,6 @@ import {TraitOrContractConstantsCompletionProvider} from "@server/languages/tact
 import {SelfCompletionProvider} from "@server/languages/tact/completion/providers/SelfCompletionProvider"
 import {ReturnCompletionProvider} from "@server/languages/tact/completion/providers/ReturnCompletionProvider"
 import {ReferenceCompletionProvider} from "@server/languages/tact/completion/providers/ReferenceCompletionProvider"
-import {AsmInstructionCompletionProvider} from "@server/languages/tact/completion/providers/AsmInstructionCompletionProvider"
 import {PostfixCompletionProvider} from "@server/languages/tact/completion/providers/PostfixCompletionProvider"
 import {TypeTlbSerializationCompletionProvider} from "@server/languages/tact/completion/providers/TypeTlbSerializationCompletionProvider"
 import {CompletionItemAdditionalInformation} from "@server/languages/tact/completion/ReferenceCompletionProcessor"
@@ -135,8 +133,8 @@ export async function provideTactCompletion(
     }
 
     const asyncProviders: AsyncCompletionProvider[] = [
-        new ImportPathCompletionProvider(),
-        new AsmInstructionCompletionProvider(),
+        // new ImportPathCompletionProvider(),
+        // new AsmInstructionCompletionProvider(),
     ]
 
     for (const provider of asyncProviders) {
