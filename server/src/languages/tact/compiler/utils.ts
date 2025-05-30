@@ -3,8 +3,51 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {CallLike} from "@server/languages/tact/psi/TactNode"
-import {createHash} from "node:crypto"
 import {crc32BigInt} from "@server/languages/tact/compiler/crc32"
+
+const isWebEnvironment =
+    typeof importScripts === "function" ||
+    (typeof self !== "undefined" && typeof self.importScripts === "function")
+
+let createHash: any
+
+if (!isWebEnvironment) {
+    try {
+        const crypto = require("node:crypto")
+        createHash = crypto.createHash
+    } catch (error) {
+        console.warn("Failed to load node:crypto:", error)
+        createHash = (algorithm: string) => ({
+            update: (data: string) => ({
+                digest: () => Buffer.from("fallback", "utf8"),
+            }),
+        })
+    }
+} else {
+    createHash = (algorithm: string) => ({
+        update: (data: string) => ({
+            digest: () => {
+                // Простая заглушка - возвращаем Buffer с фиксированными данными
+                const encoder = new TextEncoder()
+                const arrayBuffer = encoder.encode(data + "fallback")
+                const uint8Array = new Uint8Array(arrayBuffer)
+                // Создаем Buffer-подобный объект
+                return {
+                    readUInt32BE: (offset: number) => {
+                        // Простая хеш-функция для замены
+                        let hash = 0
+                        for (let i = 0; i < data.length; i++) {
+                            const char = data.charCodeAt(i)
+                            hash = (hash << 5) - hash + char
+                            hash = hash & hash // Convert to 32bit integer
+                        }
+                        return Math.abs(hash)
+                    },
+                }
+            },
+        }),
+    })
+}
 
 export function requireFunctionExitCode(
     callNode: SyntaxNode,

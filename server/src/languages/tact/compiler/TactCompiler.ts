@@ -1,7 +1,10 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import * as cp from "node:child_process"
 import {toolchain} from "@server/toolchain"
+
+const isWebEnvironment =
+    typeof importScripts === "function" ||
+    (typeof self !== "undefined" && typeof self.importScripts === "function")
 
 export enum Severity {
     INFO = 1,
@@ -69,10 +72,18 @@ export class TactCompiler {
     }
 
     public static async checkFile(path: string): Promise<CompilerError[]> {
+        if (isWebEnvironment) {
+            console.warn("TactCompiler.checkFile not available in web environment")
+            return []
+        }
         return this.runCompilerCommand(toolchain.compilerPath, "--check", path)
     }
 
     public static async checkProject(): Promise<CompilerError[]> {
+        if (isWebEnvironment) {
+            console.warn("TactCompiler.checkProject not available in web environment")
+            return []
+        }
         return this.runCompilerCommand(
             toolchain.compilerPath,
             "--check",
@@ -82,6 +93,11 @@ export class TactCompiler {
     }
 
     private static async runCompilerCommand(...args: string[]): Promise<CompilerError[]> {
+        if (isWebEnvironment) {
+            return []
+        }
+
+        const cp = await import("node:child_process")
         return new Promise((resolve, reject) => {
             const process = cp.exec(args.join(" "), (_error, _stdout, stderr) => {
                 const errors = this.parseCompilerOutput(stderr)

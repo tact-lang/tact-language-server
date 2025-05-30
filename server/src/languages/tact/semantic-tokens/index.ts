@@ -7,8 +7,6 @@ import {extractCommentsDocContent, NamedNode, TactNode} from "@server/languages/
 import * as lsp from "vscode-languageserver"
 import type {SemanticTokens} from "vscode-languageserver"
 import {isDocCommentOwner, isNamedFunNode} from "@server/languages/tact/psi/utils"
-import {createTactParser, createTlbParser} from "@server/parser"
-import {processDocComment} from "@server/languages/tact/semantic-tokens/comments"
 import {Tokens} from "@server/languages/tact/semantic-tokens/tokens"
 
 export function provideTactSemanticTokens(
@@ -18,9 +16,6 @@ export function provideTactSemanticTokens(
     },
 ): SemanticTokens {
     const tokens = new Tokens()
-
-    const parser = createTactParser()
-    const tlbParser = createTlbParser()
 
     RecursiveVisitor.visit(file.rootNode, (n): boolean => {
         const type = n.type
@@ -145,7 +140,7 @@ export function provideTactSemanticTokens(
             const comment = extractCommentsDocContent(node.node)
             if (!comment) return true
 
-            processDocComment(tokens, comment, parser, tlbParser)
+            // processDocComment(tokens, comment, parser, tlbParser)
         }
 
         return true

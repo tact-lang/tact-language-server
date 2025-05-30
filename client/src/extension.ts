@@ -49,11 +49,12 @@ export function deactivate(): Thenable<void> | undefined {
 async function startServer(context: vscode.ExtensionContext): Promise<vscode.Disposable> {
     const disposables: vscode.Disposable[] = []
 
+    const outputChannel = createClientLog()
     if (typeof globalThis === "undefined") {
         const lspNode = await import("vscode-languageclient/node")
 
         const clientOptions: lspCommon.LanguageClientOptions = {
-            outputChannel: createClientLog(),
+            outputChannel,
             revealOutputChannelOn: lspNode.RevealOutputChannelOn.Never,
             documentSelector: [
                 {scheme: "file", language: "tact"},
@@ -108,7 +109,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
     } else {
         const lspBrowser = await import("vscode-languageclient/browser")
         const clientOptions: lspCommon.LanguageClientOptions = {
-            outputChannel: createClientLog(),
+            outputChannel,
             revealOutputChannelOn: lspBrowser.RevealOutputChannelOn.Never,
             documentSelector: [
                 {scheme: "file", language: "tact"},

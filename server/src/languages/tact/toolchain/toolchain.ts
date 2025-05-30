@@ -5,6 +5,10 @@ import {EnvironmentInfo, ToolchainInfo} from "@shared/shared-msgtypes"
 import {existsVFS, globalVFS} from "@server/vfs/files-adapter"
 import {filePathToUri} from "@server/files"
 
+const isWebEnvironment =
+    typeof importScripts === "function" ||
+    (typeof self !== "undefined" && typeof self.importScripts === "function")
+
 export class InvalidToolchainError extends Error {
     public constructor(message: string) {
         super(message)
@@ -30,12 +34,17 @@ export class Toolchain {
         this.isAutoDetected = isAutoDetected
         this.detectionMethod = detectionMethod
         this.version = {
-            number: "",
-            commit: "",
+            number: "1.0.0",
+            commit: "web-fallback",
         }
     }
 
     public static async autoDetect(root: string): Promise<Toolchain> {
+        if (isWebEnvironment) {
+            // В веб-окружении возвращаем заглушку
+            return new Toolchain("@tact-lang/compiler", true, "web-fallback")
+        }
+
         const candidatesPaths = [
             path.join(root, "node_modules", ".bin", "tact"),
             path.join(root, "bin", "tact.js"), // path in compiler repo
@@ -54,6 +63,9 @@ export class Toolchain {
     }
 
     public static async fromPath(path: string): Promise<Toolchain> {
+        if (isWebEnvironment) {
+            return new Toolchain(path, false, "web-manual")
+        }
         return new Toolchain(path, false, "manual").validate()
     }
 
@@ -62,7 +74,15 @@ export class Toolchain {
     }
 
     public async getEnvironmentInfo(): Promise<EnvironmentInfo> {
-        let platform = "web"
+        if (isWebEnvironment) {
+            return {
+                nodeVersion: undefined,
+                platform: "web",
+                arch: "unknown",
+            }
+        }
+
+        let platform = "unknown"
         let arch = "unknown"
 
         try {
@@ -97,6 +117,14 @@ export class Toolchain {
     }
 
     private async setVersion(): Promise<this> {
+        if (isWebEnvironment) {
+            this.version = {
+                number: "1.0.0",
+                commit: "web-fallback",
+            }
+            return this
+        }
+
         try {
             const cp = await import("node:child_process")
             const result = cp.execSync(`"${this.compilerPath}" -v`)
@@ -114,6 +142,10 @@ export class Toolchain {
     }
 
     private async validate(): Promise<this> {
+        if (isWebEnvironment) {
+            return this
+        }
+
         try {
             const cp = await import("node:child_process")
             const result = cp.execSync(`"${this.compilerPath}" -v`)

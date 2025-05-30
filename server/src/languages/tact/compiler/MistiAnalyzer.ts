@@ -1,8 +1,11 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import * as cp from "node:child_process"
 import {CompilerError, Severity, TactCompiler} from "@server/languages/tact/compiler/TactCompiler"
 import {TactSettings} from "@server/settings/settings"
+
+const isWebEnvironment =
+    typeof importScripts === "function" ||
+    (typeof self !== "undefined" && typeof self.importScripts === "function")
 
 export interface MistiJsonOutput {
     readonly kind: "warnings"
@@ -74,10 +77,18 @@ export class MistiAnalyzer {
     }
 
     public static async checkFile(settings: TactSettings, path: string): Promise<CompilerError[]> {
+        if (isWebEnvironment) {
+            console.warn("MistiAnalyzer.checkFile not available in web environment")
+            return []
+        }
         return this.runMistiCommand(settings.linters.misti.binPath, "--output-format", "json", path)
     }
 
     public static async checkProject(settings: TactSettings): Promise<CompilerError[]> {
+        if (isWebEnvironment) {
+            console.warn("MistiAnalyzer.checkProject not available in web environment")
+            return []
+        }
         return this.runMistiCommand(
             settings.linters.misti.binPath,
             "./tact.config.json",
@@ -87,6 +98,11 @@ export class MistiAnalyzer {
     }
 
     private static async runMistiCommand(...args: string[]): Promise<CompilerError[]> {
+        if (isWebEnvironment) {
+            return []
+        }
+
+        const cp = await import("node:child_process")
         return new Promise((resolve, reject) => {
             const process = cp.exec(args.join(" "), (_error, stdout, stderr) => {
                 const output = stdout + "\n" + stderr
