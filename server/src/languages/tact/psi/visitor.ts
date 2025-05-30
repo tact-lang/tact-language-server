@@ -59,3 +59,26 @@ export class RecursiveVisitor {
         return
     }
 }
+
+export class AsyncRecursiveVisitor {
+    public static async visit(
+        node: SyntaxNode | null,
+        cb: (n: SyntaxNode) => Promise<boolean | "stop">,
+    ): Promise<void> {
+        if (!node) return
+
+        const walker = new TreeWalker(node.walk())
+        let current: SyntaxNode | null = node
+
+        while (current) {
+            const result = await cb(current)
+            if (result === "stop") return
+            if (!result) {
+                walker.skipChildren()
+            }
+            current = walker.next()
+        }
+
+        return
+    }
+}

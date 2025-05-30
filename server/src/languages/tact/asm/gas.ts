@@ -11,13 +11,13 @@ export interface GasConsumption {
     readonly exact: boolean
 }
 
-export function computeSeqGasConsumption(
+export async function computeSeqGasConsumption(
     arg: SyntaxNode,
     file: TactFile,
     gasSettings: {
         loopGasCoefficient: number
     },
-): GasConsumption {
+): Promise<GasConsumption> {
     const instructions = arg.children
         .filter(it => it?.type === "asm_expression")
         .filter(it => it !== null)
@@ -26,17 +26,17 @@ export function computeSeqGasConsumption(
     return computeGasConsumption(instructions, gasSettings)
 }
 
-export function computeGasConsumption(
+export async function computeGasConsumption(
     instructions: AsmInstr[],
     gasSettings: {
         loopGasCoefficient: number
     },
-): GasConsumption {
+): Promise<GasConsumption> {
     let exact = true
     let res = 0
 
     for (const instr of instructions) {
-        const info = instr.info()
+        const info = await instr.info()
         if (!info || info.doc.gas === "") {
             exact = false
             continue
@@ -44,8 +44,8 @@ export function computeGasConsumption(
 
         const args = instr.arguments()
         const continuations = args.filter(it => it.type === "asm_sequence")
-        const continuationsGas = continuations.map(it =>
-            computeSeqGasConsumption(it, instr.file, gasSettings),
+        const continuationsGas = await Promise.all(
+            continuations.map(async it => computeSeqGasConsumption(it, instr.file, gasSettings)),
         )
 
         exact &&= continuationsGas.reduce((prev, it) => prev && it.exact, true)

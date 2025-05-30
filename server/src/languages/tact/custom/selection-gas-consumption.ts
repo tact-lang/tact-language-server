@@ -61,7 +61,7 @@ export async function provideSelectionGasConsumption(
         }
 
         const settings = await getDocumentSettings(uri)
-        const gasConsumption = computeGasConsumption(selectedInstructions, settings.gas)
+        const gasConsumption = await computeGasConsumption(selectedInstructions, settings.gas)
 
         return {
             gasConsumption: {

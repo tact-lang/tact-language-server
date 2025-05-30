@@ -8,7 +8,10 @@ import {Reference} from "@server/languages/tact/psi/Reference"
 import {CompletionContext} from "@server/languages/tact/completion/CompletionContext"
 import {getDocumentSettings} from "@server/settings/settings"
 import {CompletionResult} from "@server/languages/tact/completion/WeightedCompletionItem"
-import type {CompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
+import type {
+    AsyncCompletionProvider,
+    CompletionProvider,
+} from "@server/languages/tact/completion/CompletionProvider"
 import {SnippetsCompletionProvider} from "@server/languages/tact/completion/providers/SnippetsCompletionProvider"
 import {KeywordsCompletionProvider} from "@server/languages/tact/completion/providers/KeywordsCompletionProvider"
 import {AsKeywordCompletionProvider} from "@server/languages/tact/completion/providers/AsKeywordCompletionProvider"
@@ -107,7 +110,6 @@ export async function provideTactCompletion(
         new SnippetsCompletionProvider(),
         new KeywordsCompletionProvider(),
         new AsKeywordCompletionProvider(),
-        new ImportPathCompletionProvider(),
         new MapTypeCompletionProvider(),
         new BouncedTypeCompletionProvider(),
         new GetterCompletionProvider(),
@@ -123,16 +125,24 @@ export async function provideTactCompletion(
         new SelfCompletionProvider(),
         new ReturnCompletionProvider(),
         new ReferenceCompletionProvider(ref),
-        new AsmInstructionCompletionProvider(),
         new PostfixCompletionProvider(),
         new TypeTlbSerializationCompletionProvider(),
     ]
 
-    providers.forEach((provider: CompletionProvider) => {
-        if (!provider.isAvailable(ctx)) return
+    for (const provider of providers) {
+        if (!provider.isAvailable(ctx)) continue
         provider.addCompletion(ctx, result)
-    })
+    }
 
+    const asyncProviders: AsyncCompletionProvider[] = [
+        new ImportPathCompletionProvider(),
+        new AsmInstructionCompletionProvider(),
+    ]
+
+    for (const provider of asyncProviders) {
+        if (!provider.isAvailable(ctx)) continue
+        await provider.addCompletion(ctx, result)
+    }
     return result.sorted()
 }
 

@@ -8,13 +8,13 @@ import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 
 const CODE_FENCE = "```"
 
-export function generateFiftDocFor(node: SyntaxNode, file: FiftFile): string | null {
+export async function generateFiftDocFor(node: SyntaxNode, file: FiftFile): Promise<string | null> {
     const def = FiftReference.resolve(node, file)
     if (def) {
         return `${CODE_FENCE}fift\n${def.parent?.text}\n${CODE_FENCE}`
     }
 
-    const instr = findInstruction(node.text, [])
+    const instr = await findInstruction(node.text, [])
     if (!instr) return null
 
     const doc = generateAsmDoc(instr)

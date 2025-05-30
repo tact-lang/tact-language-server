@@ -4,8 +4,11 @@ import {generateFiftDocFor} from "@server/languages/fift/documentation/documenta
 import {asLspRange} from "@server/utils/position"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 
-export function provideFiftDocumentation(hoverNode: SyntaxNode, file: FiftFile): lsp.Hover | null {
-    const doc = generateFiftDocFor(hoverNode, file)
+export async function provideFiftDocumentation(
+    hoverNode: SyntaxNode,
+    file: FiftFile,
+): Promise<lsp.Hover | null> {
+    const doc = await generateFiftDocFor(hoverNode, file)
     if (doc === null) return null
 
     return {

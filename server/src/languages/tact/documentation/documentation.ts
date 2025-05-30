@@ -112,7 +112,7 @@ export async function generateDocFor(node: NamedNode, place: SyntaxNode): Promis
             const func = new Fun(astNode, node.file)
             const doc = node.documentation()
 
-            const gas = func.computeGasConsumption(settings.gas)
+            const gas = await func.computeGasConsumption(settings.gas)
 
             const presentation = gas.exact ? gas.value.toString() : `~${gas.value}`
             const gasPresentation = gas.unknown ? "" : `Gas: \`${presentation}\``

@@ -1,24 +1,24 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {InlayHint} from "vscode-languageserver"
-import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
+import {AsyncRecursiveVisitor} from "@server/languages/tact/psi/visitor"
 import {findInstruction} from "@server/languages/tact/completion/data/types"
 import {InlayHintKind} from "vscode-languageserver-types"
 import {instructionPresentation} from "@server/languages/tact/asm/gas"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 
-export function collectFift(
+export async function provideFiftInlayHints(
     file: FiftFile,
     gasFormat: string,
     settings: {
         showGasConsumption: boolean
     },
-): InlayHint[] {
+): Promise<InlayHint[]> {
     const result: InlayHint[] = []
 
-    RecursiveVisitor.visit(file.rootNode, (n): boolean => {
+    await AsyncRecursiveVisitor.visit(file.rootNode, async (n): Promise<boolean> => {
         if (n.type === "identifier" && settings.showGasConsumption) {
-            const instruction = findInstruction(n.text)
+            const instruction = await findInstruction(n.text)
             if (!instruction) return true
 
             const presentation = instructionPresentation(

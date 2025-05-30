@@ -22,17 +22,17 @@ export function setWorkspaceRoot(root: string): void {
     }
 }
 
-export function setToolchains(
+export async function setToolchains(
     toolchainConfigs: Record<string, ToolchainConfig>,
     activeId: string,
-): void {
+): Promise<void> {
     const newToolchains: Map<string, Toolchain> = new Map()
 
     for (const [id, config] of Object.entries(toolchainConfigs)) {
         try {
             const toolchain =
                 id === "auto" && config.path === ""
-                    ? Toolchain.autoDetect(state.workspaceRoot ?? process.cwd())
+                    ? await Toolchain.autoDetect(state.workspaceRoot ?? process.cwd())
                     : Toolchain.fromPath(config.path)
 
             newToolchains.set(id, toolchain)

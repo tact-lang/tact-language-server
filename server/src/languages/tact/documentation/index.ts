@@ -72,7 +72,7 @@ export async function provideTactDocumentation(
         if (!asmExpression) return null
 
         const instr = new AsmInstr(asmExpression, file)
-        const info = instr.info()
+        const info = await instr.info()
         if (!info) return null
 
         const doc = generateAsmDoc(info)

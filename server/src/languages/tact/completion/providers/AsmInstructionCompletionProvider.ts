@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import type {CompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
+import type {AsyncCompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
 import {CompletionItemKind} from "vscode-languageserver-types"
 import type {CompletionContext} from "@server/languages/tact/completion/CompletionContext"
 import {asmData, getStackPresentation} from "@server/languages/tact/completion/data/types"
@@ -9,13 +9,13 @@ import {
     CompletionWeight,
 } from "@server/languages/tact/completion/WeightedCompletionItem"
 
-export class AsmInstructionCompletionProvider implements CompletionProvider {
+export class AsmInstructionCompletionProvider implements AsyncCompletionProvider {
     public isAvailable(ctx: CompletionContext): boolean {
         return ctx.element.node.type === "tvm_instruction"
     }
 
-    public addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
-        const data = asmData()
+    public async addCompletion(_ctx: CompletionContext, result: CompletionResult): Promise<void> {
+        const data = await asmData()
 
         for (const instruction of data.instructions) {
             const name = this.adjustName(instruction.mnemonic)

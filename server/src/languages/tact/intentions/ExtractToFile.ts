@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import type {Intention, IntentionContext} from "@server/languages/tact/intentions/Intention"
+import {AsyncIntention, IntentionContext} from "@server/languages/tact/intentions/Intention"
 import type {WorkspaceEdit} from "vscode-languageserver"
 import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspRange, asParserPoint} from "@server/utils/position"
@@ -20,10 +20,10 @@ import {
 import * as path from "node:path"
 import {fileURLToPath} from "node:url"
 import * as lsp from "vscode-languageserver"
-import {existsSync} from "node:fs"
 import {filePathToUri} from "@server/files"
+import {existsVFS, globalVFS} from "@server/vfs/files-adapter"
 
-export class ExtractToFile implements Intention {
+export class ExtractToFile implements AsyncIntention {
     public readonly id: string = "tact.extract-to-file"
     public readonly name: string = "Extract to new file..."
 
@@ -116,7 +116,7 @@ export class ExtractToFile implements Intention {
         return false
     }
 
-    public invoke(ctx: IntentionContext): WorkspaceEdit | null {
+    public async invoke(ctx: IntentionContext): Promise<WorkspaceEdit | null> {
         const element = ExtractToFile.findExtractableElement(ctx)
         if (!element) return null
 
@@ -127,18 +127,18 @@ export class ExtractToFile implements Intention {
         return null
     }
 
-    private performExtraction(
+    private async performExtraction(
         ctx: IntentionContext,
         element: NamedNode,
         customFileName: string,
-    ): WorkspaceEdit | null {
+    ): Promise<WorkspaceEdit | null> {
         const elementText = element.node.text
         const newFileUri = this.generateFileUri(customFileName, ctx.file)
         const newFileContent = this.generateFileContent(elementText)
         const documentChanges: (lsp.TextDocumentEdit | lsp.CreateFile)[] = []
 
         const newFilePath = fileURLToPath(newFileUri)
-        const fileExists = existsSync(newFilePath)
+        const fileExists = await existsVFS(globalVFS, newFilePath)
 
         if (fileExists) {
             documentChanges.push({

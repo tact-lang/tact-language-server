@@ -571,7 +571,7 @@ export class Fun extends NamedNode {
         return "0x" + ((crc16(Buffer.from(this.name())) & 0xff_ff) | 0x1_00_00).toString(16)
     }
 
-    public computeGasConsumption(gas: {loopGasCoefficient: number}): GasConsumption {
+    public async computeGasConsumption(gas: {loopGasCoefficient: number}): Promise<GasConsumption> {
         const body = this.node.childForFieldName("body")
         if (!body) {
             return {

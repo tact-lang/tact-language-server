@@ -1,4 +1,5 @@
 import type {
+    AsyncIntention,
     Intention,
     IntentionArguments,
     IntentionContext,
@@ -36,8 +37,9 @@ export const INTENTIONS: Intention[] = [
     new WrapSelectedToTry(),
     new WrapSelectedToTryCatch(),
     new WrapSelectedToRepeat(),
-    new ExtractToFile(),
 ]
+
+export const ASYNC_INTENTIONS: AsyncIntention[] = [new ExtractToFile()]
 
 export async function provideExecuteTactCommand(
     params: lsp.ExecuteCommandParams,
@@ -66,7 +68,9 @@ export async function provideExecuteTactCommand(
 
     if (!params.arguments || params.arguments.length === 0) return null
 
-    const intention = INTENTIONS.find(it => it.id === params.command)
+    const intention =
+        INTENTIONS.find(it => it.id === params.command) ??
+        ASYNC_INTENTIONS.find(it => it.id === params.command)
     if (!intention) return null
 
     const args = params.arguments[0] as IntentionArguments
@@ -140,7 +144,7 @@ export function provideTactCodeActions(
 
     const actions: lsp.CodeAction[] = []
 
-    for (const intention of INTENTIONS) {
+    for (const intention of [...INTENTIONS, ...ASYNC_INTENTIONS]) {
         if (!intention.isAvailable(ctx)) continue
 
         actions.push({

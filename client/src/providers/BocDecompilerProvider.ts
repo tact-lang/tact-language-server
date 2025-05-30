@@ -2,41 +2,37 @@
 //  Copyright © 2025 TON Studio
 import * as vscode from "vscode"
 import {AssemblyWriter, Cell, debugSymbols, disassembleRoot} from "@tact-lang/opcode"
-import {readFileSync, existsSync} from "node:fs"
 
 export class BocDecompilerProvider implements vscode.TextDocumentContentProvider {
     private readonly _onDidChange: vscode.EventEmitter<vscode.Uri> = new vscode.EventEmitter()
     public readonly onDidChange: vscode.Event<vscode.Uri> = this._onDidChange.event
 
-    private readonly lastModified: Map<string, Date> = new Map()
+    private readonly lastModified: Map<vscode.Uri, Date> = new Map()
 
     public static scheme: string = "boc-decompiled"
 
-    public provideTextDocumentContent(uri: vscode.Uri): string {
-        const bocPath = this.getBocPath(uri)
+    public async provideTextDocumentContent(uri: vscode.Uri): Promise<string> {
+        const bocUri = this.getBocPath(uri)
 
         try {
-            return this.decompileBoc(bocPath)
+            return await this.decompileBoc(bocUri)
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
             return this.formatError(errorMessage)
         }
     }
 
-    private getBocPath(uri: vscode.Uri): string {
+    private getBocPath(uri: vscode.Uri): vscode.Uri {
         console.log("Original URI:", uri.toString())
         const bocPath = uri.fsPath.replace(".decompiled.fif", "")
         console.log("BOC path:", bocPath)
-        return bocPath
+        return vscode.Uri.file(bocPath)
     }
 
-    private decompileBoc(bocPath: string): string {
+    private async decompileBoc(bocUri: vscode.Uri): Promise<string> {
         try {
-            if (!existsSync(bocPath)) {
-                throw new Error(`BoC file not found: ${bocPath}`)
-            }
-
-            const content = readFileSync(bocPath).toString("base64")
+            const rawContent = await vscode.workspace.fs.readFile(bocUri)
+            const content = Buffer.from(rawContent).toString("base64")
             const cell = Cell.fromBase64(content)
             const program = disassembleRoot(cell, {
                 computeRefs: true,
@@ -47,19 +43,19 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
                 debugSymbols: debugSymbols,
             })
 
-            return this.formatDecompiledOutput(output, bocPath)
+            return this.formatDecompiledOutput(output, bocUri)
         } catch (error: unknown) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             throw new Error(`Decompilation failed: ${error}`)
         }
     }
 
-    private formatDecompiledOutput(output: string, bocPath?: string): string {
+    private formatDecompiledOutput(output: string, bocUri: vscode.Uri): string {
         const header = [
             "// Decompiled BOC file",
             "// Note: This is auto-generated code",
             `// Time: ${new Date().toISOString()}`,
-            ...(bocPath ? [`// Source: ${bocPath}`] : []),
+            `// Source: ${bocUri.fsPath}`,
             "",
             "",
         ].join("\n")
@@ -76,8 +72,8 @@ export class BocDecompilerProvider implements vscode.TextDocumentContentProvider
     }
 
     public update(uri: vscode.Uri): void {
-        const bocPath = this.getBocPath(uri)
-        this.lastModified.set(bocPath, new Date())
+        const bocUri = this.getBocPath(uri)
+        this.lastModified.set(bocUri, new Date())
         this._onDidChange.fire(uri)
     }
 }

@@ -10,7 +10,6 @@ import * as lsp from "vscode-languageserver"
 import {DidChangeWatchedFilesParams, FileChangeType} from "vscode-languageserver"
 import {TypeBasedSearch} from "@server/languages/tact/search/TypeBasedSearch"
 import * as path from "node:path"
-import {existsSync} from "node:fs"
 import {globalVFS} from "@server/vfs/global"
 import {existsVFS} from "@server/vfs/files-adapter"
 import type {ClientOptions} from "@shared/config-scheme"
@@ -32,7 +31,7 @@ import {IndexingRoot, IndexingRootKind} from "./indexing-root"
 import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/settings/settings"
 import {provideFiftFoldingRanges} from "@server/languages/fift/foldings/collect"
 import {provideFiftSemanticTokens as provideFiftSemanticTokens} from "server/src/languages/fift/semantic-tokens"
-import {collectFift as collectFiftInlays} from "@server/languages/fift/inlays/collect"
+import {provideFiftInlayHints as collectFiftInlays} from "@server/languages/fift/inlays/collect"
 import {WorkspaceEdit} from "vscode-languageserver-types"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {
@@ -82,6 +81,7 @@ import {
     provideTactWorkspaceSymbols,
 } from "@server/languages/tact/symbols"
 import {
+    ASYNC_INTENTIONS,
     INTENTIONS,
     provideExecuteTactCommand,
     provideTactCodeActions,
@@ -166,7 +166,7 @@ const showErrorMessage = (msg: string): void => {
     })
 }
 
-function findStdlib(settings: TactSettings, rootDir: string): string | null {
+async function findStdlib(settings: TactSettings, rootDir: string): Promise<string | null> {
     if (settings.stdlib.path !== null && settings.stdlib.path.length > 0) {
         return settings.stdlib.path
     }
@@ -187,10 +187,17 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
         "stdlib",
     ]
 
-    const localFolder =
-        searchDirs.find(searchDir => {
-            return existsSync(path.join(rootDir, searchDir))
-        }) ?? null
+    async function findDirectory(): Promise<string | null> {
+        for (const searchDir of searchDirs) {
+            if (await existsVFS(globalVFS, filePathToUri(path.join(rootDir, searchDir)))) {
+                return searchDir
+            }
+        }
+
+        return null
+    }
+
+    const localFolder = await findDirectory()
 
     if (localFolder === null) {
         console.error(
@@ -237,7 +244,7 @@ async function initialize(): Promise<void> {
 
     try {
         toolchainManager.setWorkspaceRoot(rootDir)
-        toolchainManager.setToolchains(
+        await toolchainManager.setToolchains(
             settings.toolchain.toolchains,
             settings.toolchain.activeToolchain,
         )
@@ -264,7 +271,7 @@ async function initialize(): Promise<void> {
         }
     }
 
-    const stdlibPath = findStdlib(settings, rootDir)
+    const stdlibPath = await findStdlib(settings, rootDir)
     if (stdlibPath !== null) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
         const stdlibUri = filePathToUri(stdlibPath)
@@ -478,7 +485,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             if (newSettings.toolchain.activeToolchain !== toolchainManager.getActiveToolchainId()) {
                 try {
-                    toolchainManager.setToolchains(
+                    await toolchainManager.setToolchains(
                         newSettings.toolchain.toolchains,
                         newSettings.toolchain.activeToolchain,
                     )
@@ -981,7 +988,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 codeActionKinds: [lsp.CodeActionKind.QuickFix],
             },
             executeCommandProvider: {
-                commands: ["tact/executeGetScopeProvider", ...INTENTIONS.map(it => it.id)],
+                commands: [
+                    "tact/executeGetScopeProvider",
+                    ...INTENTIONS.map(it => it.id),
+                    ...ASYNC_INTENTIONS.map(it => it.id),
+                ],
             },
             workspace: {
                 workspaceFolders: {

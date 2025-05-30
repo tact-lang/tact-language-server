@@ -202,7 +202,7 @@ export class AsmInstr extends NamedNode {
         return argsList.children.filter(it => it !== null)
     }
 
-    public info(): AsmInstruction | null {
+    public async info(): Promise<AsmInstruction | null> {
         return findInstruction(this.name(), this.arguments())
     }
 }

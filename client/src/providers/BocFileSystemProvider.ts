@@ -2,7 +2,6 @@
 //  Copyright © 2025 TON Studio
 import * as vscode from "vscode"
 import {BocDecompilerProvider} from "./BocDecompilerProvider"
-import {readFileSync} from "node:fs"
 
 export class BocFileSystemProvider implements vscode.FileSystemProvider {
     private readonly _emitter: vscode.EventEmitter<vscode.FileChangeEvent[]> =
@@ -31,7 +30,7 @@ export class BocFileSystemProvider implements vscode.FileSystemProvider {
     public async readFile(uri: vscode.Uri): Promise<Uint8Array> {
         console.log("Reading BOC file:", uri.fsPath)
         try {
-            const fileContent = readFileSync(uri.fsPath)
+            const fileContent = await vscode.workspace.fs.readFile(uri)
             console.log("File content length:", fileContent.length)
 
             const decompileUri = uri.with({
