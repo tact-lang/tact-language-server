@@ -14,14 +14,14 @@ export const BUILTIN_TYPES: Map<string, string> = new Map([
     ["##", "Nat: unsigned integer with `x` bits"],
     [
         "#<",
-        "Nat: unsigned integer less than `x` bits, stored as `lenBits(x - 1)` bits up to 31 bits",
+        "Nat: unsigned integer less than `x` bits stored with the minimum number `⌈log2 x⌉` of bits (up to 31) to represent the number `x`",
     ],
     [
         "#<=",
-        "Nat: unsigned integer less than or equal to `x` bits, stored as `lenBits(x)` bits up to 32 bits",
+        "Nat: unsigned integer less than `x` bits stored with the minimum number `⌈log2(x+1)⌉` of bits (up to 32) to represent the number `x`",
     ],
-    ["Any", "remaining bits and references"],
-    ["Cell", "remaining bits and references"],
+    ["Any", "Remaining bits and references"],
+    ["Cell", "Remaining bits and references"],
     ["Int", "257 bits"],
     ["UInt", "256 bits"],
     ["Bits", "1023 bits"],
