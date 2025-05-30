@@ -7,9 +7,6 @@ import {join} from "node:path"
 import {fileURLToPath} from "node:url"
 import {FileSystemProvider, VirtualFile} from "./types"
 
-/**
- * File system provider for Node.js (physical file system)
- */
 export function createNodeFSProvider(): FileSystemProvider {
     return {
         async readFile(uri: string): Promise<VirtualFile | null> {

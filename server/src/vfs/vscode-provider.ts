@@ -4,10 +4,6 @@
 /* eslint-disable @typescript-eslint/require-await */
 import {FileSystemProvider, VirtualFile} from "./types"
 
-/**
- * File system provider for VS Code (web version)
- * Uses LSP connection to access files through the client
- */
 export function createVSCodeProvider(): FileSystemProvider {
     return {
         async readFile(_uri: string): Promise<VirtualFile | null> {

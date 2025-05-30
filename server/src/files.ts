@@ -1,3 +1,4 @@
+import * as lsp from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {pathToFileURL} from "node:url"
@@ -65,9 +66,9 @@ export function reparseFiftFile(uri: string, content: string): FiftFile {
     return file
 }
 
-export async function findTlbFile(uri: string, changed: boolean = false): Promise<TlbFile> {
+export async function findTlbFile(uri: string): Promise<TlbFile> {
     const cached = TLB_PARSED_FILES_CACHE.get(uri)
-    if (cached !== undefined && !changed) {
+    if (cached) {
         return cached
     }
 
@@ -84,7 +85,7 @@ export function reparseTlbFile(uri: string, content: string): TlbFile {
     const parser = createTlbParser()
     const tree = parser.parse(content)
     if (!tree) {
-        throw new Error(`Cannot parse file: ${uri}`)
+        throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
     }
 
     const file = new TlbFile(uri, tree, content)
@@ -100,17 +101,20 @@ export function uriToFilePath(uri: string): string {
     return fileURLToPath(uri)
 }
 
-export function isTactFile(uri: string, event?: {document: TextDocument}): boolean {
-    return uri.endsWith(".tact") || event?.document.languageId === "tact"
-}
+export const isTactFile = (
+    uri: string,
+    event?: lsp.TextDocumentChangeEvent<TextDocument>,
+): boolean => event?.document.languageId === "tact" || uri.endsWith(".tact")
 
-export function isFiftFile(uri: string, event?: {document: TextDocument}): boolean {
-    return uri.endsWith(".fif") || event?.document.languageId === "fift"
-}
+export const isFiftFile = (
+    uri: string,
+    event?: lsp.TextDocumentChangeEvent<TextDocument>,
+): boolean => event?.document.languageId === "fift" || uri.endsWith(".fif")
 
-export function isTlbFile(uri: string, event?: {document: TextDocument}): boolean {
-    return uri.endsWith(".tlb") || event?.document.languageId === "tlb"
-}
+export const isTlbFile = (
+    uri: string,
+    event?: lsp.TextDocumentChangeEvent<TextDocument>,
+): boolean => event?.document.languageId === "tlb" || uri.endsWith(".tlb")
 
 // export function filePathToUri(filePath: string): string {
 //     return pathToFileURL(filePath).href
