@@ -1,14 +1,14 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {InlayHint} from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
 import {findInstruction} from "@server/languages/tact/completion/data/types"
 import {InlayHintKind} from "vscode-languageserver-types"
 import {instructionPresentation} from "@server/languages/tact/asm/gas"
+import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 
 export function collectFift(
-    file: File,
+    file: FiftFile,
     gasFormat: string,
     settings: {
         showGasConsumption: boolean

@@ -14,15 +14,15 @@ import {
 import {consoleError, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
-    GetDocumentationAtPositionRequest,
-    GetTypeAtPositionParams,
-    GetTypeAtPositionRequest,
-    GetTypeAtPositionResponse,
+    DocumentationAtPositionRequest,
+    TypeAtPositionParams,
+    TypeAtPositionRequest,
+    TypeAtPositionResponse,
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
-    GetGasConsumptionForSelectionRequest,
-    GetGasConsumptionForSelectionParams,
-    GetGasConsumptionForSelectionResponse,
+    GasConsumptionForSelectionRequest,
+    GasConsumptionForSelectionParams,
+    GasConsumptionForSelectionResponse,
     SearchByTypeRequest,
     SearchByTypeParams,
     SearchByTypeResponse,
@@ -38,9 +38,11 @@ import {BocDecompilerProvider} from "./providers/BocDecompilerProvider"
 import {registerSaveBocDecompiledCommand} from "./commands/saveBocDecompiledCommand"
 import {Range, Position, FileSystemWatcher} from "vscode"
 import {detectPackageManager, PackageManager} from "./utils/package-manager"
+import {ToolchainConfig} from "@server/settings/settings"
 
 let client: LanguageClient | null = null
 let gasStatusBarItem: vscode.StatusBarItem | null = null
+let cachedToolchainInfo: SetToolchainVersionParams | null = null
 
 export function activate(context: vscode.ExtensionContext): void {
     startServer(context).catch(consoleError)
@@ -148,15 +150,53 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
 
     langStatusBar.text = "Tact"
 
-    client.onNotification(SetToolchainVersionNotification, (version: SetToolchainVersionParams) => {
+    client.onNotification(SetToolchainVersionNotification, (params: SetToolchainVersionParams) => {
+        cachedToolchainInfo = params
+
         const settings = vscode.workspace.getConfiguration("tact")
         const hash =
             settings.get<boolean>("toolchain.showShortCommitInStatusBar") &&
-            version.version.commit.length > 8
-                ? ` (${version.version.commit.slice(-8)})`
+            params.version.commit.length > 8
+                ? ` (${params.version.commit.slice(-8)})`
                 : ""
 
-        langStatusBar.text = `Tact ${version.version.number}${hash}`
+        const activeToolchainId = settings.get<string>("toolchain.activeToolchain", "auto")
+        const toolchains = settings.get<Record<string, ToolchainConfig | undefined>>(
+            "toolchain.toolchains",
+            {},
+        )
+        const activeToolchainName = toolchains[activeToolchainId]?.name ?? "Unknown"
+
+        langStatusBar.text = `Tact ${params.version.number}${hash}`
+
+        const tooltipLines = [
+            `**Tact Toolchain Information**`,
+            ``,
+            `**Version:** ${params.version.number}`,
+            ``,
+            `**Commit:** ${params.version.commit || "Unknown"}`,
+            ``,
+            `**Active Toolchain:** ${activeToolchainName} (${activeToolchainId})`,
+            ``,
+            `**Toolchain:**`,
+            `- Path: \`${params.toolchain.path}\``,
+            `- Auto-detected: ${params.toolchain.isAutoDetected ? "Yes" : "No"}`,
+            ...(params.toolchain.detectionMethod
+                ? [`- Detection method: ${params.toolchain.detectionMethod}`]
+                : []),
+            ``,
+            `**Environment:**`,
+            `- Platform: ${params.environment.platform}`,
+            `- Architecture: ${params.environment.arch}`,
+            ...(params.environment.nodeVersion
+                ? [`- Node.js: ${params.environment.nodeVersion}`]
+                : []),
+            ``,
+            `*Click for more details or to switch toolchain*`,
+        ]
+
+        langStatusBar.tooltip = new vscode.MarkdownString(tooltipLines.join("\n"))
+        langStatusBar.command = "tact.showToolchainInfo"
         langStatusBar.show()
     })
 
@@ -221,6 +261,100 @@ async function showReferencesImpl(
 
 function registerCommands(disposables: vscode.Disposable[]): void {
     disposables.push(
+        vscode.commands.registerCommand("tact.showToolchainInfo", async () => {
+            if (!cachedToolchainInfo) {
+                vscode.window.showInformationMessage("Toolchain information not available")
+                return
+            }
+
+            const info = cachedToolchainInfo
+            const config = vscode.workspace.getConfiguration("tact")
+            const activeToolchainId = config.get<string>("toolchain.activeToolchain", "auto")
+            const toolchains = config.get<Record<string, ToolchainConfig | undefined>>(
+                "toolchain.toolchains",
+                {},
+            )
+            const activeToolchainName = toolchains[activeToolchainId]?.name ?? "Unknown"
+
+            const items = [
+                {
+                    label: "$(info) Version Information",
+                    detail: `Tact ${info.version.number}`,
+                    description: info.version.commit
+                        ? `Commit: ${info.version.commit}`
+                        : "No commit info",
+                },
+                {
+                    label: "$(tools) Active Toolchain",
+                    detail: `${activeToolchainName} (${activeToolchainId})`,
+                    description: info.toolchain.path,
+                },
+                {
+                    label: "$(device-desktop) Environment",
+                    detail: `${info.environment.platform} ${info.environment.arch}`,
+                    description: info.environment.nodeVersion
+                        ? `Node.js ${info.environment.nodeVersion}`
+                        : "Node.js version unknown",
+                },
+                {
+                    label: "$(arrow-swap) Switch Toolchain",
+                    detail: "Change active toolchain",
+                    description: "Select a different toolchain configuration",
+                    action: "switch",
+                },
+                {
+                    label: "$(settings-gear) Manage Toolchains",
+                    detail: "Add, remove, or configure toolchains",
+                    description: "Open toolchain management",
+                    action: "manage",
+                },
+                {
+                    label: "$(copy) Copy Information",
+                    detail: "Copy toolchain info to clipboard",
+                    description: "Copy all toolchain details",
+                    action: "copy",
+                },
+            ]
+
+            const selected = await vscode.window.showQuickPick(items, {
+                placeHolder: "Tact Toolchain Information",
+                canPickMany: false,
+            })
+
+            if (selected) {
+                switch (selected.action) {
+                    case "switch": {
+                        await vscode.commands.executeCommand("tact.selectToolchain")
+                        break
+                    }
+                    case "manage": {
+                        await vscode.commands.executeCommand("tact.manageToolchains")
+                        break
+                    }
+                    case "copy": {
+                        const clipboardText = `Tact Toolchain Information:
+Version: ${info.version.number}
+Commit: ${info.version.commit || "Unknown"}
+Active Toolchain: ${activeToolchainName} (${activeToolchainId})
+Path: ${info.toolchain.path}
+Auto-detected: ${info.toolchain.isAutoDetected}
+Detection method: ${info.toolchain.detectionMethod ?? "Unknown"}
+Platform: ${info.environment.platform}
+Architecture: ${info.environment.arch}
+Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
+
+                        await vscode.env.clipboard.writeText(clipboardText)
+                        vscode.window.showInformationMessage(
+                            "Toolchain information copied to clipboard",
+                        )
+                        break
+                    }
+                    case undefined: {
+                        break
+                    }
+                }
+            }
+        }),
         vscode.commands.registerCommand(
             "tact.showParent",
             async (uri: string, position: Position) => {
@@ -242,8 +376,8 @@ function registerCommands(disposables: vscode.Disposable[]): void {
             },
         ),
         vscode.commands.registerCommand(
-            GetTypeAtPositionRequest,
-            async (params: GetTypeAtPositionParams | undefined) => {
+            TypeAtPositionRequest,
+            async (params: TypeAtPositionParams | undefined) => {
                 if (!client) {
                     return null
                 }
@@ -266,8 +400,8 @@ function registerCommands(disposables: vscode.Disposable[]): void {
                     }
                 }
 
-                const result = await client.sendRequest<GetTypeAtPositionResponse>(
-                    GetTypeAtPositionRequest,
+                const result = await client.sendRequest<TypeAtPositionResponse>(
+                    TypeAtPositionRequest,
                     params,
                 )
 
@@ -290,14 +424,14 @@ function registerCommands(disposables: vscode.Disposable[]): void {
             },
         ),
         vscode.commands.registerCommand(
-            GetDocumentationAtPositionRequest,
-            async (params: GetTypeAtPositionParams | undefined) => {
+            DocumentationAtPositionRequest,
+            async (params: TypeAtPositionParams | undefined) => {
                 if (!client || !params) {
                     return null
                 }
 
-                return client.sendRequest<GetTypeAtPositionResponse>(
-                    GetDocumentationAtPositionRequest,
+                return client.sendRequest<TypeAtPositionResponse>(
+                    DocumentationAtPositionRequest,
                     params,
                 )
             },
@@ -402,6 +536,262 @@ function registerCommands(disposables: vscode.Disposable[]): void {
                 vscode.window.showErrorMessage(
                     `Search failed: ${error instanceof Error ? error.message : "Unknown error"}`,
                 )
+            }
+        }),
+        vscode.commands.registerCommand("tact.selectToolchain", async () => {
+            const config = vscode.workspace.getConfiguration("tact")
+            const toolchains = config.get<Record<string, ToolchainConfig>>(
+                "toolchain.toolchains",
+                {},
+            )
+            const activeToolchain = config.get<string>("toolchain.activeToolchain", "auto")
+
+            const items = Object.entries(toolchains).map(([id, toolchain]) => ({
+                label: `$(${id === activeToolchain ? "check" : "circle-outline"}) ${toolchain.name}`,
+                description: toolchain.description ?? "",
+                detail: toolchain.path || "Auto-detected",
+                id: id,
+                picked: id === activeToolchain,
+            }))
+
+            const selected = await vscode.window.showQuickPick(items, {
+                placeHolder: "Select active toolchain",
+                canPickMany: false,
+            })
+
+            if (selected && selected.id !== activeToolchain) {
+                await config.update(
+                    "toolchain.activeToolchain",
+                    selected.id,
+                    vscode.ConfigurationTarget.Workspace,
+                )
+                vscode.window.showInformationMessage(
+                    `Switched to toolchain: ${selected.label.replace(/^\$\([^)]+\)\s*/, "")}`,
+                )
+            }
+        }),
+        vscode.commands.registerCommand("tact.manageToolchains", async () => {
+            const config = vscode.workspace.getConfiguration("tact")
+            const toolchains = config.get<Record<string, ToolchainConfig>>(
+                "toolchain.toolchains",
+                {},
+            )
+
+            const items = [
+                {
+                    label: "$(add) Add New Toolchain",
+                    description: "Add a new Tact toolchain configuration",
+                    action: "add",
+                },
+                {
+                    label: "$(list-unordered) List All Toolchains",
+                    description: "View all configured toolchains",
+                    action: "list",
+                },
+                {
+                    label: "$(trash) Remove Toolchain",
+                    description: "Remove an existing toolchain configuration",
+                    action: "remove",
+                },
+            ]
+
+            const selected = await vscode.window.showQuickPick(items, {
+                placeHolder: "Manage Tact Toolchains",
+            })
+
+            if (selected) {
+                switch (selected.action) {
+                    case "add": {
+                        await vscode.commands.executeCommand("tact.addToolchain")
+                        break
+                    }
+                    case "list": {
+                        const toolchainItems = Object.entries(toolchains).map(
+                            ([id, toolchain]) => ({
+                                label: toolchain.name,
+                                description: toolchain.description ?? "",
+                                detail: `ID: ${id}, Path: ${toolchain.path || "Auto-detected"}`,
+                            }),
+                        )
+
+                        await vscode.window.showQuickPick(toolchainItems, {
+                            placeHolder: "Configured Toolchains",
+                        })
+                        break
+                    }
+                    case "remove": {
+                        await vscode.commands.executeCommand("tact.removeToolchain")
+                        break
+                    }
+                }
+            }
+        }),
+        vscode.commands.registerCommand("tact.addToolchain", async () => {
+            const id = await vscode.window.showInputBox({
+                prompt: "Enter unique ID for the new toolchain",
+                placeHolder: "e.g., tact-1.6.0, local-build",
+                validateInput: (value: string) => {
+                    if (!value.trim()) return "ID cannot be empty"
+                    if (!/^[\w-]+$/.test(value))
+                        return "ID can only contain letters, numbers, hyphens, and underscores"
+
+                    const config = vscode.workspace.getConfiguration("tact")
+                    const toolchains = config.get<Record<string, ToolchainConfig | undefined>>(
+                        "toolchain.toolchains",
+                        {},
+                    )
+                    if (toolchains[value]) return "A toolchain with this ID already exists"
+
+                    return null
+                },
+            })
+
+            if (!id) return
+
+            const name = await vscode.window.showInputBox({
+                prompt: "Enter display name for the toolchain",
+                placeHolder: "e.g., Tact 1.6.0, Local Development Build",
+            })
+
+            if (!name) return
+
+            const pathOptions = [
+                {label: "$(file-directory) Browse for executable", action: "browse"},
+                {label: "$(edit) Enter path manually", action: "manual"},
+            ]
+
+            const pathOption = await vscode.window.showQuickPick(pathOptions, {
+                placeHolder: "How would you like to specify the compiler path?",
+            })
+
+            if (!pathOption) return
+
+            let path = ""
+            if (pathOption.action === "browse") {
+                const fileUri = await vscode.window.showOpenDialog({
+                    canSelectFiles: true,
+                    canSelectFolders: false,
+                    canSelectMany: false,
+                    filters: {
+                        Executables: process.platform === "win32" ? ["exe"] : ["*"],
+                    },
+                    title: "Select Tact Compiler Executable",
+                })
+
+                if (fileUri && fileUri[0]) {
+                    path = fileUri[0].fsPath
+                }
+            } else {
+                const manualPath = await vscode.window.showInputBox({
+                    prompt: "Enter path to Tact compiler executable",
+                    placeHolder: "/usr/local/bin/tact or ./node_modules/.bin/tact",
+                })
+                if (manualPath) {
+                    path = manualPath
+                }
+            }
+
+            if (!path) return
+
+            const description = await vscode.window.showInputBox({
+                prompt: "Enter optional description for the toolchain",
+                placeHolder: "e.g., Latest stable version, Development build",
+            })
+
+            const config = vscode.workspace.getConfiguration("tact")
+            const toolchains = config.get<Record<string, ToolchainConfig | undefined>>(
+                "toolchain.toolchains",
+                {},
+            )
+
+            toolchains[id] = {
+                name,
+                path,
+                ...(description && {description}),
+            }
+
+            await config.update(
+                "toolchain.toolchains",
+                toolchains,
+                vscode.ConfigurationTarget.Workspace,
+            )
+
+            const activateNow = await vscode.window.showInformationMessage(
+                `Added toolchain: ${name}. Do you want to activate it now?`,
+                "Activate",
+                "Keep Current",
+            )
+
+            if (activateNow === "Activate") {
+                await config.update(
+                    "toolchain.activeToolchain",
+                    id,
+                    vscode.ConfigurationTarget.Workspace,
+                )
+                vscode.window.showInformationMessage(`Activated toolchain: ${name}`)
+            } else {
+                vscode.window.showInformationMessage(`Toolchain ${name} added but not activated`)
+            }
+        }),
+        vscode.commands.registerCommand("tact.removeToolchain", async () => {
+            const config = vscode.workspace.getConfiguration("tact")
+            const toolchains = config.get<Record<string, ToolchainConfig>>(
+                "toolchain.toolchains",
+                {},
+            )
+            const activeToolchain = config.get<string>("toolchain.activeToolchain", "auto")
+
+            const removableToolchains = Object.entries(toolchains).filter(([id]) => id !== "auto")
+
+            if (removableToolchains.length === 0) {
+                vscode.window.showInformationMessage("No removable toolchains found")
+                return
+            }
+
+            const items = removableToolchains.map(([id, toolchain]) => ({
+                label: toolchain.name,
+                description: toolchain.description ?? "",
+                detail: `ID: ${id}, Path: ${toolchain.path}`,
+                id: id,
+            }))
+
+            const selected = await vscode.window.showQuickPick(items, {
+                placeHolder: "Select toolchain to remove",
+            })
+
+            if (!selected) return
+
+            const confirmation = await vscode.window.showWarningMessage(
+                `Are you sure you want to remove the toolchain "${selected.label}"?`,
+                {modal: true},
+                "Remove",
+                "Cancel",
+            )
+
+            if (confirmation === "Remove") {
+                // Create a new object without the selected toolchain instead of modifying the existing one
+                const updatedToolchains = Object.fromEntries(
+                    Object.entries(toolchains).filter(([id]) => id !== selected.id),
+                )
+
+                await config.update(
+                    "toolchain.toolchains",
+                    updatedToolchains,
+                    vscode.ConfigurationTarget.Workspace,
+                )
+
+                if (activeToolchain === selected.id) {
+                    await config.update(
+                        "toolchain.activeToolchain",
+                        "auto",
+                        vscode.ConfigurationTarget.Workspace,
+                    )
+                    vscode.window.showInformationMessage(
+                        `Removed toolchain "${selected.label}" and switched to auto-detection`,
+                    )
+                } else {
+                    vscode.window.showInformationMessage(`Removed toolchain: ${selected.label}`)
+                }
             }
         }),
     )
@@ -602,7 +992,7 @@ async function updateGasStatusBar(editor: vscode.TextEditor): Promise<void> {
     }
 
     try {
-        const params: GetGasConsumptionForSelectionParams = {
+        const params: GasConsumptionForSelectionParams = {
             textDocument: {
                 uri: editor.document.uri.toString(),
             },
@@ -618,8 +1008,8 @@ async function updateGasStatusBar(editor: vscode.TextEditor): Promise<void> {
             },
         }
 
-        const result = await client.sendRequest<GetGasConsumptionForSelectionResponse>(
-            GetGasConsumptionForSelectionRequest,
+        const result = await client.sendRequest<GasConsumptionForSelectionResponse>(
+            GasConsumptionForSelectionRequest,
             params,
         )
 

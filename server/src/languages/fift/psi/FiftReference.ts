@@ -1,14 +1,14 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import type {File} from "@server/languages/tact/psi/File"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
+import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 
 export class FiftReference {
     private readonly node: SyntaxNode
-    private readonly file: File
+    private readonly file: FiftFile
 
-    public constructor(node: SyntaxNode, file: File) {
+    public constructor(node: SyntaxNode, file: FiftFile) {
         this.node = node
         this.file = file
     }
@@ -43,7 +43,7 @@ export class FiftReference {
         return definition
     }
 
-    public static resolve(node: SyntaxNode, file: File): SyntaxNode | null {
+    public static resolve(node: SyntaxNode, file: FiftFile): SyntaxNode | null {
         return new FiftReference(node, file).resolve()
     }
 }

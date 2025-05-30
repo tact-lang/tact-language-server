@@ -8,7 +8,7 @@
         "Tact",
         "Smart contract"
     ],
-    "version": "0.7.1",
+    "version": "0.8.1",
     "engines": {
         "vscode": "^1.63.0"
     },
@@ -221,6 +221,36 @@
                 "title": "Search by Type Signature",
                 "category": "Tact",
                 "icon": "$(symbol-method)"
+            },
+            {
+                "command": "tact.showToolchainInfo",
+                "title": "Show Toolchain Information",
+                "category": "Tact",
+                "icon": "$(info)"
+            },
+            {
+                "command": "tact.selectToolchain",
+                "title": "Select Active Toolchain",
+                "category": "Tact",
+                "icon": "$(tools)"
+            },
+            {
+                "command": "tact.manageToolchains",
+                "title": "Manage Toolchains",
+                "category": "Tact",
+                "icon": "$(settings-gear)"
+            },
+            {
+                "command": "tact.addToolchain",
+                "title": "Add New Toolchain",
+                "category": "Tact",
+                "icon": "$(add)"
+            },
+            {
+                "command": "tact.removeToolchain",
+                "title": "Remove Toolchain",
+                "category": "Tact",
+                "icon": "$(trash)"
             }
         ],
         "keybindings": [
@@ -263,10 +293,42 @@
             {
                 "title": "Toolchain",
                 "properties": {
-                    "tact.toolchain.compilerPath": {
+                    "tact.toolchain.activeToolchain": {
                         "type": "string",
-                        "default": "",
-                        "description": "Path of Tact compiler executable. If empty, LS will try to use '$PROJECT_ROOT/node_modules/.bin/tact'"
+                        "default": "auto",
+                        "description": "Name of the active toolchain to use. Use 'auto' for automatic detection."
+                    },
+                    "tact.toolchain.toolchains": {
+                        "type": "object",
+                        "default": {
+                            "auto": {
+                                "name": "Auto-detected",
+                                "path": "",
+                                "description": "Automatically detect Tact compiler in node_modules"
+                            }
+                        },
+                        "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Display name for this toolchain"
+                                },
+                                "path": {
+                                    "type": "string",
+                                    "description": "Path to the Tact compiler executable"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Optional description for this toolchain"
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "path"
+                            ]
+                        },
+                        "description": "Configured Tact toolchains. Each key is a unique identifier for the toolchain."
                     },
                     "tact.toolchain.showShortCommitInStatusBar": {
                         "type": "boolean",
@@ -431,6 +493,16 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Show 'Go to parent' lens for functions inherited from traits"
+                    },
+                    "tact.codeLens.showMessageReceivedCount": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show 'Received X times' lens for messages"
+                    },
+                    "tact.codeLens.showMessageSentCount": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Show 'Sent X times' lens for messages"
                     }
                 }
             },

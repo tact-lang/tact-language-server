@@ -4,12 +4,19 @@ import {connection} from "@server/connection"
 
 export type FindUsagesScope = "workspace" | "everywhere"
 
+export interface ToolchainConfig {
+    readonly name: string
+    readonly path: string
+    readonly description?: string
+}
+
 export interface TactSettings {
     readonly stdlib: {
         readonly path: string | null
     }
     readonly toolchain: {
-        readonly compilerPath: string
+        readonly activeToolchain: string
+        readonly toolchains: Record<string, ToolchainConfig>
         readonly showShortCommitInStatusBar: boolean
     }
     readonly highlighting: {
@@ -47,6 +54,8 @@ export interface TactSettings {
         readonly showFunctionImplementations: boolean
         readonly showParentTraitFields: boolean
         readonly showParentTraitFunctions: boolean
+        readonly showMessageReceivedCount: boolean
+        readonly showMessageSentCount: boolean
     }
     readonly inspections: {
         readonly disabled: readonly string[] // list of disabled inspection ids
@@ -93,7 +102,14 @@ const defaultSettings: TactSettings = {
         highlightCodeInComments: true,
     },
     toolchain: {
-        compilerPath: "",
+        activeToolchain: "auto",
+        toolchains: {
+            auto: {
+                name: "Auto-detected",
+                path: "",
+                description: "Automatically detect Tact compiler in node_modules",
+            },
+        },
         showShortCommitInStatusBar: false,
     },
     findUsages: {
@@ -128,6 +144,8 @@ const defaultSettings: TactSettings = {
         showFunctionImplementations: true,
         showParentTraitFields: true,
         showParentTraitFunctions: true,
+        showMessageReceivedCount: true,
+        showMessageSentCount: true,
     },
     inspections: {
         disabled: [], // no disabled inspections by default
@@ -135,7 +153,7 @@ const defaultSettings: TactSettings = {
     documentation: {
         showTlb: true,
         showKeywordDocumentation: true,
-        maximumLinesBodyToShowInDocumentation: 2,
+        maximumLinesBodyToShowInDocumentation: 3,
         showNumbersInDifferentNumberSystems: true,
     },
     fift: {
@@ -179,8 +197,9 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
                 defaultSettings.highlighting.highlightCodeInComments,
         },
         toolchain: {
-            compilerPath:
-                vsSettings.toolchain?.compilerPath ?? defaultSettings.toolchain.compilerPath,
+            activeToolchain:
+                vsSettings.toolchain?.activeToolchain ?? defaultSettings.toolchain.activeToolchain,
+            toolchains: vsSettings.toolchain?.toolchains ?? defaultSettings.toolchain.toolchains,
             showShortCommitInStatusBar:
                 vsSettings.toolchain?.showShortCommitInStatusBar ??
                 defaultSettings.toolchain.showShortCommitInStatusBar,
@@ -240,6 +259,12 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             showParentTraitFunctions:
                 vsSettings.codeLens?.showParentTraitFunctions ??
                 defaultSettings.codeLens.showParentTraitFunctions,
+            showMessageReceivedCount:
+                vsSettings.codeLens?.showMessageReceivedCount ??
+                defaultSettings.codeLens.showMessageReceivedCount,
+            showMessageSentCount:
+                vsSettings.codeLens?.showMessageSentCount ??
+                defaultSettings.codeLens.showMessageSentCount,
         },
         inspections: {
             disabled: vsSettings.inspections?.disabled ?? defaultSettings.inspections.disabled,

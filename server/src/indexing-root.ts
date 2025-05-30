@@ -38,6 +38,7 @@ export class IndexingRoot {
                       "**/test/codegen/**",
                       "**/test/contracts/**",
                       "**/test/e2e-emulated/**",
+                      "**/e2e-slow/**",
                       "**/__testdata/**",
                       "**/test-failed/**",
                       "**/types/stmts-failed/**",

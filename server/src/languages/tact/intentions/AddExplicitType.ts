@@ -2,10 +2,10 @@
 //  Copyright © 2025 TON Studio
 import type {Intention, IntentionContext} from "@server/languages/tact/intentions/Intention"
 import type {WorkspaceEdit} from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspPosition, asParserPoint} from "@server/utils/position"
 import type {Position} from "vscode-languageclient"
-import {VarDeclaration} from "@server/languages/tact/psi/Node"
+import {VarDeclaration} from "@server/languages/tact/psi/TactNode"
 import {FileDiff} from "@server/utils/FileDiff"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 
@@ -45,7 +45,7 @@ export class AddExplicitType implements Intention {
     }
 }
 
-function nodeAtPosition(pos: Position, file: File): SyntaxNode | null {
+function nodeAtPosition(pos: Position, file: TactFile): SyntaxNode | null {
     const cursorPosition = asParserPoint(pos)
     return file.rootNode.descendantForPosition(cursorPosition)
 }

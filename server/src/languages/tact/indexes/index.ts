@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {NamedNode} from "@server/languages/tact/psi/Node"
-import {File} from "@server/languages/tact/psi/File"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {
     Constant,
     Contract,
@@ -12,10 +12,11 @@ import {
     Trait,
 } from "@server/languages/tact/psi/Decls"
 import {isNamedFunNode} from "@server/languages/tact/psi/utils"
-import {ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
-import {CACHE} from "@server/cache"
+import {ScopeProcessor} from "@server/languages/tact/psi/Reference"
+import {CACHE} from "@server/languages/tact/cache"
 import {fileURLToPath} from "node:url"
 import {PARSED_FILES_CACHE} from "@server/files"
+import {ResolveState} from "@server/psi/ResolveState"
 
 export interface IndexKeyToType {
     readonly [IndexKey.Contracts]: Contract
@@ -66,7 +67,7 @@ export class FileIndex {
 
     private readonly deprecated: Map<string, string> = new Map()
 
-    public static create(file: File): FileIndex {
+    public static create(file: TactFile): FileIndex {
         const index = new FileIndex()
 
         for (const node of file.rootNode.children) {
@@ -268,7 +269,7 @@ export class IndexRoot {
         return filepath.startsWith(rootDir)
     }
 
-    public addFile(uri: string, file: File, clearCache: boolean = true): void {
+    public addFile(uri: string, file: TactFile, clearCache: boolean = true): void {
         if (this.files.has(uri)) {
             return
         }
@@ -315,7 +316,7 @@ export class IndexRoot {
 
     public processElsByKeyAndFile(
         key: IndexKey,
-        file: File,
+        file: TactFile,
         processor: ScopeProcessor,
         state: ResolveState,
     ): boolean {
@@ -432,7 +433,7 @@ export class GlobalIndex {
         return undefined
     }
 
-    public addFile(uri: string, file: File, clearCache: boolean = true): void {
+    public addFile(uri: string, file: TactFile, clearCache: boolean = true): void {
         const indexRoot = this.findRootFor(uri)
         if (!indexRoot) return
 
@@ -474,7 +475,7 @@ export class GlobalIndex {
 
     public processElsByKeyAndFile(
         key: IndexKey,
-        file: File,
+        file: TactFile,
         processor: ScopeProcessor,
         state: ResolveState,
     ): boolean {

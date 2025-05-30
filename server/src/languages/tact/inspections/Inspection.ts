@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 
 export const InspectionIds = {
     COMPILER: "tact-compiler-errors",
@@ -33,5 +33,5 @@ export type InspectionId = (typeof InspectionIds)[keyof typeof InspectionIds]
 
 export interface Inspection {
     readonly id: InspectionId
-    inspect(file: File): Promise<lsp.Diagnostic[]> | lsp.Diagnostic[]
+    inspect(file: TactFile): Promise<lsp.Diagnostic[]> | lsp.Diagnostic[]
 }

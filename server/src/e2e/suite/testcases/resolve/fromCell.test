@@ -29,3 +29,21 @@ fun test() {
 }
 ------------------------------------------------------------------------
 8:8 -> 3:4 resolved
+
+========================================================================
+fromCell/fromSlice for contract
+========================================================================
+primitive Int;
+
+fun AnyContract_fromCell(cell: Cell): M {}
+fun AnyContract_fromSlice(slice: Slice): M {}
+
+contract Foo {}
+
+fun test() {
+    Foo.<caret>fromSlice();
+    Foo.<caret>fromCell();
+}
+------------------------------------------------------------------------
+8:8 -> 3:4 resolved
+9:8 -> 2:4 resolved

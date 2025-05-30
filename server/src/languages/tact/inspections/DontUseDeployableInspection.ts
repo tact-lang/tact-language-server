@@ -1,11 +1,11 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {UnusedInspection} from "./UnusedInspection"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspRange} from "@server/utils/position"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 import {FileDiff} from "@server/utils/FileDiff"
 import {Contract} from "@server/languages/tact/psi/Decls"
 import {toolchain} from "@server/toolchain"
@@ -13,7 +13,7 @@ import {toolchain} from "@server/toolchain"
 export class DontUseDeployableInspection extends UnusedInspection implements Inspection {
     public readonly id: "dont-use-deployable" = InspectionIds.DONT_USE_DEPLOYABLE
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         if (file.fromStdlib) return
         if (!toolchain.isTact16()) return
 
@@ -45,7 +45,7 @@ export class DontUseDeployableInspection extends UnusedInspection implements Ins
         contract: Contract,
         deployableNode: NamedNode,
         inheritedTraits: NamedNode[],
-        file: File,
+        file: TactFile,
     ): undefined | lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
 

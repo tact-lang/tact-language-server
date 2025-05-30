@@ -43,3 +43,26 @@ fun test() {
 14 let  Create variable
 14 not  Negate expression
 14 repeat  Create repeat loop
+
+========================================================================
+fromCell/fromSlice for contract
+========================================================================
+primitive Int;
+
+fun AnyContract_fromCell(cell: Cell): M {}
+fun AnyContract_fromSlice(slice: Slice): M {}
+
+contract Foo {}
+
+fun test() {
+    Foo.<caret>;
+}
+------------------------------------------------------------------------
+2  fromCell(cell: Cell): M
+2  fromSlice(slice: Slice): M
+14 call  Use as function argument
+14 do  Create do-until loop
+14 if  Create if statement
+14 let  Create variable
+14 not  Negate expression
+14 repeat  Create repeat loop

@@ -1,12 +1,12 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspRange} from "@server/utils/position"
 import {FileDiff} from "@server/utils/FileDiff"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
-import {CallLike} from "@server/languages/tact/psi/Node"
+import {CallLike} from "@server/languages/tact/psi/TactNode"
 
 const REPLACEMENTS: Record<string, string> = {
     log: "log2",
@@ -16,14 +16,14 @@ const REPLACEMENTS: Record<string, string> = {
 export class OptimalMathFunctionsInspection implements Inspection {
     public readonly id: "optimal-math-functions" = InspectionIds.OPTIMAL_MATH_FUNCTIONS
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         if (file.fromStdlib) return
 
         RecursiveVisitor.visit(file.rootNode, node => {

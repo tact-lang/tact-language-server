@@ -1,17 +1,17 @@
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import * as lsp from "vscode-languageserver"
 import {ImportResolver} from "@server/languages/tact/psi/ImportResolver"
 import {asLspRange} from "@server/utils/position"
 import {filePathToUri} from "@server/files"
 import {Reference} from "@server/languages/tact/psi/Reference"
-import {Expression, NamedNode} from "@server/languages/tact/psi/Node"
+import {Expression, NamedNode} from "@server/languages/tact/psi/TactNode"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {BaseTy} from "@server/languages/tact/types/BaseTy"
 
 export function provideTactDefinition(
     hoverNode: SyntaxNode,
-    file: File,
+    file: TactFile,
 ): lsp.Location[] | lsp.LocationLink[] {
     if (hoverNode.type === "string" && hoverNode.parent?.type === "import") {
         const importedFile = ImportResolver.resolveNode(file, hoverNode)
@@ -85,7 +85,7 @@ export function provideTactDefinition(
 
 export function provideTactTypeDefinition(
     hoverNode: SyntaxNode,
-    file: File,
+    file: TactFile,
 ): lsp.Definition | lsp.DefinitionLink[] {
     if (
         hoverNode.type !== "identifier" &&

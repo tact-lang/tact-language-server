@@ -11,7 +11,7 @@ import * as path from "node:path"
 import {globalVFS} from "@server/vfs/global"
 import {listFiles} from "@server/vfs/vfs"
 import {filePathToUri} from "@server/files"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {projectStdlibPath} from "@server/languages/tact/toolchain/toolchain"
 import {trimSuffix} from "@server/utils/strings"
 
@@ -81,7 +81,7 @@ export class ImportPathCompletionProvider implements AsyncCompletionProvider {
         })
     }
 
-    private async files(dir: string, currentFile: File): Promise<string[]> {
+    private async files(dir: string, currentFile: TactFile): Promise<string[]> {
         try {
             const allFiles = await listFiles(globalVFS, filePathToUri(dir))
             return allFiles

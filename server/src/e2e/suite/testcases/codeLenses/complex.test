@@ -1,0 +1,99 @@
+========================================================================
+Complex inheritance with multiple traits and messages
+========================================================================
+message ActionMessage {
+    action: String;
+}
+
+trait Sender {
+    virtual fun sendAction() {
+        send(SendParameters{
+            to: self as Address,
+            value: 0,
+            body: ActionMessage{action: "test"}.toCell()
+        });
+    }
+}
+
+trait Receiver {
+    abstract fun handleAction(msg: ActionMessage);
+}
+
+contract ComplexContract with Sender, Receiver {
+    counter: Int;
+
+    override fun sendAction() {
+        // Custom implementation
+        super.sendAction();
+    }
+
+    override fun handleAction(msg: ActionMessage) {
+        self.counter = self.counter + 1;
+    }
+
+    receive(msg: ActionMessage) {
+        self.handleAction(msg);
+    }
+
+    init() {
+        self.counter = 0;
+    }
+}
+------------------------------------------------------------------------
+/* Received 1 time *//* Sent 1 time */message ActionMessage {
+    action: String;
+}
+
+/* 1 implementation */trait Sender {
+    /* 1 override */virtual fun sendAction() {
+        send(SendParameters{
+            to: self as Address,
+            value: 0,
+            body: ActionMessage{action: "test"}.toCell()
+        });
+    }
+}
+
+/* 1 implementation */trait Receiver {
+    /* 1 implementation */abstract fun handleAction(msg: ActionMessage);
+}
+
+contract ComplexContract with Sender, Receiver {
+    counter: Int;
+
+    /* Go to parent */override fun sendAction() {
+        // Custom implementation
+        super.sendAction();
+    }
+
+    /* Go to parent */override fun handleAction(msg: ActionMessage) {
+        self.counter = self.counter + 1;
+    }
+
+    receive(msg: ActionMessage) {
+        self.handleAction(msg);
+    }
+
+    init() {
+        self.counter = 0;
+    }
+}
+
+========================================================================
+Empty trait and contract
+========================================================================
+trait EmptyTrait {
+}
+
+contract EmptyContract {
+    init() {
+    }
+}
+------------------------------------------------------------------------
+/* 0 implementation */trait EmptyTrait {
+}
+
+contract EmptyContract {
+    init() {
+    }
+}

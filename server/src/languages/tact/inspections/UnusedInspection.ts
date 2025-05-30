@@ -1,24 +1,24 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspRange} from "@server/utils/position"
 import {Referent} from "@server/languages/tact/psi/Referent"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 
 export abstract class UnusedInspection {
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected abstract checkFile(file: File, diagnostics: lsp.Diagnostic[]): void
+    protected abstract checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void
 
     protected checkUnused(
         node: SyntaxNode | null,
-        file: File,
+        file: TactFile,
         diagnostics: lsp.Diagnostic[],
         options: {
             kind: string

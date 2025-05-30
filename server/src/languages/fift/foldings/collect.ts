@@ -2,11 +2,11 @@
 //  Copyright © 2025 TON Studio
 import {FoldingRange, FoldingRangeKind} from "vscode-languageserver-types"
 import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
-import type {File} from "@server/languages/tact/psi/File"
 import type {Point} from "web-tree-sitter"
 import type * as lsp from "vscode-languageserver"
+import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 
-export function collectFift(file: File): FoldingRange[] {
+export function provideFiftFoldingRanges(file: FiftFile): FoldingRange[] {
     const result: FoldingRange[] = []
 
     const genericFolding = (start: Point, end: Point): lsp.FoldingRange => {

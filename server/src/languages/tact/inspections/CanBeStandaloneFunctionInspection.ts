@@ -1,26 +1,26 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspPosition, asLspRange} from "@server/utils/position"
 import {Contract, Fun} from "@server/languages/tact/psi/Decls"
 import {FileDiff} from "@server/utils/FileDiff"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import {Referent} from "@server/languages/tact/psi/Referent"
-import {Node} from "@server/languages/tact/psi/Node"
+import {TactNode} from "@server/languages/tact/psi/TactNode"
 
 export class CanBeStandaloneFunctionInspection implements Inspection {
     public readonly id: "can-be-standalone-function" = InspectionIds.CAN_BE_STANDALONE_FUNCTION
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         if (file.fromStdlib) return
 
         const contracts = file.getContracts()
@@ -73,7 +73,7 @@ export class CanBeStandaloneFunctionInspection implements Inspection {
     private rewriteAsStandalone(
         contract: Contract,
         method: Fun,
-        file: File,
+        file: TactFile,
     ): undefined | lsp.CodeAction {
         const diff = FileDiff.forFile(file.uri)
 
@@ -102,7 +102,7 @@ export class CanBeStandaloneFunctionInspection implements Inspection {
         }
     }
 
-    private collectUsages(method: Fun, file: File): Node[] {
+    private collectUsages(method: Fun, file: TactFile): TactNode[] {
         const methodNameIdent = method.nameIdentifier()
         if (!methodNameIdent) return []
         const ref = new Referent(methodNameIdent, file)

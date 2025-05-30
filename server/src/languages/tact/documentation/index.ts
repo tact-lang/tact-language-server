@@ -1,13 +1,13 @@
 import * as lsp from "vscode-languageserver"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {getDocumentSettings} from "@server/settings/settings"
 import {
     generateAttributeKeywordDoc,
     generateKeywordDoc,
 } from "@server/languages/tact/documentation/keywords_documentation"
 import {asLspRange} from "@server/utils/position"
-import {AsmInstr, NamedNode} from "@server/languages/tact/psi/Node"
+import {AsmInstr, NamedNode} from "@server/languages/tact/psi/TactNode"
 import {generateAsmDoc} from "@server/languages/tact/documentation/asm_documentation"
 import {generateTlBTypeDoc} from "@server/languages/tact/documentation/tlb_type_documentation"
 import {InitFunction, MessageFunction} from "@server/languages/tact/psi/Decls"
@@ -22,7 +22,7 @@ import * as docs from "@server/languages/tact/documentation/documentation"
 export async function provideTactDocumentation(
     params: lsp.HoverParams,
     hoverNode: SyntaxNode,
-    file: File,
+    file: TactFile,
 ): Promise<lsp.Hover | null> {
     const settings = await getDocumentSettings(params.textDocument.uri)
 

@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspPosition, asLspRange} from "@server/utils/position"
 import {Message} from "@server/languages/tact/psi/Decls"
@@ -10,14 +10,14 @@ import {FileDiff} from "@server/utils/FileDiff"
 export class ImplicitMessageId implements Inspection {
     public readonly id: "implicit-message-opcode" = InspectionIds.IMPLICIT_MESSAGE_OPCODE
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
         this.checkFile(file, diagnostics)
         return diagnostics
     }
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         if (file.fromStdlib) return
 
         const messages = file.getMessages()
@@ -47,7 +47,7 @@ export class ImplicitMessageId implements Inspection {
     private insertExplicitId(
         message: Message,
         opcode: string,
-        file: File,
+        file: TactFile,
     ): undefined | lsp.CodeAction {
         const messageKeyword = message.node.firstChild
         if (!messageKeyword) return undefined

@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {UnusedInspection} from "./UnusedInspection"
 import {Inspection, InspectionIds} from "./Inspection"
 import {asLspRange} from "@server/utils/position"
@@ -9,7 +9,7 @@ import {asLspRange} from "@server/utils/position"
 export class DontUseTextReceiversInspection extends UnusedInspection implements Inspection {
     public readonly id: "dont-use-text-receivers" = InspectionIds.DONT_USE_TEXT_RECEIVERS
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         if (file.fromStdlib) return
 
         const contracts = file.getContracts()

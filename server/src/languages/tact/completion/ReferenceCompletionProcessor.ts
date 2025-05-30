@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {ResolveState, ScopeProcessor} from "@server/languages/tact/psi/Reference"
-import {NamedNode, Node} from "@server/languages/tact/psi/Node"
+import {ScopeProcessor} from "@server/languages/tact/psi/Reference"
+import {NamedNode, TactNode} from "@server/languages/tact/psi/TactNode"
 import {
     Constant,
     Contract,
@@ -23,12 +23,13 @@ import {
 import {MessageTy, StructTy} from "@server/languages/tact/types/BaseTy"
 import {tactCodeBlock} from "@server/languages/tact/documentation/documentation"
 import {trimPrefix} from "@server/utils/strings"
-import {File} from "@server/languages/tact/psi/File"
+import {TactFile} from "@server/languages/tact/psi/TactFile"
+import {ResolveState} from "@server/psi/ResolveState"
 
 export interface CompletionItemAdditionalInformation {
     readonly name: string | undefined
-    readonly file: File | undefined
-    readonly elementFile: File | undefined
+    readonly file: TactFile | undefined
+    readonly elementFile: TactFile | undefined
 }
 
 export class ReferenceCompletionProcessor implements ScopeProcessor {
@@ -36,7 +37,7 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
 
     public result: Map<string, CompletionItem> = new Map()
 
-    private allowedInContext(node: Node): boolean {
+    private allowedInContext(node: TactNode): boolean {
         if (node instanceof NamedNode && node.name() === "BaseTrait") return false
 
         if (this.ctx.isType) {
@@ -78,12 +79,20 @@ export class ReferenceCompletionProcessor implements ScopeProcessor {
         return true
     }
 
-    public execute(node: Node, state: ResolveState): boolean {
+    public execute(node: TactNode, state: ResolveState): boolean {
         if (!(node instanceof NamedNode)) return true
 
         const prefix = state.get("prefix") ?? ""
-        const name = trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyStruct_")
-        if (name.endsWith("DummyIdentifier") || name === "AnyStruct" || name === "AnyMessage") {
+        const name = trimPrefix(
+            trimPrefix(trimPrefix(node.name(), "AnyMessage_"), "AnyContract_"),
+            "AnyStruct_",
+        )
+        if (
+            name.endsWith("DummyIdentifier") ||
+            name === "AnyStruct" ||
+            name === "AnyMessage" ||
+            name === "AnyContract"
+        ) {
             return true
         }
 

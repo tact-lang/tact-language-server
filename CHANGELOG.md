@@ -2,6 +2,84 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2025-05-29
+
+Fixed error with buffer files.
+
+## [0.8.0] - 2025-05-29
+
+### Added
+
+- feat: add flexible toolchain settings in https://github.com/tact-lang/tact-language-server/pull/723
+- feat: don't index `.git` and `allure-results` folders in https://github.com/tact-lang/tact-language-server/pull/715
+- feat: support contract `Contract.toCell/toSlice` from Tact 1.6.11 and `Contract.fromCell/fromSlice` from Tact 1.6.12 in https://github.com/tact-lang/tact-language-server/pull/746
+- feat(documentation): show number in different number systems on hover in https://github.com/tact-lang/tact-language-server/pull/684
+- feat(documentation): support constant values for message opcodes in https://github.com/tact-lang/tact-language-server/pull/677
+- feat(inspections): add `CanBeInline` inspection and optimize find references in https://github.com/tact-lang/tact-language-server/pull/691
+- feat(inspections): add `DeprecatedSymbolUsage` inspection in https://github.com/tact-lang/tact-language-server/pull/690
+- feat(inspections): add `MissedMembersInContract` inspection with quickfix to implement trait in https://github.com/tact-lang/tact-language-server/pull/686
+- feat(inspections): add `NamingConvention` inspection in https://github.com/tact-lang/tact-language-server/pull/701
+- feat(inspections): add `OptimalMathFunctions` inspection in https://github.com/tact-lang/tact-language-server/pull/692
+- feat(inspections): more stable results for Tact compiler and Misti inspections, enable Tact compiler linting by default in https://github.com/tact-lang/tact-language-server/pull/675
+- feat(lenses): add lenses for messages with received and sent count in https://github.com/tact-lang/tact-language-server/pull/733
+- feat(references/resolve): support go-to-references for TL-B types and support multi-declarations in https://github.com/tact-lang/tact-language-server/pull/744
+- feat(renaming): rename import on file rename or move in https://github.com/tact-lang/tact-language-server/pull/698
+- feat(tlb): add TL-B basic highlighting in https://github.com/tact-lang/tact-language-server/pull/666
+- feat(tlb): add basic highlight TL-B code blocks inside Tact comments in https://github.com/tact-lang/tact-language-server/pull/670
+- feat(tlb): add initial completion for declarations, parameters, fields and builtin types in https://github.com/tact-lang/tact-language-server/pull/740
+- feat(tlb): add tree-sitter grammar for TL-B in https://github.com/tact-lang/tact-language-server/pull/669
+- feat(tlb): better highlighting in https://github.com/tact-lang/tact-language-server/pull/741
+- feat(tlb): support document symbols for TL-B in https://github.com/tact-lang/tact-language-server/pull/739
+- feat(tlb/resolving): initial resolving for declarations, fields and type parameters in https://github.com/tact-lang/tact-language-server/pull/674
+- feat(vscode): add intention to extract symbol to new file in https://github.com/tact-lang/tact-language-server/pull/700
+- feat(vscode): automatically disassemble BoC file if changed in https://github.com/tact-lang/tact-language-server/pull/699
+- feat(vscode): show gas consumption for selected instructions in https://github.com/tact-lang/tact-language-server/pull/702
+- feat(vscode): show toolchain information on status bar widget hover in https://github.com/tact-lang/tact-language-server/pull/722
+- feat(vscode): type-based search in https://github.com/tact-lang/tact-language-server/pull/706
+- feat(icons): update icons in https://github.com/tact-lang/tact-language-server/pull/679
+
+### Fixes
+
+- fix(package.json): fix URL to GitHub repository and normalize bin path in https://github.com/tact-lang/tact-language-server/pull/663
+- fix(package.server.json): add `publishConfig` entry for public publishing in https://github.com/tact-lang/tact-language-server/pull/664
+- fix(completion): add space after name in struct instance completion in https://github.com/tact-lang/tact-language-server/pull/687
+- fix(inspection): fix `MissedMembersInContract` inspection message in https://github.com/tact-lang/tact-language-server/pull/689
+- fix(inspections): don't suggest `inline` for assembly functions in https://github.com/tact-lang/tact-language-server/pull/704
+- fix(vscode): remove duplicate command in https://github.com/tact-lang/tact-language-server/pull/705
+- fix(inspections): allow `_foo` as valid camel case for field names in https://github.com/tact-lang/tact-language-server/pull/707
+- fix(intentions): fix `AddImport` intention in https://github.com/tact-lang/tact-language-server/pull/729
+- fix(documentation): fix calculation of body length in https://github.com/tact-lang/tact-language-server/pull/730
+- fix: delay file open event until indexing is in progress in https://github.com/tact-lang/tact-language-server/pull/747
+
+### Internal
+
+- feat(ci): move tree-sitter grammars to separate job in https://github.com/tact-lang/tact-language-server/pull/718
+- feat(tests): add filtering for e2e tests and fix e2e tests on windows in https://github.com/tact-lang/tact-language-server/pull/693
+- feat(tests): support multi files tests in https://github.com/tact-lang/tact-language-server/pull/694
+- feat(tests): add code lenses tests in https://github.com/tact-lang/tact-language-server/pull/735
+- feat(tests): add tests for document symbols in https://github.com/tact-lang/tact-language-server/pull/696
+- feat(tests): add tests for type definition in https://github.com/tact-lang/tact-language-server/pull/717
+- refactor: move `*-language-configuration.json` to `client/src/languages` in https://github.com/tact-lang/tact-language-server/pull/660
+- refactor: move syntaxes to `client/` and stubs to `server/` in https://github.com/tact-lang/tact-language-server/pull/709
+- refactor: split languages to separate folders inside `server/src/languages` in https://github.com/tact-lang/tact-language-server/pull/710
+- refactor: move tree-sitter grammars to language-specific folders in https://github.com/tact-lang/tact-language-server/pull/711
+- refactor: move more files to `tact/` folder in https://github.com/tact-lang/tact-language-server/pull/712
+- refactor: simplify and improve `server.ts` in https://github.com/tact-lang/tact-language-server/pull/713
+- refactor: extract hover documentation and go-to-definitions to language-specific files in https://github.com/tact-lang/tact-language-server/pull/714
+- refactor: better PSI structure for other languages in https://github.com/tact-lang/tact-language-server/pull/725
+- refactor: move more features from `server.ts` in https://github.com/tact-lang/tact-language-server/pull/726
+- refactor: move more features from `server.ts` in https://github.com/tact-lang/tact-language-server/pull/727
+
+### Other
+
+- chore: mention Open VSIX in CONTRIBUTING.md in https://github.com/tact-lang/tact-language-server/pull/662
+- chore: update extension logo with new Tact logo in https://github.com/tact-lang/tact-language-server/pull/681
+- chore: add download badges in https://github.com/tact-lang/tact-language-server/pull/683
+- chore: add `yarn test:e2e:coverage` to CONTRIBUTING.md in https://github.com/tact-lang/tact-language-server/pull/697
+- chore: specify authors and license for source code files in https://github.com/tact-lang/tact-language-server/pull/708
+- chore: add more features to README.md in https://github.com/tact-lang/tact-language-server/pull/731
+- chore: describe more features in README.md in https://github.com/tact-lang/tact-language-server/pull/745
+
 ## [0.7.1] - 2025-05-24
 
 ### Added

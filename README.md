@@ -22,21 +22,43 @@ the [Tact programming language](https://tact-lang.org).
 Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON
 blockchain.
 
+In addition to Tact, the extension provides support for Fift assembly, TL-B, and TON Bag-of-Cells (BoC) files.
+
 ## Features
 
 - [Semantic syntax highlighting]
 - [Code completion] with [auto import], [postfix completion], snippets, [imports completion]
 - Go to [definition], implementation, [type definition]
-- Find all references, workspace symbol search, symbol renaming, [type-based search]
+- Find all references, workspace symbol search, symbol renaming
+- Advanced navigation like [type-based search] and code lenses that let you jump to where each message is
+  sent and where it’s received
+- Automatic import updates when renaming and moving files
 - Types and documentation on hover
-- Inlay hints [for types], [parameter names] and [more]
+- TL-B definition for messages, structs and contracts on hover
+- Beginner documentation for all keywords on hover
+- Inlay hints [for types], [parameter names], receiver opcodes and [more]
 - On-the-fly [inspections] with quick fixes
 - Signature help inside calls, `initOf` and struct initialization
 - [Lenses] with implementation/reference counts
 - [Gas estimates] for assembly functions
 - Build and test projects based on [Blueprint] and [Tact template]
 - Integration with [Tact compiler] and [Misti] static analyzer
+- Flexible [toolchain management]
 - Formatting
+- Fift Assembly:
+    - Basic and semantic syntax highlighting
+    - Go-to definitions
+    - Inlay hints with gas consumption for instructions
+    - Hover documentation for instructions
+- TL-B:
+    - Basic and semantic syntax highlighting
+    - Go-to definitions
+    - Completion for fields, parameters, and types
+    - Go-to references for types
+    - Document symbols with all declarations
+- TON Bag-of-Cells (BoC):
+    - Automatic BoC disassembly with syntax highlighting
+    - Automatic updates on BoC changes
 
 [Semantic syntax highlighting]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/highlighting.md
 [Code completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md
@@ -56,6 +78,7 @@ blockchain.
 [Tact compiler]: https://github.com/tact-lang/tact
 [Misti]: https://nowarp.io/tools/misti/
 [type-based search]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/type-based-search.md
+[toolchain management]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/toolchain-management.md
 
 ## Quick start
 
@@ -65,6 +88,9 @@ The easiest way to get started with Tact is to use VS Code or editors based on i
    [in VS Code](https://marketplace.visualstudio.com/items?itemName=tonstudio.vscode-tact)
    or [in VS Code-based editors](https://open-vsx.org/extension/tonstudio/vscode-tact)
 2. That's it!
+
+The extension automatically detects your Tact compiler installation. If you need to work with multiple Tact versions or
+custom-builds, check out the [toolchain management] guide.
 
 ![editor.png](docs/manual/assets/editor.png)
 

@@ -1,6 +1,6 @@
 {
     "name": "@tact-lang/tact-language-server",
-    "version": "0.7.1",
+    "version": "0.8.1",
     "description": "Language Server for Tact",
     "main": "server.js",
     "keywords": ["TON", "The Open Network", "Tact", "Smart contract", "language server"],

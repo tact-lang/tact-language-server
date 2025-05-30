@@ -2,29 +2,27 @@
 //  Copyright © 2025 TON Studio
 import type {Intention, IntentionContext} from "@server/languages/tact/intentions/Intention"
 import type {WorkspaceEdit} from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asParserPoint} from "@server/utils/position"
 import type {Position} from "vscode-languageclient"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 import {FileDiff} from "@server/utils/FileDiff"
-import {Reference} from "@server/languages/tact/psi/Reference"
-import {Contract, Primitive} from "@server/languages/tact/psi/Decls"
+import {Primitive} from "@server/languages/tact/psi/Decls"
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import {index} from "@server/languages/tact/indexes"
+import {index, IndexKey} from "@server/languages/tact/indexes"
 
 export class AddImport implements Intention {
     public readonly id: string = "tact.add-import"
     public readonly name: string = "Import symbol from other file"
 
-    private static resolveIdentifier(ctx: IntentionContext): NamedNode | null {
+    private static resolveIdentifier(ctx: IntentionContext): NamedNode | undefined {
         const node = nodeAtPosition(ctx.position, ctx.file)
-        if (node?.type !== "identifier" && node?.type !== "type_identifier") return null
+        if (node?.type !== "identifier" && node?.type !== "type_identifier") return undefined
 
-        const resolved = Reference.resolve(new NamedNode(node, ctx.file))
-        if (!resolved) return null
-        if (resolved instanceof Primitive || resolved instanceof Contract) return null
+        const decl = AddImport.findDeclaration(node.text)
+        if (decl instanceof Primitive) return undefined // always from stdlib
 
-        return resolved
+        return decl
     }
 
     public isAvailable(ctx: IntentionContext): boolean {
@@ -55,9 +53,21 @@ export class AddImport implements Intention {
 
         return diff.toWorkspaceEdit()
     }
+
+    public static findDeclaration(name: string): NamedNode | undefined {
+        return (
+            index.elementByName(IndexKey.Structs, name) ??
+            index.elementByName(IndexKey.Messages, name) ??
+            index.elementByName(IndexKey.Contracts, name) ??
+            index.elementByName(IndexKey.Traits, name) ??
+            index.elementByName(IndexKey.Constants, name) ??
+            index.elementByName(IndexKey.Funs, name) ??
+            undefined
+        )
+    }
 }
 
-function nodeAtPosition(pos: Position, file: File): SyntaxNode | null {
+function nodeAtPosition(pos: Position, file: TactFile): SyntaxNode | null {
     const cursorPosition = asParserPoint(pos)
     return file.rootNode.descendantForPosition(cursorPosition)
 }

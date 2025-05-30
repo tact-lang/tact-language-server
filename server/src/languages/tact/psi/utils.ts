@@ -2,7 +2,7 @@
 //  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {index} from "@server/languages/tact/indexes"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 
 export function parentOfType(node: SyntaxNode, ...types: readonly string[]): SyntaxNode | null {
     let parent = node.parent
@@ -17,12 +17,13 @@ export function parentOfType(node: SyntaxNode, ...types: readonly string[]): Syn
 }
 
 export function isFunNode(node: SyntaxNode): boolean {
+    return isNamedFunNode(node) || isReceiveFunNode(node) || node.type === "init_function"
+}
+export function isReceiveFunNode(node: SyntaxNode): boolean {
     return (
-        isNamedFunNode(node) ||
         node.type === "receive_function" ||
         node.type === "bounced_function" ||
-        node.type === "external_function" ||
-        node.type === "init_function"
+        node.type === "external_function"
     )
 }
 

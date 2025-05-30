@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {UnusedInspection} from "./UnusedInspection"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import {Inspection, InspectionIds} from "./Inspection"
@@ -9,7 +9,7 @@ import {Inspection, InspectionIds} from "./Inspection"
 export class UnusedVariableInspection extends UnusedInspection implements Inspection {
     public readonly id: "unused-variable" = InspectionIds.UNUSED_VARIABLE
 
-    protected checkFile(file: File, diagnostics: lsp.Diagnostic[]): void {
+    protected checkFile(file: TactFile, diagnostics: lsp.Diagnostic[]): void {
         RecursiveVisitor.visit(file.rootNode, node => {
             if (node.type === "destruct_bind") {
                 // let Foo { name: otherName } = foo()

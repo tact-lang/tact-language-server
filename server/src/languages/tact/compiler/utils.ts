@@ -1,14 +1,14 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import type {File} from "@server/languages/tact/psi/File"
-import {CallLike} from "@server/languages/tact/psi/Node"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
+import {CallLike} from "@server/languages/tact/psi/TactNode"
 import {createHash} from "node:crypto"
 import {crc32BigInt} from "@server/languages/tact/compiler/crc32"
 
 export function requireFunctionExitCode(
     callNode: SyntaxNode,
-    file: File,
+    file: TactFile,
     exitCodeFormat: "decimal" | "hex",
 ): {
     value: string

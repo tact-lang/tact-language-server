@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {Expression, Node} from "@server/languages/tact/psi/Node"
+import {Expression, TactNode} from "@server/languages/tact/psi/TactNode"
 import type * as lsp from "vscode-languageserver/node"
 import {parentOfType} from "@server/languages/tact/psi/utils"
 import {MapTy, NullTy, OptionTy, Ty} from "@server/languages/tact/types/BaseTy"
@@ -8,7 +8,7 @@ import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import type {TactSettings} from "@server/settings/settings"
 
 export class CompletionContext {
-    public element: Node
+    public element: TactNode
     public position: lsp.Position
     public triggerKind: lsp.CompletionTriggerKind
 
@@ -43,7 +43,7 @@ export class CompletionContext {
 
     public constructor(
         content: string,
-        element: Node,
+        element: TactNode,
         position: lsp.Position,
         triggerKind: lsp.CompletionTriggerKind,
         settings: TactSettings,
@@ -275,9 +275,9 @@ export class CompletionContext {
             this.isType = false
         }
 
-        const traitOrContractOwner = parentOfType(element.node, "contract", "trait")
-        this.insideTraitOrContract = traitOrContractOwner !== null
-        this.insideTrait = parentOfType(element.node, "trait") !== null
+        const traitOrContractOwner = element.parentOfType("contract", "trait")
+        this.insideTraitOrContract = traitOrContractOwner !== undefined
+        this.insideTrait = element.parentOfType("trait") !== undefined
     }
 
     public matchContextTy(typeCb: () => Ty | null | undefined): boolean {

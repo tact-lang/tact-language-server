@@ -1,11 +1,11 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as lsp from "vscode-languageserver"
-import type {File} from "@server/languages/tact/psi/File"
+import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {asLspRange} from "@server/utils/position"
 import {RecursiveVisitor} from "@server/languages/tact/psi/RecursiveVisitor"
 import {Reference} from "@server/languages/tact/psi/Reference"
-import {NamedNode} from "@server/languages/tact/psi/Node"
+import {NamedNode} from "@server/languages/tact/psi/TactNode"
 import {Contract, Field, Primitive} from "@server/languages/tact/psi/Decls"
 import {Inspection, InspectionIds} from "./Inspection"
 import {index} from "@server/languages/tact/indexes"
@@ -13,7 +13,7 @@ import {index} from "@server/languages/tact/indexes"
 export class NotImportedSymbolInspection implements Inspection {
     public readonly id: "not-imported-symbol" = InspectionIds.NOT_IMPORTED_SYMBOL
 
-    public inspect(file: File): lsp.Diagnostic[] {
+    public inspect(file: TactFile): lsp.Diagnostic[] {
         if (file.fromStdlib) return []
         const diagnostics: lsp.Diagnostic[] = []
 
