@@ -3,7 +3,6 @@
 import * as path from "path"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {globalVFS, readFileVFS} from "@server/vfs/files-adapter"
-import {pathToFileURL} from "url"
 
 export interface AsmInstruction {
     readonly mnemonic: string
@@ -49,6 +48,10 @@ export async function asmData(): Promise<AsmData> {
     if (content === undefined) return {instructions: [], aliases: []}
     data = JSON.parse(content) as AsmData
     return data
+}
+
+const pathToFileURL = (path: string): string => {
+    return "file://" + path
 }
 
 export const filePathToUri = (filePath: string): string => {

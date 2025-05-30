@@ -14,8 +14,7 @@ import {
 import {isNamedFunNode} from "@server/languages/tact/psi/utils"
 import {ScopeProcessor} from "@server/languages/tact/psi/Reference"
 import {CACHE} from "@server/languages/tact/cache"
-import {fileURLToPath} from "url"
-import {PARSED_FILES_CACHE} from "@server/files"
+import {PARSED_FILES_CACHE, fileURLToPath} from "@server/files"
 import {ResolveState} from "@server/psi/ResolveState"
 
 export interface IndexKeyToType {
@@ -264,8 +263,8 @@ export class IndexRoot {
             // most likely VS Code temp file can be only in the workspace
             return this.name === "workspace"
         }
-        const filepath = fileURLToPath(file)
-        const rootDir = fileURLToPath(this.root)
+        const filepath = uriToFilePath(file)
+        const rootDir = uriToFilePath(this.root)
         return filepath.startsWith(rootDir)
     }
 
@@ -511,6 +510,10 @@ export class GlobalIndex {
 
         return false
     }
+}
+
+export function uriToFilePath(uri: string): string {
+    return fileURLToPath(uri)
 }
 
 export const index = new GlobalIndex()

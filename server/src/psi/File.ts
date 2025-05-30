@@ -2,7 +2,7 @@
 //  Copyright © 2025 TON Studio
 import * as path from "path"
 import type {Node as SyntaxNode, Tree} from "web-tree-sitter"
-import {fileURLToPath} from "url"
+import {URI} from "vscode-uri"
 
 export class File {
     public constructor(
@@ -16,10 +16,15 @@ export class File {
     }
 
     public get path(): string {
-        return fileURLToPath(this.uri)
+        return uriToFilePath(this.uri)
     }
 
     public get name(): string {
         return path.basename(this.path, ".tact")
     }
+}
+
+export function uriToFilePath(uri: string): string {
+    const normalizedUri = uri.replace(/\\/g, "/")
+    return URI.parse(normalizedUri).fsPath
 }

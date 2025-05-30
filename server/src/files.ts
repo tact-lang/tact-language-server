@@ -1,7 +1,6 @@
 import * as lsp from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
-import {pathToFileURL} from "url"
 import {createFiftParser, createTactParser, createTlbParser} from "@server/parser"
 import {readFileVFS, globalVFS} from "@server/vfs/files-adapter"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
@@ -98,7 +97,8 @@ async function readOrUndefined(uri: string): Promise<string | undefined> {
 }
 
 export function uriToFilePath(uri: string): string {
-    return fileURLToPath(uri)
+    const normalizedUri = uri.replace(/\\/g, "/")
+    return URI.parse(normalizedUri).fsPath
 }
 
 export const isTactFile = (
@@ -124,7 +124,11 @@ export const filePathToUri = (filePath: string): string => {
     return url.replace(/c:/g, "c%3A").replace(/d:/g, "d%3A")
 }
 
-function fileURLToPath(uri: string): string {
+const pathToFileURL = (path: string): string => {
+    return "file://" + path
+}
+
+export function fileURLToPath(uri: string): string {
     const normalizedUri = uri.replace(/\\/g, "/")
     return URI.parse(normalizedUri).fsPath
 }

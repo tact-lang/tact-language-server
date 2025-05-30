@@ -1,10 +1,10 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {glob} from "glob"
+import {globFiles} from "@server/utils/glob"
 import {index} from "@server/languages/tact/indexes"
-import {fileURLToPath} from "url"
 import * as path from "path"
 import {filePathToUri, findTactFile} from "@server/files"
+import {URI} from "vscode-uri"
 
 export enum IndexingRootKind {
     Stdlib = "stdlib",
@@ -46,8 +46,14 @@ export class IndexingRoot {
                       "**/tact-lang/compiler/**",
                   ]
 
-        const rootDir = fileURLToPath(this.root)
-        const files = await glob("**/*.tact", {
+        let rootDir: string
+        try {
+            rootDir = this.root.startsWith("file://") ? uriToFilePath(this.root) : this.root
+        } catch {
+            rootDir = this.root
+        }
+
+        const files = await globFiles("**/*.tact", {
             cwd: rootDir,
             ignore: ignore,
         })
@@ -62,4 +68,9 @@ export class IndexingRoot {
             index.addFile(uri, file, false)
         }
     }
+}
+
+function uriToFilePath(uri: string): string {
+    const normalizedUri = uri.replace(/\\/g, "/")
+    return URI.parse(normalizedUri).fsPath
 }

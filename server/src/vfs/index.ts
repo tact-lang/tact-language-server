@@ -3,7 +3,7 @@
 
 export type {FileSystemProvider, VirtualFile} from "./types"
 
-export {createVFS, readFile, exists, listFiles} from "./vfs"
+export {createVFS, readFile, exists, listFiles, glob} from "./vfs"
 export type {VFS} from "./vfs"
 
 export {createNodeFSProvider} from "./fs-provider"

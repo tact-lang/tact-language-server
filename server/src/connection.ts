@@ -7,7 +7,7 @@ import {Connection} from "vscode-languageserver"
 declare const self: DedicatedWorkerGlobalScope
 
 export const isWeb = (): boolean => {
-    return typeof globalThis !== "undefined"
+    return typeof self !== "undefined" && typeof importScripts === "function"
 }
 
 export const openConnection = (): Connection => {
@@ -15,14 +15,10 @@ export const openConnection = (): Connection => {
         const messageReader = new lspBrowser.BrowserMessageReader(self)
         const messageWriter = new lspBrowser.BrowserMessageWriter(self)
 
-        messageReader.listen(message => {
-            console.log("Received message from main thread:", message)
-        })
-
         return lspBrowser.createConnection(messageReader, messageWriter)
     }
 
-    return lspNode.createConnection(lspBrowser.ProposedFeatures.all)
+    return lspNode.createConnection(lspNode.ProposedFeatures.all)
 }
 
 export const connection = openConnection()

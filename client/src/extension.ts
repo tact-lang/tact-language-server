@@ -117,6 +117,7 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
                 {scheme: "file", language: "tlb"},
                 {scheme: "untitled", language: "tact"},
                 {scheme: "memfs", language: "tact"},
+                {scheme: "vscode-test-web", language: "tact"},
             ],
             synchronize: {
                 configurationSection: "tact",
@@ -124,28 +125,50 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
             },
             initializationOptions: {
                 clientConfig: getClientConfiguration(),
-                treeSitterWasmUri: vscode_uri.joinPath(
-                    context.extensionUri,
-                    "./dist/tree-sitter.wasm",
-                ).fsPath,
-                tactLangWasmUri: vscode_uri.joinPath(
-                    context.extensionUri,
-                    "./dist/tree-sitter-tact.wasm",
-                ).fsPath,
-                fiftLangWasmUri: vscode_uri.joinPath(
-                    context.extensionUri,
-                    "./dist/tree-sitter-fift.wasm",
-                ).fsPath,
-                tlbLangWasmUri: vscode_uri.joinPath(
-                    context.extensionUri,
-                    "./dist/tree-sitter-tlb.wasm",
-                ).fsPath,
+                treeSitterWasmUri: vscode_uri
+                    .joinPath(context.extensionUri, "./dist/web/tree-sitter.wasm")
+                    .toString(),
+                tactLangWasmUri: vscode_uri
+                    .joinPath(context.extensionUri, "./dist/web/tree-sitter-tact.wasm")
+                    .toString(),
+                fiftLangWasmUri: vscode_uri
+                    .joinPath(context.extensionUri, "./dist/web/tree-sitter-fift.wasm")
+                    .toString(),
+                tlbLangWasmUri: vscode_uri
+                    .joinPath(context.extensionUri, "./dist/web/tree-sitter-tlb.wasm")
+                    .toString(),
             } as ClientOptions,
         }
 
-        const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
+        const serverModule = vscode_uri
+            .joinPath(context.extensionUri, "dist", "web", "server.js")
+            .toString()
+
+        console.log("Starting Tact Language Server in web mode")
+        console.log("Server module URI:", serverModule)
+        console.log("Extension URI:", context.extensionUri.toString())
+        console.log(
+            "Tree-sitter WASM URI:",
+            vscode_uri.joinPath(context.extensionUri, "./dist/web/tree-sitter.wasm").toString(),
+        )
+        console.log(
+            "Tact WASM URI:",
+            vscode_uri
+                .joinPath(context.extensionUri, "./dist/web/tree-sitter-tact.wasm")
+                .toString(),
+        )
 
         const worker = new Worker(serverModule)
+
+        worker.onerror = error => {
+            console.error("Worker error:", error)
+            outputChannel.appendLine(`Worker error: ${error.message}`)
+        }
+
+        worker.onmessage = message => {
+            console.log("Worker message:", message)
+        }
+
         client = new lspBrowser.LanguageClient(
             "tact-server",
             "Tact Language Server",
@@ -154,7 +177,17 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         )
     }
 
-    await client.start()
+    try {
+        await client.start()
+
+        console.log("Tact Language Server started successfully")
+        outputChannel.appendLine("Tact Language Server started successfully")
+    } catch (error) {
+        console.error("Failed to start Tact Language Server:", error)
+        outputChannel.appendLine(`Failed to start Tact Language Server: ${error}`)
+        vscode.window.showErrorMessage(`Failed to start Tact Language Server: ${error}`)
+        throw error
+    }
 
     registerCommands(disposables)
 

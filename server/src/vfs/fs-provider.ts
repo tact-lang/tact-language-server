@@ -2,17 +2,17 @@
 //  Copyright © 2025 TON Studio
 
 /* eslint-disable @typescript-eslint/require-await */
-import {readFileSync, existsSync, readdirSync, statSync} from "fs"
-import {join} from "path"
-import {fileURLToPath} from "url"
+import * as fs from "fs"
+import * as path from "path"
 import {FileSystemProvider, VirtualFile} from "./types"
+import {URI} from "vscode-uri"
 
 export function createNodeFSProvider(): FileSystemProvider {
     return {
         async readFile(uri: string): Promise<VirtualFile | null> {
             try {
-                const filePath = fileURLToPath(uri)
-                const content = readFileSync(filePath, "utf8")
+                const filePath = uriToFilePath(uri)
+                const content = fs.readFileSync(filePath, "utf8")
 
                 return {
                     uri,
@@ -30,8 +30,8 @@ export function createNodeFSProvider(): FileSystemProvider {
 
         async exists(uri: string): Promise<boolean> {
             try {
-                const filePath = fileURLToPath(uri)
-                return existsSync(filePath)
+                const filePath = uriToFilePath(uri)
+                return fs.existsSync(filePath)
             } catch {
                 return false
             }
@@ -39,14 +39,14 @@ export function createNodeFSProvider(): FileSystemProvider {
 
         async listFiles(uri: string): Promise<string[]> {
             try {
-                const dirPath = fileURLToPath(uri)
-                const entries = readdirSync(dirPath)
+                const dirPath = uriToFilePath(uri)
+                const entries = fs.readdirSync(dirPath)
 
                 const files: string[] = []
 
                 for (const entry of entries) {
-                    const fullPath = join(dirPath, entry)
-                    const stat = statSync(fullPath)
+                    const fullPath = path.join(dirPath, entry)
+                    const stat = fs.statSync(fullPath)
 
                     if (stat.isFile()) {
                         files.push(entry)
@@ -61,14 +61,14 @@ export function createNodeFSProvider(): FileSystemProvider {
 
         async listDirs(uri: string): Promise<string[]> {
             try {
-                const dirPath = fileURLToPath(uri)
-                const entries = readdirSync(dirPath)
+                const dirPath = uriToFilePath(uri)
+                const entries = fs.readdirSync(dirPath)
 
                 const files: string[] = []
 
                 for (const entry of entries) {
-                    const fullPath = join(dirPath, entry)
-                    const stat = statSync(fullPath)
+                    const fullPath = path.join(dirPath, entry)
+                    const stat = fs.statSync(fullPath)
 
                     if (stat.isDirectory()) {
                         files.push(entry)
@@ -81,4 +81,9 @@ export function createNodeFSProvider(): FileSystemProvider {
             }
         },
     }
+}
+
+function uriToFilePath(uri: string): string {
+    const normalizedUri = uri.replace(/\\/g, "/")
+    return URI.parse(normalizedUri).fsPath
 }
