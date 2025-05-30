@@ -58,7 +58,7 @@ export class IndexingRoot {
             console.info("Indexing:", filePath)
             const absPath = path.join(rootDir, filePath)
             const uri = filePathToUri(absPath)
-            const file = findTactFile(uri)
+            const file = await findTactFile(uri)
             index.addFile(uri, file, false)
         }
     }

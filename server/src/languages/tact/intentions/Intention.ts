@@ -28,3 +28,12 @@ export interface Intention {
 
     invoke(ctx: IntentionContext): WorkspaceEdit | null
 }
+
+export interface AsyncIntention {
+    readonly id: string
+    readonly name: string
+
+    isAvailable(ctx: IntentionContext): boolean
+
+    invoke(ctx: IntentionContext): Promise<WorkspaceEdit | null>
+}

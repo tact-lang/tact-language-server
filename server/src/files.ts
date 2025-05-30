@@ -3,7 +3,7 @@ import {TextDocument} from "vscode-languageserver-textdocument"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {pathToFileURL} from "node:url"
 import {createFiftParser, createTactParser, createTlbParser} from "@server/parser"
-import * as fs from "node:fs"
+import {readFileVFS, globalVFS} from "@server/vfs/files-adapter"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
 import {URI} from "vscode-uri"
@@ -12,13 +12,13 @@ export const PARSED_FILES_CACHE: Map<string, TactFile> = new Map()
 export const FIFT_PARSED_FILES_CACHE: Map<string, FiftFile> = new Map()
 export const TLB_PARSED_FILES_CACHE: Map<string, TlbFile> = new Map()
 
-export function findTactFile(uri: string, changed: boolean = false): TactFile {
+export async function findTactFile(uri: string, changed: boolean = false): Promise<TactFile> {
     const cached = PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined && !changed) {
         return cached
     }
 
-    const rawContent = readOrUndefined(fileURLToPath(uri))
+    const rawContent = await readOrUndefined(uri)
     if (rawContent === undefined) {
         console.error(`cannot read ${uri} file`)
     }
@@ -39,13 +39,13 @@ export function reparseTactFile(uri: string, content: string): TactFile {
     return file
 }
 
-export function findFiftFile(uri: string): FiftFile {
+export async function findFiftFile(uri: string): Promise<FiftFile> {
     const cached = FIFT_PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined) {
         return cached
     }
 
-    const rawContent = readOrUndefined(fileURLToPath(uri))
+    const rawContent = await readOrUndefined(uri)
     if (rawContent === undefined) {
         console.error(`cannot read ${uri} file`)
     }
@@ -66,13 +66,13 @@ export function reparseFiftFile(uri: string, content: string): FiftFile {
     return file
 }
 
-export function findTlbFile(uri: string): TlbFile {
+export async function findTlbFile(uri: string): Promise<TlbFile> {
     const cached = TLB_PARSED_FILES_CACHE.get(uri)
     if (cached) {
         return cached
     }
 
-    const rawContent = readOrUndefined(fileURLToPath(uri))
+    const rawContent = await readOrUndefined(uri)
     if (rawContent === undefined) {
         console.error(`cannot read ${uri} file`)
     }
@@ -93,12 +93,12 @@ export function reparseTlbFile(uri: string, content: string): TlbFile {
     return file
 }
 
-function readOrUndefined(path: string): string | undefined {
-    try {
-        return fs.readFileSync(path, "utf8")
-    } catch {
-        return undefined
-    }
+async function readOrUndefined(uri: string): Promise<string | undefined> {
+    return readFileVFS(globalVFS, uri)
+}
+
+export function uriToFilePath(uri: string): string {
+    return fileURLToPath(uri)
 }
 
 export const isTactFile = (
@@ -116,6 +116,9 @@ export const isTlbFile = (
     event?: lsp.TextDocumentChangeEvent<TextDocument>,
 ): boolean => event?.document.languageId === "tlb" || uri.endsWith(".tlb")
 
+// export function filePathToUri(filePath: string): string {
+//     return pathToFileURL(filePath).href
+// }
 export const filePathToUri = (filePath: string): string => {
     const url = pathToFileURL(filePath).toString()
     return url.replace(/c:/g, "c%3A").replace(/d:/g, "d%3A")

@@ -1,14 +1,11 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as vscode from "vscode"
-import * as fs from "node:fs"
-import * as path from "node:path"
-import {TaskDefinition} from "vscode"
 
 interface TaskProviderBase extends vscode.TaskProvider {
     createTask(): vscode.Task
 
-    isAvailable(): boolean
+    isAvailable(): Promise<boolean>
 
     readonly taskType: string
 }
@@ -26,13 +23,13 @@ export class BlueprintTaskProvider implements TaskProviderBase {
         this.group = group
     }
 
-    public provideTasks(): vscode.Task[] {
-        const isAvailable = this.isAvailable()
+    public async provideTasks(): Promise<vscode.Task[]> {
+        const isAvailable = await this.isAvailable()
         if (!isAvailable) return []
         return [this.createTask()]
     }
 
-    public isAvailable(): boolean {
+    public async isAvailable(): Promise<boolean> {
         return projectUsesBlueprint()
     }
 
@@ -45,7 +42,7 @@ export class BlueprintTaskProvider implements TaskProviderBase {
     }
 
     public createTask(): vscode.Task {
-        const definition: TaskDefinition = {
+        const definition: vscode.TaskDefinition = {
             type: this.taskType,
         }
 
@@ -88,12 +85,12 @@ export class TactTemplateTaskProvider implements TaskProviderBase {
         this.group = group
     }
 
-    public isAvailable(): boolean {
-        return !projectUsesBlueprint()
+    public async isAvailable(): Promise<boolean> {
+        return !(await projectUsesBlueprint())
     }
 
-    public provideTasks(): vscode.Task[] {
-        const isAvailable = this.isAvailable()
+    public async provideTasks(): Promise<vscode.Task[]> {
+        const isAvailable = await this.isAvailable()
         if (!isAvailable) return []
         return [this.createTask()]
     }
@@ -107,7 +104,7 @@ export class TactTemplateTaskProvider implements TaskProviderBase {
     }
 
     public createTask(): vscode.Task {
-        const definition: TaskDefinition = {
+        const definition: vscode.TaskDefinition = {
             type: this.taskType,
         }
 
@@ -137,19 +134,22 @@ export class TactTemplateTaskProvider implements TaskProviderBase {
     }
 }
 
-function registerTaskProvider(context: vscode.ExtensionContext, provider: TaskProviderBase): void {
-    if (!provider.isAvailable()) return
+async function registerTaskProvider(
+    context: vscode.ExtensionContext,
+    provider: TaskProviderBase,
+): Promise<void> {
+    if (!(await provider.isAvailable())) return
 
     const taskProviderDisposable = vscode.tasks.registerTaskProvider(provider.taskType, provider)
     context.subscriptions.push(taskProviderDisposable)
 }
 
-export function registerBuildTasks(context: vscode.ExtensionContext): void {
-    registerTaskProvider(
+export async function registerBuildTasks(context: vscode.ExtensionContext): Promise<void> {
+    await registerTaskProvider(
         context,
         new BlueprintTaskProvider("build", "build", "npx blueprint build", vscode.TaskGroup.Build),
     )
-    registerTaskProvider(
+    await registerTaskProvider(
         context,
         new BlueprintTaskProvider(
             "build-all",
@@ -158,11 +158,11 @@ export function registerBuildTasks(context: vscode.ExtensionContext): void {
             vscode.TaskGroup.Build,
         ),
     )
-    registerTaskProvider(
+    await registerTaskProvider(
         context,
         new BlueprintTaskProvider("test", "test", "npx blueprint test", vscode.TaskGroup.Test),
     )
-    registerTaskProvider(
+    await registerTaskProvider(
         context,
         new BlueprintTaskProvider(
             "build-and-test-all",
@@ -171,15 +171,15 @@ export function registerBuildTasks(context: vscode.ExtensionContext): void {
             vscode.TaskGroup.Build,
         ),
     )
-    registerTaskProvider(
+    await registerTaskProvider(
         context,
         new TactTemplateTaskProvider("build", "build", "yarn build", vscode.TaskGroup.Build),
     )
-    registerTaskProvider(
+    await registerTaskProvider(
         context,
         new TactTemplateTaskProvider("test", "test", "yarn test", vscode.TaskGroup.Test),
     )
-    registerTaskProvider(
+    await registerTaskProvider(
         context,
         new TactTemplateTaskProvider(
             "build-and-test",
@@ -208,14 +208,15 @@ export function registerBuildTasks(context: vscode.ExtensionContext): void {
     )
 }
 
-function projectUsesBlueprint(): boolean {
+async function projectUsesBlueprint(): Promise<boolean> {
     const workspaceFolders = vscode.workspace.workspaceFolders
     if (!workspaceFolders || workspaceFolders.length === 0) return false
 
-    const packageJsonPath = path.join(workspaceFolders[0].uri.fsPath, "package.json")
-
     try {
-        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
+        const packageJsonContent = await vscode.workspace.fs.readFile(
+            vscode.Uri.joinPath(workspaceFolders[0].uri, "package.json"),
+        )
+        const packageJson = JSON.parse(new TextDecoder().decode(packageJsonContent)) as {
             dependencies?: Record<string, unknown>
             devDependencies?: Record<string, unknown>
         }

@@ -1,12 +1,11 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as vscode from "vscode"
-import * as path from "node:path"
-import * as fs from "node:fs"
 import {BocDecompilerProvider} from "../providers/BocDecompilerProvider"
-import {Disposable} from "vscode"
 
-export function registerSaveBocDecompiledCommand(_context: vscode.ExtensionContext): Disposable {
+export function registerSaveBocDecompiledCommand(
+    _context: vscode.ExtensionContext,
+): vscode.Disposable {
     return vscode.commands.registerCommand(
         "tact.saveBocDecompiled",
         async (fileUri: vscode.Uri | undefined) => {
@@ -46,16 +45,14 @@ async function saveBoc(fileUri: vscode.Uri | undefined): Promise<void> {
         scheme: BocDecompilerProvider.scheme,
         path: actualFileUri.path + ".decompiled.fif",
     })
-    const content = decompiler.provideTextDocumentContent(decompileUri)
+    const content = await decompiler.provideTextDocumentContent(decompileUri)
 
     const outputPath = actualFileUri.fsPath + ".decompiled.fif"
 
-    fs.writeFileSync(outputPath, content)
+    const bytes = new TextEncoder().encode(content)
+    vscode.workspace.fs.writeFile(vscode.Uri.file(outputPath), bytes)
 
-    const relativePath = path.relative(
-        vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? "",
-        outputPath,
-    )
+    const relativePath = vscode.workspace.asRelativePath(outputPath)
     vscode.window.showInformationMessage(`Decompiled BOC saved to: ${relativePath}`)
 
     const savedFileUri = vscode.Uri.file(outputPath)

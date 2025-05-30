@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import {InlayHint, InlayHintKind} from "vscode-languageserver-types"
-import {RecursiveVisitor} from "@server/languages/tact/psi/visitor"
+import {AsyncRecursiveVisitor} from "@server/languages/tact/psi/visitor"
 import type {TactFile} from "@server/languages/tact/psi/TactFile"
 import {TypeInferer} from "@server/languages/tact/TypeInferer"
 import {Reference} from "@server/languages/tact/psi/Reference"
@@ -165,7 +165,7 @@ function hasObviousType(expr: SyntaxNode): boolean {
     return false
 }
 
-export function collectTactInlays(
+export async function collectTactInlays(
     file: TactFile,
     hints: {
         types: boolean
@@ -187,7 +187,7 @@ export function collectTactInlays(
     gasSettings: {
         loopGasCoefficient: number
     },
-): InlayHint[] | null {
+): Promise<InlayHint[] | null> {
     if (!hints.types && !hints.parameters) return []
 
     const result: InlayHint[] = []
@@ -197,7 +197,7 @@ export function collectTactInlays(
         value: "Note that this value is approximate!\n\nLearn more about how LS calculates this: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/gas-calculation.md",
     }
 
-    RecursiveVisitor.visit(file.rootNode, (n): boolean => {
+    await AsyncRecursiveVisitor.visit(file.rootNode, async (n): Promise<boolean> => {
         const type = n.type
 
         if (type === "let_statement" && hints.types) {
@@ -469,7 +469,7 @@ export function collectTactInlays(
             if (!openBrace || !closeBrace) return true
             if (openBrace.startPosition.row === closeBrace.startPosition.row) return true
 
-            const gas = computeSeqGasConsumption(n, file, gasSettings)
+            const gas = await computeSeqGasConsumption(n, file, gasSettings)
 
             result.push({
                 kind: InlayHintKind.Type,
@@ -485,7 +485,7 @@ export function collectTactInlays(
 
         if (type === "asm_expression" && hints.showAsmInstructionGas) {
             const instr = new AsmInstr(n, file)
-            const info = instr.info()
+            const info = await instr.info()
 
             const presentation = instructionPresentation(
                 info?.doc.gas,
@@ -512,7 +512,7 @@ export function collectTactInlays(
             if (!openBrace || !closeBrace) return true
             if (openBrace.startPosition.row === closeBrace.startPosition.row) return true
 
-            const gas = func.computeGasConsumption(gasSettings)
+            const gas = await func.computeGasConsumption(gasSettings)
             if (gas.unknown || gas.value === 0) {
                 console.log("here", gas)
                 return true

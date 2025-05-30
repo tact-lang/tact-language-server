@@ -7,7 +7,8 @@ import {Inspection, InspectionIds} from "./Inspection"
 import {URI} from "vscode-uri"
 import {workspaceRoot} from "@server/toolchain"
 import * as path from "node:path"
-import {existsSync} from "node:fs"
+import {existsVFS, globalVFS} from "@server/vfs/files-adapter"
+import {filePathToUri} from "@server/files"
 
 export class CompilerInspection implements Inspection {
     public readonly id: "tact-compiler-errors" = InspectionIds.COMPILER
@@ -16,7 +17,7 @@ export class CompilerInspection implements Inspection {
         if (file.fromStdlib) return []
 
         const configPath = path.join(workspaceRoot, "tact.config.json")
-        const hasConfig = existsSync(configPath)
+        const hasConfig = await existsVFS(globalVFS, filePathToUri(configPath))
 
         try {
             const filePath = URI.parse(file.uri).fsPath

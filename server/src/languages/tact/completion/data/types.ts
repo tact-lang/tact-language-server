@@ -1,8 +1,9 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import * as fs from "node:fs"
 import * as path from "node:path"
 import {Node as SyntaxNode} from "web-tree-sitter"
+import {globalVFS, readFileVFS} from "@server/vfs/files-adapter"
+import {pathToFileURL} from "node:url"
 
 export interface AsmInstruction {
     readonly mnemonic: string
@@ -38,19 +39,28 @@ export interface AsmData {
 
 let data: AsmData | null = null
 
-export function asmData(): AsmData {
+export async function asmData(): Promise<AsmData> {
     if (data !== null) {
         return data
     }
 
     const filePath = path.join(__dirname, "asm.json")
-    const content = fs.readFileSync(filePath, "utf8")
+    const content = await readFileVFS(globalVFS, filePathToUri(filePath))
+    if (content === undefined) return {instructions: [], aliases: []}
     data = JSON.parse(content) as AsmData
     return data
 }
 
-export function findInstruction(name: string, args: SyntaxNode[] = []): AsmInstruction | null {
-    const data = asmData()
+export const filePathToUri = (filePath: string): string => {
+    const url = pathToFileURL(filePath).toString()
+    return url.replace(/c:/g, "c%3A").replace(/d:/g, "d%3A")
+}
+
+export async function findInstruction(
+    name: string,
+    args: SyntaxNode[] = [],
+): Promise<AsmInstruction | null> {
+    const data = await asmData()
 
     const realName = adjustName(name, args)
     const instruction = data.instructions.find(i => i.mnemonic === realName)

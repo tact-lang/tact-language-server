@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import type {CompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
+import {AsyncCompletionProvider} from "@server/languages/tact/completion/CompletionProvider"
 import {CompletionItemKind} from "vscode-languageserver-types"
 import type {CompletionContext} from "@server/languages/tact/completion/CompletionContext"
 import {
@@ -8,17 +8,19 @@ import {
     CompletionWeight,
 } from "@server/languages/tact/completion/WeightedCompletionItem"
 import * as path from "node:path"
-import * as fs from "node:fs"
+import {globalVFS} from "@server/vfs/global"
+import {listDirs, listFiles} from "@server/vfs/vfs"
+import {filePathToUri} from "@server/files"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {projectStdlibPath} from "@server/languages/tact/toolchain/toolchain"
 import {trimSuffix} from "@server/utils/strings"
 
-export class ImportPathCompletionProvider implements CompletionProvider {
+export class ImportPathCompletionProvider implements AsyncCompletionProvider {
     public isAvailable(ctx: CompletionContext): boolean {
         return ctx.insideImport
     }
 
-    public addCompletion(ctx: CompletionContext, result: CompletionResult): void {
+    public async addCompletion(ctx: CompletionContext, result: CompletionResult): Promise<void> {
         const file = ctx.element.file
         const currentDir = path.dirname(file.path)
 
@@ -26,19 +28,19 @@ export class ImportPathCompletionProvider implements CompletionProvider {
 
         if (importPath.startsWith("@stdlib/") && projectStdlibPath) {
             const libsDir = path.join(projectStdlibPath, "libs")
-            this.addEntries(libsDir, file, "", result)
+            await this.addEntries(libsDir, file, "", result)
             return
         }
 
         if (importPath.startsWith("./") || importPath.startsWith("../")) {
             const targetDir = path.join(currentDir, importPath)
-            this.addEntries(targetDir, file, "", result)
+            await this.addEntries(targetDir, file, "", result)
             return
         }
 
         // On empty path:
         // import "<caret>";
-        this.addEntries(currentDir, file, "./", result)
+        await this.addEntries(currentDir, file, "./", result)
 
         result.add({
             label: "@stdlib/",
@@ -47,23 +49,25 @@ export class ImportPathCompletionProvider implements CompletionProvider {
         })
     }
 
-    private addEntries(
+    private async addEntries(
         dir: string,
         file: TactFile,
         prefix: string,
         result: CompletionResult,
-    ): void {
-        this.files(dir, file).forEach(name => {
+    ): Promise<void> {
+        const files = await this.files(dir, file)
+        for (const name of files) {
             this.addFile(`${prefix}${name}`, result)
-        })
+        }
 
-        this.dirs(dir).forEach(name => {
+        const dirs = await this.dirs(dir)
+        for (const name of dirs) {
             result.add({
                 label: name + "/",
                 kind: CompletionItemKind.Folder,
                 weight: CompletionWeight.CONTEXT_ELEMENT,
             })
-        })
+        }
     }
 
     private addFile(name: string, result: CompletionResult): void {
@@ -77,15 +81,23 @@ export class ImportPathCompletionProvider implements CompletionProvider {
         })
     }
 
-    private files(dir: string, currentFile: TactFile): string[] {
-        return fs
-            .readdirSync(dir)
-            .filter(file => file.endsWith(".tact"))
-            .map(file => path.basename(file, ".tact"))
-            .filter(name => name !== currentFile.name)
+    private async files(dir: string, currentFile: TactFile): Promise<string[]> {
+        try {
+            const allFiles = await listFiles(globalVFS, filePathToUri(dir))
+            return allFiles
+                .filter(file => file.endsWith(".tact"))
+                .map(file => path.basename(file, ".tact"))
+                .filter(name => name !== currentFile.name)
+        } catch {
+            return []
+        }
     }
 
-    private dirs(dir: string): string[] {
-        return fs.readdirSync(dir).filter(file => fs.lstatSync(path.join(dir, file)).isDirectory())
+    private async dirs(dir: string): Promise<string[]> {
+        try {
+            return await listDirs(globalVFS, filePathToUri(dir))
+        } catch {
+            return []
+        }
     }
 }

@@ -18,7 +18,7 @@ export async function provideSelectionGasConsumption(
 ): Promise<GasConsumptionForSelectionResponse> {
     try {
         const uri = params.textDocument.uri
-        const file = findTactFile(uri)
+        const file = await findTactFile(uri)
 
         const startPoint = asParserPoint(params.range.start)
         const endPoint = asParserPoint(params.range.end)
@@ -61,7 +61,7 @@ export async function provideSelectionGasConsumption(
         }
 
         const settings = await getDocumentSettings(uri)
-        const gasConsumption = computeGasConsumption(selectedInstructions, settings.gas)
+        const gasConsumption = await computeGasConsumption(selectedInstructions, settings.gas)
 
         return {
             gasConsumption: {

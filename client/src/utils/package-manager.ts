@@ -1,34 +1,34 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as vscode from "vscode"
-import * as fs from "node:fs"
-import * as path from "node:path"
 
 export type PackageManager = "yarn" | "npm" | "pnpm" | "bun"
 
-export function detectPackageManager(): PackageManager {
+export async function detectPackageManager(): Promise<PackageManager> {
     const workspaceFolders = vscode.workspace.workspaceFolders
     if (!workspaceFolders || workspaceFolders.length === 0) return "npm"
 
-    const workspaceRoot = workspaceFolders[0].uri.fsPath
+    const workspaceRoot = workspaceFolders[0].uri
 
     // Check for lock files
-    if (fs.existsSync(path.join(workspaceRoot, "bun.lockb"))) {
+    if (await pathExits(workspaceRoot, "bun.lockb")) {
         return "bun"
     }
-    if (fs.existsSync(path.join(workspaceRoot, "yarn.lock"))) {
+    if (await pathExits(workspaceRoot, "yarn.lock")) {
         return "yarn"
     }
-    if (fs.existsSync(path.join(workspaceRoot, "pnpm-lock.yaml"))) {
+    if (await pathExits(workspaceRoot, "pnpm-lock.yaml")) {
         return "pnpm"
     }
-    if (fs.existsSync(path.join(workspaceRoot, "package-lock.json"))) {
+    if (await pathExits(workspaceRoot, "package-lock.json")) {
         return "npm"
     }
 
     try {
-        const packageJsonPath = path.join(workspaceRoot, "package.json")
-        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
+        const packageJsonContent = await vscode.workspace.fs.readFile(
+            vscode.Uri.joinPath(workspaceFolders[0].uri, "package.json"),
+        )
+        const packageJson = JSON.parse(new TextDecoder().decode(packageJsonContent)) as {
             packageManager?: string
         }
 
@@ -48,4 +48,13 @@ export function detectPackageManager(): PackageManager {
     }
 
     return "npm"
+}
+
+async function pathExits(path: vscode.Uri, file: string): Promise<boolean> {
+    try {
+        await vscode.workspace.fs.stat(vscode.Uri.joinPath(path, file))
+        return true
+    } catch {
+        return false
+    }
 }

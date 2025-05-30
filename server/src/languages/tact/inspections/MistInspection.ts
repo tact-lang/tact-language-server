@@ -8,8 +8,9 @@ import {Severity} from "@server/languages/tact/compiler/TactCompiler"
 import {Inspection, InspectionIds} from "@server/languages/tact/inspections/Inspection"
 import * as path from "node:path"
 import {workspaceRoot} from "@server/toolchain"
-import {existsSync} from "node:fs"
 import {getDocumentSettings} from "@server/settings/settings"
+import {existsVFS, globalVFS} from "@server/vfs/files-adapter"
+import {filePathToUri} from "@server/files"
 
 export class MistiInspection implements Inspection {
     public readonly id: "misti" = InspectionIds.MISTI
@@ -18,7 +19,7 @@ export class MistiInspection implements Inspection {
         if (file.fromStdlib) return []
 
         const configPath = path.join(workspaceRoot, "tact.config.json")
-        const hasConfig = existsSync(configPath)
+        const hasConfig = await existsVFS(globalVFS, filePathToUri(configPath))
 
         const settings = await getDocumentSettings(file.uri)
 

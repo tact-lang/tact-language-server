@@ -11,10 +11,10 @@ import {File} from "@server/psi/File"
 import {asParserPoint} from "@server/utils/position"
 import {findTactFile} from "@server/files"
 
-export function provideTactSignatureInfo(
+export async function provideTactSignatureInfo(
     params: lsp.SignatureHelpParams,
-): lsp.SignatureHelp | null {
-    const file = findTactFile(params.textDocument.uri)
+): Promise<lsp.SignatureHelp | null> {
+    const file = await findTactFile(params.textDocument.uri)
 
     const hoverNode = nodeAtPosition(params, file)
     if (!hoverNode) return null

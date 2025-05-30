@@ -3,10 +3,11 @@
 import * as path from "node:path"
 import * as cp from "node:child_process"
 import {SpawnSyncReturns} from "node:child_process"
-import {existsSync} from "node:fs"
 import * as console from "node:console"
 import * as os from "node:os"
 import {EnvironmentInfo, ToolchainInfo} from "@shared/shared-msgtypes"
+import {existsVFS, globalVFS} from "@server/vfs/files-adapter"
+import {filePathToUri} from "@server/files"
 
 export class InvalidToolchainError extends Error {
     public constructor(message: string) {
@@ -38,15 +39,15 @@ export class Toolchain {
         }
     }
 
-    public static autoDetect(root: string): Toolchain {
-        const candidatesPath = [
+    public static async autoDetect(root: string): Promise<Toolchain> {
+        const candidatesPaths = [
             path.join(root, "node_modules", ".bin", "tact"),
             path.join(root, "bin", "tact.js"), // path in compiler repo
         ]
-        const foundPath = candidatesPath.find(it => existsSync(it))
+        const foundPath = await Toolchain.findDirectory(candidatesPaths)
         if (!foundPath) {
             console.info(`cannot find toolchain in:`)
-            candidatesPath.forEach(it => {
+            candidatesPaths.forEach(it => {
                 console.info(it)
             })
             return fallbackToolchain
@@ -141,6 +142,16 @@ export class Toolchain {
 
     public toString(): string {
         return `Toolchain(path=${this.compilerPath}, version=${this.version.number}:${this.version.commit})`
+    }
+
+    private static async findDirectory(dir: string[]): Promise<string | null> {
+        for (const searchDir of dir) {
+            if (await existsVFS(globalVFS, filePathToUri(searchDir))) {
+                return searchDir
+            }
+        }
+
+        return null
     }
 }
 

@@ -10,7 +10,8 @@ import * as lsp from "vscode-languageserver"
 import {DidChangeWatchedFilesParams, FileChangeType} from "vscode-languageserver"
 import {TypeBasedSearch} from "@server/languages/tact/search/TypeBasedSearch"
 import * as path from "node:path"
-import {existsSync} from "node:fs"
+import {globalVFS} from "@server/vfs/global"
+import {existsVFS} from "@server/vfs/files-adapter"
 import type {ClientOptions} from "@shared/config-scheme"
 import {
     DocumentationAtPositionRequest,
@@ -30,7 +31,7 @@ import {IndexingRoot, IndexingRootKind} from "./indexing-root"
 import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/settings/settings"
 import {provideFiftFoldingRanges} from "@server/languages/fift/foldings/collect"
 import {provideFiftSemanticTokens as provideFiftSemanticTokens} from "server/src/languages/fift/semantic-tokens"
-import {collectFift as collectFiftInlays} from "@server/languages/fift/inlays/collect"
+import {provideFiftInlayHints as collectFiftInlays} from "@server/languages/fift/inlays/collect"
 import {WorkspaceEdit} from "vscode-languageserver-types"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {
@@ -80,6 +81,7 @@ import {
     provideTactWorkspaceSymbols,
 } from "@server/languages/tact/symbols"
 import {
+    ASYNC_INTENTIONS,
     INTENTIONS,
     provideExecuteTactCommand,
     provideTactCodeActions,
@@ -140,15 +142,15 @@ async function handleFileOpen(
     }
 
     if (isFiftFile(uri, event)) {
-        findFiftFile(uri)
+        await findFiftFile(uri)
     }
 
     if (isTlbFile(uri, event)) {
-        findTlbFile(uri)
+        await findTlbFile(uri)
     }
 
     if (isTactFile(uri, event)) {
-        const file = findTactFile(uri)
+        const file = await findTactFile(uri)
         index.addFile(uri, file)
 
         if (initializationFinished) {
@@ -164,7 +166,7 @@ const showErrorMessage = (msg: string): void => {
     })
 }
 
-function findStdlib(settings: TactSettings, rootDir: string): string | null {
+async function findStdlib(settings: TactSettings, rootDir: string): Promise<string | null> {
     if (settings.stdlib.path !== null && settings.stdlib.path.length > 0) {
         return settings.stdlib.path
     }
@@ -185,10 +187,17 @@ function findStdlib(settings: TactSettings, rootDir: string): string | null {
         "stdlib",
     ]
 
-    const localFolder =
-        searchDirs.find(searchDir => {
-            return existsSync(path.join(rootDir, searchDir))
-        }) ?? null
+    async function findDirectory(): Promise<string | null> {
+        for (const searchDir of searchDirs) {
+            if (await existsVFS(globalVFS, filePathToUri(path.join(rootDir, searchDir)))) {
+                return searchDir
+            }
+        }
+
+        return null
+    }
+
+    const localFolder = await findDirectory()
 
     if (localFolder === null) {
         console.error(
@@ -235,7 +244,7 @@ async function initialize(): Promise<void> {
 
     try {
         toolchainManager.setWorkspaceRoot(rootDir)
-        toolchainManager.setToolchains(
+        await toolchainManager.setToolchains(
             settings.toolchain.toolchains,
             settings.toolchain.activeToolchain,
         )
@@ -262,7 +271,7 @@ async function initialize(): Promise<void> {
         }
     }
 
-    const stdlibPath = findStdlib(settings, rootDir)
+    const stdlibPath = await findStdlib(settings, rootDir)
     if (stdlibPath !== null) {
         reporter.report(50, "Indexing: (1/3) Standard Library")
         const stdlibUri = filePathToUri(stdlibPath)
@@ -313,13 +322,15 @@ connection.onInitialized(async () => {
     await initialize()
 })
 
-function findConfigFileDir(startPath: string, fileName: string): string | null {
+async function findConfigFileDir(startPath: string, fileName: string): Promise<string | null> {
     let currentPath = startPath
 
     // search only at depths up to 20
     for (let i = 0; i < 20; i++) {
         const potentialPath = path.join(currentPath, fileName)
-        if (existsSync(potentialPath)) return currentPath
+        const potentialUri = filePathToUri(potentialPath)
+        const exists = await existsVFS(globalVFS, potentialUri)
+        if (exists) return currentPath
 
         const parentPath = path.dirname(currentPath)
         if (parentPath === currentPath) break
@@ -335,7 +346,7 @@ function findConfigFileDir(startPath: string, fileName: string): string | null {
 async function initializeFallback(uri: string): Promise<void> {
     // let's try to initialize with this way
     const filepath = fileURLToPath(uri)
-    const projectDir = findConfigFileDir(path.dirname(filepath), "tact.config.json")
+    const projectDir = await findConfigFileDir(path.dirname(filepath), "tact.config.json")
     if (projectDir === null) {
         console.info(`project directory not found, using file directory`)
         const dir = path.dirname(filepath)
@@ -423,20 +434,21 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const uri = event.document.uri
         if (isTactFile(uri, event)) {
             if (initializationFinished) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 await runInspections(uri, file, true)
             }
         }
     })
 
-    connection.onDidChangeWatchedFiles((params: DidChangeWatchedFilesParams) => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    connection.onDidChangeWatchedFiles(async (params: DidChangeWatchedFilesParams) => {
         for (const change of params.changes) {
             const uri = change.uri
             if (!isTactFile(uri)) continue
 
             if (change.type === FileChangeType.Created) {
                 console.info(`Find external create of ${uri}`)
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 index.addFile(uri, file)
                 continue
             }
@@ -449,7 +461,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (change.type === FileChangeType.Changed) {
                 console.info(`Find external change of ${uri}`)
                 index.fileChanged(uri)
-                const file = findTactFile(uri, true)
+                const file = await findTactFile(uri, true)
                 index.addFile(uri, file, false)
             }
 
@@ -473,7 +485,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
             if (newSettings.toolchain.activeToolchain !== toolchainManager.getActiveToolchainId()) {
                 try {
-                    toolchainManager.setToolchains(
+                    await toolchainManager.setToolchains(
                         newSettings.toolchain.toolchains,
                         newSettings.toolchain.activeToolchain,
                     )
@@ -513,21 +525,21 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         const uri = params.textDocument.uri
 
         if (isFiftFile(uri)) {
-            const file = findFiftFile(uri)
+            const file = await findFiftFile(uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
             return provideFiftDocumentation(hoverNode, file)
         }
 
         if (isTlbFile(uri)) {
-            const file = findTlbFile(uri)
+            const file = await findTlbFile(uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
             return provideTlbDocumentation(hoverNode, file)
         }
 
         if (isTactFile(uri)) {
-            const file = findTactFile(params.textDocument.uri)
+            const file = await findTactFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
             return provideTactDocumentation(params, hoverNode, file)
@@ -540,11 +552,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.DefinitionRequest.type,
-        (params: lsp.DefinitionParams): lsp.Location[] | lsp.LocationLink[] => {
+        async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
             const uri = params.textDocument.uri
 
             if (isFiftFile(uri)) {
-                const file = findFiftFile(uri)
+                const file = await findFiftFile(uri)
                 const node = nodeAtPosition(params, file)
                 if (!node || node.type !== "identifier") return []
 
@@ -552,7 +564,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
 
             if (isTlbFile(uri)) {
-                const file = findTlbFile(uri)
+                const file = await findTlbFile(uri)
                 const hoverNode = nodeAtPosition(params, file)
                 if (!hoverNode) return []
 
@@ -560,7 +572,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 const hoverNode = nodeAtPosition(params, file)
                 if (!hoverNode) return []
 
@@ -573,11 +585,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.TypeDefinitionRequest.type,
-        (params: lsp.TypeDefinitionParams): lsp.Definition | lsp.DefinitionLink[] => {
+        async (
+            params: lsp.TypeDefinitionParams,
+        ): Promise<lsp.Definition | lsp.DefinitionLink[]> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 const hoverNode = nodeAtPosition(params, file)
                 if (!hoverNode) return []
 
@@ -595,12 +609,12 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactCompletion(file, params, uri)
             }
 
             if (isTlbFile(uri)) {
-                const file = findTlbFile(uri)
+                const file = await findTlbFile(uri)
                 return provideTlbCompletion(file, params, uri)
             }
 
@@ -618,12 +632,12 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
 
             if (isFiftFile(uri)) {
-                const file = findFiftFile(uri)
+                const file = await findFiftFile(uri)
                 return collectFiftInlays(file, settings.hints.gasFormat, settings.fift.hints)
             }
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return collectTactInlays(file, settings.hints, settings.gas)
             }
 
@@ -633,11 +647,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.ImplementationRequest.type,
-        (params: lsp.ImplementationParams): lsp.Definition | lsp.LocationLink[] | null => {
+        async (
+            params: lsp.ImplementationParams,
+        ): Promise<lsp.Definition | lsp.LocationLink[] | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 const elementNode = nodeAtPosition(params, file)
                 if (!elementNode) return []
                 return provideTactImplementations(elementNode, file)
@@ -649,11 +665,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.RenameRequest.type,
-        (params: lsp.RenameParams): WorkspaceEdit | null => {
+        async (params: lsp.RenameParams): Promise<WorkspaceEdit | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactRename(params, file)
             }
 
@@ -663,11 +679,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.PrepareRenameRequest.type,
-        (params: lsp.PrepareRenameParams): lsp.PrepareRenameResult | null => {
+        async (params: lsp.PrepareRenameParams): Promise<lsp.PrepareRenameResult | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
 
                 const result = provideTactRenamePrepare(params, file)
                 if (typeof result === "string") {
@@ -684,11 +700,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.DocumentHighlightRequest.type,
-        (params: lsp.DocumentHighlightParams): lsp.DocumentHighlight[] | null => {
+        async (params: lsp.DocumentHighlightParams): Promise<lsp.DocumentHighlight[] | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 const node = nodeAtPosition(params, file)
                 if (!node) return null
                 return provideTactDocumentHighlight(node, file)
@@ -704,21 +720,21 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const uri = params.textDocument.uri
 
             if (isFiftFile(uri)) {
-                const file = findFiftFile(uri)
+                const file = await findFiftFile(uri)
                 const node = nodeAtPosition(params, file)
                 if (!node) return null
                 return provideFiftReferences(node, file)
             }
 
             if (isTlbFile(uri)) {
-                const file = findTlbFile(uri)
+                const file = await findTlbFile(uri)
                 const node = nodeAtPosition(params, file)
                 if (!node) return null
                 return provideTlbReferences(node, file)
             }
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 const node = nodeAtPosition(params, file)
                 if (!node) return null
                 return provideTactReferences(node, file)
@@ -730,7 +746,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.SignatureHelpRequest.type,
-        (params: lsp.SignatureHelpParams): lsp.SignatureHelp | null => {
+        async (params: lsp.SignatureHelpParams): Promise<lsp.SignatureHelp | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
@@ -743,16 +759,16 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.FoldingRangeRequest.type,
-        (params: lsp.FoldingRangeParams): lsp.FoldingRange[] | null => {
+        async (params: lsp.FoldingRangeParams): Promise<lsp.FoldingRange[] | null> => {
             const uri = params.textDocument.uri
 
             if (isFiftFile(uri)) {
-                const file = findFiftFile(uri)
+                const file = await findFiftFile(uri)
                 return provideFiftFoldingRanges(file)
             }
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactFoldingRanges(file)
             }
 
@@ -767,17 +783,17 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const settings = await getDocumentSettings(uri)
 
             if (isFiftFile(uri)) {
-                const file = findFiftFile(uri)
+                const file = await findFiftFile(uri)
                 return provideFiftSemanticTokens(file, settings.fift.semanticHighlighting)
             }
 
             if (isTlbFile(uri)) {
-                const file = findTlbFile(uri)
+                const file = await findTlbFile(uri)
                 return provideTlbSemanticTokens(file)
             }
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactSemanticTokens(file, settings.highlighting)
             }
 
@@ -791,7 +807,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 const settings = await getDocumentSettings(uri)
                 return collectTactCodeLenses(file, settings.codeLens)
             }
@@ -809,11 +825,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.CodeActionRequest.type,
-        (params: lsp.CodeActionParams): lsp.CodeAction[] | null => {
+        async (params: lsp.CodeActionParams): Promise<lsp.CodeAction[] | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactCodeActions(file, params)
             }
 
@@ -827,12 +843,12 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactDocumentSymbols(file)
             }
 
             if (isTlbFile(uri)) {
-                const file = findTlbFile(uri)
+                const file = await findTlbFile(uri)
                 return provideTlbDocumentSymbols(file)
             }
 
@@ -844,13 +860,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.DocumentFormattingRequest.type,
-        (params: lsp.DocumentFormattingParams): lsp.TextEdit[] | null => {
+        async (params: lsp.DocumentFormattingParams): Promise<lsp.TextEdit[] | null> => {
             const uri = params.textDocument.uri
             if (isFiftFile(uri) || isTlbFile(uri)) {
                 return null
             }
 
-            const file = findTactFile(uri)
+            const file = await findTactFile(uri)
             const formatted = formatCode(file.content)
 
             if (formatted.$ === "FormattedCode") {
@@ -893,11 +909,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         TypeAtPositionRequest,
-        (params: TypeAtPositionParams): TypeAtPositionResponse => {
+        async (params: TypeAtPositionParams): Promise<TypeAtPositionResponse> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactTypeAtPosition(params, file)
             }
 
@@ -972,7 +988,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 codeActionKinds: [lsp.CodeActionKind.QuickFix],
             },
             executeCommandProvider: {
-                commands: ["tact/executeGetScopeProvider", ...INTENTIONS.map(it => it.id)],
+                commands: [
+                    "tact/executeGetScopeProvider",
+                    ...INTENTIONS.map(it => it.id),
+                    ...ASYNC_INTENTIONS.map(it => it.id),
+                ],
             },
             workspace: {
                 workspaceFolders: {
