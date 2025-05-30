@@ -9,47 +9,48 @@ import {
 } from "@server/languages/tlb/completion/WeightedCompletionItem"
 import {CompletionItemKind} from "vscode-languageserver-types"
 
-export class BuiltinTypesCompletionProvider implements CompletionProvider {
-    private readonly types: [string, string][] = [
-        ["#", "Nat, 32-bit unsigned integer"],
-        ["##", "Nat: unsigned integer with `x` bits."],
-        [
-            "#<",
-            "Nat: unsigned integer less than `x` bits, stored as `lenBits(x - 1)` bits up to 31 bits.",
-        ],
-        [
-            "#<=",
-            "Nat: unsigned integer less than or equal to x bits, stored as lenBits(x) bits up to 32 bits.",
-        ],
-        ["Any", "remaining bits and references."],
-        ["Cell", "remaining bits and references."],
-        ["Int", "257 bits"],
-        ["UInt", "256 bits"],
-        ["Bits", "1023 bits"],
-        ["bits", "X bits"],
-        ["uint", ""],
-        ["uint8", ""],
-        ["uint16", ""],
-        ["uint32", ""],
-        ["uint64", ""],
-        ["uint128", ""],
-        ["uint256", ""],
-        ["int", ""],
-        ["int8", ""],
-        ["int16", ""],
-        ["int32", ""],
-        ["int64", ""],
-        ["int128", ""],
-        ["int256", ""],
-        ["int257", ""],
-    ]
+export const BUILTIN_TYPES: Map<string, string> = new Map([
+    ["#", "Nat, 32-bit unsigned integer"],
+    ["##", "Nat: unsigned integer with `x` bits"],
+    [
+        "#<",
+        "Nat: unsigned integer less than `x` bits, stored as `lenBits(x - 1)` bits up to 31 bits",
+    ],
+    [
+        "#<=",
+        "Nat: unsigned integer less than or equal to `x` bits, stored as `lenBits(x)` bits up to 32 bits",
+    ],
+    ["Any", "remaining bits and references"],
+    ["Cell", "remaining bits and references"],
+    ["Int", "257 bits"],
+    ["UInt", "256 bits"],
+    ["Bits", "1023 bits"],
+    ["bits", "X bits"],
+    ["uint", ""],
+    ["uint8", ""],
+    ["uint16", ""],
+    ["uint32", ""],
+    ["uint64", ""],
+    ["uint128", ""],
+    ["uint256", ""],
+    ["int", ""],
+    ["int8", ""],
+    ["int16", ""],
+    ["int32", ""],
+    ["int64", ""],
+    ["int128", ""],
+    ["int256", ""],
+    ["int257", ""],
+    ["Type", "Built-in TL-B type representing the type of types"],
+])
 
+export class BuiltinTypesCompletionProvider implements CompletionProvider {
     public isAvailable(ctx: CompletionContext): boolean {
         return ctx.isType
     }
 
     public addCompletion(_ctx: CompletionContext, result: CompletionResult): void {
-        for (const [type, description] of this.types) {
+        for (const [type, description] of BUILTIN_TYPES) {
             result.add({
                 label: type,
                 labelDetails: {

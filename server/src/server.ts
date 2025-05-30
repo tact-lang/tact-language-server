@@ -61,6 +61,7 @@ import {
 } from "@server/files"
 import {provideTactDocumentation} from "@server/languages/tact/documentation"
 import {provideFiftDocumentation} from "@server/languages/fift/documentation"
+import {provideTlbDocumentation} from "@server/languages/tlb/documentation"
 import {
     provideTactDefinition,
     provideTactTypeDefinition,
@@ -516,6 +517,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
             return provideFiftDocumentation(hoverNode, file)
+        }
+
+        if (isTlbFile(uri)) {
+            const file = findTlbFile(uri)
+            const hoverNode = nodeAtPosition(params, file)
+            if (!hoverNode) return null
+            return provideTlbDocumentation(hoverNode, file)
         }
 
         if (isTactFile(uri)) {

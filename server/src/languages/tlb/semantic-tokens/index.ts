@@ -29,6 +29,9 @@ export function provideTlbSemanticTokens(file: TlbFile): SemanticTokens {
             case "#<":
             case "#<=":
             case "builtin_field": {
+                const parent = node.parent
+                if (parent?.type === "constructor_tag") break
+
                 pushToken(node, SemanticTokenTypes.macro)
                 break
             }
