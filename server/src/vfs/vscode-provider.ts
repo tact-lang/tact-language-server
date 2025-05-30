@@ -9,12 +9,13 @@ export function createVSCodeProvider(): FileSystemProvider {
         async readFile(_uri: string): Promise<VirtualFile | null> {
             return null
         },
-
         async exists(_uri: string): Promise<boolean> {
             return false
         },
-
-        async listFiles(_uri: string, _pattern?: string): Promise<string[]> {
+        async listFiles(_uri: string): Promise<string[]> {
+            return []
+        },
+        async listDirs(_uri: string): Promise<string[]> {
             return []
         },
     }

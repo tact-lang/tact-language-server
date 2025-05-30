@@ -58,5 +58,27 @@ export function createNodeFSProvider(): FileSystemProvider {
                 return []
             }
         },
+
+        async listDirs(uri: string): Promise<string[]> {
+            try {
+                const dirPath = fileURLToPath(uri)
+                const entries = readdirSync(dirPath)
+
+                const files: string[] = []
+
+                for (const entry of entries) {
+                    const fullPath = join(dirPath, entry)
+                    const stat = statSync(fullPath)
+
+                    if (stat.isDirectory()) {
+                        files.push(entry)
+                    }
+                }
+
+                return files
+            } catch {
+                return []
+            }
+        },
     }
 }

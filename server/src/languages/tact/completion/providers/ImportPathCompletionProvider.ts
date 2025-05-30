@@ -9,7 +9,7 @@ import {
 } from "@server/languages/tact/completion/WeightedCompletionItem"
 import * as path from "node:path"
 import {globalVFS} from "@server/vfs/global"
-import {listFiles} from "@server/vfs/vfs"
+import {listDirs, listFiles} from "@server/vfs/vfs"
 import {filePathToUri} from "@server/files"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {projectStdlibPath} from "@server/languages/tact/toolchain/toolchain"
@@ -60,7 +60,7 @@ export class ImportPathCompletionProvider implements AsyncCompletionProvider {
             this.addFile(`${prefix}${name}`, result)
         }
 
-        const dirs = this.dirs(dir)
+        const dirs = await this.dirs(dir)
         for (const name of dirs) {
             result.add({
                 label: name + "/",
@@ -93,18 +93,11 @@ export class ImportPathCompletionProvider implements AsyncCompletionProvider {
         }
     }
 
-    private dirs(_dir: string): string[] {
-        // try {
-        //     const dirUri = filePathToUri(dir)
-        //     // For now, we can't easily distinguish directories from files in VFS
-        //     // This is a limitation that could be addressed by extending VFS interface
-        //     // For now, return empty array
-        //     return []
-        // } catch {
-        //     return []
-        // }
-
-        // TODO
-        return []
+    private async dirs(dir: string): Promise<string[]> {
+        try {
+            return await listDirs(globalVFS, filePathToUri(dir))
+        } catch {
+            return []
+        }
     }
 }

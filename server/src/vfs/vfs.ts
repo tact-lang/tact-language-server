@@ -21,3 +21,7 @@ export async function exists(vfs: VFS, uri: string): Promise<boolean> {
 export async function listFiles(vfs: VFS, uri: string): Promise<string[]> {
     return vfs.provider.listFiles(uri)
 }
+
+export async function listDirs(vfs: VFS, uri: string): Promise<string[]> {
+    return vfs.provider.listDirs(uri)
+}

@@ -11,4 +11,5 @@ export interface FileSystemProvider {
     readFile(uri: string): Promise<VirtualFile | null>
     exists(uri: string): Promise<boolean>
     listFiles(uri: string): Promise<string[]>
+    listDirs(uri: string): Promise<string[]>
 }
