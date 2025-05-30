@@ -71,7 +71,7 @@ export async function provideExecuteTactCommand(
 
     const args = params.arguments[0] as IntentionArguments
 
-    const file = findTactFile(args.fileUri)
+    const file = await findTactFile(args.fileUri)
 
     const ctx: IntentionContext = {
         file: file,

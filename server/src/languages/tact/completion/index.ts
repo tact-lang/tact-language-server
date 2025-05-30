@@ -148,8 +148,8 @@ export async function provideTactCompletionResolve(
     const settings = await getDocumentSettings(data.file.uri)
     if (!settings.completion.addImports) return item
 
-    const file = findTactFile(data.file.uri)
-    const elementFile = findTactFile(data.elementFile.uri)
+    const file = await findTactFile(data.file.uri)
+    const elementFile = await findTactFile(data.elementFile.uri)
 
     // skip the same file element
     if (file.uri === elementFile.uri) return item

@@ -11,7 +11,7 @@ export const PARSED_FILES_CACHE: Map<string, TactFile> = new Map()
 export const FIFT_PARSED_FILES_CACHE: Map<string, FiftFile> = new Map()
 export const TLB_PARSED_FILES_CACHE: Map<string, TlbFile> = new Map()
 
-export async function findTactFile(uri: string, changed: boolean = false): Promise<File> {
+export async function findTactFile(uri: string, changed: boolean = false): Promise<TactFile> {
     const cached = PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined && !changed) {
         return cached
@@ -38,7 +38,7 @@ export function reparseTactFile(uri: string, content: string): TactFile {
     return file
 }
 
-export async function findFiftFile(uri: string): Promise<File> {
+export async function findFiftFile(uri: string): Promise<FiftFile> {
     const cached = FIFT_PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined) {
         return cached
@@ -65,7 +65,7 @@ export function reparseFiftFile(uri: string, content: string): FiftFile {
     return file
 }
 
-export async function findTlbFile(uri: string, changed: boolean = false): Promise<File> {
+export async function findTlbFile(uri: string, changed: boolean = false): Promise<TlbFile> {
     const cached = TLB_PARSED_FILES_CACHE.get(uri)
     if (cached !== undefined && !changed) {
         return cached
@@ -96,10 +96,6 @@ async function readOrUndefined(uri: string): Promise<string | undefined> {
     return readFileVFS(globalVFS, uri)
 }
 
-export function filePathToUri(filePath: string): string {
-    return pathToFileURL(filePath).href
-}
-
 export function uriToFilePath(uri: string): string {
     return fileURLToPath(uri)
 }
@@ -116,6 +112,9 @@ export function isTlbFile(uri: string, event?: {document: TextDocument}): boolea
     return uri.endsWith(".tlb") || event?.document.languageId === "tlb"
 }
 
+// export function filePathToUri(filePath: string): string {
+//     return pathToFileURL(filePath).href
+// }
 export const filePathToUri = (filePath: string): string => {
     const url = pathToFileURL(filePath).toString()
     return url.replace(/c:/g, "c%3A").replace(/d:/g, "d%3A")

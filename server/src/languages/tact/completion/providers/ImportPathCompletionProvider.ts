@@ -51,7 +51,7 @@ export class ImportPathCompletionProvider implements AsyncCompletionProvider {
 
     private async addEntries(
         dir: string,
-        file: File,
+        file: TactFile,
         prefix: string,
         result: CompletionResult,
     ): Promise<void> {

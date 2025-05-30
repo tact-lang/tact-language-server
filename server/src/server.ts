@@ -142,15 +142,15 @@ async function handleFileOpen(
     }
 
     if (isFiftFile(uri, event)) {
-        findFiftFile(uri)
+        await findFiftFile(uri)
     }
 
     if (isTlbFile(uri, event)) {
-        findTlbFile(uri)
+        await findTlbFile(uri)
     }
 
     if (isTactFile(uri, event)) {
-        const file = findTactFile(uri)
+        const file = await findTactFile(uri)
         index.addFile(uri, file)
 
         if (initializationFinished) {
@@ -525,7 +525,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         }
 
         if (isTlbFile(uri)) {
-            const file = findTlbFile(uri)
+            const file = await findTlbFile(uri)
             const hoverNode = nodeAtPosition(params, file)
             if (!hoverNode) return null
             return provideTlbDocumentation(hoverNode, file)
@@ -607,7 +607,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
 
             if (isTlbFile(uri)) {
-                const file = findTlbFile(uri)
+                const file = await findTlbFile(uri)
                 return provideTlbCompletion(file, params, uri)
             }
 
@@ -640,7 +640,9 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.ImplementationRequest.type,
-        (params: lsp.ImplementationParams): lsp.Definition | lsp.LocationLink[] | null => {
+        async (
+            params: lsp.ImplementationParams,
+        ): Promise<lsp.Definition | lsp.LocationLink[] | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
@@ -656,11 +658,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.RenameRequest.type,
-        (params: lsp.RenameParams): WorkspaceEdit | null => {
+        async (params: lsp.RenameParams): Promise<WorkspaceEdit | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactRename(params, file)
             }
 
@@ -670,7 +672,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.PrepareRenameRequest.type,
-        (params: lsp.PrepareRenameParams): lsp.PrepareRenameResult | null => {
+        async (params: lsp.PrepareRenameParams): Promise<lsp.PrepareRenameResult | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
@@ -691,11 +693,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.DocumentHighlightRequest.type,
-        (params: lsp.DocumentHighlightParams): lsp.DocumentHighlight[] | null => {
+        async (params: lsp.DocumentHighlightParams): Promise<lsp.DocumentHighlight[] | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 const node = nodeAtPosition(params, file)
                 if (!node) return null
                 return provideTactDocumentHighlight(node, file)
@@ -718,7 +720,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             }
 
             if (isTlbFile(uri)) {
-                const file = findTlbFile(uri)
+                const file = await findTlbFile(uri)
                 const node = nodeAtPosition(params, file)
                 if (!node) return null
                 return provideTlbReferences(node, file)
@@ -737,7 +739,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.SignatureHelpRequest.type,
-        (params: lsp.SignatureHelpParams): lsp.SignatureHelp | null => {
+        async (params: lsp.SignatureHelpParams): Promise<lsp.SignatureHelp | null> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
@@ -750,7 +752,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         lsp.FoldingRangeRequest.type,
-        (params: lsp.FoldingRangeParams): lsp.FoldingRange[] | null => {
+        async (params: lsp.FoldingRangeParams): Promise<lsp.FoldingRange[] | null> => {
             const uri = params.textDocument.uri
 
             if (isFiftFile(uri)) {
@@ -834,12 +836,12 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactDocumentSymbols(file)
             }
 
             if (isTlbFile(uri)) {
-                const file = findTlbFile(uri)
+                const file = await findTlbFile(uri)
                 return provideTlbDocumentSymbols(file)
             }
 
@@ -900,11 +902,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
     connection.onRequest(
         TypeAtPositionRequest,
-        (params: TypeAtPositionParams): TypeAtPositionResponse => {
+        async (params: TypeAtPositionParams): Promise<TypeAtPositionResponse> => {
             const uri = params.textDocument.uri
 
             if (isTactFile(uri)) {
-                const file = findTactFile(uri)
+                const file = await findTactFile(uri)
                 return provideTactTypeAtPosition(params, file)
             }
 
