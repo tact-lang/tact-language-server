@@ -25,7 +25,6 @@ import {
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
 } from "@shared/shared-msgtypes"
-import {Logger} from "@server/utils/logger"
 import {CACHE} from "./languages/tact/cache"
 import {IndexingRoot, IndexingRootKind} from "./indexing-root"
 import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/settings/settings"
@@ -41,7 +40,7 @@ import {
 import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
 import * as toolchainManager from "@server/toolchain-manager"
 import {formatCode} from "@server/languages/tact/compiler/fmt/fmt"
-import {fileURLToPath} from "node:url"
+import {fileURLToPath} from "url"
 import {onFileRenamed, processFileRenaming} from "@server/languages/tact/rename/file-renaming"
 import {provideSelectionGasConsumption} from "@server/languages/tact/custom/selection-gas-consumption"
 import {runInspections} from "@server/languages/tact/inspections"
@@ -259,7 +258,7 @@ async function initialize(): Promise<void> {
             await connection.sendNotification(SetToolchainVersionNotification, {
                 version: toolchain.version,
                 toolchain: toolchain.getToolchainInfo(),
-                environment: toolchain.getEnvironmentInfo(),
+                environment: await toolchain.getEnvironmentInfo(),
             } satisfies SetToolchainVersionParams)
         } else {
             console.warn(`No active toolchain found for ${settings.toolchain.activeToolchain}`)
@@ -500,7 +499,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                         await connection.sendNotification(SetToolchainVersionNotification, {
                             version: toolchain.version,
                             toolchain: toolchain.getToolchainInfo(),
-                            environment: toolchain.getEnvironmentInfo(),
+                            environment: await toolchain.getEnvironmentInfo(),
                         } satisfies SetToolchainVersionParams)
                     }
                 } catch (error) {
@@ -1026,6 +1025,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     }
 })
 
-Logger.initialize(connection, `${__dirname}/tact-language-server.log`)
+// Logger.initialize(connection, `${__dirname}/tact-language-server.log`)
 
 connection.listen()

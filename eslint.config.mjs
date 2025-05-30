@@ -1,6 +1,6 @@
 import path from "path"
 import tseslint from "typescript-eslint"
-import url from "node:url"
+import url from "url"
 import unusedImports from "eslint-plugin-unused-imports"
 import unicornPlugin from "eslint-plugin-unicorn"
 import functional from "eslint-plugin-functional"

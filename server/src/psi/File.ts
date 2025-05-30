@@ -2,7 +2,7 @@
 //  Copyright © 2025 TON Studio
 import * as path from "path"
 import type {Node as SyntaxNode, Tree} from "web-tree-sitter"
-import {fileURLToPath} from "node:url"
+import {fileURLToPath} from "url"
 
 export class File {
     public constructor(

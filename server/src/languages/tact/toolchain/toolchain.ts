@@ -1,10 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as path from "path"
-import * as cp from "node:child_process"
-import {SpawnSyncReturns} from "node:child_process"
-import * as console from "node:console"
-import * as os from "node:os"
 import {EnvironmentInfo, ToolchainInfo} from "@shared/shared-msgtypes"
 import {existsVFS, globalVFS} from "@server/vfs/files-adapter"
 import {filePathToUri} from "@server/files"
@@ -57,7 +53,7 @@ export class Toolchain {
         return new Toolchain(foundPath, true, detectionMethod).setVersion()
     }
 
-    public static fromPath(path: string): Toolchain {
+    public static async fromPath(path: string): Promise<Toolchain> {
         return new Toolchain(path, false, "manual").validate()
     }
 
@@ -65,13 +61,21 @@ export class Toolchain {
         return this.version.number.startsWith("1.6")
     }
 
-    public getEnvironmentInfo(): EnvironmentInfo {
+    public async getEnvironmentInfo(): Promise<EnvironmentInfo> {
+        let platform = "web"
+        let arch = "unknown"
+
         try {
+            const os = await import("node:os")
+            platform = os.platform()
+            arch = os.arch()
+
+            const cp = await import("node:child_process")
             const result = cp.execSync("node --version", {encoding: "utf8"})
             return {
                 nodeVersion: result.trim(),
-                platform: os.platform(),
-                arch: os.arch(),
+                platform: platform,
+                arch: arch,
             }
         } catch {
             // node version not available
@@ -79,8 +83,8 @@ export class Toolchain {
 
         return {
             nodeVersion: undefined,
-            platform: os.platform(),
-            arch: os.arch(),
+            platform: platform,
+            arch: arch,
         }
     }
 
@@ -92,8 +96,9 @@ export class Toolchain {
         }
     }
 
-    private setVersion(): this {
+    private async setVersion(): Promise<this> {
         try {
+            const cp = await import("node:child_process")
             const result = cp.execSync(`"${this.compilerPath}" -v`)
             const rawVersion = result.toString()
             const lines = rawVersion.split("\n")
@@ -108,8 +113,9 @@ export class Toolchain {
         return this
     }
 
-    private validate(): this {
+    private async validate(): Promise<this> {
         try {
+            const cp = await import("node:child_process")
             const result = cp.execSync(`"${this.compilerPath}" -v`)
             const rawVersion = result.toString()
             const lines = rawVersion.split("\n")
@@ -119,6 +125,16 @@ export class Toolchain {
                 commit: lines[1] ?? "",
             }
         } catch (error_: unknown) {
+            interface SpawnSyncReturns<T> {
+                readonly pid: number
+                readonly output: (T | null)[]
+                readonly stdout: T
+                readonly stderr: T
+                readonly status: number | null
+                readonly signal: NodeJS.Signals | null
+                readonly error?: Error | undefined
+            }
+
             const error = error_ as SpawnSyncReturns<Buffer>
 
             console.log(error.stdout.toString())

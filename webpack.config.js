@@ -123,9 +123,12 @@ const webConfig = {
         fallback: {
             path: require.resolve("path-browserify"),
             "node:buffer": require.resolve("buffer"),
+            crypto: require.resolve("crypto-browserify"),
+            url: require.resolve("url/"),
+            "node:url": require.resolve("url/"),
             fs: false,
+            "node:fs": false,
             os: false,
-            crypto: false,
             util: require.resolve("util"),
             buffer: require.resolve("buffer"),
             stream: require.resolve("stream-browserify"),
@@ -135,12 +138,13 @@ const webConfig = {
     module: commonConfig.module,
     target: "webworker",
     entry: {
-        "client-web": "./client/src/extension.ts",
+        server: "./server/src/server.ts",
+        client: "./client/src/extension.ts",
     },
     output: {
         path: path.join(distDir, "web"),
         filename: "[name].js",
-        libraryTarget: "commonjs2",
+        libraryTarget: "commonjs-static",
         devtoolModuleFilenameTemplate: "../[resource-path]",
     },
     externals: {

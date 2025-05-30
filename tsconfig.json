@@ -2,7 +2,7 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es2020",
-        "lib": ["es2020"],
+        "lib": ["es2020", "WebWorker"],
         "sourceMap": true,
         "strict": true,
         "allowUnreachableCode": true,

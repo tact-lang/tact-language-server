@@ -3,13 +3,6 @@
 import * as vscode from "vscode"
 import * as path from "path"
 import {Utils as vscode_uri} from "vscode-uri"
-import {
-    LanguageClient,
-    LanguageClientOptions,
-    RevealOutputChannelOn,
-    ServerOptions,
-    TransportKind,
-} from "vscode-languageclient/node"
 import {consoleError, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
@@ -26,15 +19,15 @@ import {
     SearchByTypeParams,
     SearchByTypeResponse,
 } from "@shared/shared-msgtypes"
-import type {Location} from "vscode-languageclient"
-import * as lsp from "vscode-languageserver-protocol"
+import type {Location} from "vscode-languageclient/browser"
+import type * as lspCommon from "vscode-languageclient/lib/common/client"
 import type {ClientOptions} from "@shared/config-scheme"
 import {registerBuildTasks} from "./build-system"
 import {Range, Position} from "vscode"
 import {detectPackageManager, PackageManager} from "./utils/package-manager"
 import {ToolchainConfig} from "@server/settings/settings"
 
-let client: LanguageClient | null = null
+let client: lspCommon.BaseLanguageClient | null = null
 let gasStatusBarItem: vscode.StatusBarItem | null = null
 let cachedToolchainInfo: SetToolchainVersionParams | null = null
 
@@ -56,50 +49,109 @@ export function deactivate(): Thenable<void> | undefined {
 async function startServer(context: vscode.ExtensionContext): Promise<vscode.Disposable> {
     const disposables: vscode.Disposable[] = []
 
-    const clientOptions: LanguageClientOptions = {
-        outputChannel: createClientLog(),
-        revealOutputChannelOn: RevealOutputChannelOn.Never,
-        documentSelector: [
-            {scheme: "file", language: "tact"},
-            {scheme: "file", language: "fift"},
-            {scheme: "file", language: "tlb"},
-            {scheme: "untitled", language: "tact"},
-        ],
-        synchronize: {
-            configurationSection: "tact",
-            fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{tact,tlb}"),
-        },
-        initializationOptions: {
-            clientConfig: getClientConfiguration(),
-            treeSitterWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter.wasm")
-                .fsPath,
-            tactLangWasmUri: vscode_uri.joinPath(
-                context.extensionUri,
-                "./dist/tree-sitter-tact.wasm",
-            ).fsPath,
-            fiftLangWasmUri: vscode_uri.joinPath(
-                context.extensionUri,
-                "./dist/tree-sitter-fift.wasm",
-            ).fsPath,
-            tlbLangWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter-tlb.wasm")
-                .fsPath,
-        } as ClientOptions,
-    }
+    if (typeof globalThis === "undefined") {
+        const lspNode = await import("vscode-languageclient/node")
 
-    const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
+        const clientOptions: lspCommon.LanguageClientOptions = {
+            outputChannel: createClientLog(),
+            revealOutputChannelOn: lspNode.RevealOutputChannelOn.Never,
+            documentSelector: [
+                {scheme: "file", language: "tact"},
+                {scheme: "file", language: "fift"},
+                {scheme: "file", language: "tlb"},
+                {scheme: "untitled", language: "tact"},
+            ],
+            synchronize: {
+                configurationSection: "tact",
+                fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{tact,tlb}"),
+            },
+            initializationOptions: {
+                clientConfig: getClientConfiguration(),
+                treeSitterWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter.wasm",
+                ).fsPath,
+                tactLangWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter-tact.wasm",
+                ).fsPath,
+                fiftLangWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter-fift.wasm",
+                ).fsPath,
+                tlbLangWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter-tlb.wasm",
+                ).fsPath,
+            } as ClientOptions,
+        }
 
-    const serverOptions: ServerOptions = {
-        run: {
-            module: serverModule,
-            transport: TransportKind.ipc,
-        },
-        debug: {
-            module: serverModule,
-            transport: TransportKind.ipc,
-            options: {execArgv: ["--nolazy", "--inspect=6009"]}, // same port as in .vscode/launch.json
-        },
+        const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
+
+        const serverOptions = {
+            run: {
+                module: serverModule,
+                transport: lspNode.TransportKind.ipc,
+            },
+            debug: {
+                module: serverModule,
+                transport: lspNode.TransportKind.ipc,
+                options: {execArgv: ["--nolazy", "--inspect=6009"]}, // same port as in .vscode/launch.json
+            },
+        }
+        client = new lspNode.LanguageClient(
+            "tact-server",
+            "Tact Language Server",
+            serverOptions,
+            clientOptions,
+        )
+    } else {
+        const lspBrowser = await import("vscode-languageclient/browser")
+        const clientOptions: lspCommon.LanguageClientOptions = {
+            outputChannel: createClientLog(),
+            revealOutputChannelOn: lspBrowser.RevealOutputChannelOn.Never,
+            documentSelector: [
+                {scheme: "file", language: "tact"},
+                {scheme: "file", language: "fift"},
+                {scheme: "file", language: "tlb"},
+                {scheme: "untitled", language: "tact"},
+                {scheme: "memfs", language: "tact"},
+            ],
+            synchronize: {
+                configurationSection: "tact",
+                fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{tact,tlb}"),
+            },
+            initializationOptions: {
+                clientConfig: getClientConfiguration(),
+                treeSitterWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter.wasm",
+                ).fsPath,
+                tactLangWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter-tact.wasm",
+                ).fsPath,
+                fiftLangWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter-fift.wasm",
+                ).fsPath,
+                tlbLangWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter-tlb.wasm",
+                ).fsPath,
+            } as ClientOptions,
+        }
+
+        const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
+
+        const worker = new Worker(serverModule)
+        client = new lspBrowser.LanguageClient(
+            "tact-server",
+            "Tact Language Server",
+            clientOptions,
+            worker,
+        )
     }
-    client = new LanguageClient("tact-server", "Tact Language Server", serverOptions, clientOptions)
 
     await client.start()
 
@@ -214,7 +266,7 @@ const onExtractFile = async (params: ExtractToFileIntention): Promise<void> => {
 }
 
 async function showReferencesImpl(
-    client: LanguageClient | undefined,
+    client: lspCommon.BaseLanguageClient | undefined,
     uri: string,
     position: Position,
 ): Promise<void> {
@@ -463,7 +515,7 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
                 // Convert results to QuickPickItems
                 // eslint-disable-next-line functional/type-declaration-immutability
                 interface SearchResultItem extends vscode.QuickPickItem {
-                    readonly location: lsp.Location
+                    readonly location: Location
                     readonly resultKind: string
                 }
 

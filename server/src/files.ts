@@ -1,7 +1,7 @@
 import * as lsp from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
-import {pathToFileURL} from "node:url"
+import {pathToFileURL} from "url"
 import {createFiftParser, createTactParser, createTlbParser} from "@server/parser"
 import {readFileVFS, globalVFS} from "@server/vfs/files-adapter"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"

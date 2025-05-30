@@ -14,7 +14,7 @@ import {
 import {isNamedFunNode} from "@server/languages/tact/psi/utils"
 import {ScopeProcessor} from "@server/languages/tact/psi/Reference"
 import {CACHE} from "@server/languages/tact/cache"
-import {fileURLToPath} from "node:url"
+import {fileURLToPath} from "url"
 import {PARSED_FILES_CACHE} from "@server/files"
 import {ResolveState} from "@server/psi/ResolveState"
 

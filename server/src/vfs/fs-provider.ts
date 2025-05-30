@@ -2,9 +2,9 @@
 //  Copyright © 2025 TON Studio
 
 /* eslint-disable @typescript-eslint/require-await */
-import {readFileSync, existsSync, readdirSync, statSync} from "node:fs"
+import {readFileSync, existsSync, readdirSync, statSync} from "fs"
 import {join} from "path"
-import {fileURLToPath} from "node:url"
+import {fileURLToPath} from "url"
 import {FileSystemProvider, VirtualFile} from "./types"
 
 export function createNodeFSProvider(): FileSystemProvider {

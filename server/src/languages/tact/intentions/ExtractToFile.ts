@@ -18,7 +18,7 @@ import {
     Primitive,
 } from "@server/languages/tact/psi/Decls"
 import * as path from "path"
-import {fileURLToPath} from "node:url"
+import {fileURLToPath} from "url"
 import * as lsp from "vscode-languageserver"
 import {filePathToUri} from "@server/files"
 import {existsVFS, globalVFS} from "@server/vfs/files-adapter"

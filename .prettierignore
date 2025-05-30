@@ -1,1 +1,3 @@
 server/src/languages/tact/compiler/fmt/cst/cst-parser.ts
+.vscode-test-web/
+.mypy_cache/

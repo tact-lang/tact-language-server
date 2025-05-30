@@ -3,7 +3,7 @@
 import * as path from "path"
 import {Node as SyntaxNode} from "web-tree-sitter"
 import {globalVFS, readFileVFS} from "@server/vfs/files-adapter"
-import {pathToFileURL} from "node:url"
+import {pathToFileURL} from "url"
 
 export interface AsmInstruction {
     readonly mnemonic: string

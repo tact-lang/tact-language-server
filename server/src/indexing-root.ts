@@ -2,7 +2,7 @@
 //  Copyright © 2025 TON Studio
 import {glob} from "glob"
 import {index} from "@server/languages/tact/indexes"
-import {fileURLToPath} from "node:url"
+import {fileURLToPath} from "url"
 import * as path from "path"
 import {filePathToUri, findTactFile} from "@server/files"
 
