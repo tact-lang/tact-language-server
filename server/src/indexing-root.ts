@@ -3,7 +3,7 @@
 import {glob} from "glob"
 import {index} from "@server/languages/tact/indexes"
 import {fileURLToPath} from "node:url"
-import * as path from "node:path"
+import * as path from "path"
 import {filePathToUri, findTactFile} from "@server/files"
 
 export enum IndexingRootKind {

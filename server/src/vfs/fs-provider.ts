@@ -3,7 +3,7 @@
 
 /* eslint-disable @typescript-eslint/require-await */
 import {readFileSync, existsSync, readdirSync, statSync} from "node:fs"
-import {join} from "node:path"
+import {join} from "path"
 import {fileURLToPath} from "node:url"
 import {FileSystemProvider, VirtualFile} from "./types"
 

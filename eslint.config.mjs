@@ -1,4 +1,4 @@
-import path from "node:path"
+import path from "path"
 import tseslint from "typescript-eslint"
 import url from "node:url"
 import unusedImports from "eslint-plugin-unused-imports"
@@ -125,6 +125,7 @@ export default tseslint.config(
             "unicorn/no-array-reduce": "off",
             "unicorn/prefer-string-raw": "off",
             "unicorn/no-useless-undefined": "off",
+            "unicorn/prefer-node-protocol": "off",
         },
     },
 )

@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import type {Node as SyntaxNode} from "web-tree-sitter"
-import * as path from "node:path"
+import * as path from "path"
 import type {TactFile} from "./TactFile"
 import {trimPrefix, trimSuffix} from "@server/utils/strings"
 import {projectStdlibPath} from "@server/languages/tact/toolchain/toolchain"

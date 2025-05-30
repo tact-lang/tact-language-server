@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import * as path from "node:path"
+import * as path from "path"
 import type {Node as SyntaxNode, Tree} from "web-tree-sitter"
 import {fileURLToPath} from "node:url"
 

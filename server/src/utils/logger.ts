@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
 import type {Connection} from "vscode-languageserver"
 import * as fs from "node:fs"
-import * as path from "node:path"
+import * as path from "path"
 
 export class Logger {
     private logFile: fs.WriteStream | null = null

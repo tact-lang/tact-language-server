@@ -1,7 +1,7 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as vscode from "vscode"
-import * as path from "node:path"
+import * as path from "path"
 import * as fs from "node:fs"
 import * as glob from "glob"
 import {TestCase, TestParser} from "./TestParser"

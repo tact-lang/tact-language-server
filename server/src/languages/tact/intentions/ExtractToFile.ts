@@ -17,7 +17,7 @@ import {
     Constant,
     Primitive,
 } from "@server/languages/tact/psi/Decls"
-import * as path from "node:path"
+import * as path from "path"
 import {fileURLToPath} from "node:url"
 import * as lsp from "vscode-languageserver"
 import {filePathToUri} from "@server/files"

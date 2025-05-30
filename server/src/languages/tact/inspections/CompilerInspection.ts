@@ -6,7 +6,7 @@ import {TactCompiler} from "@server/languages/tact/compiler/TactCompiler"
 import {Inspection, InspectionIds} from "./Inspection"
 import {URI} from "vscode-uri"
 import {workspaceRoot} from "@server/toolchain"
-import * as path from "node:path"
+import * as path from "path"
 import {existsVFS, globalVFS} from "@server/vfs/files-adapter"
 import {filePathToUri} from "@server/files"
 
