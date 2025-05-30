@@ -13,12 +13,12 @@ export const BUILTIN_TYPES: Map<string, string> = new Map([
     ["#", "Nat, 32-bit unsigned integer"],
     ["##", "Nat: unsigned integer with `x` bits"],
     [
-        "#<",
-        "Nat: unsigned integer less than `x` bits stored with the minimum number `⌈log2 x⌉` of bits (up to 31) to represent the number `x`",
+        "#< x",
+        "Nat: unsigned integer less than `x` stored with the minimum number `⌈log2 x⌉` of bits (up to 31) to represent the number `x`",
     ],
     [
-        "#<=",
-        "Nat: unsigned integer less than `x` bits stored with the minimum number `⌈log2(x+1)⌉` of bits (up to 32) to represent the number `x`",
+        "#<= x",
+        "Nat: unsigned integer less than or equal `x` stored with the minimum number `⌈log2(x+1)⌉` of bits (up to 32) to represent the number `x`",
     ],
     ["Any", "Remaining bits and references"],
     ["Cell", "Remaining bits and references"],
