@@ -1,0 +1,23 @@
+{
+    "name": "func-language",
+    "version": "0.1.2",
+    "description": "FunC grammar for node-tree-sitter",
+    "repository": "github:akifoq/tree-sitter-func",
+    "main": "bindings/node",
+    "keywords": [
+        "parser",
+        "lexer"
+    ],
+    "author": "akifoq",
+    "license": "MIT",
+    "dependencies": {
+        "nan": "^2.16.0"
+    },
+    "devDependencies": {
+        "tree-sitter-cli": "^0.20.6"
+    },
+    "scripts": {
+        "build": "tree-sitter generate && tree-sitter build-wasm --docker",
+        "test": "tree-sitter test"
+    }
+}

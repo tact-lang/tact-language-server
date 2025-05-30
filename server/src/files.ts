@@ -2,15 +2,17 @@ import * as lsp from "vscode-languageserver"
 import {TextDocument} from "vscode-languageserver-textdocument"
 import {TactFile} from "@server/languages/tact/psi/TactFile"
 import {pathToFileURL} from "node:url"
-import {createFiftParser, createTactParser, createTlbParser} from "@server/parser"
+import {createFiftParser, createTactParser, createTlbParser, createFuncParser} from "@server/parser"
 import * as fs from "node:fs"
 import {FiftFile} from "@server/languages/fift/psi/FiftFile"
 import {TlbFile} from "@server/languages/tlb/psi/TlbFile"
 import {URI} from "vscode-uri"
+import {FuncFile} from "@server/languages/func/psi/FuncFile"
 
 export const PARSED_FILES_CACHE: Map<string, TactFile> = new Map()
 export const FIFT_PARSED_FILES_CACHE: Map<string, FiftFile> = new Map()
 export const TLB_PARSED_FILES_CACHE: Map<string, TlbFile> = new Map()
+export const FUNC_PARSED_FILES_CACHE: Map<string, FuncFile> = new Map()
 
 export function findTactFile(uri: string, changed: boolean = false): TactFile {
     const cached = PARSED_FILES_CACHE.get(uri)
@@ -93,6 +95,33 @@ export function reparseTlbFile(uri: string, content: string): TlbFile {
     return file
 }
 
+export function findFuncFile(uri: string): FuncFile {
+    const cached = FUNC_PARSED_FILES_CACHE.get(uri)
+    if (cached) {
+        return cached
+    }
+
+    const rawContent = readOrUndefined(fileURLToPath(uri))
+    if (rawContent === undefined) {
+        console.error(`cannot read ${uri} file`)
+    }
+
+    const content = rawContent ?? ""
+    return reparseFuncFile(uri, content)
+}
+
+export function reparseFuncFile(uri: string, content: string): FuncFile {
+    const parser = createFuncParser()
+    const tree = parser.parse(content)
+    if (!tree) {
+        throw new Error(`FATAL ERROR: cannot parse ${uri} file`)
+    }
+
+    const file = new FuncFile(uri, tree, content)
+    FUNC_PARSED_FILES_CACHE.set(uri, file)
+    return file
+}
+
 function readOrUndefined(path: string): string | undefined {
     try {
         return fs.readFileSync(path, "utf8")
@@ -115,6 +144,11 @@ export const isTlbFile = (
     uri: string,
     event?: lsp.TextDocumentChangeEvent<TextDocument>,
 ): boolean => event?.document.languageId === "tlb" || uri.endsWith(".tlb")
+
+export const isFuncFile = (
+    uri: string,
+    event?: lsp.TextDocumentChangeEvent<TextDocument>,
+): boolean => event?.document.languageId === "func" || uri.endsWith(".fc") || uri.endsWith(".func")
 
 export const filePathToUri = (filePath: string): string => {
     const url = pathToFileURL(filePath).toString()

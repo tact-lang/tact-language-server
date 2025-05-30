@@ -77,6 +77,10 @@ const config = {
                     from: "./server/src/languages/tlb/tree-sitter-tlb/tree-sitter-tlb.wasm",
                     to: distDir,
                 },
+                {
+                    from: "./server/src/languages/func/tree-sitter-func/tree-sitter-func.wasm",
+                    to: distDir,
+                },
                 {from: "./client/src/assets/icons/ton-icon.svg", to: path.join(distDir, "icons")},
                 {
                     from: "./client/src/assets/icons/icon-tact-dark.svg",

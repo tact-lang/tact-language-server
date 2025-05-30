@@ -50,14 +50,18 @@ import {
     findFiftFile,
     findTactFile,
     findTlbFile,
+    findFuncFile,
     isFiftFile,
     isTactFile,
     isTlbFile,
+    isFuncFile,
     PARSED_FILES_CACHE,
     reparseFiftFile,
     reparseTactFile,
     reparseTlbFile,
+    reparseFuncFile,
     TLB_PARSED_FILES_CACHE,
+    FUNC_PARSED_FILES_CACHE,
 } from "@server/files"
 import {provideTactDocumentation} from "@server/languages/tact/documentation"
 import {provideFiftDocumentation} from "@server/languages/fift/documentation"
@@ -98,6 +102,14 @@ import {provideTlbCompletion} from "@server/languages/tlb/completion"
 import {TLB_CACHE} from "@server/languages/tlb/cache"
 import {provideTlbReferences} from "@server/languages/tlb/references"
 import {TextDocument} from "vscode-languageserver-textdocument"
+import {provideFuncSemanticTokens} from "@server/languages/func/semantic-tokens"
+import {provideFuncDefinition} from "@server/languages/func/find-definitions"
+import {provideFuncCompletion} from "@server/languages/func/completion"
+import {provideFuncFoldingRanges} from "@server/languages/func/foldings"
+import {provideFuncDocumentation} from "@server/languages/func/documentation"
+import {provideFuncTypeAtPosition} from "@server/languages/func/custom/type-at-position"
+import {provideFuncSignatureInfo} from "@server/languages/func/signature-help"
+import {collectFuncInlays} from "@server/languages/func/inlays"
 
 /**
  * Whenever LS is initialized.
@@ -144,6 +156,10 @@ async function handleFileOpen(
 
     if (isTlbFile(uri, event)) {
         findTlbFile(uri)
+    }
+
+    if (isFuncFile(uri, event)) {
+        findFuncFile(uri)
     }
 
     if (isTactFile(uri, event)) {
@@ -373,7 +389,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     const tactLangUri = opts?.tactLangWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
     const fiftLangUri = opts?.fiftLangWasmUri ?? `${__dirname}/tree-sitter-fift.wasm`
     const tlbLangUri = opts?.tlbLangWasmUri ?? `${__dirname}/tree-sitter-tlb.wasm`
-    await initParser(treeSitterUri, tactLangUri, fiftLangUri, tlbLangUri)
+    const funcLangUri = opts?.funcLangWasmUri ?? `${__dirname}/tree-sitter-func.wasm`
+    await initParser(treeSitterUri, tactLangUri, fiftLangUri, tlbLangUri, funcLangUri)
 
     const documents = new DocumentStore(connection)
 
@@ -405,6 +422,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             TLB_PARSED_FILES_CACHE.delete(uri)
             TLB_CACHE.clear()
             reparseTlbFile(uri, event.document.getText())
+        }
+
+        if (isFuncFile(uri, event)) {
+            FUNC_PARSED_FILES_CACHE.delete(uri)
+            reparseFuncFile(uri, event.document.getText())
         }
 
         if (isTactFile(uri, event)) {
@@ -518,6 +540,13 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             return provideFiftDocumentation(hoverNode, file)
         }
 
+        if (isFuncFile(uri)) {
+            const file = findFuncFile(uri)
+            const hoverNode = nodeAtPosition(params, file)
+            if (!hoverNode) return null
+            return provideFuncDocumentation(hoverNode, file)
+        }
+
         if (isTactFile(uri)) {
             const file = findTactFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
@@ -549,6 +578,14 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 if (!hoverNode) return []
 
                 return provideTlbDefinition(hoverNode, file)
+            }
+
+            if (isFuncFile(uri)) {
+                const file = findFuncFile(uri)
+                const node = nodeAtPosition(params, file)
+                if (!node) return []
+
+                return provideFuncDefinition(node, file)
             }
 
             if (isTactFile(uri)) {
@@ -596,6 +633,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return provideTlbCompletion(file, params, uri)
             }
 
+            if (isFuncFile(uri)) {
+                const file = findFuncFile(uri)
+                return provideFuncCompletion(file, params, uri)
+            }
+
             return []
         },
     )
@@ -612,6 +654,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
                 return collectFiftInlays(file, settings.hints.gasFormat, settings.fift.hints)
+            }
+
+            if (isFuncFile(uri)) {
+                const file = findFuncFile(uri)
+                return collectFuncInlays(file, {parameters: settings.hints.parameters})
             }
 
             if (isTactFile(uri)) {
@@ -725,6 +772,10 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         (params: lsp.SignatureHelpParams): lsp.SignatureHelp | null => {
             const uri = params.textDocument.uri
 
+            if (isFuncFile(uri)) {
+                return provideFuncSignatureInfo(params)
+            }
+
             if (isTactFile(uri)) {
                 return provideTactSignatureInfo(params)
             }
@@ -741,6 +792,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (isFiftFile(uri)) {
                 const file = findFiftFile(uri)
                 return provideFiftFoldingRanges(file)
+            }
+
+            if (isFuncFile(uri)) {
+                const file = findFuncFile(uri)
+                return provideFuncFoldingRanges(file)
             }
 
             if (isTactFile(uri)) {
@@ -766,6 +822,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (isTlbFile(uri)) {
                 const file = findTlbFile(uri)
                 return provideTlbSemanticTokens(file)
+            }
+
+            if (isFuncFile(uri)) {
+                const file = findFuncFile(uri)
+                return provideFuncSemanticTokens(file)
             }
 
             if (isTactFile(uri)) {
@@ -887,6 +948,11 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         TypeAtPositionRequest,
         (params: TypeAtPositionParams): TypeAtPositionResponse => {
             const uri = params.textDocument.uri
+
+            if (isFuncFile(uri)) {
+                const file = findFuncFile(uri)
+                return provideFuncTypeAtPosition(params, file)
+            }
 
             if (isTactFile(uri)) {
                 const file = findTactFile(uri)

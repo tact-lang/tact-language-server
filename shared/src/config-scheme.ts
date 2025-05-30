@@ -13,4 +13,5 @@ export interface ClientOptions {
     readonly tactLangWasmUri: string
     readonly fiftLangWasmUri: string
     readonly tlbLangWasmUri: string
+    readonly funcLangWasmUri: string
 }

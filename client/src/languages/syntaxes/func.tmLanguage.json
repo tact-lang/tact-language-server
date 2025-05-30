@@ -1,0 +1,151 @@
+{
+    "name": "FunC",
+    "displayName": "FunC",
+    "scopeName": "source.func",
+    "fileTypes": ["fc", "func"],
+    "patterns": [
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#numbers"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#types"
+        },
+        {
+            "include": "#functions"
+        },
+        {
+            "include": "#operators"
+        },
+        {
+            "include": "#identifiers"
+        }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "match": ";;.*$",
+                    "name": "comment.line.double-semicolon.func"
+                },
+                {
+                    "begin": "\\{-",
+                    "end": "-\\}",
+                    "name": "comment.block.func",
+                    "patterns": [
+                        {
+                            "include": "#comments"
+                        }
+                    ]
+                }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "begin": "\"",
+                    "end": "\"",
+                    "name": "string.quoted.double.func",
+                    "patterns": [
+                        {
+                            "match": "\\\\.",
+                            "name": "constant.character.escape.func"
+                        }
+                    ]
+                },
+                {
+                    "match": "\"[^\"]*\"[Hhcu]",
+                    "name": "string.quoted.double.number.func"
+                },
+                {
+                    "match": "\"[^\"]*\"[sa]",
+                    "name": "string.quoted.double.slice.func"
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                {
+                    "match": "\\b-?0x[0-9a-fA-F]+\\b",
+                    "name": "constant.numeric.hex.func"
+                },
+                {
+                    "match": "\\b-?[0-9]+\\b",
+                    "name": "constant.numeric.decimal.func"
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "match": "\\b(if|ifnot|else|elseif|elseifnot|while|until|do|repeat|return|try|catch)\\b",
+                    "name": "keyword.control.func"
+                },
+                {
+                    "match": "\\b(global|const|#include|#pragma)\\b",
+                    "name": "keyword.other.func"
+                },
+                {
+                    "match": "\\b(version|not-version|allow-post-modification|compute-asm-ltr)\\b",
+                    "name": "keyword.pragma.func"
+                },
+                {
+                    "match": "\\b(forall|impure|inline|inline_ref|method_id|asm)\\b",
+                    "name": "keyword.modifier.func"
+                }
+            ]
+        },
+        "types": {
+            "patterns": [
+                {
+                    "match": "\\b(int|cell|slice|builder|cont|tuple|var)\\b",
+                    "name": "storage.type.func"
+                },
+                {
+                    "match": "\\b_\\b",
+                    "name": "storage.type.wildcard.func"
+                }
+            ]
+        },
+        "functions": {
+            "patterns": [
+                {
+                    "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*\\()",
+                    "name": "entity.name.function.func"
+                }
+            ]
+        },
+        "operators": {
+            "patterns": [
+                {
+                    "match": "[+\\-*/%~&|^<>=!]",
+                    "name": "keyword.operator.func"
+                },
+                {
+                    "match": "\\b(div|mod|divmod|muldiv|muldivr|muldivmod|lshift|rshift|and|or|xor|not)\\b",
+                    "name": "keyword.operator.word.func"
+                }
+            ]
+        },
+        "identifiers": {
+            "patterns": [
+                {
+                    "match": "`[^`]+`",
+                    "name": "variable.other.backtick.func"
+                },
+                {
+                    "match": "\\b[a-zA-Z_\\$][^\\s\\+\\-\\*\\/%,\\.;\\(\\)\\{\\}\\[\\]=<>\\|\\^\\~]*",
+                    "name": "variable.other.func"
+                }
+            ]
+        }
+    }
+}

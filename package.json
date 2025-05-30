@@ -16,7 +16,8 @@
     "activationEvents": [
         "onLanguage:tact",
         "onLanguage:tasm",
-        "onLanguage:tlb"
+        "onLanguage:tlb",
+        "onLanguage:func"
     ],
     "categories": [
         "Programming Languages"
@@ -35,10 +36,11 @@
         "lint": "eslint --cache .",
         "fmt": "prettier --write -l --cache .",
         "fmt:check": "prettier --check --cache .",
-        "grammar:wasm": "yarn grammar:tact:wasm && yarn grammar:fift:wasm && yarn grammar:tlb:wasm",
+        "grammar:wasm": "yarn grammar:tact:wasm && yarn grammar:fift:wasm && yarn grammar:tlb:wasm && yarn grammar:func:wasm",
         "grammar:tact:wasm": "cd server/src/languages/tact/tree-sitter-tact && tree-sitter generate && tree-sitter build --wasm",
         "grammar:fift:wasm": "cd server/src/languages/fift/tree-sitter-fift && tree-sitter generate && tree-sitter build --wasm",
         "grammar:tlb:wasm": "cd server/src/languages/tlb/tree-sitter-tlb && tree-sitter generate && tree-sitter build --wasm",
+        "grammar:func:wasm": "cd server/src/languages/func/tree-sitter-func && tree-sitter generate && tree-sitter build --wasm",
         "watch": "webpack --watch",
         "test:e2e": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts",
         "test:e2e:update": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts --update-snapshots",
@@ -132,6 +134,21 @@
                     "dark": "./dist/icons/icon-tlb-dark.svg"
                 },
                 "configuration": "./client/src/languages/tlb-language-configuration.json"
+            },
+            {
+                "id": "func",
+                "aliases": [
+                    "FunC"
+                ],
+                "extensions": [
+                    ".fc",
+                    ".func"
+                ],
+                "icon": {
+                    "light": "./dist/icons/ton-icon.svg",
+                    "dark": "./dist/icons/ton-icon.svg"
+                },
+                "configuration": "./client/src/languages/func-language-configuration.json"
             }
         ],
         "grammars": [
@@ -165,6 +182,11 @@
                 "language": "tlb",
                 "scopeName": "source.tlb",
                 "path": "./client/src/languages/syntaxes/tlb.tmLanguage.json"
+            },
+            {
+                "language": "func",
+                "scopeName": "source.func",
+                "path": "./client/src/languages/syntaxes/func.tmLanguage.json"
             }
         ],
         "snippets": [],
