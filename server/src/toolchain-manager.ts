@@ -33,7 +33,7 @@ export async function setToolchains(
             const toolchain =
                 id === "auto" && config.path === ""
                     ? await Toolchain.autoDetect(state.workspaceRoot ?? process.cwd())
-                    : Toolchain.fromPath(config.path)
+                    : await Toolchain.fromPath(config.path)
 
             newToolchains.set(id, toolchain)
         } catch (error) {

@@ -1,6 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
-import {sha256_sync} from "@ton/crypto"
+import * as crypto from "crypto"
 
 // Witness tag. Do not use, do not export!
 const Sha256Tag = Symbol("sha256")
@@ -12,7 +12,7 @@ interface Sha256 {
 
 export const sha256 = (input: Buffer | string): Sha256 => ({
     kind: Sha256Tag,
-    value: bufferToBigInt(sha256_sync(input)),
+    value: bufferToBigInt(crypto.createHash("sha256").update(input).digest()),
 })
 
 /**

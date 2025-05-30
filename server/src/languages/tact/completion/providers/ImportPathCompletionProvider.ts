@@ -7,7 +7,7 @@ import {
     CompletionResult,
     CompletionWeight,
 } from "@server/languages/tact/completion/WeightedCompletionItem"
-import * as path from "node:path"
+import * as path from "path"
 import {globalVFS} from "@server/vfs/global"
 import {listDirs, listFiles} from "@server/vfs/vfs"
 import {filePathToUri} from "@server/files"

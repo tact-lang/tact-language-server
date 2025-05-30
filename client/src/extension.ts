@@ -1,15 +1,8 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as vscode from "vscode"
-import * as path from "node:path"
+import * as path from "path"
 import {Utils as vscode_uri} from "vscode-uri"
-import {
-    LanguageClient,
-    LanguageClientOptions,
-    RevealOutputChannelOn,
-    ServerOptions,
-    TransportKind,
-} from "vscode-languageclient/node"
 import {consoleError, createClientLog} from "./client-log"
 import {getClientConfiguration} from "./client-config"
 import {
@@ -26,55 +19,24 @@ import {
     SearchByTypeParams,
     SearchByTypeResponse,
 } from "@shared/shared-msgtypes"
-import type {Location} from "vscode-languageclient"
-import * as lsp from "vscode-languageserver-protocol"
+import type {Location} from "vscode-languageclient/browser"
+import type * as lspCommon from "vscode-languageclient/lib/common/client"
 import type {ClientOptions} from "@shared/config-scheme"
 import {registerBuildTasks} from "./build-system"
-import {registerOpenBocCommand} from "./commands/openBocCommand"
-import {BocEditorProvider} from "./providers/BocEditorProvider"
-import {BocFileSystemProvider} from "./providers/BocFileSystemProvider"
-import {BocDecompilerProvider} from "./providers/BocDecompilerProvider"
-import {registerSaveBocDecompiledCommand} from "./commands/saveBocDecompiledCommand"
-import {Range, Position, FileSystemWatcher} from "vscode"
+import {Range, Position} from "vscode"
 import {detectPackageManager, PackageManager} from "./utils/package-manager"
 import {ToolchainConfig} from "@server/settings/settings"
 
-let client: LanguageClient | null = null
+let client: lspCommon.BaseLanguageClient | null = null
 let gasStatusBarItem: vscode.StatusBarItem | null = null
 let cachedToolchainInfo: SetToolchainVersionParams | null = null
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     startServer(context).catch(consoleError)
     await registerBuildTasks(context)
-    registerOpenBocCommand(context)
-    registerSaveBocDecompiledCommand(context)
+
     registerMistiCommand(context)
     registerGasConsumptionStatusBar(context)
-
-    const config = vscode.workspace.getConfiguration("tact")
-    const openDecompiled = config.get<boolean>("boc.openDecompiledOnOpen")
-    if (openDecompiled) {
-        BocEditorProvider.register()
-
-        const bocFsProvider = new BocFileSystemProvider()
-        context.subscriptions.push(
-            vscode.workspace.registerFileSystemProvider("boc", bocFsProvider, {
-                isCaseSensitive: true,
-                isReadonly: false,
-            }),
-        )
-    }
-
-    const bocDecompilerProvider = new BocDecompilerProvider()
-    context.subscriptions.push(
-        vscode.workspace.registerTextDocumentContentProvider(
-            BocDecompilerProvider.scheme,
-            bocDecompilerProvider,
-        ),
-    )
-
-    const bocWatcher = registerBocWatcher(bocDecompilerProvider)
-    context.subscriptions.push(bocWatcher)
 }
 
 export function deactivate(): Thenable<void> | undefined {
@@ -87,52 +49,151 @@ export function deactivate(): Thenable<void> | undefined {
 async function startServer(context: vscode.ExtensionContext): Promise<vscode.Disposable> {
     const disposables: vscode.Disposable[] = []
 
-    const clientOptions: LanguageClientOptions = {
-        outputChannel: createClientLog(),
-        revealOutputChannelOn: RevealOutputChannelOn.Never,
-        documentSelector: [
-            {scheme: "file", language: "tact"},
-            {scheme: "file", language: "fift"},
-            {scheme: "file", language: "tlb"},
-            {scheme: "untitled", language: "tact"},
-        ],
-        synchronize: {
-            configurationSection: "tact",
-            fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{tact,tlb}"),
-        },
-        initializationOptions: {
-            clientConfig: getClientConfiguration(),
-            treeSitterWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter.wasm")
-                .fsPath,
-            tactLangWasmUri: vscode_uri.joinPath(
-                context.extensionUri,
-                "./dist/tree-sitter-tact.wasm",
-            ).fsPath,
-            fiftLangWasmUri: vscode_uri.joinPath(
-                context.extensionUri,
-                "./dist/tree-sitter-fift.wasm",
-            ).fsPath,
-            tlbLangWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter-tlb.wasm")
-                .fsPath,
-        } as ClientOptions,
+    const outputChannel = createClientLog()
+    if (typeof globalThis === "undefined") {
+        const lspNode = await import("vscode-languageclient/node")
+
+        const clientOptions: lspCommon.LanguageClientOptions = {
+            outputChannel,
+            revealOutputChannelOn: lspNode.RevealOutputChannelOn.Never,
+            documentSelector: [
+                {scheme: "file", language: "tact"},
+                {scheme: "file", language: "fift"},
+                {scheme: "file", language: "tlb"},
+                {scheme: "untitled", language: "tact"},
+            ],
+            synchronize: {
+                configurationSection: "tact",
+                fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{tact,tlb}"),
+            },
+            initializationOptions: {
+                clientConfig: getClientConfiguration(),
+                treeSitterWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter.wasm",
+                ).fsPath,
+                tactLangWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter-tact.wasm",
+                ).fsPath,
+                fiftLangWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter-fift.wasm",
+                ).fsPath,
+                tlbLangWasmUri: vscode_uri.joinPath(
+                    context.extensionUri,
+                    "./dist/tree-sitter-tlb.wasm",
+                ).fsPath,
+            } as ClientOptions,
+        }
+
+        const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
+
+        const serverOptions = {
+            run: {
+                module: serverModule,
+                transport: lspNode.TransportKind.ipc,
+            },
+            debug: {
+                module: serverModule,
+                transport: lspNode.TransportKind.ipc,
+                options: {execArgv: ["--nolazy", "--inspect=6009"]}, // same port as in .vscode/launch.json
+            },
+        }
+        client = new lspNode.LanguageClient(
+            "tact-server",
+            "Tact Language Server",
+            serverOptions,
+            clientOptions,
+        )
+    } else {
+        const lspBrowser = await import("vscode-languageclient/browser")
+        const clientOptions: lspCommon.LanguageClientOptions = {
+            outputChannel,
+            revealOutputChannelOn: lspBrowser.RevealOutputChannelOn.Never,
+            documentSelector: [
+                {scheme: "file", language: "tact"},
+                {scheme: "file", language: "fift"},
+                {scheme: "file", language: "tlb"},
+                {scheme: "untitled", language: "tact"},
+                {scheme: "memfs", language: "tact"},
+                {scheme: "vscode-test-web", language: "tact"},
+            ],
+            synchronize: {
+                configurationSection: "tact",
+                fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{tact,tlb}"),
+            },
+            initializationOptions: {
+                clientConfig: getClientConfiguration(),
+                treeSitterWasmUri: vscode_uri
+                    .joinPath(context.extensionUri, "./dist/web/tree-sitter.wasm")
+                    .toString(),
+                tactLangWasmUri: vscode_uri
+                    .joinPath(context.extensionUri, "./dist/web/tree-sitter-tact.wasm")
+                    .toString(),
+                fiftLangWasmUri: vscode_uri
+                    .joinPath(context.extensionUri, "./dist/web/tree-sitter-fift.wasm")
+                    .toString(),
+                tlbLangWasmUri: vscode_uri
+                    .joinPath(context.extensionUri, "./dist/web/tree-sitter-tlb.wasm")
+                    .toString(),
+            } as ClientOptions,
+        }
+
+        const serverModule = vscode_uri
+            .joinPath(context.extensionUri, "dist", "web", "server.js")
+            .toString()
+
+        console.log("Starting Tact Language Server in web mode")
+        console.log("Server module URI:", serverModule)
+        console.log("Extension URI:", context.extensionUri.toString())
+        console.log(
+            "Tree-sitter WASM URI:",
+            vscode_uri.joinPath(context.extensionUri, "./dist/web/tree-sitter.wasm").toString(),
+        )
+        console.log(
+            "Tact WASM URI:",
+            vscode_uri
+                .joinPath(context.extensionUri, "./dist/web/tree-sitter-tact.wasm")
+                .toString(),
+        )
+
+        const worker = new Worker(serverModule)
+
+        // eslint-disable-next-line unicorn/prefer-add-event-listener
+        worker.onerror = error => {
+            console.error("Worker error:", error)
+            outputChannel.appendLine(`Worker error: ${error.message}`)
+        }
+
+        // eslint-disable-next-line unicorn/prefer-add-event-listener
+        worker.onmessage = message => {
+            console.log("Worker message:", message)
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (message.data?.method === "vfs/requestFile") {
+                void handleFileRequest(message.data.params.uri)
+            }
+        }
+
+        client = new lspBrowser.LanguageClient(
+            "tact-server",
+            "Tact Language Server",
+            clientOptions,
+            worker,
+        )
+
+        setupFileRequestHandler()
     }
 
-    const serverModule = context.asAbsolutePath(path.join("dist", "server.js"))
+    try {
+        await client.start()
 
-    const serverOptions: ServerOptions = {
-        run: {
-            module: serverModule,
-            transport: TransportKind.ipc,
-        },
-        debug: {
-            module: serverModule,
-            transport: TransportKind.ipc,
-            options: {execArgv: ["--nolazy", "--inspect=6009"]}, // same port as in .vscode/launch.json
-        },
+        console.log("Tact Language Server started successfully")
+        outputChannel.appendLine("Tact Language Server started successfully")
+    } catch (error) {
+        console.error("Failed to start Tact Language Server:", error)
+        throw error
     }
-    client = new LanguageClient("tact-server", "Tact Language Server", serverOptions, clientOptions)
-
-    await client.start()
 
     registerCommands(disposables)
 
@@ -245,7 +306,7 @@ const onExtractFile = async (params: ExtractToFileIntention): Promise<void> => {
 }
 
 async function showReferencesImpl(
-    client: LanguageClient | undefined,
+    client: lspCommon.BaseLanguageClient | undefined,
     uri: string,
     position: Position,
 ): Promise<void> {
@@ -494,7 +555,7 @@ Node.js: ${info.environment.nodeVersion ?? "Unknown"}`
                 // Convert results to QuickPickItems
                 // eslint-disable-next-line functional/type-declaration-immutability
                 interface SearchResultItem extends vscode.QuickPickItem {
-                    readonly location: lsp.Location
+                    readonly location: Location
                     readonly resultKind: string
                 }
 
@@ -890,56 +951,6 @@ function registerMistiCommand(context: vscode.ExtensionContext): void {
     )
 }
 
-function registerBocWatcher(bocDecompilerProvider: BocDecompilerProvider): FileSystemWatcher {
-    const bocWatcher = vscode.workspace.createFileSystemWatcher("**/*.boc")
-
-    bocWatcher.onDidChange((uri: vscode.Uri) => {
-        const decompileUri = uri.with({
-            scheme: BocDecompilerProvider.scheme,
-            path: uri.path + ".decompiled.fif",
-        })
-
-        const openDocument = vscode.workspace.textDocuments.find(
-            doc => doc.uri.toString() === decompileUri.toString(),
-        )
-
-        if (openDocument) {
-            bocDecompilerProvider.update(decompileUri)
-        }
-    })
-
-    bocWatcher.onDidDelete((uri: vscode.Uri) => {
-        const decompileUri = uri.with({
-            scheme: BocDecompilerProvider.scheme,
-            path: uri.path + ".decompiled.fif",
-        })
-
-        const openDocument = vscode.workspace.textDocuments.find(
-            doc => doc.uri.toString() === decompileUri.toString(),
-        )
-
-        if (openDocument) {
-            bocDecompilerProvider.update(decompileUri)
-        }
-    })
-
-    bocWatcher.onDidCreate((uri: vscode.Uri) => {
-        const decompileUri = uri.with({
-            scheme: BocDecompilerProvider.scheme,
-            path: uri.path + ".decompiled.fif",
-        })
-
-        const openDocument = vscode.workspace.textDocuments.find(
-            doc => doc.uri.toString() === decompileUri.toString(),
-        )
-
-        if (openDocument) {
-            bocDecompilerProvider.update(decompileUri)
-        }
-    })
-    return bocWatcher
-}
-
 function registerGasConsumptionStatusBar(context: vscode.ExtensionContext): void {
     gasStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000)
     context.subscriptions.push(
@@ -1055,4 +1066,87 @@ export interface ExtractToFileIntention {
     readonly position: Position
     readonly elementName?: string
     readonly suggestedFileName?: string
+}
+
+function setupFileRequestHandler(): void {
+    if (!client) return
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    client.onNotification("vfs/requestFile", async (params: {uri: string}) => {
+        await handleFileRequest(params.uri)
+    })
+
+    client.onRequest("vfs/getFile", async (params: {uri: string}) => {
+        return handleGetFileRequest(params.uri)
+    })
+
+    client.onRequest("vfs/getDirectory", async (params: {uri: string}) => {
+        return handleGetDirectoryRequest(params.uri)
+    })
+}
+
+async function handleFileRequest(uri: string): Promise<void> {
+    if (!client) return
+
+    try {
+        const document = await vscode.workspace.openTextDocument(vscode.Uri.parse(uri))
+        const content = document.getText()
+
+        await client.sendNotification("vfs/syncFile", {
+            uri: uri,
+            content: content,
+        })
+
+        console.debug(`Provided requested file: ${uri}`)
+    } catch (error) {
+        console.warn(`Failed to provide requested file ${uri}:`, error)
+
+        await client.sendNotification("vfs/syncFile", {
+            uri: uri,
+            content: "",
+        })
+    }
+}
+
+async function handleGetFileRequest(
+    uri: string,
+): Promise<{uri: string; content: string | null; exists: boolean}> {
+    try {
+        const document = await vscode.workspace.openTextDocument(vscode.Uri.parse(uri))
+        const content = document.getText()
+        return {
+            uri: uri,
+            content: content,
+            exists: true,
+        }
+    } catch (error) {
+        console.warn(`Client: Failed to read file ${uri}:`, error)
+        return {
+            uri: uri,
+            content: null,
+            exists: false,
+        }
+    }
+}
+
+async function handleGetDirectoryRequest(uri: string): Promise<{uri: string; items: string[]}> {
+    try {
+        const folderUri = vscode.Uri.parse(uri)
+
+        const items = await vscode.workspace.fs.readDirectory(folderUri)
+        const itemNames = items.map(([name, type]) => {
+            return type === vscode.FileType.Directory ? name + "/" : name
+        })
+
+        return {
+            uri: uri,
+            items: itemNames,
+        }
+    } catch (error) {
+        console.warn(`Client: Failed to read directory ${uri}:`, error)
+        return {
+            uri: uri,
+            items: [],
+        }
+    }
 }

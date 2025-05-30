@@ -4,6 +4,8 @@ import {VFS, readFile, exists} from "./vfs"
 
 export {globalVFS} from "./global"
 
+export {glob} from "./vfs"
+
 export async function readFileVFS(vfs: VFS, uri: string): Promise<string | undefined> {
     try {
         const file = await readFile(vfs, uri)

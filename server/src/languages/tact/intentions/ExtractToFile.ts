@@ -17,11 +17,10 @@ import {
     Constant,
     Primitive,
 } from "@server/languages/tact/psi/Decls"
-import * as path from "node:path"
-import {fileURLToPath} from "node:url"
-import * as lsp from "vscode-languageserver"
-import {filePathToUri} from "@server/files"
+import * as path from "path"
+import {filePathToUri, uriToFilePath} from "@server/files"
 import {existsVFS, globalVFS} from "@server/vfs/files-adapter"
+import * as lsp from "vscode-languageserver"
 
 export class ExtractToFile implements AsyncIntention {
     public readonly id: string = "tact.extract-to-file"
@@ -137,7 +136,7 @@ export class ExtractToFile implements AsyncIntention {
         const newFileContent = this.generateFileContent(elementText)
         const documentChanges: (lsp.TextDocumentEdit | lsp.CreateFile)[] = []
 
-        const newFilePath = fileURLToPath(newFileUri)
+        const newFilePath = uriToFilePath(newFileUri)
         const fileExists = await existsVFS(globalVFS, newFilePath)
 
         if (fileExists) {
@@ -216,7 +215,7 @@ export class ExtractToFile implements AsyncIntention {
     }
 
     private generateFileUri(fileName: string, currentFile: TactFile): string {
-        const currentFilePath = fileURLToPath(currentFile.uri)
+        const currentFilePath = uriToFilePath(currentFile.uri)
         const currentDir = path.dirname(currentFilePath)
         const newFilePath = path.join(currentDir, fileName)
         return filePathToUri(newFilePath)

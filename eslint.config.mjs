@@ -1,6 +1,6 @@
-import path from "node:path"
+import path from "path"
 import tseslint from "typescript-eslint"
-import url from "node:url"
+import url from "url"
 import unusedImports from "eslint-plugin-unused-imports"
 import unicornPlugin from "eslint-plugin-unicorn"
 import functional from "eslint-plugin-functional"
@@ -25,6 +25,7 @@ export default tseslint.config(
             ".github/*",
             ".yarn/*",
             ".vscode-test/*",
+            ".vscode-test-web",
             "dist/*",
             "docs/*",
             "server/src/languages/fift/tree-sitter-fift/",
@@ -125,6 +126,7 @@ export default tseslint.config(
             "unicorn/no-array-reduce": "off",
             "unicorn/prefer-string-raw": "off",
             "unicorn/no-useless-undefined": "off",
+            "unicorn/prefer-node-protocol": "off",
         },
     },
 )

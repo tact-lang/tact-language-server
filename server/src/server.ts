@@ -9,7 +9,7 @@ import {index, IndexRoot} from "@server/languages/tact/indexes"
 import * as lsp from "vscode-languageserver"
 import {DidChangeWatchedFilesParams, FileChangeType} from "vscode-languageserver"
 import {TypeBasedSearch} from "@server/languages/tact/search/TypeBasedSearch"
-import * as path from "node:path"
+import * as path from "path"
 import {globalVFS} from "@server/vfs/global"
 import {existsVFS} from "@server/vfs/files-adapter"
 import type {ClientOptions} from "@shared/config-scheme"
@@ -25,7 +25,6 @@ import {
     SetToolchainVersionNotification,
     SetToolchainVersionParams,
 } from "@shared/shared-msgtypes"
-import {Logger} from "@server/utils/logger"
 import {CACHE} from "./languages/tact/cache"
 import {IndexingRoot, IndexingRootKind} from "./indexing-root"
 import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/settings/settings"
@@ -41,7 +40,6 @@ import {
 import {setToolchain, setWorkspaceRoot, toolchain} from "@server/toolchain"
 import * as toolchainManager from "@server/toolchain-manager"
 import {formatCode} from "@server/languages/tact/compiler/fmt/fmt"
-import {fileURLToPath} from "node:url"
 import {onFileRenamed, processFileRenaming} from "@server/languages/tact/rename/file-renaming"
 import {provideSelectionGasConsumption} from "@server/languages/tact/custom/selection-gas-consumption"
 import {runInspections} from "@server/languages/tact/inspections"
@@ -101,6 +99,7 @@ import {provideTlbCompletion} from "@server/languages/tlb/completion"
 import {TLB_CACHE} from "@server/languages/tlb/cache"
 import {provideTlbReferences} from "@server/languages/tlb/references"
 import {TextDocument} from "vscode-languageserver-textdocument"
+import {URI} from "vscode-uri"
 
 /**
  * Whenever LS is initialized.
@@ -224,6 +223,11 @@ function findStubs(): string | null {
     return path.join(__dirname, "stubs")
 }
 
+export function uriToFilePath(uri: string): string {
+    const normalizedUri = uri.replace(/\\/g, "/")
+    return URI.parse(normalizedUri).fsPath
+}
+
 async function initialize(): Promise<void> {
     if (!workspaceFolders || workspaceFolders.length === 0 || initialized) {
         // use fallback later, see `initializeFallback`
@@ -236,7 +240,7 @@ async function initialize(): Promise<void> {
     reporter.begin("Tact Language Server", 0)
 
     const rootUri = workspaceFolders[0].uri
-    const rootDir = fileURLToPath(rootUri)
+    const rootDir = uriToFilePath(rootUri)
 
     setWorkspaceRoot(rootDir)
 
@@ -259,7 +263,7 @@ async function initialize(): Promise<void> {
             await connection.sendNotification(SetToolchainVersionNotification, {
                 version: toolchain.version,
                 toolchain: toolchain.getToolchainInfo(),
-                environment: toolchain.getEnvironmentInfo(),
+                environment: await toolchain.getEnvironmentInfo(),
             } satisfies SetToolchainVersionParams)
         } else {
             console.warn(`No active toolchain found for ${settings.toolchain.activeToolchain}`)
@@ -345,7 +349,7 @@ async function findConfigFileDir(startPath: string, fileName: string): Promise<s
 // So we need to find root first and then call `initialize`.
 async function initializeFallback(uri: string): Promise<void> {
     // let's try to initialize with this way
-    const filepath = fileURLToPath(uri)
+    const filepath = uriToFilePath(uri)
     const projectDir = await findConfigFileDir(path.dirname(filepath), "tact.config.json")
     if (projectDir === null) {
         console.info(`project directory not found, using file directory`)
@@ -500,7 +504,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                         await connection.sendNotification(SetToolchainVersionNotification, {
                             version: toolchain.version,
                             toolchain: toolchain.getToolchainInfo(),
-                            environment: toolchain.getEnvironmentInfo(),
+                            environment: await toolchain.getEnvironmentInfo(),
                         } satisfies SetToolchainVersionParams)
                     }
                 } catch (error) {
@@ -1026,6 +1030,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     }
 })
 
-Logger.initialize(connection, `${__dirname}/tact-language-server.log`)
+// Logger.initialize(connection, `${__dirname}/tact-language-server.log`)
 
 connection.listen()
