@@ -1,7 +1,6 @@
 //  SPDX-License-Identifier: MIT
 //  Copyright © 2025 TON Studio
 import * as fs from "node:fs"
-import * as os from "node:os"
 
 // eslint-disable-next-line functional/type-declaration-immutability
 export interface TestCase {
@@ -23,14 +22,13 @@ enum ParserState {
     ReadingExpected = 5,
 }
 
-const LINE_ENDING: "\r\n" | "\n" = os.platform() === "win32" ? "\r\n" : "\n"
 const SEPARATOR = "========================================================================"
 const THIN_SEPARATOR = "------------------------------------------------------------------------"
 
 export class TestParser {
     public static parseAll(content: string): TestCase[] {
         const tests: TestCase[] = []
-        const lines = content.trim().split(LINE_ENDING)
+        const lines = content.trim().split(/\r?\n/)
 
         let state = ParserState.WaitingForTestStart
         let currentTest: Partial<TestCase & {propertiesOrder: string[]}> = {
@@ -134,7 +132,7 @@ export class TestParser {
                         currentFilePath = line.slice(8).trim() // Remove "---FILE:" prefix
                         currentContent = ""
                     } else {
-                        currentContent += line + LINE_ENDING
+                        currentContent += line + "\n"
                     }
                     break
                 }
@@ -150,7 +148,7 @@ export class TestParser {
                         }
                         currentContent = ""
                     } else {
-                        currentContent += line + LINE_ENDING
+                        currentContent += line + "\n"
                     }
                     break
                 }
