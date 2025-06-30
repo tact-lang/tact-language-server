@@ -33,7 +33,7 @@ export abstract class BaseTestSuite {
     }
 
     public workingDir(): string {
-        return path.join(__dirname, "../../../test-workspace/")
+        return path.join(__dirname, "../../../../../test-workspace/")
     }
 
     public async setup(): Promise<void> {
