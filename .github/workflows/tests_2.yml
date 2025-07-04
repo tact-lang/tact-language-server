@@ -30,8 +30,6 @@ jobs:
     steps:
       - name: Fetch Sources
         uses: actions/checkout@v4
-        with:
-          path: a\b\tls
 
       - name: Enable Corepack
         run: corepack enable --install-directory 'C:\npm\prefix'
