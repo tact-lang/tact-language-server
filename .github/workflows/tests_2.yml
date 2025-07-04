@@ -1,0 +1,80 @@
+name: E2E and Unit tests (Alternative)
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - tests_actions
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  HUSKY: 0
+
+jobs:
+  tests:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+        with:
+          path: ${{ matrix.os == 'windows-latest' && 'a/b/tls' || 'tact-language-server' }}
+
+      - name: Enable Corepack
+        if: matrix.os == 'windows-latest'
+        run: corepack enable --install-directory 'C:\npm\prefix'
+        working-directory: a/b/tls
+
+      - name: Enable Corepack
+        if: matrix.os != 'windows-latest'
+        run: corepack enable
+        working-directory: tact-language-server
+
+      - name: Setup Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: "yarn"
+          cache-dependency-path: ${{ matrix.os == 'windows-latest' && 'a/b/tls/yarn.lock' || 'tact-language-server/yarn.lock' }}
+
+      - name: Install dependencies
+        env:
+          YARN_ENABLE_HARDENED_MODE: false
+        run: yarn install --immutable
+        working-directory: ${{ matrix.os == 'windows-latest' && 'a/b/tls' || 'tact-language-server' }}
+
+      - name: Build Extension
+        run: yarn build
+        working-directory: ${{ matrix.os == 'windows-latest' && 'a/b/tls' || 'tact-language-server' }}
+
+      - name: Run unit tests
+        run: yarn test
+        working-directory: ${{ matrix.os == 'windows-latest' && 'a/b/tls' || 'tact-language-server' }}
+
+      - name: Run e2e tests
+        if: matrix.os == 'ubuntu-latest'
+        run: xvfb-run -a yarn run test:e2e
+        working-directory: tact-language-server
+
+      - name: Run e2e tests
+        if: matrix.os == 'macos-latest'
+        run: yarn run test:e2e
+        working-directory: tact-language-server
+
+      - name: Run e2e tests
+        if: matrix.os == 'windows-latest'
+        run: yarn run test:e2e
+        working-directory: a/b/tls
