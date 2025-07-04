@@ -47,21 +47,21 @@ jobs:
         with:
           node-version: 22.x
           cache: "yarn"
-          cache-dependency-path: ${{ matrix.os == 'windows-latest' && 'a/b/tls/yarn.lock' || 'tact-language-server/yarn.lock' }}
+          cache-dependency-path: a/b/tls/yarn.lock
 
       - name: Install dependencies
         env:
           YARN_ENABLE_HARDENED_MODE: false
         run: yarn install --immutable
-        working-directory: ${{ matrix.os == 'windows-latest' && 'a/b/tls' || 'tact-language-server' }}
+        working-directory: a/b/tls
 
       - name: Build Extension
         run: yarn build
-        working-directory: ${{ matrix.os == 'windows-latest' && 'a/b/tls' || 'tact-language-server' }}
+        working-directory: a/b/tls
 
       - name: Run unit tests
         run: yarn test
-        working-directory: ${{ matrix.os == 'windows-latest' && 'a/b/tls' || 'tact-language-server' }}
+        working-directory: a/b/tls
 
       - name: Run e2e tests
         if: matrix.os == 'ubuntu-latest'
