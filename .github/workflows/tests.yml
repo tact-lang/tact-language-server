@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - tests_actions
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
