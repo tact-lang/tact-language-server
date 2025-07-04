@@ -24,7 +24,6 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - windows-2019
           - windows-2022
           - windows-2025
           - windows-latest
@@ -35,7 +34,6 @@ jobs:
           path: ${{ matrix.os == 'windows-latest' && 'a/b/tls' || 'tact-language-server' }}
 
       - name: Enable Corepack
-        if: matrix.os == 'windows-latest'
         run: corepack enable --install-directory 'C:\npm\prefix'
         working-directory: a/b/tls
 
