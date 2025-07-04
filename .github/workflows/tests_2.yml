@@ -24,9 +24,9 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - windows-latest
-          - ubuntu-latest
-          - macos-latest
+          - windows-2019
+          - windows-2022
+          - windows-2025
     steps:
       - name: Fetch Sources
         uses: actions/checkout@v4
