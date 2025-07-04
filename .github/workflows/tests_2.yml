@@ -69,6 +69,5 @@ jobs:
         working-directory: tact-language-server
 
       - name: Run e2e tests
-        if: matrix.os == 'windows-latest'
-        run: yarn run test:e2e
+        run: yarn test:e2e
         working-directory: a\b\tls
