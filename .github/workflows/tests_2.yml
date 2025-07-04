@@ -37,11 +37,6 @@ jobs:
         run: corepack enable --install-directory 'C:\npm\prefix'
         working-directory: a\b\tls
 
-      - name: Enable Corepack
-        if: matrix.os != 'windows-latest'
-        run: corepack enable
-        working-directory: tact-language-server
-
       - name: Setup Node.js 22.x
         uses: actions/setup-node@v4
         with:
