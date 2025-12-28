@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+- feat(vscode): removed BoC support
+
 ## [0.8.1] - 2025-05-29
 
 Fixed error with buffer files.

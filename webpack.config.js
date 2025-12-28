@@ -91,10 +91,6 @@ const config = {
                     to: path.join(distDir, "icons"),
                 },
                 {
-                    from: "./client/src/assets/icons/icon-boc-dark.svg",
-                    to: path.join(distDir, "icons"),
-                },
-                {
                     from: "server/src/languages/tact/completion/data/asm.json",
                     to: distDir,
                 },
