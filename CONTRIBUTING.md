@@ -54,15 +54,12 @@ manifest, defining properties like syntax highlighting paths.
 Language-specific editor features like comment toggling, bracket matching, and auto-closing pairs are defined in:
 
 - [client/src/languages/language-configuration.json](client/src/languages/language-configuration.json) (for Tact)
-- [client/src/languages/fift-language-configuration.json](client/src/languages/fift-language-configuration.json) (for
-  Fift)
 - [client/src/languages/tlb-language-configuration.json](client/src/languages/tlb-language-configuration.json) (for
   TL-B)
 
 Language-specific highlighting grammars are defined in:
 
 - [client/src/languages/syntaxes/tact.tmLanguage.json](client/src/languages/syntaxes/tact.tmLanguage.json) (for Tact)
-- [client/src/languages/syntaxes/fift.tmLanguage.json](client/src/languages/syntaxes/fift.tmLanguage.json) (for Fift)
 - [client/src/languages/syntaxes/tlb.tmLanguage.json](client/src/languages/syntaxes/tlb.tmLanguage.json) (for TL-B)
 
 Refer to
@@ -98,8 +95,7 @@ The primary grammars are:
 1. [server/src/languages/tact/tree-sitter-tact](server/src/languages/tact/tree-sitter-tact) — Tact grammar, which mostly mirrors the official
    one (https://github.com/tact-lang/tree-sitter-tact). One of the main differences is that it makes some semicolons
    optional for better error recovery in invalid code.
-2. [server/src/languages/fift/tree-sitter-fift](server/src/languages/fift/tree-sitter-fift) — TVM Assembly grammar
-3. [server/src/languages/tlb/tree-sitter-tlb](server/src/languages/tlb/tree-sitter-tlb) — TL-B grammar
+2. [server/src/languages/tlb/tree-sitter-tlb](server/src/languages/tlb/tree-sitter-tlb) — TL-B grammar
 
 #### Indexes
 
@@ -192,23 +188,13 @@ Other available test scripts include:
 
 ## Grammar Development
 
-If you are working on the Tact or Fift language grammars, you can use the following scripts to generate the necessary
+If you are working on the Tact grammar, you can use the following scripts to generate the necessary
 WebAssembly files:
 
-- To build both Tact and Fift WASM files:
-    ```bash
-    yarn grammar:wasm
-    ```
 - To build only the Tact WASM file:
     ```bash
     yarn grammar:tact:wasm
     ```
-- To build only the Fift WASM file:
-    ```bash
-    yarn grammar:fift:wasm
-    ```
-    These scripts navigate to the respective `tree-sitter-tact` or `tree-sitter-fift` directories, generate the parser,
-    and build the WASM module.
 
 ## Packaging the Extension
 

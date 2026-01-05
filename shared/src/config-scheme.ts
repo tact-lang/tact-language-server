@@ -11,6 +11,5 @@ export const defaultConfig: TactPluginConfigScheme = {}
 export interface ClientOptions {
     readonly treeSitterWasmUri: string
     readonly tactLangWasmUri: string
-    readonly fiftLangWasmUri: string
     readonly tlbLangWasmUri: string
 }
