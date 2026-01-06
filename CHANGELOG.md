@@ -2,10 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.9.0] - 2025-12-29
-
-- feat(vscode): removed TASM support
-
 ## [0.8.1] - 2025-05-29
 
 Fixed error with buffer files.
