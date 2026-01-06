@@ -54,13 +54,10 @@ manifest, defining properties like syntax highlighting paths.
 Language-specific editor features like comment toggling, bracket matching, and auto-closing pairs are defined in:
 
 - [client/src/languages/language-configuration.json](client/src/languages/language-configuration.json) (for Tact)
-- [client/src/languages/tlb-language-configuration.json](client/src/languages/tlb-language-configuration.json) (for
-  TL-B)
 
 Language-specific highlighting grammars are defined in:
 
 - [client/src/languages/syntaxes/tact.tmLanguage.json](client/src/languages/syntaxes/tact.tmLanguage.json) (for Tact)
-- [client/src/languages/syntaxes/tlb.tmLanguage.json](client/src/languages/syntaxes/tlb.tmLanguage.json) (for TL-B)
 
 Refer to
 the [VS Code Language Configuration Guide](https://code.visualstudio.com/api/language-extensions/language-configuration-guide)
@@ -188,7 +185,7 @@ Other available test scripts include:
 
 ## Grammar Development
 
-If you are working on the Tact grammar, you can use the following scripts to generate the necessary
+If you are working on the Tact language grammars, you can use the following scripts to generate the necessary
 WebAssembly files:
 
 - To build only the Tact WASM file:

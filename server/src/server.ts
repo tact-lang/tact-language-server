@@ -45,21 +45,15 @@ import {runInspections} from "@server/languages/tact/inspections"
 import {
     filePathToUri,
     findTactFile,
-    findTlbFile,
     isTactFile,
-    isTlbFile,
     PARSED_FILES_CACHE,
     reparseTactFile,
-    reparseTlbFile,
-    TLB_PARSED_FILES_CACHE,
 } from "@server/files"
 import {provideTactDocumentation} from "@server/languages/tact/documentation"
-import {provideTlbDocumentation} from "@server/languages/tlb/documentation"
 import {
     provideTactDefinition,
     provideTactTypeDefinition,
 } from "@server/languages/tact/find-definitions"
-import {provideTlbDefinition} from "@server/languages/tlb/find-definitions"
 import {File} from "@server/psi/File"
 import {
     provideTactCompletion,
@@ -80,16 +74,11 @@ import {
 import {provideTactReferences} from "@server/languages/tact/references"
 import {provideTactFoldingRanges} from "@server/languages/tact/foldings"
 import {provideTactSemanticTokens} from "@server/languages/tact/semantic-tokens"
-import {provideTlbSemanticTokens} from "@server/languages/tlb/semantic-tokens"
 import {collectTactCodeLenses} from "@server/languages/tact/lens"
 import {collectTactInlays} from "@server/languages/tact/inlays"
 import {provideTactDocumentHighlight} from "@server/languages/tact/highlighting"
 import {provideTactImplementations} from "@server/languages/tact/implementations"
 import {provideTactTypeAtPosition} from "@server/languages/tact/custom/type-at-position"
-import {provideTlbDocumentSymbols} from "@server/languages/tlb/symbols"
-import {provideTlbCompletion} from "@server/languages/tlb/completion"
-import {TLB_CACHE} from "@server/languages/tlb/cache"
-import {provideTlbReferences} from "@server/languages/tlb/references"
 import {TextDocument} from "vscode-languageserver-textdocument"
 
 /**
@@ -129,10 +118,6 @@ async function handleFileOpen(
     if (!skipQueue && !initializationFinished) {
         pendingFileEvents.push(event)
         return
-    }
-
-    if (isTlbFile(uri, event)) {
-        await findTlbFile(uri)
     }
 
     if (isTactFile(uri, event)) {
@@ -295,7 +280,6 @@ async function initialize(): Promise<void> {
         await connection.sendRequest(lsp.InlayHintRefreshRequest.type)
     }
     CACHE.clear()
-    TLB_CACHE.clear()
 
     reporter.done()
     initializationFinished = true
@@ -392,12 +376,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
         const uri = event.document.uri
         console.info("changed:", uri)
-
-        if (isTlbFile(uri, event)) {
-            TLB_PARSED_FILES_CACHE.delete(uri)
-            TLB_CACHE.clear()
-            reparseTlbFile(uri, event.document.getText())
-        }
 
         if (isTactFile(uri, event)) {
             index.fileChanged(uri)
@@ -504,13 +482,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     async function provideDocumentation(params: lsp.HoverParams): Promise<lsp.Hover | null> {
         const uri = params.textDocument.uri
 
-        if (isTlbFile(uri)) {
-            const file = await findTlbFile(uri)
-            const hoverNode = nodeAtPosition(params, file)
-            if (!hoverNode) return null
-            return provideTlbDocumentation(hoverNode, file)
-        }
-
         if (isTactFile(uri)) {
             const file = await findTactFile(params.textDocument.uri)
             const hoverNode = nodeAtPosition(params, file)
@@ -527,14 +498,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.DefinitionRequest.type,
         async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
             const uri = params.textDocument.uri
-
-            if (isTlbFile(uri)) {
-                const file = await findTlbFile(uri)
-                const hoverNode = nodeAtPosition(params, file)
-                if (!hoverNode) return []
-
-                return provideTlbDefinition(hoverNode, file)
-            }
 
             if (isTactFile(uri)) {
                 const file = await findTactFile(uri)
@@ -576,11 +539,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             if (isTactFile(uri)) {
                 const file = await findTactFile(uri)
                 return provideTactCompletion(file, params, uri)
-            }
-
-            if (isTlbFile(uri)) {
-                const file = await findTlbFile(uri)
-                return provideTlbCompletion(file, params, uri)
             }
 
             return []
@@ -679,13 +637,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         async (params: lsp.ReferenceParams): Promise<lsp.Location[] | null> => {
             const uri = params.textDocument.uri
 
-            if (isTlbFile(uri)) {
-                const file = await findTlbFile(uri)
-                const node = nodeAtPosition(params, file)
-                if (!node) return null
-                return provideTlbReferences(node, file)
-            }
-
             if (isTactFile(uri)) {
                 const file = await findTactFile(uri)
                 const node = nodeAtPosition(params, file)
@@ -729,11 +680,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
             const uri = params.textDocument.uri
             const settings = await getDocumentSettings(uri)
-
-            if (isTlbFile(uri)) {
-                const file = await findTlbFile(uri)
-                return provideTlbSemanticTokens(file)
-            }
 
             if (isTactFile(uri)) {
                 const file = await findTactFile(uri)
@@ -790,11 +736,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
                 return provideTactDocumentSymbols(file)
             }
 
-            if (isTlbFile(uri)) {
-                const file = await findTlbFile(uri)
-                return provideTlbDocumentSymbols(file)
-            }
-
             return []
         },
     )
@@ -805,9 +746,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.DocumentFormattingRequest.type,
         async (params: lsp.DocumentFormattingParams): Promise<lsp.TextEdit[] | null> => {
             const uri = params.textDocument.uri
-            if (isTlbFile(uri)) {
-                return null
-            }
 
             const file = await findTactFile(uri)
             const formatted = formatCode(file.content)

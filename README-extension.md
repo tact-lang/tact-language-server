@@ -21,8 +21,6 @@ This extension for VSCode-based editors provides support for the [Tact programmi
 Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON
 blockchain.
 
-In addition to Tact, the extension provides support for TL-B files.
-
 ## Features
 
 - [Semantic syntax highlighting]
@@ -44,12 +42,6 @@ In addition to Tact, the extension provides support for TL-B files.
 - Integration with [Tact compiler] and [Misti] static analyzer
 - Flexible [toolchain management]
 - Formatting
-- TL-B:
-    - Basic and semantic syntax highlighting
-    - Go-to definitions
-    - Completion for fields, parameters, and types
-    - Go-to references for types
-    - Document symbols with all declarations
 
 [Semantic syntax highlighting]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/highlighting.md
 [Code completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md
