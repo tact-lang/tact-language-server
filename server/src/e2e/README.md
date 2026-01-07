@@ -46,10 +46,10 @@ When working on a specific feature:
 
 ```bash
 # Work on completion for structs
-yarn test:e2e:completion:structs
+yarn test:e2e --suite completion --file structs.test
 
 # Work on type inference basics
-yarn test:e2e:types:basic
+yarn test:e2e --suite types --file basic.test
 
 # Test all completion features
 yarn test:e2e:completion
