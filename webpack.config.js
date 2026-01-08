@@ -83,10 +83,6 @@ const config = {
                     to: path.join(distDir, "icons"),
                 },
                 {
-                    from: "./client/src/assets/icons/icon-tasm-dark.svg",
-                    to: path.join(distDir, "icons"),
-                },
-                {
                     from: "./client/src/assets/icons/icon-tlb-dark.svg",
                     to: path.join(distDir, "icons"),
                 },

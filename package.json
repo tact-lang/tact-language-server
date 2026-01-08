@@ -15,7 +15,6 @@
     "icon": "client/src/assets/logo.png",
     "activationEvents": [
         "onLanguage:tact",
-        "onLanguage:tasm",
         "onLanguage:tlb"
     ],
     "categories": [
@@ -75,21 +74,6 @@
                 "configuration": "./client/src/languages/language-configuration.json"
             },
             {
-                "id": "tasm",
-                "aliases": [
-                    "TASM",
-                    "Tact Assembly"
-                ],
-                "extensions": [
-                    ".tasm"
-                ],
-                "icon": {
-                    "light": "./dist/icons/icon-tasm-dark.svg",
-                    "dark": "./dist/icons/icon-tasm-dark.svg"
-                },
-                "configuration": "./client/src/languages/tasm-language-configuration.json"
-            },
-            {
                 "id": "tact-markdown-injection"
             },
             {
@@ -139,11 +123,6 @@
                 "language": "tact",
                 "scopeName": "source.tact",
                 "path": "./client/src/languages/syntaxes/tact.tmLanguage.json"
-            },
-            {
-                "language": "tasm",
-                "scopeName": "source.tasm",
-                "path": "./client/src/languages/syntaxes/tasm.tmLanguage.json"
             },
             {
                 "language": "fift",
