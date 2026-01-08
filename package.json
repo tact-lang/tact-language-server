@@ -91,19 +91,6 @@
                 "configuration": "./client/src/languages/fift-language-configuration.json"
             },
             {
-                "id": "boc",
-                "extensions": [
-                    ".boc"
-                ],
-                "aliases": [
-                    "TON BoC"
-                ],
-                "icon": {
-                    "light": "./dist/icons/icon-boc-dark.svg",
-                    "dark": "./dist/icons/icon-boc-dark.svg"
-                }
-            },
-            {
                 "id": "tlb",
                 "aliases": [
                     "TL-B"
@@ -177,16 +164,6 @@
                 "title": "Get Scope Information"
             },
             {
-                "command": "tact.openBocFile",
-                "title": "Open Decompiled BoC file",
-                "category": "Tact"
-            },
-            {
-                "command": "tact.saveBocDecompiled",
-                "title": "Decompile BoC to Fift Assembly File",
-                "category": "Tact"
-            },
-            {
                 "command": "tact.runMisti",
                 "title": "Run Misti Analysis",
                 "category": "Tact",
@@ -244,20 +221,6 @@
                 "when": "editorTextFocus && editorLangId == 'tact'"
             }
         ],
-        "menus": {
-            "explorer/context": [
-                {
-                    "when": "resourceExtname == .boc",
-                    "command": "tact.openBocFile",
-                    "group": "navigation"
-                },
-                {
-                    "when": "resourceExtname == '.boc'",
-                    "command": "tact.saveBocDecompiled",
-                    "group": "navigation"
-                }
-            ]
-        },
         "configuration": [
             {
                 "title": "General",
@@ -611,16 +574,6 @@
                 }
             },
             {
-                "title": "BoC",
-                "properties": {
-                    "tact.boc.openDecompiledOnOpen": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Automatically open decompiled Fift assembly when opening BoC files"
-                    }
-                }
-            },
-            {
                 "title": "Linters",
                 "properties": {
                     "tact.linters.compiler.enable": {
@@ -652,18 +605,6 @@
                     "tact.config.json"
                 ],
                 "url": "https://raw.githubusercontent.com/tact-lang/tact/refs/heads/main/src/config/configSchema.json"
-            }
-        ],
-        "customEditors": [
-            {
-                "viewType": "boc.editor",
-                "displayName": "BOC Editor",
-                "selector": [
-                    {
-                        "filenamePattern": "*.boc"
-                    }
-                ],
-                "priority": "default"
             }
         ],
         "taskDefinitions": [

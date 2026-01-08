@@ -22,7 +22,7 @@ the [Tact programming language](https://tact-lang.org).
 Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON
 blockchain.
 
-In addition to Tact, the extension provides support for Fift assembly, TL-B, and TON Bag-of-Cells (BoC) files.
+In addition to Tact, the extension provides support for Fift assembly and TL-B files.
 
 ## Features
 
@@ -56,9 +56,6 @@ In addition to Tact, the extension provides support for Fift assembly, TL-B, and
     - Completion for fields, parameters, and types
     - Go-to references for types
     - Document symbols with all declarations
-- TON Bag-of-Cells (BoC):
-    - Automatic BoC disassembly with syntax highlighting
-    - Automatic updates on BoC changes
 
 [Semantic syntax highlighting]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/highlighting.md
 [Code completion]: https://github.com/tact-lang/tact-language-server/blob/master/docs/manual/features/completion.md

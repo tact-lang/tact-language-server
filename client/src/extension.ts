@@ -30,12 +30,7 @@ import type {Location} from "vscode-languageclient"
 import * as lsp from "vscode-languageserver-protocol"
 import type {ClientOptions} from "@shared/config-scheme"
 import {registerBuildTasks} from "./build-system"
-import {registerOpenBocCommand} from "./commands/openBocCommand"
-import {BocEditorProvider} from "./providers/BocEditorProvider"
-import {BocFileSystemProvider} from "./providers/BocFileSystemProvider"
-import {BocDecompilerProvider} from "./providers/BocDecompilerProvider"
-import {registerSaveBocDecompiledCommand} from "./commands/saveBocDecompiledCommand"
-import {Range, Position, FileSystemWatcher} from "vscode"
+import {Range, Position} from "vscode"
 import {detectPackageManager, PackageManager} from "./utils/package-manager"
 import {ToolchainConfig} from "@server/settings/settings"
 
@@ -46,35 +41,8 @@ let cachedToolchainInfo: SetToolchainVersionParams | null = null
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     startServer(context).catch(consoleError)
     await registerBuildTasks(context)
-    registerOpenBocCommand(context)
-    registerSaveBocDecompiledCommand(context)
     registerMistiCommand(context)
     registerGasConsumptionStatusBar(context)
-
-    const config = vscode.workspace.getConfiguration("tact")
-    const openDecompiled = config.get<boolean>("boc.openDecompiledOnOpen")
-    if (openDecompiled) {
-        BocEditorProvider.register()
-
-        const bocFsProvider = new BocFileSystemProvider()
-        context.subscriptions.push(
-            vscode.workspace.registerFileSystemProvider("boc", bocFsProvider, {
-                isCaseSensitive: true,
-                isReadonly: false,
-            }),
-        )
-    }
-
-    const bocDecompilerProvider = new BocDecompilerProvider()
-    context.subscriptions.push(
-        vscode.workspace.registerTextDocumentContentProvider(
-            BocDecompilerProvider.scheme,
-            bocDecompilerProvider,
-        ),
-    )
-
-    const bocWatcher = registerBocWatcher(bocDecompilerProvider)
-    context.subscriptions.push(bocWatcher)
 }
 
 export function deactivate(): Thenable<void> | undefined {
@@ -888,56 +856,6 @@ function registerMistiCommand(context: vscode.ExtensionContext): void {
             await vscode.tasks.executeTask(task)
         }),
     )
-}
-
-function registerBocWatcher(bocDecompilerProvider: BocDecompilerProvider): FileSystemWatcher {
-    const bocWatcher = vscode.workspace.createFileSystemWatcher("**/*.boc")
-
-    bocWatcher.onDidChange((uri: vscode.Uri) => {
-        const decompileUri = uri.with({
-            scheme: BocDecompilerProvider.scheme,
-            path: uri.path + ".decompiled.fif",
-        })
-
-        const openDocument = vscode.workspace.textDocuments.find(
-            doc => doc.uri.toString() === decompileUri.toString(),
-        )
-
-        if (openDocument) {
-            bocDecompilerProvider.update(decompileUri)
-        }
-    })
-
-    bocWatcher.onDidDelete((uri: vscode.Uri) => {
-        const decompileUri = uri.with({
-            scheme: BocDecompilerProvider.scheme,
-            path: uri.path + ".decompiled.fif",
-        })
-
-        const openDocument = vscode.workspace.textDocuments.find(
-            doc => doc.uri.toString() === decompileUri.toString(),
-        )
-
-        if (openDocument) {
-            bocDecompilerProvider.update(decompileUri)
-        }
-    })
-
-    bocWatcher.onDidCreate((uri: vscode.Uri) => {
-        const decompileUri = uri.with({
-            scheme: BocDecompilerProvider.scheme,
-            path: uri.path + ".decompiled.fif",
-        })
-
-        const openDocument = vscode.workspace.textDocuments.find(
-            doc => doc.uri.toString() === decompileUri.toString(),
-        )
-
-        if (openDocument) {
-            bocDecompilerProvider.update(decompileUri)
-        }
-    })
-    return bocWatcher
 }
 
 function registerGasConsumptionStatusBar(context: vscode.ExtensionContext): void {
