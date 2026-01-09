@@ -66,14 +66,6 @@ export interface TactSettings {
         readonly maximumLinesBodyToShowInDocumentation: number
         readonly showNumbersInDifferentNumberSystems: boolean
     }
-    readonly fift: {
-        readonly hints: {
-            readonly showGasConsumption: boolean
-        }
-        readonly semanticHighlighting: {
-            readonly enabled: boolean
-        }
-    }
     readonly completion: {
         readonly typeAware: boolean
         readonly addImports: boolean
@@ -155,14 +147,6 @@ const defaultSettings: TactSettings = {
         showKeywordDocumentation: true,
         maximumLinesBodyToShowInDocumentation: 3,
         showNumbersInDifferentNumberSystems: true,
-    },
-    fift: {
-        hints: {
-            showGasConsumption: true,
-        },
-        semanticHighlighting: {
-            enabled: true,
-        },
     },
     completion: {
         typeAware: true,
@@ -280,18 +264,6 @@ function mergeSettings(vsSettings: Partial<TactSettings>): TactSettings {
             showNumbersInDifferentNumberSystems:
                 vsSettings.documentation?.showNumbersInDifferentNumberSystems ??
                 defaultSettings.documentation.showNumbersInDifferentNumberSystems,
-        },
-        fift: {
-            hints: {
-                showGasConsumption:
-                    vsSettings.fift?.hints.showGasConsumption ??
-                    defaultSettings.fift.hints.showGasConsumption,
-            },
-            semanticHighlighting: {
-                enabled:
-                    vsSettings.fift?.semanticHighlighting.enabled ??
-                    defaultSettings.fift.semanticHighlighting.enabled,
-            },
         },
         completion: {
             typeAware: vsSettings.completion?.typeAware ?? defaultSettings.completion.typeAware,

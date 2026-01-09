@@ -21,7 +21,7 @@ This extension for VSCode-based editors provides support for the [Tact programmi
 Tact is a next-generation programming language for building secure, scalable, and maintainable smart contracts on TON
 blockchain.
 
-In addition to Tact, the extension provides support for Fift assembly and TL-B files.
+In addition to Tact, the extension provides support for TL-B files.
 
 ## Features
 
@@ -44,11 +44,6 @@ In addition to Tact, the extension provides support for Fift assembly and TL-B f
 - Integration with [Tact compiler] and [Misti] static analyzer
 - Flexible [toolchain management]
 - Formatting
-- Fift Assembly:
-    - Basic and semantic syntax highlighting
-    - Go-to definitions
-    - Inlay hints with gas consumption for instructions
-    - Hover documentation for instructions
 - TL-B:
     - Basic and semantic syntax highlighting
     - Go-to definitions

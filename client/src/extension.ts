@@ -60,7 +60,6 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
         revealOutputChannelOn: RevealOutputChannelOn.Never,
         documentSelector: [
             {scheme: "file", language: "tact"},
-            {scheme: "file", language: "fift"},
             {scheme: "file", language: "tlb"},
             {scheme: "untitled", language: "tact"},
         ],
@@ -75,10 +74,6 @@ async function startServer(context: vscode.ExtensionContext): Promise<vscode.Dis
             tactLangWasmUri: vscode_uri.joinPath(
                 context.extensionUri,
                 "./dist/tree-sitter-tact.wasm",
-            ).fsPath,
-            fiftLangWasmUri: vscode_uri.joinPath(
-                context.extensionUri,
-                "./dist/tree-sitter-fift.wasm",
             ).fsPath,
             tlbLangWasmUri: vscode_uri.joinPath(context.extensionUri, "./dist/tree-sitter-tlb.wasm")
                 .fsPath,

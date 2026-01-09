@@ -27,7 +27,6 @@ export default tseslint.config(
             ".vscode-test/*",
             "dist/*",
             "docs/*",
-            "server/src/languages/fift/tree-sitter-fift/",
             "server/src/languages/tact/tree-sitter-tact/",
             "server/src/languages/tlb/tree-sitter-tlb/",
             "server/src/languages/tact/compiler/fmt/cst/cst-parser.ts",

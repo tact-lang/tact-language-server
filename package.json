@@ -34,9 +34,8 @@
         "lint": "eslint --cache .",
         "fmt": "prettier --write -l --cache .",
         "fmt:check": "prettier --check --cache .",
-        "grammar:wasm": "yarn grammar:tact:wasm && yarn grammar:fift:wasm && yarn grammar:tlb:wasm",
+        "grammar:wasm": "yarn grammar:tact:wasm && yarn grammar:tlb:wasm",
         "grammar:tact:wasm": "cd server/src/languages/tact/tree-sitter-tact && tree-sitter generate && tree-sitter build --wasm",
-        "grammar:fift:wasm": "cd server/src/languages/fift/tree-sitter-fift && tree-sitter generate && tree-sitter build --wasm",
         "grammar:tlb:wasm": "cd server/src/languages/tlb/tree-sitter-tlb && tree-sitter generate && tree-sitter build --wasm",
         "watch": "webpack --watch",
         "test:e2e": "yarn test:e2e:compile && ts-node server/src/e2e/runTest.ts",
@@ -77,20 +76,6 @@
                 "id": "tact-markdown-injection"
             },
             {
-                "id": "fift",
-                "aliases": [
-                    "Fift"
-                ],
-                "extensions": [
-                    ".fif"
-                ],
-                "icon": {
-                    "light": "./dist/icons/ton-icon.svg",
-                    "dark": "./dist/icons/ton-icon.svg"
-                },
-                "configuration": "./client/src/languages/fift-language-configuration.json"
-            },
-            {
                 "id": "tlb",
                 "aliases": [
                     "TL-B"
@@ -110,11 +95,6 @@
                 "language": "tact",
                 "scopeName": "source.tact",
                 "path": "./client/src/languages/syntaxes/tact.tmLanguage.json"
-            },
-            {
-                "language": "fift",
-                "scopeName": "source.fift",
-                "path": "./client/src/languages/syntaxes/fift.tmLanguage.json"
             },
             {
                 "language": "tact-markdown-injection",
@@ -555,21 +535,6 @@
                         ],
                         "default": "workspace",
                         "description": "Where to search when using Find Usages"
-                    }
-                }
-            },
-            {
-                "title": "Fift",
-                "properties": {
-                    "tact.fift.hints.showGasConsumption": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Show gas consumption hints for Fift instructions"
-                    },
-                    "tact.fift.semanticHighlighting.enabled": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable/disable semantic highlighting for Fift files"
                     }
                 }
             },

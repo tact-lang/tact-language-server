@@ -29,9 +29,6 @@ import {Logger} from "@server/utils/logger"
 import {CACHE} from "./languages/tact/cache"
 import {IndexingRoot, IndexingRootKind} from "./indexing-root"
 import {clearDocumentSettings, getDocumentSettings, TactSettings} from "@server/settings/settings"
-import {provideFiftFoldingRanges} from "@server/languages/fift/foldings/collect"
-import {provideFiftSemanticTokens as provideFiftSemanticTokens} from "server/src/languages/fift/semantic-tokens"
-import {provideFiftInlayHints as collectFiftInlays} from "@server/languages/fift/inlays/collect"
 import {WorkspaceEdit} from "vscode-languageserver-types"
 import type {Node as SyntaxNode} from "web-tree-sitter"
 import {
@@ -46,29 +43,23 @@ import {onFileRenamed, processFileRenaming} from "@server/languages/tact/rename/
 import {provideSelectionGasConsumption} from "@server/languages/tact/custom/selection-gas-consumption"
 import {runInspections} from "@server/languages/tact/inspections"
 import {
-    FIFT_PARSED_FILES_CACHE,
     filePathToUri,
-    findFiftFile,
     findTactFile,
     findTlbFile,
-    isFiftFile,
     isTactFile,
     isTlbFile,
     PARSED_FILES_CACHE,
-    reparseFiftFile,
     reparseTactFile,
     reparseTlbFile,
     TLB_PARSED_FILES_CACHE,
 } from "@server/files"
 import {provideTactDocumentation} from "@server/languages/tact/documentation"
-import {provideFiftDocumentation} from "@server/languages/fift/documentation"
 import {provideTlbDocumentation} from "@server/languages/tlb/documentation"
 import {
     provideTactDefinition,
     provideTactTypeDefinition,
 } from "@server/languages/tact/find-definitions"
 import {provideTlbDefinition} from "@server/languages/tlb/find-definitions"
-import {provideFiftDefinition} from "@server/languages/fift/find-definitions"
 import {File} from "@server/psi/File"
 import {
     provideTactCompletion,
@@ -86,7 +77,6 @@ import {
     provideExecuteTactCommand,
     provideTactCodeActions,
 } from "@server/languages/tact/intentions"
-import {provideFiftReferences} from "@server/languages/fift/references"
 import {provideTactReferences} from "@server/languages/tact/references"
 import {provideTactFoldingRanges} from "@server/languages/tact/foldings"
 import {provideTactSemanticTokens} from "@server/languages/tact/semantic-tokens"
@@ -139,10 +129,6 @@ async function handleFileOpen(
     if (!skipQueue && !initializationFinished) {
         pendingFileEvents.push(event)
         return
-    }
-
-    if (isFiftFile(uri, event)) {
-        await findFiftFile(uri)
     }
 
     if (isTlbFile(uri, event)) {
@@ -383,9 +369,8 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     const opts = initParams.initializationOptions as ClientOptions | undefined
     const treeSitterUri = opts?.treeSitterWasmUri ?? `${__dirname}/tree-sitter.wasm`
     const tactLangUri = opts?.tactLangWasmUri ?? `${__dirname}/tree-sitter-tact.wasm`
-    const fiftLangUri = opts?.fiftLangWasmUri ?? `${__dirname}/tree-sitter-fift.wasm`
     const tlbLangUri = opts?.tlbLangWasmUri ?? `${__dirname}/tree-sitter-tlb.wasm`
-    await initParser(treeSitterUri, tactLangUri, fiftLangUri, tlbLangUri)
+    await initParser(treeSitterUri, tactLangUri, tlbLangUri)
 
     const documents = new DocumentStore(connection)
 
@@ -407,11 +392,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
 
         const uri = event.document.uri
         console.info("changed:", uri)
-
-        if (isFiftFile(uri, event)) {
-            FIFT_PARSED_FILES_CACHE.delete(uri)
-            reparseFiftFile(uri, event.document.getText())
-        }
 
         if (isTlbFile(uri, event)) {
             TLB_PARSED_FILES_CACHE.delete(uri)
@@ -524,13 +504,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
     async function provideDocumentation(params: lsp.HoverParams): Promise<lsp.Hover | null> {
         const uri = params.textDocument.uri
 
-        if (isFiftFile(uri)) {
-            const file = await findFiftFile(uri)
-            const hoverNode = nodeAtPosition(params, file)
-            if (!hoverNode) return null
-            return provideFiftDocumentation(hoverNode, file)
-        }
-
         if (isTlbFile(uri)) {
             const file = await findTlbFile(uri)
             const hoverNode = nodeAtPosition(params, file)
@@ -554,14 +527,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.DefinitionRequest.type,
         async (params: lsp.DefinitionParams): Promise<lsp.Location[] | lsp.LocationLink[]> => {
             const uri = params.textDocument.uri
-
-            if (isFiftFile(uri)) {
-                const file = await findFiftFile(uri)
-                const node = nodeAtPosition(params, file)
-                if (!node || node.type !== "identifier") return []
-
-                return provideFiftDefinition(node, file)
-            }
 
             if (isTlbFile(uri)) {
                 const file = await findTlbFile(uri)
@@ -629,11 +594,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
             const settings = await getDocumentSettings(uri)
             if (settings.hints.disable || !initializationFinished) {
                 return null
-            }
-
-            if (isFiftFile(uri)) {
-                const file = await findFiftFile(uri)
-                return collectFiftInlays(file, settings.hints.gasFormat, settings.fift.hints)
             }
 
             if (isTactFile(uri)) {
@@ -719,13 +679,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         async (params: lsp.ReferenceParams): Promise<lsp.Location[] | null> => {
             const uri = params.textDocument.uri
 
-            if (isFiftFile(uri)) {
-                const file = await findFiftFile(uri)
-                const node = nodeAtPosition(params, file)
-                if (!node) return null
-                return provideFiftReferences(node, file)
-            }
-
             if (isTlbFile(uri)) {
                 const file = await findTlbFile(uri)
                 const node = nodeAtPosition(params, file)
@@ -762,11 +715,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         async (params: lsp.FoldingRangeParams): Promise<lsp.FoldingRange[] | null> => {
             const uri = params.textDocument.uri
 
-            if (isFiftFile(uri)) {
-                const file = await findFiftFile(uri)
-                return provideFiftFoldingRanges(file)
-            }
-
             if (isTactFile(uri)) {
                 const file = await findTactFile(uri)
                 return provideTactFoldingRanges(file)
@@ -781,11 +729,6 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         async (params: lsp.SemanticTokensParams): Promise<lsp.SemanticTokens | null> => {
             const uri = params.textDocument.uri
             const settings = await getDocumentSettings(uri)
-
-            if (isFiftFile(uri)) {
-                const file = await findFiftFile(uri)
-                return provideFiftSemanticTokens(file, settings.fift.semanticHighlighting)
-            }
 
             if (isTlbFile(uri)) {
                 const file = await findTlbFile(uri)
@@ -862,7 +805,7 @@ connection.onInitialize(async (initParams: lsp.InitializeParams): Promise<lsp.In
         lsp.DocumentFormattingRequest.type,
         async (params: lsp.DocumentFormattingParams): Promise<lsp.TextEdit[] | null> => {
             const uri = params.textDocument.uri
-            if (isFiftFile(uri) || isTlbFile(uri)) {
+            if (isTlbFile(uri)) {
                 return null
             }
 
