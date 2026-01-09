@@ -4,10 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [0.9.0] - 2026-01-09
 
-- feat(vscode): removed TASM support
-- feat(vscode): removed BoC support
-- feat(vscode): removed Fift support
-- feat(vscode): removed TL-B support
+- feat(vscode): removed TASM support in https://github.com/tact-lang/tact-language-server/pull/768
+- feat(vscode): removed BoC support in https://github.com/tact-lang/tact-language-server/pull/769
+- feat(vscode): removed Fift support in https://github.com/tact-lang/tact-language-server/pull/771
+- feat(vscode): removed TL-B support in https://github.com/tact-lang/tact-language-server/pull/772
 
 ## [0.8.1] - 2025-05-29
 
