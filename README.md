@@ -1,3 +1,7 @@
+> [!CAUTION]
+> This project is deprecated. For up-to-date guidance on TON contract development, see
+> the [TON contract development introduction](https://docs.ton.org/blockchain-basics/contract-dev/introduction).
+
 # Tact Language Server
 
 Developed by [TON Studio](https://tonstudio.io), powered by the community.
